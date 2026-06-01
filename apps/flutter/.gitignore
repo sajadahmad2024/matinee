@@ -1,0 +1,132 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# The .vscode folder contains launch configuration and tasks you configure in
+# VS Code which you may wish to be included in version control, so this line
+# is commented out by default.
+#.vscode/
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+/coverage/
+pubspec.lock
+
+# Symbolication related
+app.*.symbols
+
+# Obfuscation related
+app.*.map.json
+
+# Android Studio will place build artifacts here
+/android/app/debug
+/android/app/profile
+/android/app/release
+
+# Environment files (NEVER commit these)
+.env
+.env.dev
+.env.staging
+.env.prod
+
+# But keep the example
+!.env.example
+
+
+# Coverage
+coverage/
+
+# iOS/XCode related
+**/ios/**/*.mode1v3
+**/ios/**/*.mode2v3
+**/ios/**/*.moved-aside
+**/ios/**/*.pbxuser
+**/ios/**/*.perspectivev3
+**/ios/**/*sync/
+**/ios/**/.sconsign.dblite
+**/ios/**/.tags*
+**/ios/**/.vagrant/
+**/ios/**/DerivedData/
+**/ios/**/Icon?
+**/ios/**/Pods/
+**/ios/**/.symlinks/
+**/ios/**/profile
+#**/ios/**/xcuserdata
+**/ios/.generated/
+**/ios/Flutter/App.framework
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/app.flx
+**/ios/Flutter/app.zip
+**/ios/Flutter/flutter_assets/
+**/ios/ServiceDefinitions.json
+**/ios/Runner/GeneratedPluginRegistrant.*
+
+# Exceptions to above rules.
+!**/ios/**/default.mode1v3
+!**/ios/**/default.mode2v3
+!**/ios/**/default.pbxuser
+!**/ios/**/default.perspectivev3
+!/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
+# ios/Podfile.lock
+ios/build/.last_build_id
+ios/Flutter/.last_build_id
+.flutter-plugins-dependencies
+ios/DerivedData/
+ios/xcbuilddata/
+ios/build/ios/xcbuilddata/pifcache/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Flutter/Generated.xcconfig
+ios/Runner.xcworkspace/xcuserdata/douglas.xcuserdatad/UserInterfaceState.xcuserstate
+
+# Android related
+android/.gradle/
+android/local.properties
+android/.idea/
+android/**/*.iml
+android/**/build/
+android/**/gradle-wrapper.jar
+
+# Macos related
+macos/**/DerivedData/
+macos/**/xcuserdata/
+*.xcuserstate
+*.xccheckout
+*.xcscmblueprint
+
+# CocoaPods (do not commit)
+macos/Pods/
+macos/**/Pods/
+macos/**/.symlinks/
+
+# Flutter-generated macOS artifacts
+macos/Flutter/.last_build_id
+macos/Flutter/Flutter.framework
+macos/Flutter/GeneratedPluginRegistrant.swift
+macos/Flutter/ephemeral/
+
+# Xcode build output
+macos/build/

@@ -1,0 +1,12 @@
+onlyBuiltDependencies:
+  - "@posthog/cli"
+  - "@sentry/cli"
+  - "@tailwindcss/oxide"
+  - "@vercel/speed-insights"
+  - better-sqlite3
+  - core-js
+  - esbuild
+  - protobufjs
+  - sharp
+  - unrs-resolver
+  - vue-demi

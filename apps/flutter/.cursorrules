@@ -1,0 +1,470 @@
+# Flutter Boiler Plate with Clean Architecture Rules
+
+## Architecture Overview
+
+This project follows Clean Architecture principles with strict layer separation:
+
+- **Domain Layer**: Core business logic, entities, repositories interfaces, use cases
+- **Data Layer**: Repository implementations, data sources, models, repositories
+- **Presentation Layer**: BLoC, screens, widgets
+
+## Project Structure
+
+### Feature Module Structure
+
+Each feature MUST follow this exact structure:
+
+```
+lib/modules/{feature_name}/
+  ├── data/
+  │   ├── datasources/
+  │   │   └── {feature}_datasource.dart
+  │   ├── models/
+  │   │   └── {feature}_model.dart
+  │   └── repository/
+  │       └── {feature}_repository_impl.dart
+  ├── domain/
+  │   ├── entities/
+  │   │   └── {feature}_entity.dart
+  │   ├── repositories/
+  │   │   └── {feature}_repository.dart
+  │   └── usecases/
+  │       └── {action}_{feature}.dart
+  └── presentation/
+      ├── bloc/
+      │   ├── {feature}_bloc.dart
+      │   ├── {feature}_event.dart
+      │   └── {feature}_state.dart
+      ├── screens/
+      │   └── {feature}_page.dart
+      └── widgets/
+          └── {feature}_widget.dart
+```
+
+### Config Structure
+
+```
+lib/config/
+  ├── constants/
+  │   └── api_constants.dart
+  │   └── app_constants.dart
+  │   └── route_constants.dart
+  │   └── storage_keys.dart
+  ├── theme/
+  │   ├── app_colors.dart
+  │   └── theme_data.dart
+  │   └── theme_provider.dart
+  ├── app_navigator.dart
+  ├── environment_config.dart
+```
+
+### Core Structure
+
+```
+lib/core/
+  ├── di/
+  │   └── injection_container.dart
+  ├── errors/
+  │   ├── error_handlers.dart
+  │   ├── exceptions.dart
+  │   └── failures.dart
+  ├── network/
+  │   └── dio
+  │       └── interceptors
+  │       └── dio_client.dart
+  │   └── models
+  │       └── api_response.dart
+  │   └── http_client.dart
+  │   └── network_info.dart
+  ├── services/
+  │   └── {service}
+  │       └── {service}_service.dart
+  └── utils/
+      ├── extensions
+      └── helpers
+      └── validators
+```
+
+### App Level Structure
+
+App-level initialization goes in:
+
+```
+lib/
+  ├── app_router.dart
+  └── app.dart
+  └── main.dart
+
+```
+
+## Naming Conventions
+
+### Files
+
+- **Entities**: `{name}_entity.dart` (e.g., `user_entity.dart`) OR just `{name}.dart` for simple entities
+- **Models**: `{name}_model.dart` (e.g., `user_model.dart`)
+- **Repositories (Domain)**: `{feature}_repository.dart` (interface)
+- **Repositories (Data)**: `{feature}_repository_impl.dart` (implementation)
+- **Data Sources**: `{feature}_remote_datasource.dart` or `{feature}_local_datasource.dart`
+- **Use Cases**: `{action}_{feature}.dart` (e.g., `get_current_user.dart`, `upload_file.dart`)
+- **BLoC**: `{feature}_bloc.dart`, `{feature}_event.dart`, `{feature}_state.dart`
+- **Pages**: `{feature}_page.dart` (e.g., `login_page.dart`)
+- **Widgets**: `{feature}_widget.dart` or descriptive name (e.g., `auth_widget.dart`)
+
+### Classes
+
+- **Entities**: PascalCase, no suffix (e.g., `User`, `FileEntity`)
+- **Models**: PascalCase with `Model` suffix (e.g., `UserModel`, `FileModel`)
+- **Repositories**: PascalCase with `Repository` suffix (e.g., `AuthRepository`)
+- **Repository Implementations**: PascalCase with `RepositoryImpl` suffix (e.g., `AuthRepositoryImpl`)
+- **Data Sources**: PascalCase with `DataSource` suffix (e.g., `AuthRemoteDataSource`)
+- **Use Cases**: PascalCase, descriptive action (e.g., `GetCurrentUser`, `UploadFile`)
+- **BLoC**: PascalCase with `Bloc` suffix (e.g., `AuthBloc`)
+- **Events**: PascalCase with `Event` suffix (e.g., `AuthInitialized`, `AuthLoginRequested`)
+- **States**: PascalCase with `State` suffix (e.g., `AuthInitial`, `AuthLoading`, `AuthAuthenticated`)
+- **Pages**: PascalCase with `Page` suffix (e.g., `LoginPage`, `SplashPage`)
+- **Widgets**: PascalCase with `Widget` suffix or descriptive name (e.g., `AuthWidget`)
+
+### Variables and Functions
+
+- **Variables**: camelCase (e.g., `currentUser`, `isLoading`)
+- **Private variables**: camelCase with `_` prefix (e.g., `_repository`, `_authBloc`)
+- **Functions**: camelCase (e.g., `getCurrentUser()`, `signIn()`)
+- **Private functions**: camelCase with `_` prefix (e.g., `_onAuthInitialized()`)
+
+## Clean Architecture Rules
+
+### 1. Layer Dependencies (STRICT)
+
+- **Domain Layer**: MUST NOT depend on Data or Presentation layers
+  - Cannot import from `data/` or `presentation/`
+  - Cannot import Flutter-specific packages
+  - Can only depend on `core/error/` and `core/usecases/`
+- **Data Layer**: Can depend on Domain layer ONLY
+  - Can import from `domain/`
+  - Can import from `core/error/` and `core/services/`
+  - MUST implement domain repository interfaces
+- **Presentation Layer**: Can depend on Domain layer ONLY
+  - Can import from `domain/`
+  - Can import from `core/error/` and `core/utils/`
+  - MUST use use cases, NOT repositories directly
+  - MUST use BLoC for state management
+
+### 2. Domain Layer Rules
+
+- **Entities**:
+  - MUST be pure Dart classes (no Flutter dependencies)
+  - MUST override `==` and `hashCode`
+  - MUST be immutable (use `const` constructors and `final` fields)
+  - MUST have documentation comments
+- **Repository Interfaces**:
+  - MUST be abstract classes
+  - MUST return records: `Future<Type>`
+  - MUST be documented with `///` comments
+  - MUST include `library;` directive
+- **Use Cases**:
+  - MUST extend `UseCase<T, Params>` from `core/usecases/usecase.dart`
+  - MUST use `NoParams` if no parameters needed
+  - MUST return records: `Future<Type>`
+  - MUST be documented
+
+### 3. Data Layer Rules
+
+- **Models**:
+  - MUST extend or convert to domain entities
+  - MUST implement `fromFirestore()` and `toFirestore()` for Firestore
+  - MUST have `toEntity()` method to convert to domain entity
+- **Repository Implementations**:
+  - MUST implement domain repository interface
+  - MUST catch exceptions and convert to Failures
+  - MUST use try-catch blocks
+  - MUST return records: `Future<Type>`
+- **Data Sources**:
+  - MUST handle Firebase/Firestore operations
+  - MUST throw `AppException` on errors
+  - MUST NOT return domain entities directly (use models)
+
+### 4. Presentation Layer Rules
+
+- **BLoC**:
+  - MUST extend `Bloc<Event, State>`
+  - MUST register event handlers in constructor
+  - MUST use use cases, NOT repositories
+  - MUST emit states properly
+  - MUST handle errors and emit error states
+  - MUST include `library;` directive
+- **Events**:
+  - MUST extend `AuthEvent` (or respective feature event)
+  - MUST be immutable
+  - MUST use `const` constructors
+- **States**:
+  - MUST extend `AuthState` (or respective feature state)
+  - MUST be immutable
+  - MUST use `const` constructors
+- **Pages**:
+  - MUST use `BlocBuilder` or `BlocConsumer` for state
+  - MUST dispatch events to BLoC
+  - MUST handle loading/error/success states
+- **Widgets**:
+  - MUST be reusable and focused
+  - MUST accept dependencies through constructor
+  - SHOULD be in `widgets/` folder
+
+## Code Patterns
+
+### Use Case Pattern
+
+```dart
+class GetCurrentUser implements UseCase<User, NoParams> {
+  final AuthRepository repository;
+
+  GetCurrentUser(this.repository);
+
+  @override
+  Future<({Failure? failure, User? data})> call(NoParams params) async {
+    return await repository.getCurrentUser();
+  }
+}
+```
+
+### Repository Interface Pattern
+
+```dart
+abstract class AuthRepository {
+  Future<({Failure? failure, User? user})> getCurrentUser();
+  // ... other methods
+}
+```
+
+### Repository Implementation Pattern
+
+```dart
+class AuthRepositoryImpl implements AuthRepository {
+  final AuthRemoteDataSource _dataSource;
+
+  AuthRepositoryImpl(this._dataSource);
+
+  @override
+  Future<({Failure? failure, User? user})> getCurrentUser() async {
+    try {
+      final userModel = await _dataSource.getCurrentUser();
+      return (failure: null, user: userModel.toEntity());
+    } on AppException catch (e) {
+      return (failure: AuthFailure(e.message), user: null);
+    } catch (e) {
+      return (failure: AuthFailure('Unexpected error: ${e.toString()}'), user: null);
+    }
+  }
+}
+```
+
+### BLoC Pattern
+
+```dart
+class AuthBloc extends Bloc<AuthEvent, AuthState> {
+  final GetCurrentUser _getCurrentUser;
+
+  AuthBloc(this._getCurrentUser) : super(const AuthInitial()) {
+    on<AuthInitialized>(_onAuthInitialized);
+  }
+
+  Future<void> _onAuthInitialized(
+    AuthInitialized event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(const AuthLoading());
+    final result = await _getCurrentUser(NoParams());
+    // Handle result and emit appropriate state
+  }
+}
+```
+
+## Import Organization
+
+### Import Order (STRICT)
+
+1. Dart SDK imports
+2. Flutter imports
+3. Package imports (third-party)
+4. Project imports:
+   - Core imports (`core/`)
+   - Feature imports (`features/`)
+   - Relative imports (same feature)
+
+### Example:
+
+```dart
+// Dart SDK
+import 'dart:async';
+
+// Flutter
+import 'package:flutter/material.dart';
+
+// Packages
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+
+// Core
+import '../../../../core/error/failures.dart';
+import '../../../../core/usecases/usecase.dart';
+
+// Domain
+import '../entities/user.dart';
+import '../repositories/auth_repository.dart';
+```
+
+## Documentation Standards
+
+### File Documentation
+
+- Every file MUST start with a documentation comment describing its purpose
+- Use `///` for documentation comments
+- Include `library;` directive for feature files
+
+### Class Documentation
+
+- Every public class MUST have documentation
+- Document parameters, return values, and exceptions
+- Use `///` for documentation comments
+
+### Example:
+
+```dart
+/// User entity representing a user in the domain layer.
+///
+/// Entities are framework-agnostic and should not contain any Firebase
+/// or platform-specific code. They represent core business objects.
+class User {
+  // ...
+}
+```
+
+## Dependency Injection
+
+### Registration Pattern
+
+- All dependencies MUST be registered in `core/di/injection_container.dart`
+- Use `get_it` for dependency injection
+- Register in order: Services → Repositories → Use Cases → BLoCs
+- Use `registerLazySingleton` for repositories and services
+- Use `registerFactory` for BLoCs
+
+### Example:
+
+```dart
+// Services
+getIt.registerLazySingleton<FirebaseService>(() => FirebaseServiceImpl());
+
+// Repositories
+getIt.registerLazySingleton<AuthRepository>(
+  () => AuthRepositoryImpl(getIt()),
+);
+
+// Use Cases
+getIt.registerLazySingleton<GetCurrentUser>(
+  () => GetCurrentUser(getIt()),
+);
+
+// BLoCs
+getIt.registerFactory<AuthBloc>(
+  () => AuthBloc(getIt()),
+);
+```
+
+## Error Handling
+
+### Exception to Failure Conversion
+
+- Data layer MUST catch `AppException` and convert to `Failure`
+- Use specific failure types (e.g., `AuthFailure`, `NetworkFailure`)
+- Always return records: `({Failure? failure, T? data})`
+
+### Error Handling in BLoC
+
+- BLoC MUST check for failures in use case results
+- BLoC MUST emit error states when failures occur
+- NEVER let exceptions propagate unhandled
+
+## Router Rules
+
+### Route Definition
+
+- Routes MUST be defined in `lib/router.dart`
+- Use `go_router` for navigation
+- Route paths MUST be defined in `AppRoutes` class in `core/utils/constants.dart`
+- Pages MUST be imported from their respective locations
+
+### Route Structure
+
+- App-level pages: `lib/pages/`
+- Feature pages: `lib/features/{feature}/presentation/pages/`
+
+## Testing Requirements
+
+### Test File Structure
+
+- Test files MUST mirror source structure
+- Test files MUST be in `test/` directory
+- Test files MUST end with `_test.dart`
+
+### Test Naming
+
+- Test functions MUST start with `test_` or use `test()` function
+- Group related tests using `group()`
+
+## Code Quality
+
+### Required Practices
+
+- Use `const` constructors wherever possible
+- Use `final` for variables that don't change
+- Avoid `var`, prefer explicit types
+- Use null safety properly
+- Handle null cases explicitly
+
+### Forbidden Practices
+
+- NEVER import across feature boundaries (except through domain)
+- NEVER use `print()` for debugging (use proper logging)
+- NEVER skip error handling
+- NEVER access repositories directly from presentation layer
+- NEVER put business logic in presentation layer
+- NEVER put UI code in domain or data layers
+
+## File Organization Checklist
+
+When creating a new feature, ensure:
+
+- [ ] Domain layer created with entities, repository interface, and use cases
+- [ ] Data layer created with models, repository implementation, and data sources
+- [ ] Presentation layer created with BLoC (event, state, bloc), pages, and widgets
+- [ ] All dependencies registered in `injection_container.dart`
+- [ ] Routes added to `router.dart` if needed
+- [ ] Route constants added to `AppRoutes` if needed
+- [ ] All files have proper documentation
+- [ ] All imports are organized correctly
+- [ ] No circular dependencies
+- [ ] Layer dependencies are respected
+
+## When Adding New Code
+
+1. **Identify the layer**: Domain, Data, or Presentation?
+2. **Check dependencies**: Can this layer import what you need?
+3. **Follow naming conventions**: Use correct suffixes and patterns
+4. **Add documentation**: Document all public APIs
+5. **Register dependencies**: Add to `injection_container.dart` if needed
+6. **Update routes**: Add routes if creating a new page
+7. **Test layer separation**: Ensure no forbidden imports
+
+## Common Mistakes to Avoid
+
+1. ❌ Importing `data/` or `presentation/` in `domain/`
+2. ❌ Using repositories directly in BLoC (use use cases)
+3. ❌ Putting business logic in widgets or pages
+4. ❌ Skipping error handling
+5. ❌ Not converting exceptions to failures
+6. ❌ Not using records for return types
+7. ❌ Missing documentation
+8. ❌ Wrong import order
+9. ❌ Not registering dependencies
+10. ❌ Breaking immutability in entities/states/events

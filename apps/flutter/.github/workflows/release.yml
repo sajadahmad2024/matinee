@@ -1,0 +1,179 @@
+# GitHub Actions Release Workflow
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to release (e.g., 1.0.0)"
+        required: true
+
+env:
+  FLUTTER_VERSION: "3.9.2"
+  JAVA_VERSION: "17"
+
+jobs:
+  # ============================================
+  # CREATE RELEASE
+  # ============================================
+  create_release:
+    name: 🚀 Create Release
+    runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+      version: ${{ steps.get_version.outputs.version }}
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🏷️ Get version
+        id: get_version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION="${GITHUB_REF#refs/tags/v}"
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
+
+      - name: 📝 Generate changelog
+        id: changelog
+        run: |
+          git log $(git describe --tags --abbrev=0 HEAD^)..HEAD --pretty=format:"- %s (%h)" > CHANGELOG.md
+          echo "Changelog generated"
+
+      - name: 🎉 Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ steps.get_version.outputs.version }}
+          release_name: Release v${{ steps.get_version.outputs.version }}
+          body_path: CHANGELOG.md
+          draft: false
+          prerelease: false
+
+  # ============================================
+  # BUILD ANDROID RELEASE
+  # ============================================
+  build_android:
+    name: 🤖 Build Android Release
+    runs-on: ubuntu-latest
+    needs: create_release
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: ☕ Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: "zulu"
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: gradle
+
+      - name: 🐦 Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: 📦 Get dependencies
+        run: flutter pub get
+
+      - name: 🔨 Build Android Release
+        run: |
+          flutter build apk --release
+          flutter build appbundle --release
+
+      - name: 📤 Upload APK to Release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create_release.outputs.upload_url }}
+          asset_path: build/app/outputs/flutter-apk/app-release.apk
+          asset_name: app-v${{ needs.create_release.outputs.version }}-release.apk
+          asset_content_type: application/vnd.android.package-archive
+
+      - name: 📤 Upload AAB to Release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create_release.outputs.upload_url }}
+          asset_path: build/app/outputs/bundle/release/app-release.aab
+          asset_name: app-v${{ needs.create_release.outputs.version }}-release.aab
+          asset_content_type: application/octet-stream
+
+  # ============================================
+  # BUILD iOS RELEASE
+  # ============================================
+  build_ios:
+    name: 🍎 Build iOS Release
+    runs-on: macos-latest
+    needs: create_release
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🐦 Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: 📦 Get dependencies
+        run: flutter pub get
+
+      - name: 🔨 Build iOS Release
+        run: flutter build ios --release --no-codesign
+
+      - name: 📦 Create iOS archive
+        run: |
+          cd build/ios/iphoneos
+          zip -r Runner.app.zip Runner.app
+
+      - name: 📤 Upload iOS build to Release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create_release.outputs.upload_url }}
+          asset_path: build/ios/iphoneos/Runner.app.zip
+          asset_name: app-ios-v${{ needs.create_release.outputs.version }}-release.zip
+          asset_content_type: application/zip
+
+  # ============================================
+  # DEPLOY TO FIREBASE APP DISTRIBUTION
+  # ============================================
+  deploy_firebase:
+    name: 🔥 Deploy to Firebase
+    runs-on: ubuntu-latest
+    needs: [create_release, build_android]
+    if: github.event_name == 'push'
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📥 Download Android APK
+        uses: actions/download-artifact@v4
+        with:
+          name: android-release-apk
+
+      - name: 🚀 Deploy to Firebase App Distribution
+        run: |
+          echo "TODO: Setup Firebase CLI and deploy"
+          echo "firebase appdistribution:distribute app-prod-release.apk"

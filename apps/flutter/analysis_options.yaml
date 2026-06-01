@@ -1,0 +1,75 @@
+# This file configures the analyzer for advanced linting to enforce clean architecture,
+# code quality, and enterprise patterns as identified in audit recommendations.
+
+# Base recommended Flutter lint rules.
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+    - "lib/**/generated/**"
+    - "lib/**/injection_container.dart" # allow DI boilerplate
+  errors:
+    missing_return: error
+    dead_code: warning
+    todo: ignore # Allow TODOs as comments during dev, not as errors
+    unused_local_variable: warning
+    invalid_annotation_target: ignore
+
+linter:
+  rules:
+    # ——— Clean Architecture & Structure ———
+    depend_on_referenced_packages: true
+    implementation_imports: true # Help prevent forbidden imports across layers
+    public_member_api_docs: true # Require docs for all public APIs
+    package_api_docs: true # Require package-level docs
+
+    # ——— Code Style & Consistency ———
+    always_declare_return_types: true
+    always_specify_types: true
+    always_put_control_body_on_new_line: true
+    always_put_required_named_parameters_first: true
+    prefer_single_quotes: true
+    prefer_const_constructors: true
+    prefer_final_locals: true
+    prefer_final_in_for_each: true
+    require_trailing_commas: true
+    prefer_expression_function_bodies: true
+
+    # ——— Code Safety ———
+    avoid_dynamic_calls: true
+    avoid_print: true
+    avoid_catching_errors: true
+    avoid_returning_null: true
+    avoid_return_types_on_setters: true
+    avoid_types_on_closure_parameters: false # Useful for explicit typing
+    avoid_unused_constructor_parameters: true
+
+    # ——— Import & Ordering ———
+    directives_ordering: true
+
+    # ——— Error Handling ———
+    use_rethrow_when_possible: true
+    unnecessary_late: true
+    no_logic_in_create_state: true
+
+    # ——— Best Practices ———
+    prefer_asserts_with_message: true
+    prefer_collection_literals: true
+    prefer_const_literals_to_create_immutables: true
+    unnecessary_await_in_return: true
+    unnecessary_this: true
+    unnecessary_overrides: true
+
+    # ——— Flutter Specific ———
+    prefer_const_constructors_in_immutables: true
+    avoid_unnecessary_containers: true
+    sized_box_for_whitespace: true
+    sort_child_properties_last: true
+
+    # ——— Documentation ———
+    comment_references: true
+    sort_pub_dependencies: true
+
+# For additional lints, see: https://dart.dev/lints
