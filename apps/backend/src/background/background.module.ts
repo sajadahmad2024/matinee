@@ -1,20 +1,19 @@
-import { CronModule } from '@cron/cron.module';
-import { EmailQueueModule } from '@email-queue/email-queue.module';
-import { NotificationQueueModule } from '@notification-queue/notification-queue.module';
-import { DeadLetterQueueModule } from '@dead-letter-queue/dead-letter-queue.module';
-import { WebhookQueueModule } from './queue/webhook/webhook-queue.module';
+import { EmailModule } from '@email/email.module';
 import { Module } from '@nestjs/common';
-import { BullModule } from '@nestjs/bullmq';
-import { QUEUE_LIST } from '@bg/constants/job.constant';
+import { ScheduleModule } from '@nestjs/schedule';
+import { EmailJobService } from './email/email-job.service';
+import { EmailOtpHandler } from './email/email.handler';
+import { CronService } from './cron/cron.service';
+import { CronScheduler } from './cron/cron.scheduler';
+import { DailyMailHandler } from './cron/cron.handler';
 
+/**
+ * Worker-scoped background jobs. Import ONLY in WorkerModule so the cron
+ * scheduler fires once and the @QueueHandler providers are discovered by the
+ * QueueConsumerService. Producers (QueueService) live in the global QueueModule.
+ */
 @Module({
-  imports: [
-    BullModule.registerQueue(...QUEUE_LIST.map(name => ({ name }))),
-    EmailQueueModule,
-    NotificationQueueModule,
-    WebhookQueueModule,
-    DeadLetterQueueModule,
-    CronModule,
-  ],
+  imports: [ScheduleModule.forRoot(), EmailModule],
+  providers: [EmailJobService, EmailOtpHandler, CronService, CronScheduler, DailyMailHandler],
 })
 export class BackgroundModule {}

@@ -43,6 +43,8 @@
       "@logger/*": ["logger/*"],
       "@db/*": ["db/*"],
       "@redis/*": ["redis/*"],
+      "@cache/*": ["cache/*"],
+      "@queue/*": ["queue/*"],
       "@otel/*": ["otel/*"],
       "@bg/*": ["background/*"],
       "@cron/*": ["background/cron/*"],

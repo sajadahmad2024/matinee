@@ -2,7 +2,9 @@
 
 ## Tech Stack
 
-NestJS 11, TypeScript 5.9 (very strict), Drizzle ORM (SQL-first), PostgreSQL, Redis (ioredis), BullMQ, pnpm 8.15.0
+NestJS 11, TypeScript 5.9 (very strict), Drizzle ORM (SQL-first), PostgreSQL, AWS SQS for queues (ElasticMQ locally), Redis/ElastiCache for cache (ioredis), pnpm 8.15.0.
+
+**Cloud portability:** queue + cache are env-driven — local↔stage↔prod with **no code change** (only env). Queue: `SQS_ENDPOINT` empty → real AWS SQS. Cache: `REDIS_HOST`/`REDIS_TLS_ENABLED`/`CACHE_CLUSTER_ENABLED` → ElastiCache. There is **no BullMQ** and **no Bull Board**.
 
 ## Commands
 
@@ -41,15 +43,14 @@ The project uses maximum strictness. Key implications:
 5. Regenerate schema: `pnpm db:introspect`
 6. Schema output: `src/db/drizzle/schema.ts`
 
-**Tables**: audit_logs, db_audit_logs, users, roles, permissions, user_roles, role_permissions, refresh_tokens, api_keys, mfa_settings, oauth_accounts, media, notifications, device_tokens, documents, document_chunks, conversations, messages, webhooks, webhook_deliveries
+**Tables** (migration `0001_create_users`, pending apply): users, roles, permissions, user_roles, role_permissions, oauth_accounts, otp_codes, reward_rules, referral_codes, referral_redemptions, device_tokens, device_token_topics, geo_policies, user_enforcement_actions. (`0000_init` = uuid extension only; no DB-level audit tables.)
 
 ## Path Aliases (baseUrl: ./src)
 
 ```
-@common/*  @config/*  @db/*  @redis/*  @otel/*  @bg/*  @auth/*  @users/*
-@media/*  @email/*  @sms/*  @notifications/*  @ai/*  @metrics/*  @health/*
-@middlewares/*  @interceptors/*  @logger/*  @cron/*
-@email-queue/*  @notification-queue/*  @dead-letter-queue/*
+@common/*  @config/*  @db/*  @redis/*  @cache/*  @queue/*  @otel/*  @bg/*  @cron/*
+@auth/*  @users/*  @email/*  @sms/*  @metrics/*  @health/*
+@middlewares/*  @interceptors/*  @logger/*
 ```
 
 ## Architecture Patterns
@@ -66,23 +67,17 @@ Controller (HTTP layer) -> Service (business logic/facade) -> Repository (DB acc
 **Import pattern**: `import { UsersRepository } from '@db/repositories/users/users.repository'`
 
 Existing repository domains:
-- `src/db/repositories/auth/` — auth, token, mfa, api-key, oauth
+- `src/db/repositories/auth/` — auth, token, mfa, api-key, oauth (being rebuilt for the new schema)
 - `src/db/repositories/users/` — users
-- `src/db/repositories/media/` — media
-- `src/db/repositories/notifications/` — notifications
-- `src/db/repositories/ai/` — agents, rag
-- `src/db/repositories/webhooks/` — webhooks
-- `src/db/repositories/common/` — audit
 
 ### Provider/Strategy Pattern
-External integrations use abstract base classes with swappable implementations:
-- Media: S3Provider / CloudinaryProvider
+External integrations use abstract base classes / driver tokens with swappable implementations, **selected by env (no code change local↔cloud)**:
 - Email: SmtpProvider / SesProvider
 - SMS: TwilioProvider / SnsProvider
-- AI: ClaudeProvider / OpenAiProvider
-- Notifications: FCM push
+- Queue: `SqsQueueDriver` behind the `QUEUE_DRIVER` token (ElasticMQ local / AWS SQS prod)
+- Cache: `CacheService` over ioredis (Redis local / ElastiCache prod; standalone or cluster)
 
-Provider selection is done via factory in module registration.
+Provider/driver selection is done via factory/env in module registration.
 
 ### Module Structure (follow for every new domain module)
 
@@ -106,24 +101,23 @@ src/db/repositories/<module>/          # Data access (separate from business mod
 
 | Module | Path | Purpose |
 |--------|------|---------|
-| Auth | `src/auth/` | JWT + OAuth (Google/GitHub) + API Keys + MFA (TOTP) |
+| Auth | `src/auth/` | JWT + OAuth + RBAC (current code is boilerplate; **being rebuilt** for the product schema) |
 | Users | `src/users/` | User CRUD with RBAC |
-| Media | `src/media/` | File uploads (S3/Cloudinary) |
 | Email | `src/email/` | Templated emails (SMTP/SES, Handlebars) |
 | SMS | `src/sms/` | SMS + OTP (Twilio/SNS) |
-| Notifications | `src/notifications/` | Multi-channel (FCM push, in-app) |
-| AI | `src/ai/` | Claude/OpenAI, RAG pipeline (pgvector), Agent framework |
-| Webhooks | `src/webhooks/` | Outbound webhooks with HMAC-SHA256 signatures |
-| Gateway | `src/gateway/` | WebSocket gateway (Socket.IO) |
-| Audit | `src/common/audit/` | Application-level audit logging (`@AuditLog()` decorator) |
-| Export | `src/common/export/` | CSV/PDF/Excel data export service |
+| Queue | `src/queue/` | SQS producer (`QueueService`) + worker consumer (`@QueueHandler`) + DLQ redrive |
+| Cache | `src/cache/` | `CacheService` (Redis/ElastiCache) + version-key invalidation + stampede lock |
+| Background | `src/background/` | Worker jobs: SQS handlers (`email/`) + cron scheduler (`cron/`) |
 | Health | `src/api/health/` | Health checks (DB, Redis, memory, HTTP) |
 | Metrics | `src/api/metrics/` | Prometheus metrics |
 | Tracing | `src/api/tracing/` | OpenTelemetry distributed tracing |
 | Dev Tools | `src/api/dev-tools/` | Developer tools dashboard |
-| Background | `src/background/` | BullMQ queues + cron jobs |
+
+> **Removed for now** (reintroduce module-by-module later): Media, Notifications, AI/RAG, Webhooks, Gateway, Audit, UsersV2. Their boilerplate code lives in git history.
 
 ## Auth System
+
+> ⚠️ The bullets below describe the **current boilerplate** auth code, which is **being rebuilt** for the product (unified `users` with `account_type` guest/customer/admin, phone-OTP + Google/Apple, admin email+password with OTP reset, referral, suspend/ban). Target schema is `0001_create_users`; the auth module API doc is the next deliverable.
 
 - JWT access + refresh tokens with rotation on refresh
 - Global guard order: ThrottlerGuard -> JwtAuthGuard -> RolesGuard -> PermissionsGuard
@@ -169,7 +163,8 @@ src/db/repositories/<module>/          # Data access (separate from business mod
 |------|-----|---------|
 | Swagger v1 | `localhost:3000/api/v1` | API v1 documentation |
 | Swagger | `localhost:3000/api` | Redirects to latest version |
-| Bull Board | `localhost:3000/admin/queues` | Queue management |
+| OpenAPI JSON | `localhost:3000/api/v1-json` | Spec for web/Flutter SDK generation |
+| ElasticMQ | `localhost:9326` | Local SQS-compatible queue server |
 | Prometheus | `localhost:9090` | Metrics |
 | Grafana | `localhost:3001` | Dashboards |
 | Jaeger | `localhost:16686` | Distributed tracing |
@@ -182,4 +177,7 @@ src/db/repositories/<module>/          # Data access (separate from business mod
 3. **Optional properties** — Due to `exactOptionalPropertyTypes`, you cannot do `{ prop: undefined }` on optional fields. Omit the key instead or use a type union `prop?: string | undefined`
 4. **Migration journal** — After creating a SQL migration file, the journal at `meta/_journal.json` must have a matching entry. `pnpm db:create-migration` handles this automatically.
 5. **pnpm may not be on PATH** — Use `npx` as fallback if `pnpm` is not found
-6. **Worker process** — The app runs API and Worker concurrently. Worker entrypoint is `src/worker.main.ts`
+6. **Worker process** — API and Worker run concurrently. Worker entrypoint `src/worker.main.ts`. The **SQS consumer runs only in the worker** (`QueueConsumerModule` is imported by `WorkerModule`, not `AppModule`), so the cron scheduler and queue polling never run in the API.
+7. **Env coercion** — flat `ConfigService.get()` returns correctly-typed values **only for keys in the Joi `validationSchema`** (`src/config/env-config.module.ts`). Add new number/boolean env vars there, else they read back as raw strings (`'false'` is truthy!).
+8. **Queues** — enqueue with `QueueService.send(QueueName.X, JobName.Y, body)`; consume with a `@QueueHandler({ queue, name })` provider under `src/background/`. Retries/DLQ are SQS-native (visibility timeout + `QUEUE_MAX_RECEIVE_COUNT` redrive). Local queue server = ElasticMQ (`pnpm db:dev:up`).
+9. **Cache** — use `CacheService` (not `@nestjs/cache-manager`). TTLs are in **seconds**. Invalidate groups via `invalidateTag(tag)` (version-key, no `SCAN`).

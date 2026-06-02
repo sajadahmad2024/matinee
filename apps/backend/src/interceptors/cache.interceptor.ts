@@ -1,14 +1,12 @@
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { CacheService } from '@cache/cache.service';
 import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
-import { Inject } from '@nestjs/common';
-import { Cache } from 'cache-manager';
 import { Observable, of } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import * as crypto from 'crypto';
 
 @Injectable()
 export class ClientControlledCacheInterceptor implements NestInterceptor {
-  constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache) {}
+  constructor(private cache: CacheService) {}
 
   /**
    * Intercepts incoming requests and handles caching logic based on cache-control headers or directives.
@@ -28,7 +26,7 @@ export class ClientControlledCacheInterceptor implements NestInterceptor {
     }
 
     const key = this.generateCacheKey(context);
-    const cachedResponse = await this.cacheManager.get(key);
+    const cachedResponse = await this.cache.get(key);
     if (cachedResponse) {
       return of(cachedResponse);
     }
@@ -38,9 +36,9 @@ export class ClientControlledCacheInterceptor implements NestInterceptor {
       tap(response => {
         // Cache the response unless cache control is 'no-cache'.
         if (cacheControl !== 'no-cache') {
-          // Determine the TTL(milliseconds) based on cache-control
-          const ttl = this.parseCacheControl(cacheControl);
-          this.cacheManager.set(key, response, ttl);
+          // Determine the TTL based on cache-control, in seconds for CacheService
+          const ttlMs = this.parseCacheControl(cacheControl);
+          void this.cache.set(key, response, Math.ceil(ttlMs / 1000));
         }
       })
     );

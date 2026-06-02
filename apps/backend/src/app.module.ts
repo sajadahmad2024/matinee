@@ -1,5 +1,3 @@
-import { QueueUIModule } from '@bg/queue-ui.module';
-import { DEFAULT_JOB_OPTIONS, QueuePrefix } from '@bg/constants/job.constant';
 import { EnvConfigModule } from '@config/env-config.module';
 import { DBModule } from '@db/db.module';
 import { HealthModule } from '@health/health.module';
@@ -8,163 +6,67 @@ import { TransformInterceptor } from '@interceptors/transform.interceptor';
 import { LoggerModule } from '@logger/logger.module';
 import { MetricsModule } from '@metrics/metrics.module';
 import { MetricsMiddleware } from '@middlewares/metrics.middleware';
-import { BullModule } from '@nestjs/bullmq';
-import { CacheModule } from '@nestjs/cache-manager';
-import { redisStore } from 'cache-manager-redis-store';
 import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
-// import { DevtoolsModule } from '@nestjs/devtools-integration';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { RedisModule } from '@redis/redis.module';
-import { REDIS_CLIENT } from '@redis/redis.provider';
-import { Redis } from 'ioredis';
-import { ConfigService } from '@nestjs/config';
-import { EnvConfig } from '@config/env.config';
 import { ErrorHandlerService } from '@common/services/error-handler.service';
 import { DevToolsModule } from './api/dev-tools/dev-tools.module';
 import { OtelModule } from '@otel/otel.module';
 import { TracingModule } from './api/tracing/tracing.module';
 import { DevToolsMiddleware } from '@middlewares/dev-tool.middleware';
 import { RouteNames } from '@common/route-names';
-import { CookieAuthMiddleware } from '@middlewares/cookies.middleware';
 
-// Auth & Users
+// Infrastructure modules (env-driven: local vs cloud with no code change)
+import { CacheModule } from '@cache/cache.module';
+import { QueueModule } from '@queue/queue.module';
+
+// Auth
 import { AuthModule } from './auth/auth.module';
-import { UsersModule } from './users/users.module';
-import { UsersV2Module } from './users/users-v2.module';
 
-// Media
-import { MediaModule } from './media/media.module';
-
-// SMS
+// SMS / Email (needed for OTP delivery)
 import { SmsModule } from './sms/sms.module';
-
-// Email
 import { EmailModule } from '@email/email.module';
 
-// Notifications
-import { NotificationsModule } from './notifications/notifications.module';
-
-// AI Agents
-import { AgentsModule } from './ai/agents/agents.module';
-
-// Webhooks
-import { WebhooksModule } from './webhooks/webhooks.module';
-
-// Common
-import { AuditModule } from '@common/audit/audit.module';
-
-// Real-time
-import { GatewayModule } from './gateway/gateway.module';
-
-import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
+// Global auth guards + sliding-renewal interceptor (deps resolved from AuthModule exports)
+import { AuthGuard } from './auth/guards/auth.guard';
+import { AccountTypeGuard } from './auth/guards/account-type.guard';
 import { RolesGuard } from './auth/guards/roles.guard';
 import { PermissionsGuard } from './auth/guards/permissions.guard';
-
-const configService = new ConfigService<EnvConfig>();
-
-// Queue module
-const queueModule = BullModule.forRootAsync({
-  imports: [RedisModule],
-  useFactory: (redisClient: Redis) => {
-    return {
-      prefix: QueuePrefix.SYSTEM, // For grouping queues
-      connection: redisClient.options,
-      defaultJobOptions: DEFAULT_JOB_OPTIONS,
-    };
-  },
-  inject: [REDIS_CLIENT],
-});
+import { CsrfGuard } from './auth/guards/csrf.guard';
+import { TokenRenewalInterceptor } from './auth/interceptors/token-renewal.interceptor';
 
 // Rate Limiting
+// NOTE: @nestjs/throttler v6 expresses `ttl` in MILLISECONDS. (Using seconds here would
+// make every window ~tens of ms and effectively disable rate limiting.)
 const rateLimit = ThrottlerModule.forRoot([
-  {
-    name: 'short',
-    ttl: 1 * 60, // Time to live in seconds (1 minute)
-    limit: 30, // Maximum number of requests within the ttl
-  },
-  {
-    name: 'medium',
-    ttl: 5 * 60, // 5 minutes
-    limit: 100,
-  },
-  {
-    name: 'long',
-    ttl: 30 * 60, // 30 minutes
-    limit: 500,
-  },
-  {
-    name: 'very-long',
-    ttl: 60 * 60, // 1 hour
-    limit: 1000,
-  },
+  { name: 'short', ttl: 60_000, limit: 30 }, // 30 req / minute
+  { name: 'medium', ttl: 5 * 60_000, limit: 100 }, // 100 req / 5 min
+  { name: 'long', ttl: 30 * 60_000, limit: 500 }, // 500 req / 30 min
+  { name: 'very-long', ttl: 60 * 60_000, limit: 1000 }, // 1000 req / hour
 ]);
-
-// Cache Module
-const cacheModule = CacheModule.registerAsync({
-  useFactory: async () => {
-    const store = await redisStore({
-      socket: {
-        host: configService.get<string>('REDIS_HOST'),
-        port: configService.get<number>('REDIS_PORT'),
-      },
-    });
-
-    return {
-      store: store,
-      ttl: 5 * 60000, // Default - 5 minutes (milliseconds)
-    };
-  },
-  isGlobal: true,
-});
 
 @Module({
   imports: [
-    // DevtoolsModule.register({
-    //   http: process.env['NODE_ENV'] !== 'production',
-    // }),
     rateLimit,
-    cacheModule,
     EnvConfigModule,
     LoggerModule,
     EventEmitterModule.forRoot(),
     RedisModule,
+    CacheModule,
+    QueueModule,
     DBModule,
     OtelModule,
-    queueModule,
-    QueueUIModule,
 
-    // Auth & Users
+    // Auth
     AuthModule,
-    UsersModule,
-    UsersV2Module,
 
-    // Media
-    MediaModule,
-
-    // SMS
+    // SMS / Email
     SmsModule,
-
-    // Email
     EmailModule,
 
-    // Notifications
-    NotificationsModule,
-
-    // AI Agents
-    AgentsModule,
-
-    // Webhooks
-    WebhooksModule,
-
-    // Common
-    AuditModule,
-
-    // Real-time
-    GatewayModule,
-
-    // APIs
+    // APIs / Observability
     MetricsModule,
     HealthModule,
     DevToolsModule,
@@ -177,14 +79,18 @@ const cacheModule = CacheModule.registerAsync({
       provide: APP_INTERCEPTOR,
       useClass: HttpLoggingInterceptor,
     },
-    // Guard order: ThrottlerGuard → JwtAuthGuard → RolesGuard → PermissionsGuard
+    // Guard order: ThrottlerGuard → AuthGuard → AccountTypeGuard → RolesGuard → PermissionsGuard
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
     },
     {
       provide: APP_GUARD,
-      useClass: JwtAuthGuard,
+      useClass: AuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: AccountTypeGuard,
     },
     {
       provide: APP_GUARD,
@@ -195,6 +101,15 @@ const cacheModule = CacheModule.registerAsync({
       useClass: PermissionsGuard,
     },
     {
+      provide: APP_GUARD,
+      useClass: CsrfGuard,
+    },
+    // Sliding token renewal must run before the response is serialized.
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: TokenRenewalInterceptor,
+    },
+    {
       provide: APP_INTERCEPTOR,
       useClass: TransformInterceptor,
     },
@@ -202,15 +117,12 @@ const cacheModule = CacheModule.registerAsync({
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
-    // Apply to all routes
     consumer.apply(MetricsMiddleware).forRoutes('*');
-    consumer.apply(CookieAuthMiddleware).forRoutes('*');
     consumer
       .apply(DevToolsMiddleware)
       .forRoutes(
         RouteNames.DEV_TOOLS,
         `${RouteNames.HEALTH}/${RouteNames.HEALTH_UI}`,
-        RouteNames.QUEUES_UI,
         RouteNames.API_DOCS,
       );
   }

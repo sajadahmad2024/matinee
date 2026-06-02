@@ -256,4 +256,136 @@ export class EnvConfig {
   @IsOptional()
   @IsString()
   AGENT_API_ALLOWED_DOMAINS?: string;
+
+  // ─── Queue (SQS / ElasticMQ) ───────────────────────────────────────────────
+
+  @IsOptional()
+  @IsString()
+  QUEUE_DRIVER?: string;
+
+  @IsOptional()
+  @IsString()
+  SQS_ENDPOINT?: string;
+
+  @IsOptional()
+  @IsString()
+  SQS_REGION?: string;
+
+  @IsOptional()
+  @IsString()
+  SQS_ACCESS_KEY_ID?: string;
+
+  @IsOptional()
+  @IsString()
+  SQS_SECRET_ACCESS_KEY?: string;
+
+  @IsOptional()
+  @IsString()
+  SQS_QUEUE_PREFIX?: string;
+
+  @IsOptional()
+  @IsNumber()
+  QUEUE_VISIBILITY_TIMEOUT?: number;
+
+  @IsOptional()
+  @IsNumber()
+  QUEUE_WAIT_TIME_SECONDS?: number;
+
+  @IsOptional()
+  @IsNumber()
+  QUEUE_MAX_RECEIVE_COUNT?: number;
+
+  @IsOptional()
+  @IsNumber()
+  QUEUE_BATCH_SIZE?: number;
+
+  @IsOptional()
+  @IsBoolean()
+  QUEUE_CONSUMER_ENABLED?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  QUEUE_AUTO_CREATE?: boolean;
+
+  // ─── Cache (Redis / ElastiCache) ───────────────────────────────────────────
+
+  @IsOptional()
+  @IsString()
+  CACHE_KEY_PREFIX?: string;
+
+  @IsOptional()
+  @IsNumber()
+  CACHE_DEFAULT_TTL?: number;
+
+  @IsOptional()
+  @IsBoolean()
+  CACHE_CLUSTER_ENABLED?: boolean;
+
+  // ─── Auth / JWT / Cookies ──────────────────────────────────────────────────
+
+  @IsOptional()
+  @IsNumber()
+  JWT_ACCESS_TTL?: number;
+
+  @IsOptional()
+  @IsNumber()
+  JWT_REFRESH_TTL?: number;
+
+  @IsOptional()
+  @IsNumber()
+  JWT_ADMIN_REFRESH_TTL?: number;
+
+  @IsOptional()
+  @IsNumber()
+  JWT_REMEMBER_TTL?: number;
+
+  @IsOptional()
+  @IsNumber()
+  JWT_RENEW_WINDOW?: number;
+
+  @IsOptional()
+  @IsString()
+  COOKIE_DOMAIN?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  COOKIE_SECURE?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  CSRF_ENABLED?: boolean;
+
+  @IsOptional()
+  @IsString()
+  PHONE_VERIFICATION_PROVIDER?: string;
+
+  // ─── Social OAuth (Google / Apple — redirect flow) ─────────────────────────
+
+  @IsOptional()
+  @IsString()
+  APPLE_CLIENT_ID?: string;
+
+  @IsOptional()
+  @IsString()
+  APPLE_TEAM_ID?: string;
+
+  @IsOptional()
+  @IsString()
+  APPLE_KEY_ID?: string;
+
+  @IsOptional()
+  @IsString()
+  APPLE_PRIVATE_KEY?: string;
+
+  @IsOptional()
+  @IsString()
+  APPLE_CALLBACK_URL?: string;
+
+  @IsOptional()
+  @IsString()
+  OAUTH_SUCCESS_REDIRECT?: string;
+
+  @IsOptional()
+  @IsString()
+  OAUTH_ALLOWED_REDIRECTS?: string;
 }

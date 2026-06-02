@@ -1,205 +1,270 @@
-import { Injectable } from '@nestjs/common';
-import { DBService } from '@db/db.service';
-import { users, userRoles, roles } from '@db/drizzle/schema';
-import { eq, and, isNull, sql, count } from 'drizzle-orm';
-import { UserProfile } from '@users/interfaces/user.interface';
+import { ConflictException, Injectable } from '@nestjs/common';
+import { DBService, DBExecutor } from '@db/db.service';
+import { users } from '@db/drizzle/schema';
+import { and, eq, isNull, sql, count, desc, ilike, or } from 'drizzle-orm';
+import { AccountType } from '@auth/interfaces/jwt-payload.interface';
+import { AccountStatus } from '@auth/interfaces/auth-context.interface';
+
+/** A row of the `users` table as used by the auth/identity layer. */
+export interface UserRecord {
+  id: string;
+  accountType: AccountType;
+  email: string | null;
+  passwordHash: string | null;
+  phone: string | null;
+  username: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  gender: string | null;
+  avatarUrl: string | null;
+  primaryAuthMethod: string | null;
+  countryCode: string | null;
+  tokenVersion: number;
+  status: AccountStatus;
+  suspendedUntil: string | null;
+  statusReason: string | null;
+  isEmailVerified: boolean;
+  isPhoneVerified: boolean;
+  lastLoginAt: string | null;
+  createdAt: string;
+}
+
+export interface CreateAdminInput {
+  email: string;
+  passwordHash: string | null;
+  firstName?: string | undefined;
+  lastName?: string | undefined;
+}
 
 @Injectable()
 export class UsersRepository {
   constructor(private readonly dbService: DBService) {}
 
-  async findById(id: string): Promise<UserProfile | null> {
-    const rows = await this.dbService.db
-      .select({
-        id: users.id,
-        email: users.email,
-        firstName: users.firstName,
-        lastName: users.lastName,
-        phone: users.phone,
-        isActive: users.isActive,
-        isEmailVerified: users.isEmailVerified,
-        mfaEnabled: users.mfaEnabled,
-        createdAt: users.createdAt,
-        roleName: roles.name,
-      })
+  private exec(tx?: DBExecutor) {
+    return tx ?? this.dbService.db;
+  }
+
+  // ─── Lookups ────────────────────────────────────────────────────────────────
+
+  async findById(id: string, tx?: DBExecutor): Promise<UserRecord | null> {
+    const rows = await this.exec(tx)
+      .select()
       .from(users)
-      .leftJoin(userRoles, eq(users.id, userRoles.userId))
-      .leftJoin(roles, eq(userRoles.roleId, roles.id))
       .where(and(eq(users.id, id), isNull(users.deletedAt)));
-
-    if (rows.length === 0) {
-      return null;
-    }
-
-    return this.mapRowsToUserProfile(rows);
+    return this.map(rows[0]);
   }
 
-  async findByEmail(email: string): Promise<UserProfile | null> {
-    const rows = await this.dbService.db
-      .select({
-        id: users.id,
-        email: users.email,
-        firstName: users.firstName,
-        lastName: users.lastName,
-        phone: users.phone,
-        isActive: users.isActive,
-        isEmailVerified: users.isEmailVerified,
-        mfaEnabled: users.mfaEnabled,
-        createdAt: users.createdAt,
-        roleName: roles.name,
-      })
+  async findByPhone(phone: string, tx?: DBExecutor): Promise<UserRecord | null> {
+    const rows = await this.exec(tx)
+      .select()
       .from(users)
-      .leftJoin(userRoles, eq(users.id, userRoles.userId))
-      .leftJoin(roles, eq(userRoles.roleId, roles.id))
-      .where(and(eq(users.email, email), isNull(users.deletedAt)));
-
-    if (rows.length === 0) {
-      return null;
-    }
-
-    return this.mapRowsToUserProfile(rows);
+      .where(and(eq(users.phone, phone), isNull(users.deletedAt)));
+    return this.map(rows[0]);
   }
 
-  async findAll(
-    page: number,
-    pageSize: number,
-  ): Promise<{ data: UserProfile[]; total: number }> {
-    const offset = (page - 1) * pageSize;
-
-    const [totalResult, userRows] = await Promise.all([
-      this.dbService.db
-        .select({ count: count() })
-        .from(users)
-        .where(isNull(users.deletedAt)),
-      this.dbService.db
-        .select({
-          id: users.id,
-          email: users.email,
-          firstName: users.firstName,
-          lastName: users.lastName,
-          phone: users.phone,
-          isActive: users.isActive,
-          isEmailVerified: users.isEmailVerified,
-          mfaEnabled: users.mfaEnabled,
-          createdAt: users.createdAt,
-        })
-        .from(users)
-        .where(isNull(users.deletedAt))
-        .orderBy(users.createdAt)
-        .limit(pageSize)
-        .offset(offset),
-    ]);
-
-    const total = totalResult[0]?.count ?? 0;
-
-    // Fetch roles for all users in the page
-    const userIds = userRows.map((u) => u.id);
-
-    if (userIds.length === 0) {
-      return { data: [], total };
-    }
-
-    const roleRows = await this.dbService.db
-      .select({
-        userId: userRoles.userId,
-        roleName: roles.name,
-      })
-      .from(userRoles)
-      .innerJoin(roles, eq(userRoles.roleId, roles.id))
-      .where(sql`${userRoles.userId} IN ${userIds}`);
-
-    // Group roles by userId
-    const rolesByUserId = new Map<string, string[]>();
-    for (const row of roleRows) {
-      const existing = rolesByUserId.get(row.userId);
-      if (existing) {
-        existing.push(row.roleName);
-      } else {
-        rolesByUserId.set(row.userId, [row.roleName]);
-      }
-    }
-
-    const data: UserProfile[] = userRows.map((user) => ({
-      id: user.id,
-      email: user.email,
-      firstName: user.firstName ?? null,
-      lastName: user.lastName ?? null,
-      phone: user.phone ?? null,
-      isActive: user.isActive,
-      isEmailVerified: user.isEmailVerified,
-      mfaEnabled: user.mfaEnabled,
-      roles: rolesByUserId.get(user.id) ?? [],
-      createdAt: user.createdAt,
-    }));
-
-    return { data, total };
+  async findByEmail(email: string, tx?: DBExecutor): Promise<UserRecord | null> {
+    const rows = await this.exec(tx)
+      .select()
+      .from(users)
+      .where(and(sql`lower(${users.email}) = ${email.toLowerCase()}`, isNull(users.deletedAt)));
+    return this.map(rows[0]);
   }
 
-  async update(
+  async findByUsername(username: string, tx?: DBExecutor): Promise<UserRecord | null> {
+    const rows = await this.exec(tx)
+      .select()
+      .from(users)
+      .where(and(sql`lower(${users.username}) = ${username.toLowerCase()}`, isNull(users.deletedAt)));
+    return this.map(rows[0]);
+  }
+
+  // ─── Creation / lifecycle ────────────────────────────────────────────────────
+
+  async createGuest(tx?: DBExecutor): Promise<UserRecord> {
+    const rows = await this.exec(tx).insert(users).values({ accountType: 'guest' }).returning();
+    return this.map(rows[0])!;
+  }
+
+  /** Turn an existing guest row into a customer in place (preserves id/engagement).
+   *  Guarded to `accountType = 'guest'` so an already-upgraded customer/admin can never be
+   *  silently mutated by a replayed/forged guest token. */
+  async upgradeGuestToCustomer(
     id: string,
-    data: Partial<{ firstName: string; lastName: string; phone: string }>,
-  ): Promise<UserProfile | null> {
-    const result = await this.dbService.db
+    data: { phone?: string; email?: string; primaryAuthMethod: string; isPhoneVerified?: boolean; isEmailVerified?: boolean },
+    tx?: DBExecutor,
+  ): Promise<UserRecord> {
+    const rows = await this.exec(tx)
       .update(users)
       .set({
-        ...data,
+        accountType: 'customer',
+        ...(data.phone ? { phone: data.phone, isPhoneVerified: data.isPhoneVerified ?? true } : {}),
+        ...(data.email ? { email: data.email, isEmailVerified: data.isEmailVerified ?? false } : {}),
+        primaryAuthMethod: data.primaryAuthMethod,
+        lastLoginAt: sql`now()`,
         updatedAt: sql`now()`,
       })
-      .where(and(eq(users.id, id), isNull(users.deletedAt)))
-      .returning({ id: users.id });
-
-    if (result.length === 0) {
-      return null;
+      .where(and(eq(users.id, id), eq(users.accountType, 'guest'), isNull(users.deletedAt)))
+      .returning();
+    const upgraded = this.map(rows[0]);
+    if (!upgraded) {
+      // The row was not an active guest (already upgraded, merged, or gone).
+      throw new ConflictException('Account is no longer an upgradable guest');
     }
-
-    return this.findById(id);
+    return upgraded;
   }
 
-  async softDelete(id: string): Promise<void> {
-    await this.dbService.db
+  async createCustomer(
+    data: { phone?: string; email?: string; primaryAuthMethod: string; isPhoneVerified?: boolean; isEmailVerified?: boolean },
+    tx?: DBExecutor,
+  ): Promise<UserRecord> {
+    const rows = await this.exec(tx)
+      .insert(users)
+      .values({
+        accountType: 'customer',
+        ...(data.phone ? { phone: data.phone } : {}),
+        ...(data.email ? { email: data.email } : {}),
+        primaryAuthMethod: data.primaryAuthMethod,
+        isPhoneVerified: data.isPhoneVerified ?? false,
+        isEmailVerified: data.isEmailVerified ?? false,
+        lastLoginAt: sql`now()`,
+      })
+      .returning();
+    return this.map(rows[0])!;
+  }
+
+  async createAdmin(input: CreateAdminInput, tx?: DBExecutor): Promise<UserRecord> {
+    const rows = await this.exec(tx)
+      .insert(users)
+      .values({
+        accountType: 'admin',
+        email: input.email,
+        passwordHash: input.passwordHash,
+        primaryAuthMethod: 'email',
+        isEmailVerified: true,
+        ...(input.firstName ? { firstName: input.firstName } : {}),
+        ...(input.lastName ? { lastName: input.lastName } : {}),
+      })
+      .returning();
+    return this.map(rows[0])!;
+  }
+
+  async updateProfile(
+    id: string,
+    data: Partial<{ username: string; gender: string; firstName: string; lastName: string; avatarUrl: string }>,
+    tx?: DBExecutor,
+  ): Promise<UserRecord | null> {
+    await this.exec(tx)
+      .update(users)
+      .set({ ...data, updatedAt: sql`now()` })
+      .where(and(eq(users.id, id), isNull(users.deletedAt)));
+    return this.findById(id, tx);
+  }
+
+  async setPassword(id: string, passwordHash: string, tx?: DBExecutor): Promise<void> {
+    await this.exec(tx)
+      .update(users)
+      .set({ passwordHash, tokenVersion: sql`${users.tokenVersion} + 1`, updatedAt: sql`now()` })
+      .where(eq(users.id, id));
+  }
+
+  async setStatus(
+    id: string,
+    data: { status: AccountStatus; suspendedUntil?: string | null; reason?: string | null; changedBy?: string | null },
+    tx?: DBExecutor,
+  ): Promise<UserRecord | null> {
+    await this.exec(tx)
       .update(users)
       .set({
-        deletedAt: sql`now()`,
-        isActive: false,
+        status: data.status,
+        suspendedUntil: data.suspendedUntil ?? null,
+        statusReason: data.reason ?? null,
+        statusChangedBy: data.changedBy ?? null,
+        statusChangedAt: sql`now()`,
+        tokenVersion: sql`${users.tokenVersion} + 1`,
         updatedAt: sql`now()`,
       })
-      .where(and(eq(users.id, id), isNull(users.deletedAt)));
+      .where(eq(users.id, id));
+    return this.findById(id, tx);
   }
 
-  private mapRowsToUserProfile(
-    rows: {
-      id: string;
-      email: string;
-      firstName: string | null;
-      lastName: string | null;
-      phone: string | null;
-      isActive: boolean;
-      isEmailVerified: boolean;
-      mfaEnabled: boolean;
-      createdAt: Date;
-      roleName: string | null;
-    }[],
-  ): UserProfile {
-    const first = rows[0]!;
-    const userRoleNames: string[] = [];
+  async bumpTokenVersion(id: string, tx?: DBExecutor): Promise<void> {
+    await this.exec(tx)
+      .update(users)
+      .set({ tokenVersion: sql`${users.tokenVersion} + 1`, updatedAt: sql`now()` })
+      .where(eq(users.id, id));
+  }
 
-    for (const row of rows) {
-      if (row.roleName !== null) {
-        userRoleNames.push(row.roleName);
+  async touchLastLogin(id: string, tx?: DBExecutor): Promise<void> {
+    await this.exec(tx).update(users).set({ lastLoginAt: sql`now()` }).where(eq(users.id, id));
+  }
+
+  /**
+   * Idempotently mark a guest merged into a real user + soft-delete it.
+   * Returns false if the guest was already merged (so callers skip side effects).
+   */
+  async mergeGuestInto(guestId: string, targetUserId: string, tx?: DBExecutor): Promise<boolean> {
+    const rows = await this.exec(tx)
+      .update(users)
+      .set({ mergedIntoUserId: targetUserId, deletedAt: sql`now()`, updatedAt: sql`now()` })
+      .where(and(eq(users.id, guestId), eq(users.accountType, 'guest'), isNull(users.mergedIntoUserId), isNull(users.deletedAt)))
+      .returning({ id: users.id });
+    return rows.length > 0;
+  }
+
+  // ─── Admin listing ───────────────────────────────────────────────────────────
+
+  async list(
+    accountType: AccountType,
+    opts: { page: number; pageSize: number; search?: string; status?: AccountStatus },
+  ): Promise<{ data: UserRecord[]; total: number }> {
+    const filters = [eq(users.accountType, accountType), isNull(users.deletedAt)];
+    if (opts.status) {
+      filters.push(eq(users.status, opts.status));
+    }
+    if (opts.search) {
+      // Escape LIKE metacharacters (\ % _) and clamp length so a crafted term can't turn
+      // into a wildcard scan or an expensive pattern.
+      const escaped = opts.search.slice(0, 100).replace(/[\\%_]/g, (c) => `\\${c}`);
+      const term = `%${escaped}%`;
+      const match = or(ilike(users.email, term), ilike(users.username, term), ilike(users.phone, term));
+      if (match) {
+        filters.push(match);
       }
     }
+    const where = and(...filters);
+    const offset = (opts.page - 1) * opts.pageSize;
+    const [totalRes, rows] = await Promise.all([
+      this.dbService.db.select({ c: count() }).from(users).where(where),
+      this.dbService.db.select().from(users).where(where).orderBy(desc(users.createdAt)).limit(opts.pageSize).offset(offset),
+    ]);
+    return { data: rows.map((r) => this.map(r)!).filter(Boolean), total: totalRes[0]?.c ?? 0 };
+  }
 
+  private map(row: typeof users.$inferSelect | undefined): UserRecord | null {
+    if (!row) {
+      return null;
+    }
     return {
-      id: first.id,
-      email: first.email,
-      firstName: first.firstName,
-      lastName: first.lastName,
-      phone: first.phone,
-      isActive: first.isActive,
-      isEmailVerified: first.isEmailVerified,
-      mfaEnabled: first.mfaEnabled,
-      roles: userRoleNames,
-      createdAt: first.createdAt,
+      id: row.id,
+      accountType: row.accountType as AccountType,
+      email: row.email,
+      passwordHash: row.passwordHash,
+      phone: row.phone,
+      username: row.username,
+      firstName: row.firstName,
+      lastName: row.lastName,
+      gender: row.gender,
+      avatarUrl: row.avatarUrl,
+      primaryAuthMethod: row.primaryAuthMethod,
+      countryCode: row.countryCode,
+      tokenVersion: row.tokenVersion,
+      status: row.status as AccountStatus,
+      suspendedUntil: row.suspendedUntil,
+      statusReason: row.statusReason,
+      isEmailVerified: row.isEmailVerified,
+      isPhoneVerified: row.isPhoneVerified,
+      lastLoginAt: row.lastLoginAt,
+      createdAt: row.createdAt,
     };
   }
 }

@@ -3,6 +3,8 @@ export enum RouteNames {
   METRICS = 'metrics',
   HEALTH = 'health',
   AUTH = 'auth',
+  ADMIN = 'admin',
+  DEVICES = 'devices',
   USERS = 'users',
   MEDIA = 'media',
   NOTIFICATIONS = 'notifications',
