@@ -1,5 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 
+// Canonical definition now lives in @common; re-exported so existing auth imports
+// (`@auth/dto/auth-responses`) keep working while other modules import it from @common.
+export { MessageResponseDto } from '@common/dto/message-response.dto';
+
 export class UserResponseDto {
   @ApiProperty({ format: 'uuid' }) id!: string;
   @ApiProperty({ enum: ['guest', 'customer', 'admin'] }) accountType!: string;
@@ -39,9 +43,4 @@ export class OtpDeliveryResponseDto {
 export class RefreshResponseDto {
   @ApiProperty({ description: 'New access token (mobile). Web receives it as a cookie.' })
   accessToken!: string;
-}
-
-export class MessageResponseDto {
-  @ApiProperty({ example: 'Logged out' })
-  message!: string;
 }

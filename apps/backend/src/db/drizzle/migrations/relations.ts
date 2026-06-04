@@ -1,7 +1,31 @@
 import { relations } from "drizzle-orm/relations";
-import { users, userEnforcementActions, oauthAccounts, otpCodes, rewardRules, geoPolicies, referralCodes, referralRedemptions, deviceTokens, roles, rolePermissions, permissions, deviceTokenTopics, userRoles } from "./schema";
+import { mediaMetadata, mediaStatusEvents, users, userEnforcementActions, oauthAccounts, otpCodes, rewardRules, geoPolicies, referralRedemptions, referralCodes, deviceTokens, roles, rolePermissions, permissions, deviceTokenTopics, userRoles } from "./schema";
+
+export const mediaMetadataRelations = relations(mediaMetadata, ({one, many}) => ({
+	mediaMetadatum: one(mediaMetadata, {
+		fields: [mediaMetadata.posterMediaId],
+		references: [mediaMetadata.id],
+		relationName: "mediaMetadata_posterMediaId_mediaMetadata_id"
+	}),
+	mediaMetadata: many(mediaMetadata, {
+		relationName: "mediaMetadata_posterMediaId_mediaMetadata_id"
+	}),
+	mediaStatusEvents: many(mediaStatusEvents),
+	users: many(users),
+}));
+
+export const mediaStatusEventsRelations = relations(mediaStatusEvents, ({one}) => ({
+	mediaMetadatum: one(mediaMetadata, {
+		fields: [mediaStatusEvents.mediaId],
+		references: [mediaMetadata.id]
+	}),
+}));
 
 export const usersRelations = relations(users, ({one, many}) => ({
+	mediaMetadatum: one(mediaMetadata, {
+		fields: [users.avatarMediaId],
+		references: [mediaMetadata.id]
+	}),
 	user_mergedIntoUserId: one(users, {
 		fields: [users.mergedIntoUserId],
 		references: [users.id],
@@ -28,13 +52,13 @@ export const usersRelations = relations(users, ({one, many}) => ({
 	otpCodes: many(otpCodes),
 	rewardRules: many(rewardRules),
 	geoPolicies: many(geoPolicies),
-	referralCodes: many(referralCodes),
 	referralRedemptions_referrerId: many(referralRedemptions, {
 		relationName: "referralRedemptions_referrerId_users_id"
 	}),
 	referralRedemptions_refereeId: many(referralRedemptions, {
 		relationName: "referralRedemptions_refereeId_users_id"
 	}),
+	referralCodes: many(referralCodes),
 	deviceTokens: many(deviceTokens),
 	userRoles_userId: many(userRoles, {
 		relationName: "userRoles_userId_users_id"
@@ -85,13 +109,6 @@ export const geoPoliciesRelations = relations(geoPolicies, ({one}) => ({
 	}),
 }));
 
-export const referralCodesRelations = relations(referralCodes, ({one}) => ({
-	user: one(users, {
-		fields: [referralCodes.userId],
-		references: [users.id]
-	}),
-}));
-
 export const referralRedemptionsRelations = relations(referralRedemptions, ({one}) => ({
 	user_referrerId: one(users, {
 		fields: [referralRedemptions.referrerId],
@@ -102,6 +119,13 @@ export const referralRedemptionsRelations = relations(referralRedemptions, ({one
 		fields: [referralRedemptions.refereeId],
 		references: [users.id],
 		relationName: "referralRedemptions_refereeId_users_id"
+	}),
+}));
+
+export const referralCodesRelations = relations(referralCodes, ({one}) => ({
+	user: one(users, {
+		fields: [referralCodes.userId],
+		references: [users.id]
 	}),
 }));
 

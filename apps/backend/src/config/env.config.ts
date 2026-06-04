@@ -388,4 +388,30 @@ export class EnvConfig {
   @IsOptional()
   @IsString()
   OAUTH_ALLOWED_REDIRECTS?: string;
+
+  // ─── Media (storage / delivery / transcode — env-selected) ──────────────────
+  @IsOptional() @IsString() MEDIA_STORAGE_DRIVER?: string; // s3 | local
+  @IsOptional() @IsString() MEDIA_DELIVERY_DRIVER?: string; // cloudfront | local
+  @IsOptional() @IsString() MEDIA_TRANSCODER?: string; // mediaconvert | local
+  @IsOptional() @IsString() MEDIA_S3_BUCKET?: string;
+  @IsOptional() @IsString() MEDIA_S3_REGION?: string;
+  @IsOptional() @IsString() MEDIA_S3_ENDPOINT?: string;
+  @IsOptional() @IsString() MEDIA_S3_ACCESS_KEY_ID?: string;
+  @IsOptional() @IsString() MEDIA_S3_SECRET_ACCESS_KEY?: string;
+  @IsOptional() @IsString() MEDIA_OUTPUT_BUCKET?: string;
+  @IsOptional() @IsString() MEDIA_CDN_URL?: string;
+  @IsOptional() @IsString() MEDIA_CDN_KEY_PAIR_ID?: string;
+  @IsOptional() @IsString() MEDIA_CDN_PRIVATE_KEY?: string;
+  @IsOptional() @IsString() MEDIA_PUBLIC_BASE_URL?: string;
+  @IsOptional() @IsString() MEDIA_MEDIACONVERT_ENDPOINT?: string;
+  @IsOptional() @IsString() MEDIA_MEDIACONVERT_ROLE_ARN?: string;
+  @IsOptional() @IsString() MEDIA_MEDIACONVERT_QUEUE?: string;
+  @IsOptional() @IsNumber() MEDIA_UPLOAD_URL_TTL?: number;
+  @IsOptional() @IsNumber() MEDIA_SIGNED_URL_TTL?: number;
+  @IsOptional() @IsNumber() MEDIA_MAX_UPLOAD_BYTES?: number;
+  @IsOptional() @IsNumber() MEDIA_TRANSCODE_POLL_INTERVAL?: number;
+  @IsOptional() @IsNumber() MEDIA_TRANSCODE_POLL_MAX_INTERVAL?: number;
+  @IsOptional() @IsNumber() MEDIA_TRANSCODE_STUCK_SECONDS?: number;
+  @IsOptional() @IsNumber() MEDIA_TRANSCODE_MAX_SECONDS?: number;
+  @IsOptional() @IsNumber() MEDIA_ORPHAN_AGE_SECONDS?: number;
 }

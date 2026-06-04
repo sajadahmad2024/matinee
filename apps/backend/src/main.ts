@@ -17,6 +17,7 @@ import { EnvConfig } from '@config/env.config';
 
 // Business modules (versioned APIs — included in Swagger docs)
 import { AuthModule } from './auth/auth.module';
+import { MediaModule } from './media/media.module';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { ErrorHandlerService } from '@common/services/error-handler.service';
 import { TraceIdInterceptor } from '@interceptors/trace-id.interceptor';
@@ -73,7 +74,7 @@ async function bootstrap() {
   //   3. The new docs will be available at /api/v{n}
   // ─────────────────────────────────────────────────────────────────────────────
 
-  const V1_MODULES = [AuthModule];
+  const V1_MODULES = [AuthModule, MediaModule];
 
   if (!isProd) {
     // V1 API docs at /api/v1

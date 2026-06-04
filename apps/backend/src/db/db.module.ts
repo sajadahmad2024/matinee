@@ -9,6 +9,7 @@ import { IdentityRepository } from './repositories/auth/identity.repository';
 import { ReferralRepository } from './repositories/auth/referral.repository';
 import { EnforcementRepository } from './repositories/auth/enforcement.repository';
 import { DeviceRepository } from './repositories/auth/device.repository';
+import { MediaRepository } from './repositories/media/media.repository';
 
 const repositories = [
   UsersRepository,
@@ -17,6 +18,7 @@ const repositories = [
   ReferralRepository,
   EnforcementRepository,
   DeviceRepository,
+  MediaRepository,
 ];
 
 @Global()

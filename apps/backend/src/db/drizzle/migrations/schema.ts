@@ -1,10 +1,80 @@
-import { pgTable, index, uniqueIndex, foreignKey, check, uuid, varchar, text, timestamp, integer, boolean, unique, jsonb, primaryKey } from "drizzle-orm/pg-core"
+import { pgTable, index, foreignKey, check, uuid, varchar, text, bigint, integer, numeric, boolean, timestamp, jsonb, uniqueIndex, unique, primaryKey } from "drizzle-orm/pg-core"
 import { sql } from "drizzle-orm"
 
 
 
+export const mediaMetadata = pgTable("media_metadata", {
+	id: uuid().default(sql`uuidv7()`).primaryKey().notNull(),
+	mediaType: varchar("media_type", { length: 20 }).notNull(),
+	usageType: varchar("usage_type", { length: 40 }).default('generic').notNull(),
+	accessLevel: varchar("access_level", { length: 20 }).default('protected').notNull(),
+	status: varchar({ length: 20 }).default('pending').notNull(),
+	storageProvider: varchar("storage_provider", { length: 30 }).default('s3').notNull(),
+	storageBucket: varchar("storage_bucket", { length: 255 }),
+	storageKey: text("storage_key"),
+	storageRegion: varchar("storage_region", { length: 30 }),
+	cdnProvider: varchar("cdn_provider", { length: 30 }).default('cloudfront'),
+	deliveryPrefix: text("delivery_prefix"),
+	originalFilename: varchar("original_filename", { length: 500 }),
+	mimeType: varchar("mime_type", { length: 150 }),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	fileSizeBytes: bigint("file_size_bytes", { mode: "number" }),
+	checksum: varchar({ length: 128 }),
+	width: integer(),
+	height: integer(),
+	durationSeconds: numeric("duration_seconds", { precision: 10, scale:  3 }),
+	isHls: boolean("is_hls").default(false).notNull(),
+	hlsMasterKey: text("hls_master_key"),
+	posterMediaId: uuid("poster_media_id"),
+	processingProvider: varchar("processing_provider", { length: 40 }),
+	processingJobId: varchar("processing_job_id", { length: 255 }),
+	processingProgress: integer("processing_progress"),
+	processingError: text("processing_error"),
+	processedAt: timestamp("processed_at", { withTimezone: true, mode: 'string' }),
+	uploadedBy: uuid("uploaded_by"),
+	uploadCompletedAt: timestamp("upload_completed_at", { withTimezone: true, mode: 'string' }),
+	altText: varchar("alt_text", { length: 500 }),
+	metadata: jsonb().default({}).notNull(),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	deletedAt: timestamp("deleted_at", { withTimezone: true, mode: 'string' }),
+}, (table) => [
+	index("idx_media_access").using("btree", table.accessLevel.asc().nullsLast().op("text_ops")).where(sql`(deleted_at IS NULL)`),
+	index("idx_media_checksum").using("btree", table.checksum.asc().nullsLast().op("text_ops")).where(sql`((checksum IS NOT NULL) AND (deleted_at IS NULL))`),
+	index("idx_media_created_at").using("btree", table.createdAt.asc().nullsLast().op("timestamptz_ops")),
+	index("idx_media_poster").using("btree", table.posterMediaId.asc().nullsLast().op("uuid_ops")).where(sql`(poster_media_id IS NOT NULL)`),
+	index("idx_media_status").using("btree", table.status.asc().nullsLast().op("text_ops")).where(sql`(deleted_at IS NULL)`),
+	index("idx_media_uploaded_by").using("btree", table.uploadedBy.asc().nullsLast().op("uuid_ops")).where(sql`(deleted_at IS NULL)`),
+	index("idx_media_usage_type").using("btree", table.usageType.asc().nullsLast().op("text_ops")).where(sql`(deleted_at IS NULL)`),
+	foreignKey({
+			columns: [table.posterMediaId],
+			foreignColumns: [table.id],
+			name: "media_metadata_poster_media_id_fkey"
+		}).onDelete("set null"),
+	check("media_metadata_media_type_check", sql`(media_type)::text = ANY ((ARRAY['image'::character varying, 'video'::character varying, 'audio'::character varying, 'document'::character varying, 'other'::character varying])::text[])`),
+	check("media_metadata_usage_type_check", sql`(usage_type)::text = ANY ((ARRAY['content_video'::character varying, 'content_trailer'::character varying, 'content_thumbnail'::character varying, 'avatar'::character varying, 'studio_logo'::character varying, 'banner'::character varying, 'document'::character varying, 'generic'::character varying])::text[])`),
+	check("media_metadata_access_level_check", sql`(access_level)::text = ANY ((ARRAY['public'::character varying, 'protected'::character varying, 'private'::character varying])::text[])`),
+	check("media_metadata_status_check", sql`(status)::text = ANY ((ARRAY['pending'::character varying, 'uploading'::character varying, 'uploaded'::character varying, 'processing'::character varying, 'ready'::character varying, 'failed'::character varying, 'archived'::character varying])::text[])`),
+]);
+
+export const mediaStatusEvents = pgTable("media_status_events", {
+	id: uuid().default(sql`uuidv7()`).primaryKey().notNull(),
+	mediaId: uuid("media_id").notNull(),
+	status: varchar({ length: 20 }).notNull(),
+	detail: varchar({ length: 500 }),
+	progress: integer(),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+}, (table) => [
+	index("idx_media_status_events_media").using("btree", table.mediaId.asc().nullsLast().op("timestamptz_ops"), table.createdAt.asc().nullsLast().op("timestamptz_ops")),
+	foreignKey({
+			columns: [table.mediaId],
+			foreignColumns: [mediaMetadata.id],
+			name: "media_status_events_media_id_fkey"
+		}).onDelete("cascade"),
+]);
+
 export const users = pgTable("users", {
-	id: uuid().defaultRandom().primaryKey().notNull(),
+	id: uuid().default(sql`uuidv7()`).primaryKey().notNull(),
 	accountType: varchar("account_type", { length: 20 }).default('guest').notNull(),
 	email: varchar({ length: 255 }),
 	passwordHash: varchar("password_hash", { length: 255 }),
@@ -14,6 +84,7 @@ export const users = pgTable("users", {
 	lastName: varchar("last_name", { length: 100 }),
 	gender: varchar({ length: 20 }),
 	avatarUrl: text("avatar_url"),
+	avatarMediaId: uuid("avatar_media_id"),
 	primaryAuthMethod: varchar("primary_auth_method", { length: 20 }),
 	countryCode: varchar("country_code", { length: 2 }),
 	region: varchar({ length: 100 }),
@@ -36,11 +107,17 @@ export const users = pgTable("users", {
 	deletedAt: timestamp("deleted_at", { withTimezone: true, mode: 'string' }),
 }, (table) => [
 	index("idx_users_account_type").using("btree", table.accountType.asc().nullsLast().op("text_ops")).where(sql`(deleted_at IS NULL)`),
+	index("idx_users_avatar_media").using("btree", table.avatarMediaId.asc().nullsLast().op("uuid_ops")).where(sql`(avatar_media_id IS NOT NULL)`),
 	index("idx_users_country_code").using("btree", table.countryCode.asc().nullsLast().op("text_ops")).where(sql`(deleted_at IS NULL)`),
 	uniqueIndex("idx_users_email").using("btree", sql`lower((email)::text)`).where(sql`((email IS NOT NULL) AND (deleted_at IS NULL))`),
 	uniqueIndex("idx_users_phone").using("btree", table.phone.asc().nullsLast().op("text_ops")).where(sql`((phone IS NOT NULL) AND (deleted_at IS NULL))`),
 	index("idx_users_status").using("btree", table.status.asc().nullsLast().op("text_ops")).where(sql`(deleted_at IS NULL)`),
 	uniqueIndex("idx_users_username").using("btree", sql`lower((username)::text)`).where(sql`((username IS NOT NULL) AND (deleted_at IS NULL))`),
+	foreignKey({
+			columns: [table.avatarMediaId],
+			foreignColumns: [mediaMetadata.id],
+			name: "users_avatar_media_id_fkey"
+		}).onDelete("set null"),
 	foreignKey({
 			columns: [table.mergedIntoUserId],
 			foreignColumns: [table.id],
@@ -59,7 +136,7 @@ export const users = pgTable("users", {
 ]);
 
 export const userEnforcementActions = pgTable("user_enforcement_actions", {
-	id: uuid().defaultRandom().primaryKey().notNull(),
+	id: uuid().default(sql`uuidv7()`).primaryKey().notNull(),
 	userId: uuid("user_id").notNull(),
 	action: varchar({ length: 20 }).notNull(),
 	reason: varchar({ length: 500 }),
@@ -83,7 +160,7 @@ export const userEnforcementActions = pgTable("user_enforcement_actions", {
 ]);
 
 export const roles = pgTable("roles", {
-	id: uuid().defaultRandom().primaryKey().notNull(),
+	id: uuid().default(sql`uuidv7()`).primaryKey().notNull(),
 	name: varchar({ length: 50 }).notNull(),
 	description: varchar({ length: 255 }),
 	isSystem: boolean("is_system").default(false).notNull(),
@@ -95,7 +172,7 @@ export const roles = pgTable("roles", {
 ]);
 
 export const permissions = pgTable("permissions", {
-	id: uuid().defaultRandom().primaryKey().notNull(),
+	id: uuid().default(sql`uuidv7()`).primaryKey().notNull(),
 	name: varchar({ length: 100 }).notNull(),
 	description: varchar({ length: 255 }),
 	resource: varchar({ length: 100 }).notNull(),
@@ -107,7 +184,7 @@ export const permissions = pgTable("permissions", {
 ]);
 
 export const oauthAccounts = pgTable("oauth_accounts", {
-	id: uuid().defaultRandom().primaryKey().notNull(),
+	id: uuid().default(sql`uuidv7()`).primaryKey().notNull(),
 	userId: uuid("user_id").notNull(),
 	provider: varchar({ length: 20 }).notNull(),
 	providerUserId: varchar("provider_user_id", { length: 255 }).notNull(),
@@ -129,7 +206,7 @@ export const oauthAccounts = pgTable("oauth_accounts", {
 ]);
 
 export const otpCodes = pgTable("otp_codes", {
-	id: uuid().defaultRandom().primaryKey().notNull(),
+	id: uuid().default(sql`uuidv7()`).primaryKey().notNull(),
 	userId: uuid("user_id"),
 	destination: varchar({ length: 255 }).notNull(),
 	channel: varchar({ length: 10 }).notNull(),
@@ -153,7 +230,7 @@ export const otpCodes = pgTable("otp_codes", {
 ]);
 
 export const rewardRules = pgTable("reward_rules", {
-	id: uuid().defaultRandom().primaryKey().notNull(),
+	id: uuid().default(sql`uuidv7()`).primaryKey().notNull(),
 	ruleKey: varchar("rule_key", { length: 50 }).notNull(),
 	name: varchar({ length: 150 }).notNull(),
 	description: varchar({ length: 500 }),
@@ -173,7 +250,7 @@ export const rewardRules = pgTable("reward_rules", {
 ]);
 
 export const geoPolicies = pgTable("geo_policies", {
-	id: uuid().defaultRandom().primaryKey().notNull(),
+	id: uuid().default(sql`uuidv7()`).primaryKey().notNull(),
 	countryCode: varchar("country_code", { length: 2 }),
 	isDefault: boolean("is_default").default(false).notNull(),
 	isSupported: boolean("is_supported").default(true).notNull(),
@@ -195,23 +272,8 @@ export const geoPolicies = pgTable("geo_policies", {
 		}).onDelete("set null"),
 ]);
 
-export const referralCodes = pgTable("referral_codes", {
-	id: uuid().defaultRandom().primaryKey().notNull(),
-	userId: uuid("user_id").notNull(),
-	code: varchar({ length: 20 }).notNull(),
-	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
-}, (table) => [
-	foreignKey({
-			columns: [table.userId],
-			foreignColumns: [users.id],
-			name: "referral_codes_user_id_fkey"
-		}).onDelete("cascade"),
-	unique("referral_codes_user_id_key").on(table.userId),
-	unique("referral_codes_code_key").on(table.code),
-]);
-
 export const referralRedemptions = pgTable("referral_redemptions", {
-	id: uuid().defaultRandom().primaryKey().notNull(),
+	id: uuid().default(sql`uuidv7()`).primaryKey().notNull(),
 	code: varchar({ length: 20 }).notNull(),
 	referrerId: uuid("referrer_id").notNull(),
 	refereeId: uuid("referee_id").notNull(),
@@ -236,8 +298,23 @@ export const referralRedemptions = pgTable("referral_redemptions", {
 	check("referral_redemptions_check", sql`referrer_id <> referee_id`),
 ]);
 
+export const referralCodes = pgTable("referral_codes", {
+	id: uuid().default(sql`uuidv7()`).primaryKey().notNull(),
+	userId: uuid("user_id").notNull(),
+	code: varchar({ length: 20 }).notNull(),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+}, (table) => [
+	foreignKey({
+			columns: [table.userId],
+			foreignColumns: [users.id],
+			name: "referral_codes_user_id_fkey"
+		}).onDelete("cascade"),
+	unique("referral_codes_user_id_key").on(table.userId),
+	unique("referral_codes_code_key").on(table.code),
+]);
+
 export const deviceTokens = pgTable("device_tokens", {
-	id: uuid().defaultRandom().primaryKey().notNull(),
+	id: uuid().default(sql`uuidv7()`).primaryKey().notNull(),
 	userId: uuid("user_id").notNull(),
 	fcmToken: text("fcm_token").notNull(),
 	platform: varchar({ length: 10 }).notNull(),

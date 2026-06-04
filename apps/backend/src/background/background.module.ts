@@ -1,19 +1,36 @@
 import { EmailModule } from '@email/email.module';
+import { MediaModule } from '@media/media.module';
 import { Module } from '@nestjs/common';
-import { ScheduleModule } from '@nestjs/schedule';
 import { EmailJobService } from './email/email-job.service';
 import { EmailOtpHandler } from './email/email.handler';
-import { CronService } from './cron/cron.service';
-import { CronScheduler } from './cron/cron.scheduler';
+import { CronModule } from './cron/cron.module';
 import { DailyMailHandler } from './cron/cron.handler';
+import { MediaJobService } from './media/media-job.service';
+import {
+  MediaTranscodeHandler,
+  MediaTranscodePollHandler,
+  MediaReconcileHandler,
+  MediaOrphanSweepHandler,
+  MediaCleanupHandler,
+} from './media/media.handlers';
 
 /**
- * Worker-scoped background jobs. Import ONLY in WorkerModule so the cron
- * scheduler fires once and the @QueueHandler providers are discovered by the
- * QueueConsumerService. Producers (QueueService) live in the global QueueModule.
+ * Worker-scoped ASYNC job CONSUMERS — the @QueueHandler providers discovered by the
+ * QueueConsumerService. Scheduling (the producer) lives in CronModule; this module holds
+ * the handlers that do the work pushed onto the queue. Import ONLY in WorkerModule.
  */
 @Module({
-  imports: [ScheduleModule.forRoot(), EmailModule],
-  providers: [EmailJobService, EmailOtpHandler, CronService, CronScheduler, DailyMailHandler],
+  imports: [EmailModule, MediaModule, CronModule],
+  providers: [
+    EmailJobService,
+    EmailOtpHandler,
+    DailyMailHandler,
+    MediaJobService,
+    MediaTranscodeHandler,
+    MediaTranscodePollHandler,
+    MediaReconcileHandler,
+    MediaOrphanSweepHandler,
+    MediaCleanupHandler,
+  ],
 })
 export class BackgroundModule {}

@@ -25,6 +25,9 @@ import { QueueModule } from '@queue/queue.module';
 // Auth
 import { AuthModule } from './auth/auth.module';
 
+// Media (independent asset registry + secure upload/delivery)
+import { MediaModule } from './media/media.module';
+
 // SMS / Email (needed for OTP delivery)
 import { SmsModule } from './sms/sms.module';
 import { EmailModule } from '@email/email.module';
@@ -61,6 +64,9 @@ const rateLimit = ThrottlerModule.forRoot([
 
     // Auth
     AuthModule,
+
+    // Media
+    MediaModule,
 
     // SMS / Email
     SmsModule,

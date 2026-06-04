@@ -10,7 +10,7 @@
 
 -- ─── Users (guest / customer / admin, unified) ──────────────────────────────
 CREATE TABLE IF NOT EXISTS users (
-    id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id                  UUID PRIMARY KEY DEFAULT uuidv7(),
     account_type        VARCHAR(20) NOT NULL DEFAULT 'guest'
                           CHECK (account_type IN ('guest','customer','admin')),
     email               VARCHAR(255),                -- admins: required; customers: optional
@@ -20,7 +20,8 @@ CREATE TABLE IF NOT EXISTS users (
     first_name          VARCHAR(100),
     last_name           VARCHAR(100),
     gender              VARCHAR(20) CHECK (gender IN ('male','female','other','prefer_not_to_say')),
-    avatar_url          TEXT,                        -- imported from social provider when available
+    avatar_url          TEXT,                        -- externally-hosted avatar imported from social (Google/Apple)
+    avatar_media_id     UUID REFERENCES media_metadata(id) ON DELETE SET NULL,  -- avatar uploaded into OUR pipeline (private S3 + CDN); preferred over avatar_url
     primary_auth_method VARCHAR(20) CHECK (primary_auth_method IN ('phone','google','apple','email')),
     country_code        VARCHAR(2),                  -- ISO 3166-1 alpha-2; resolved location (compliance)
     region              VARCHAR(100),                -- state/province (optional)
@@ -51,10 +52,11 @@ CREATE UNIQUE INDEX idx_users_username ON users(lower(username)) WHERE username 
 CREATE INDEX        idx_users_account_type ON users(account_type) WHERE deleted_at IS NULL;
 CREATE INDEX        idx_users_status       ON users(status)       WHERE deleted_at IS NULL;
 CREATE INDEX        idx_users_country_code ON users(country_code) WHERE deleted_at IS NULL;
+CREATE INDEX        idx_users_avatar_media ON users(avatar_media_id) WHERE avatar_media_id IS NOT NULL;
 
 -- ─── Enforcement history (suspend / ban / reinstate; who took the action) ───
 CREATE TABLE IF NOT EXISTS user_enforcement_actions (
-    id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id           UUID PRIMARY KEY DEFAULT uuidv7(),
     user_id      UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,   -- target user
     action       VARCHAR(20) NOT NULL
                    CHECK (action IN ('suspend','ban','reinstate','disable','enable')),
@@ -68,7 +70,7 @@ CREATE INDEX idx_user_enforcement_performed_by ON user_enforcement_actions(perfo
 
 -- ─── RBAC: roles / permissions / mappings (admins only get user_roles) ──────
 CREATE TABLE IF NOT EXISTS roles (
-    id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id          UUID PRIMARY KEY DEFAULT uuidv7(),
     name        VARCHAR(50) NOT NULL UNIQUE,
     description VARCHAR(255),
     is_system   BOOLEAN NOT NULL DEFAULT false,   -- built-ins cannot be edited/deleted
@@ -78,7 +80,7 @@ CREATE TABLE IF NOT EXISTS roles (
 );
 
 CREATE TABLE IF NOT EXISTS permissions (
-    id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id          UUID PRIMARY KEY DEFAULT uuidv7(),
     name        VARCHAR(100) NOT NULL UNIQUE,     -- e.g. 'admins:write'
     description VARCHAR(255),
     resource    VARCHAR(100) NOT NULL,
@@ -107,7 +109,7 @@ CREATE INDEX idx_permissions_resource_action ON permissions(resource, action);
 
 -- ─── OAuth accounts (Google / Apple) ────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS oauth_accounts (
-    id                      UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id                      UUID PRIMARY KEY DEFAULT uuidv7(),
     user_id                 UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     provider                VARCHAR(20) NOT NULL CHECK (provider IN ('google','apple')),
     provider_user_id        VARCHAR(255) NOT NULL,
@@ -123,7 +125,7 @@ CREATE INDEX        idx_oauth_accounts_user_id       ON oauth_accounts(user_id);
 
 -- ─── OTP codes (customer phone OTP + admin email password-reset) ────────────
 CREATE TABLE IF NOT EXISTS otp_codes (
-    id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id           UUID PRIMARY KEY DEFAULT uuidv7(),
     user_id      UUID REFERENCES users(id) ON DELETE CASCADE,  -- null pre-signup (phone login before account exists)
     destination  VARCHAR(255) NOT NULL,        -- phone (E.164) or email
     channel      VARCHAR(10)  NOT NULL CHECK (channel IN ('sms','email')),
@@ -143,7 +145,7 @@ CREATE INDEX idx_otp_codes_expires_at          ON otp_codes(expires_at);
 -- One row per reward type; type-specific knobs live in `config` (JSONB).
 -- The earned points/XP balance + transaction LEDGER is deferred to the Rewards module.
 CREATE TABLE IF NOT EXISTS reward_rules (
-    id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id          UUID PRIMARY KEY DEFAULT uuidv7(),
     rule_key    VARCHAR(50) NOT NULL UNIQUE,   -- 'referral' | 'daily_login' | 'weekly_streak' | 'predictive_streak' | ...
     name        VARCHAR(150) NOT NULL,
     description VARCHAR(500),
@@ -158,7 +160,7 @@ CREATE INDEX idx_reward_rules_enabled ON reward_rules(is_enabled);
 -- ─── Geo compliance policy (admin-editable; gates tokenomics & subscription) ─
 -- One row per country + a single default/fallback row (country_code NULL).
 CREATE TABLE IF NOT EXISTS geo_policies (
-    id                      UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id                      UUID PRIMARY KEY DEFAULT uuidv7(),
     country_code            VARCHAR(2),              -- ISO 3166-1 alpha-2; NULL on the default row
     is_default              BOOLEAN NOT NULL DEFAULT false,  -- fallback for unlisted countries
     is_supported            BOOLEAN NOT NULL DEFAULT true,   -- app available in region
@@ -176,14 +178,14 @@ CREATE UNIQUE INDEX idx_geo_policies_default ON geo_policies(is_default)   WHERE
 
 -- ─── Referral graph (codes + redemptions; amounts driven by reward_rules) ───
 CREATE TABLE IF NOT EXISTS referral_codes (
-    id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id         UUID PRIMARY KEY DEFAULT uuidv7(),
     user_id    UUID NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
     code       VARCHAR(20) NOT NULL UNIQUE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS referral_redemptions (
-    id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id          UUID PRIMARY KEY DEFAULT uuidv7(),
     code        VARCHAR(20) NOT NULL,
     referrer_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,          -- code owner
     referee_id  UUID NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,   -- new user (one referral each)
@@ -198,7 +200,7 @@ CREATE INDEX idx_referral_redemptions_status   ON referral_redemptions(status);
 
 -- ─── Devices & push (FCM) — guests and customers; migrate on merge ──────────
 CREATE TABLE IF NOT EXISTS device_tokens (
-    id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id           UUID PRIMARY KEY DEFAULT uuidv7(),
     user_id      UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,  -- guest or customer
     fcm_token    TEXT NOT NULL,
     platform     VARCHAR(10) NOT NULL CHECK (platform IN ('ios','android','web')),
