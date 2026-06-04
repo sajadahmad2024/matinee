@@ -143,14 +143,17 @@ CREATE INDEX idx_otp_codes_expires_at          ON otp_codes(expires_at);
 
 -- ─── Tokenomics config (admin-editable; common to ALL reward types) ─────────
 -- One row per reward type; type-specific knobs live in `config` (JSONB).
--- The earned points/XP balance + transaction LEDGER is deferred to the Rewards module.
+-- `version` = the current config version; every edit snapshots a new row in
+-- reward_rule_versions (migration 0004) so ledger payouts cite the exact version used.
+-- The earned points/XP balance + transaction LEDGER live in the Tokenomics module (0004).
 CREATE TABLE IF NOT EXISTS reward_rules (
     id          UUID PRIMARY KEY DEFAULT uuidv7(),
-    rule_key    VARCHAR(50) NOT NULL UNIQUE,   -- 'referral' | 'daily_login' | 'weekly_streak' | 'predictive_streak' | ...
+    rule_key    VARCHAR(50) NOT NULL UNIQUE,   -- 'referral' | 'daily_login' | 'daily_streak' | 'quest' | 'prediction' | 'bidding'
     name        VARCHAR(150) NOT NULL,
     description VARCHAR(500),
     is_enabled  BOOLEAN NOT NULL DEFAULT true,
     config      JSONB NOT NULL DEFAULT '{}'::jsonb,  -- e.g. {"xp_per_invite":500,"max_invites_per_month":10}
+    version     INTEGER NOT NULL DEFAULT 1,          -- current config version (history in reward_rule_versions)
     updated_by  UUID REFERENCES users(id) ON DELETE SET NULL,  -- admin who last edited
     created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
