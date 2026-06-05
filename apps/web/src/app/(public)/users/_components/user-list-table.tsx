@@ -1,6 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import type { Route } from "next";
 
 import {
   AlertTriangle,
@@ -8,9 +10,7 @@ import {
   Calendar,
   Coins,
   Eye,
-  Filter,
   MoreHorizontal,
-  Search,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -23,14 +23,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 import { ConfirmationDialog } from "@/components/custom/confirmation-dialog";
 import { type Column, DataTable } from "@/components/custom/data-table";
@@ -51,6 +43,11 @@ export interface User {
 }
 
 interface UserListTableProps {
+  searchQuery: string;
+  statusFilter: string;
+  subscriptionFilter: string;
+  page: number;
+  pageSize: number;
   onViewUser: (user: User) => void;
   onSendNotification: (users: User[]) => void;
 }
@@ -159,13 +156,17 @@ const mockUsers: User[] = [
   },
 ];
 
-export function UserListTable({ onViewUser, onSendNotification }: UserListTableProps) {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [subscriptionFilter, setSubscriptionFilter] = useState<string>("all");
+export function UserListTable({
+  searchQuery,
+  statusFilter,
+  subscriptionFilter,
+  page,
+  pageSize,
+  onViewUser,
+  onSendNotification,
+}: UserListTableProps) {
+  const router = useRouter();
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
   const [confirmDialog, setConfirmDialog] = useState<{
     open: boolean;
     action: "ban" | "delete";
@@ -188,8 +189,21 @@ export function UserListTable({ onViewUser, onSendNotification }: UserListTableP
 
   const totalPages = Math.ceil(filteredUsers.length / pageSize);
   const paginatedUsers = useMemo(() => {
-    return filteredUsers.slice((currentPage - 1) * pageSize, currentPage * pageSize);
-  }, [filteredUsers, currentPage, pageSize]);
+    return filteredUsers.slice((page - 1) * pageSize, page * pageSize);
+  }, [filteredUsers, page, pageSize]);
+
+  const handlePageChange = (newPage: number) => {
+    const params = new URLSearchParams(window.location.search);
+    params.set("page", newPage.toString());
+    router.push(`${window.location.pathname}?${params.toString()}` as Route, { scroll: false });
+  };
+
+  const handlePageSizeChange = (newSize: number) => {
+    const params = new URLSearchParams(window.location.search);
+    params.set("pageSize", newSize.toString());
+    params.set("page", "1");
+    router.push(`${window.location.pathname}?${params.toString()}` as Route, { scroll: false });
+  };
 
   const handleBulkBan = () => {
     setConfirmDialog({ open: true, action: "ban" });
@@ -326,43 +340,6 @@ export function UserListTable({ onViewUser, onSendNotification }: UserListTableP
 
   return (
     <div className="space-y-4">
-      {/* Search & Filters Bar */}
-      <div className="flex flex-col gap-4 sm:flex-row">
-        <div className="relative flex-1">
-          <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
-          <Input
-            placeholder="Search by name, email, or User ID..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
-          />
-        </div>
-        <div className="flex items-center gap-2">
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="min-w-[150px]">
-              <Filter className="mr-2 h-4 w-4" />
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent className="border-border bg-card z-50">
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="active">Active</SelectItem>
-              <SelectItem value="suspended">Suspended</SelectItem>
-              <SelectItem value="banned">Banned</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select value={subscriptionFilter} onValueChange={setSubscriptionFilter}>
-            <SelectTrigger className="min-w-[150px]">
-              <SelectValue placeholder="Subscription" />
-            </SelectTrigger>
-            <SelectContent className="border-border bg-card z-50">
-              <SelectItem value="all">All Users</SelectItem>
-              <SelectItem value="subscribed">Subscribed</SelectItem>
-              <SelectItem value="free">Free</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
       {/* Bulk Actions (Top) */}
       {selectedUserIds.length > 0 && (
         <div className="bg-accent/10 border-accent/20 flex items-center gap-4 rounded-lg border p-3">
@@ -394,15 +371,12 @@ export function UserListTable({ onViewUser, onSendNotification }: UserListTableP
         />
 
         <TablePagination
-          currentPage={currentPage}
+          currentPage={page}
           totalPages={totalPages}
           pageSize={pageSize}
           totalItems={filteredUsers.length}
-          onPageChange={setCurrentPage}
-          onPageSizeChange={(size) => {
-            setPageSize(size);
-            setCurrentPage(1);
-          }}
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
         />
       </div>
 

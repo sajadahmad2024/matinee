@@ -1,36 +1,26 @@
-"use client";
-
-import { useState } from "react";
-
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-
-import { PushNotificationModal } from "./_components/push-notification-modal";
+import { Suspense } from "react";
 import { UserAnalytics } from "./_components/user-analytics";
-import { UserDetailModal } from "./_components/user-detail-modal";
-import { type User, UserListTable } from "./_components/user-list-table";
+import { UserDirectory } from "./_components/user-directory";
+import { TimeRangeSelector } from "./_components/time-range-selector";
 
-export default function UserManagementPage() {
-  const [timeRange, setTimeRange] = useState("7d");
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [isDetailOpen, setIsDetailOpen] = useState(false);
-  const [notificationUsers, setNotificationUsers] = useState<User[]>([]);
-  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+export type UserSearchParams = {
+  timeRange?: string;
+  q?: string;
+  page?: string;
+  pageSize?: string;
+};
 
-  const handleViewUser = (user: User) => {
-    setSelectedUser(user);
-    setIsDetailOpen(true);
-  };
+interface PageProps {
+  searchParams: Promise<UserSearchParams>;
+}
 
-  const handleSendNotification = (users: User[]) => {
-    setNotificationUsers(users);
-    setIsNotificationOpen(true);
-  };
+export default async function UserManagementPage({ searchParams }: PageProps) {
+  const {
+    timeRange = "7d",
+    q = "",
+    page = "1",
+    pageSize = "10",
+  } = await searchParams;
 
   return (
     <div className="animate-fade-in space-y-6">
@@ -39,32 +29,26 @@ export default function UserManagementPage() {
           <h1 className="font-gaming text-foreground text-3xl font-bold">User Management</h1>
           <p className="text-foreground-secondary mt-1">CRM & 360° user profiles with analytics.</p>
         </div>
-        <Select value={timeRange} onValueChange={setTimeRange}>
-          <SelectTrigger className="w-[140px]">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent className="border-border bg-card z-50">
-            <SelectItem value="7d">Last 7 days</SelectItem>
-            <SelectItem value="1m">Last month</SelectItem>
-            <SelectItem value="1y">Last year</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="flex items-center gap-3">
+          <Suspense fallback={<div className="h-10 w-[140px] animate-pulse rounded-md bg-muted" />}>
+            <TimeRangeSelector defaultValue={timeRange} />
+          </Suspense>
+        </div>
       </div>
 
-      <UserAnalytics />
+      {/* Analytics Section */}
+      <Suspense fallback={<div className="h-[200px] w-full animate-pulse rounded-xl bg-muted/20" />}>
+        <UserAnalytics timeRange={timeRange} />
+      </Suspense>
 
-      <div className="space-y-4">
-        <h2 className="text-foreground text-lg font-semibold">User Directory</h2>
-        <UserListTable onViewUser={handleViewUser} onSendNotification={handleSendNotification} />
-      </div>
-
-      <UserDetailModal user={selectedUser} open={isDetailOpen} onOpenChange={setIsDetailOpen} />
-
-      <PushNotificationModal
-        users={notificationUsers}
-        open={isNotificationOpen}
-        onOpenChange={setIsNotificationOpen}
-      />
+      {/* User Directory Section */}
+      <Suspense fallback={<div className="h-[600px] w-full animate-pulse rounded-xl bg-muted/10" />}>
+        <UserDirectory
+          searchQuery={q}
+          page={Number(page)}
+          pageSize={Number(pageSize)}
+        />
+      </Suspense>
     </div>
   );
 }
