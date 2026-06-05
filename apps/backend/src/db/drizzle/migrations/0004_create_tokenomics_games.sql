@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS ledger_transactions (
     direction              VARCHAR(10) NOT NULL CHECK (direction IN ('earn','spend','refund','purchase','adjust')),
     source_kind            VARCHAR(10) NOT NULL DEFAULT 'earned' CHECK (source_kind IN ('earned','purchased')),
     source_type            VARCHAR(30) NOT NULL
-                             CHECK (source_type IN ('referral','daily_streak','quest','prediction','bid','bid_refund','content_unlock','admin','subscription')),
+                             CHECK (source_type IN ('referral','daily_streak','quest','prediction','bid','bid_refund','content_unlock','badge','admin','subscription')),
     source_id              UUID,                            -- polymorphic ref to the originating row
     reward_rule_version_id UUID REFERENCES reward_rule_versions(id) ON DELETE SET NULL,
     idempotency_key        VARCHAR(120) NOT NULL UNIQUE,    -- prevents double-credit (e.g. streak:<user>:<date>)

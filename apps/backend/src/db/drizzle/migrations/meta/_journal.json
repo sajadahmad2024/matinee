@@ -50,6 +50,13 @@
       "when": 1733700000000,
       "tag": "0006_create_leaderboard",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1733800000000,
+      "tag": "0007_create_badges",
+      "breakpoints": true
     }
   ]
 }

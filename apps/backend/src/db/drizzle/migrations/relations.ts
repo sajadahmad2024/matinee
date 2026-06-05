@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm/relations";
-import { mediaMetadata, mediaStatusEvents, users, userEnforcementActions, oauthAccounts, otpCodes, rewardRules, geoPolicies, referralCodes, referralRedemptions, deviceTokens, studios, people, contents, contentMedia, contentChangeHistory, contentReactions, comments, commentReports, contentShares, contentModerationLog, contentUnlocks, contentViews, rewardRuleVersions, wallets, ledgerTransactions, userStreaks, quests, predictions, predictionOptions, predictionEntries, auctions, bids, permissions, rolePermissions, roles, contentTags, tags, questContents, deviceTokenTopics, contentGenres, genres, contentWatchlist, userRoles, commentReactions, questContentProgress, leaderboardMonthly, contentCast, contentProgress, questParticipations, userDailyActivity, contentDailyStats } from "./schema";
+import { mediaMetadata, mediaStatusEvents, users, userEnforcementActions, oauthAccounts, otpCodes, rewardRules, geoPolicies, referralCodes, referralRedemptions, deviceTokens, studios, people, contents, contentMedia, contentChangeHistory, contentReactions, comments, commentReports, contentShares, contentModerationLog, contentUnlocks, contentViews, rewardRuleVersions, wallets, ledgerTransactions, userStreaks, quests, predictions, predictionOptions, predictionEntries, auctions, bids, badges, badgeTriggers, permissions, rolePermissions, roles, contentTags, tags, questContents, deviceTokenTopics, contentGenres, genres, contentWatchlist, userBadges, userRoles, commentReactions, questContentProgress, leaderboardMonthly, userMetrics, contentCast, contentProgress, questParticipations, userDailyActivity, contentDailyStats } from "./schema";
 
 export const mediaMetadataRelations = relations(mediaMetadata, ({one, many}) => ({
 	mediaMetadatum: one(mediaMetadata, {
@@ -22,6 +22,12 @@ export const mediaMetadataRelations = relations(mediaMetadata, ({one, many}) => 
 	}),
 	contentMedias: many(contentMedia),
 	predictionOptions: many(predictionOptions),
+	badges_activeIconMediaId: many(badges, {
+		relationName: "badges_activeIconMediaId_mediaMetadata_id"
+	}),
+	badges_inactiveIconMediaId: many(badges, {
+		relationName: "badges_inactiveIconMediaId_mediaMetadata_id"
+	}),
 }));
 
 export const mediaStatusEventsRelations = relations(mediaStatusEvents, ({one}) => ({
@@ -114,7 +120,9 @@ export const usersRelations = relations(users, ({one, many}) => ({
 		relationName: "auctions_winnerUserId_users_id"
 	}),
 	bids: many(bids),
+	badges: many(badges),
 	contentWatchlists: many(contentWatchlist),
+	userBadges: many(userBadges),
 	userRoles_assignedBy: many(userRoles, {
 		relationName: "userRoles_assignedBy_users_id"
 	}),
@@ -124,6 +132,7 @@ export const usersRelations = relations(users, ({one, many}) => ({
 	commentReactions: many(commentReactions),
 	questContentProgresses: many(questContentProgress),
 	leaderboardMonthlies: many(leaderboardMonthly),
+	userMetrics: many(userMetrics),
 	contentProgresses: many(contentProgress),
 	questParticipations: many(questParticipations),
 	userDailyActivities: many(userDailyActivity),
@@ -507,6 +516,32 @@ export const bidsRelations = relations(bids, ({one}) => ({
 	}),
 }));
 
+export const badgesRelations = relations(badges, ({one, many}) => ({
+	mediaMetadatum_activeIconMediaId: one(mediaMetadata, {
+		fields: [badges.activeIconMediaId],
+		references: [mediaMetadata.id],
+		relationName: "badges_activeIconMediaId_mediaMetadata_id"
+	}),
+	user: one(users, {
+		fields: [badges.createdBy],
+		references: [users.id]
+	}),
+	mediaMetadatum_inactiveIconMediaId: one(mediaMetadata, {
+		fields: [badges.inactiveIconMediaId],
+		references: [mediaMetadata.id],
+		relationName: "badges_inactiveIconMediaId_mediaMetadata_id"
+	}),
+	badgeTrigger: one(badgeTriggers, {
+		fields: [badges.triggerKey],
+		references: [badgeTriggers.key]
+	}),
+	userBadges: many(userBadges),
+}));
+
+export const badgeTriggersRelations = relations(badgeTriggers, ({many}) => ({
+	badges: many(badges),
+}));
+
 export const rolePermissionsRelations = relations(rolePermissions, ({one}) => ({
 	permission: one(permissions, {
 		fields: [rolePermissions.permissionId],
@@ -586,6 +621,17 @@ export const contentWatchlistRelations = relations(contentWatchlist, ({one}) => 
 	}),
 }));
 
+export const userBadgesRelations = relations(userBadges, ({one}) => ({
+	badge: one(badges, {
+		fields: [userBadges.badgeId],
+		references: [badges.id]
+	}),
+	user: one(users, {
+		fields: [userBadges.userId],
+		references: [users.id]
+	}),
+}));
+
 export const userRolesRelations = relations(userRoles, ({one}) => ({
 	user_assignedBy: one(users, {
 		fields: [userRoles.assignedBy],
@@ -632,6 +678,13 @@ export const questContentProgressRelations = relations(questContentProgress, ({o
 export const leaderboardMonthlyRelations = relations(leaderboardMonthly, ({one}) => ({
 	user: one(users, {
 		fields: [leaderboardMonthly.userId],
+		references: [users.id]
+	}),
+}));
+
+export const userMetricsRelations = relations(userMetrics, ({one}) => ({
+	user: one(users, {
+		fields: [userMetrics.userId],
 		references: [users.id]
 	}),
 }));

@@ -782,7 +782,7 @@ export const ledgerTransactions = pgTable("ledger_transactions", {
 	check("ledger_transactions_currency_check", sql`(currency)::text = ANY ((ARRAY['points'::character varying, 'xp'::character varying])::text[])`),
 	check("ledger_transactions_direction_check", sql`(direction)::text = ANY ((ARRAY['earn'::character varying, 'spend'::character varying, 'refund'::character varying, 'purchase'::character varying, 'adjust'::character varying])::text[])`),
 	check("ledger_transactions_source_kind_check", sql`(source_kind)::text = ANY ((ARRAY['earned'::character varying, 'purchased'::character varying])::text[])`),
-	check("ledger_transactions_source_type_check", sql`(source_type)::text = ANY ((ARRAY['referral'::character varying, 'daily_streak'::character varying, 'quest'::character varying, 'prediction'::character varying, 'bid'::character varying, 'bid_refund'::character varying, 'content_unlock'::character varying, 'admin'::character varying, 'subscription'::character varying])::text[])`),
+	check("ledger_transactions_source_type_check", sql`(source_type)::text = ANY ((ARRAY['referral'::character varying, 'daily_streak'::character varying, 'quest'::character varying, 'prediction'::character varying, 'bid'::character varying, 'bid_refund'::character varying, 'content_unlock'::character varying, 'badge'::character varying, 'admin'::character varying, 'subscription'::character varying])::text[])`),
 ]);
 
 export const userStreaks = pgTable("user_streaks", {
@@ -976,6 +976,60 @@ export const levelDefinitions = pgTable("level_definitions", {
 	cumulativeToReach: numeric("cumulative_to_reach").notNull(),
 });
 
+export const badges = pgTable("badges", {
+	id: uuid().default(sql`uuidv7()`).primaryKey().notNull(),
+	name: varchar({ length: 150 }).notNull(),
+	slug: varchar({ length: 170 }).notNull(),
+	description: text(),
+	activeIconMediaId: uuid("active_icon_media_id"),
+	inactiveIconMediaId: uuid("inactive_icon_media_id"),
+	triggerKey: varchar("trigger_key", { length: 50 }).notNull(),
+	operator: varchar({ length: 5 }).notNull(),
+	threshold: numeric().notNull(),
+	rewardPoints: integer("reward_points").default(0).notNull(),
+	rewardXp: integer("reward_xp").default(0).notNull(),
+	isActive: boolean("is_active").default(true).notNull(),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	earnedCount: bigint("earned_count", { mode: "number" }).default(0).notNull(),
+	createdBy: uuid("created_by"),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	deletedAt: timestamp("deleted_at", { withTimezone: true, mode: 'string' }),
+}, (table) => [
+	index("idx_badges_trigger").using("btree", table.triggerKey.asc().nullsLast().op("text_ops")).where(sql`(is_active AND (deleted_at IS NULL))`),
+	foreignKey({
+			columns: [table.activeIconMediaId],
+			foreignColumns: [mediaMetadata.id],
+			name: "badges_active_icon_media_id_fkey"
+		}).onDelete("set null"),
+	foreignKey({
+			columns: [table.createdBy],
+			foreignColumns: [users.id],
+			name: "badges_created_by_fkey"
+		}).onDelete("set null"),
+	foreignKey({
+			columns: [table.inactiveIconMediaId],
+			foreignColumns: [mediaMetadata.id],
+			name: "badges_inactive_icon_media_id_fkey"
+		}).onDelete("set null"),
+	foreignKey({
+			columns: [table.triggerKey],
+			foreignColumns: [badgeTriggers.key],
+			name: "badges_trigger_key_fkey"
+		}).onDelete("restrict"),
+	unique("badges_slug_key").on(table.slug),
+	check("badges_operator_check", sql`(operator)::text = ANY ((ARRAY['gt'::character varying, 'gte'::character varying, 'eq'::character varying, 'lt'::character varying, 'lte'::character varying])::text[])`),
+]);
+
+export const badgeTriggers = pgTable("badge_triggers", {
+	key: varchar({ length: 50 }).primaryKey().notNull(),
+	label: varchar({ length: 100 }).notNull(),
+	unit: varchar({ length: 20 }),
+	description: varchar({ length: 300 }),
+	isActive: boolean("is_active").default(true).notNull(),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+});
+
 export const rolePermissions = pgTable("role_permissions", {
 	roleId: uuid("role_id").notNull(),
 	permissionId: uuid("permission_id").notNull(),
@@ -1081,6 +1135,25 @@ export const contentWatchlist = pgTable("content_watchlist", {
 	primaryKey({ columns: [table.userId, table.contentId], name: "content_watchlist_pkey"}),
 ]);
 
+export const userBadges = pgTable("user_badges", {
+	userId: uuid("user_id").notNull(),
+	badgeId: uuid("badge_id").notNull(),
+	earnedAt: timestamp("earned_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+}, (table) => [
+	index("idx_user_badges_badge").using("btree", table.badgeId.asc().nullsLast().op("uuid_ops")),
+	foreignKey({
+			columns: [table.badgeId],
+			foreignColumns: [badges.id],
+			name: "user_badges_badge_id_fkey"
+		}).onDelete("cascade"),
+	foreignKey({
+			columns: [table.userId],
+			foreignColumns: [users.id],
+			name: "user_badges_user_id_fkey"
+		}).onDelete("cascade"),
+	primaryKey({ columns: [table.userId, table.badgeId], name: "user_badges_pkey"}),
+]);
+
 export const userRoles = pgTable("user_roles", {
 	userId: uuid("user_id").notNull(),
 	roleId: uuid("role_id").notNull(),
@@ -1165,6 +1238,21 @@ export const leaderboardMonthly = pgTable("leaderboard_monthly", {
 			name: "leaderboard_monthly_user_id_fkey"
 		}).onDelete("cascade"),
 	primaryKey({ columns: [table.periodMonth, table.userId], name: "leaderboard_monthly_pkey"}),
+]);
+
+export const userMetrics = pgTable("user_metrics", {
+	userId: uuid("user_id").notNull(),
+	metricKey: varchar("metric_key", { length: 50 }).notNull(),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	value: bigint({ mode: "number" }).default(0).notNull(),
+	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+}, (table) => [
+	foreignKey({
+			columns: [table.userId],
+			foreignColumns: [users.id],
+			name: "user_metrics_user_id_fkey"
+		}).onDelete("cascade"),
+	primaryKey({ columns: [table.userId, table.metricKey], name: "user_metrics_pkey"}),
 ]);
 
 export const contentCast = pgTable("content_cast", {

@@ -121,6 +121,28 @@ The "Leveling Configuration" screen: XP earned drives a **level** via an admin-e
     month, kept current by a trigger on the ledger (XP earns only); rank = `WHERE period_month=:m
     ORDER BY xp_earned DESC`. Resets each month. (Verified: aggregates + ranks correctly.)
 
+## 4.6 Badges (dynamic-rule milestones) — migration `0007`
+
+Admin-defined milestones ("Create New Badge" / "Badge Management"). A user earns many badges
+"as and when they overcome a rule". Each badge has a **single dynamic criterion** `trigger ·
+operator · value` that tests a **per-user metric**; an **autonomous trigger** awards the badge +
+its points the instant the metric crosses the threshold.
+- **`badge_triggers`** — catalog for the "Select trigger…" dropdown (metric keys: `quizzes_completed`,
+  `watch_streak_days`, `total_watch_minutes`, `fast_completions`, `first_place_wins`,
+  `referrals_completed`). Data-driven so new triggers don't need code.
+- **`badges`** — `name, slug, description, active_icon_media_id, inactive_icon_media_id` (the
+  active/inactive icon states), `trigger_key`, `operator (gt|gte|eq|lt|lte)`, `threshold`,
+  `reward_points`, `reward_xp`, `is_active` (the "Inactive" badge), `earned_count` (denormalized
+  "X earned", trigger-maintained).
+- **`user_metrics`** — generic per-user key/value (`user_id, metric_key, value`) the triggers test;
+  bumped by feature handlers (watch → `total_watch_minutes`, referral → `referrals_completed`,
+  streak → `watch_streak_days`, …).
+- **`user_badges`** — earned badges (a user has many).
+- **Engine:** `trg_evaluate_badges` (AFTER UPDATE OF value on `user_metrics`) → `award_badge()`
+  inserts `user_badges` once + credits `reward_points`/`reward_xp` to the ledger
+  (`idempotency_key = badge:<badge>:<user>`). **Verified:** 50→no badge, 51→badge+500pts+count=1,
+  52→idempotent (no double-award/credit). Seeded the 6 sample badges (Quiz Master … Social Butterfly).
+
 ## 5. `reward_rules.config` shapes (admin-editable, versioned)
 
 ```jsonc
