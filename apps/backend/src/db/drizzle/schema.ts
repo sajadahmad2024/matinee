@@ -1,7 +1,108 @@
-import { pgTable, index, foreignKey, check, uuid, varchar, text, bigint, integer, numeric, boolean, timestamp, jsonb, uniqueIndex, unique, date, primaryKey } from "drizzle-orm/pg-core"
+import { pgTable, foreignKey, check, varchar, boolean, uuid, timestamp, index, integer, bigint, text, numeric, jsonb, uniqueIndex, unique, date, primaryKey } from "drizzle-orm/pg-core"
 import { sql } from "drizzle-orm"
 
 
+
+export const gameWidgetConfigs = pgTable("game_widget_configs", {
+	gameKey: varchar("game_key", { length: 30 }).primaryKey().notNull(),
+	isVisible: boolean("is_visible").default(true).notNull(),
+	widgetStyle: varchar("widget_style", { length: 20 }).default('card').notNull(),
+	ctaLabel: varchar("cta_label", { length: 80 }),
+	accentColor: varchar("accent_color", { length: 9 }),
+	bannerMediaId: uuid("banner_media_id"),
+	updatedBy: uuid("updated_by"),
+	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+}, (table) => [
+	foreignKey({
+			columns: [table.bannerMediaId],
+			foreignColumns: [mediaMetadata.id],
+			name: "game_widget_configs_banner_media_id_fkey"
+		}).onDelete("set null"),
+	foreignKey({
+			columns: [table.updatedBy],
+			foreignColumns: [users.id],
+			name: "game_widget_configs_updated_by_fkey"
+		}).onDelete("set null"),
+	check("game_widget_configs_game_key_check", sql`(game_key)::text = ANY ((ARRAY['daily_streak'::character varying, 'quest'::character varying, 'shared_content'::character varying, 'prediction'::character varying, 'bidding'::character varying])::text[])`),
+	check("game_widget_configs_widget_style_check", sql`(widget_style)::text = ANY ((ARRAY['card'::character varying, 'hero'::character varying, 'carousel'::character varying])::text[])`),
+]);
+
+export const contentSponsorships = pgTable("content_sponsorships", {
+	id: uuid().default(sql`uuidv7()`).primaryKey().notNull(),
+	contentId: uuid("content_id").notNull(),
+	sponsorName: varchar("sponsor_name", { length: 200 }).notNull(),
+	bannerMediaId: uuid("banner_media_id"),
+	adDurationSeconds: integer("ad_duration_seconds").default(0).notNull(),
+	placement: varchar({ length: 20 }).default('pre-roll').notNull(),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	revenueCents: bigint("revenue_cents", { mode: "number" }).default(0).notNull(),
+	currency: varchar({ length: 3 }).default('USD').notNull(),
+	startsAt: timestamp("starts_at", { withTimezone: true, mode: 'string' }),
+	endsAt: timestamp("ends_at", { withTimezone: true, mode: 'string' }),
+	isActive: boolean("is_active").default(true).notNull(),
+	createdBy: uuid("created_by"),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	adFormat: varchar("ad_format", { length: 20 }).default('sponsored').notNull(),
+	feedFrequency: integer("feed_frequency"),
+	skippableAfterSeconds: integer("skippable_after_seconds"),
+}, (table) => [
+	index("idx_content_sponsorships_commercial").using("btree", table.contentId.asc().nullsLast().op("uuid_ops")).where(sql`(is_active AND ((ad_format)::text = 'commercial'::text))`),
+	index("idx_content_sponsorships_content").using("btree", table.contentId.asc().nullsLast().op("uuid_ops")).where(sql`is_active`),
+	foreignKey({
+			columns: [table.bannerMediaId],
+			foreignColumns: [mediaMetadata.id],
+			name: "content_sponsorships_banner_media_id_fkey"
+		}).onDelete("set null"),
+	foreignKey({
+			columns: [table.contentId],
+			foreignColumns: [contents.id],
+			name: "content_sponsorships_content_id_fkey"
+		}).onDelete("cascade"),
+	foreignKey({
+			columns: [table.createdBy],
+			foreignColumns: [users.id],
+			name: "content_sponsorships_created_by_fkey"
+		}).onDelete("set null"),
+	check("content_sponsorships_ad_format_check", sql`(ad_format)::text = ANY ((ARRAY['sponsored'::character varying, 'commercial'::character varying])::text[])`),
+	check("content_sponsorships_placement_check", sql`(placement)::text = ANY ((ARRAY['pre-roll'::character varying, 'mid-roll'::character varying, 'post-roll'::character varying, 'overlay'::character varying])::text[])`),
+]);
+
+export const contentLicenses = pgTable("content_licenses", {
+	id: uuid().default(sql`uuidv7()`).primaryKey().notNull(),
+	contentId: uuid("content_id").notNull(),
+	licensorName: varchar("licensor_name", { length: 200 }).notNull(),
+	licenseType: varchar("license_type", { length: 20 }).default('non_exclusive').notNull(),
+	startsAt: timestamp("starts_at", { withTimezone: true, mode: 'string' }),
+	expiresAt: timestamp("expires_at", { withTimezone: true, mode: 'string' }),
+	renewalStatus: varchar("renewal_status", { length: 20 }).default('renewing').notNull(),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	licenseCostCents: bigint("license_cost_cents", { mode: "number" }).default(0).notNull(),
+	currency: varchar({ length: 3 }).default('USD').notNull(),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	revenueGeneratedCents: bigint("revenue_generated_cents", { mode: "number" }).default(0).notNull(),
+	revenueSource: varchar("revenue_source", { length: 100 }),
+	terms: varchar({ length: 500 }),
+	isActive: boolean("is_active").default(true).notNull(),
+	createdBy: uuid("created_by"),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+}, (table) => [
+	index("idx_content_licenses_content").using("btree", table.contentId.asc().nullsLast().op("uuid_ops")).where(sql`is_active`),
+	index("idx_content_licenses_expiry").using("btree", table.expiresAt.asc().nullsLast().op("timestamptz_ops")).where(sql`is_active`),
+	foreignKey({
+			columns: [table.contentId],
+			foreignColumns: [contents.id],
+			name: "content_licenses_content_id_fkey"
+		}).onDelete("cascade"),
+	foreignKey({
+			columns: [table.createdBy],
+			foreignColumns: [users.id],
+			name: "content_licenses_created_by_fkey"
+		}).onDelete("set null"),
+	check("content_licenses_license_type_check", sql`(license_type)::text = ANY ((ARRAY['exclusive'::character varying, 'non_exclusive'::character varying])::text[])`),
+	check("content_licenses_renewal_status_check", sql`(renewal_status)::text = ANY ((ARRAY['renewing'::character varying, 'in_negotiation'::character varying, 'expiring'::character varying, 'lapsed'::character varying, 'auto_renew'::character varying])::text[])`),
+]);
 
 export const mediaMetadata = pgTable("media_metadata", {
 	id: uuid().default(sql`uuidv7()`).primaryKey().notNull(),
@@ -371,91 +472,6 @@ export const people = pgTable("people", {
 	unique("people_slug_key").on(table.slug),
 ]);
 
-export const contents = pgTable("contents", {
-	id: uuid().default(sql`uuidv7()`).primaryKey().notNull(),
-	title: varchar({ length: 300 }).notNull(),
-	slug: varchar({ length: 320 }).notNull(),
-	description: text(),
-	contentType: varchar("content_type", { length: 20 }).default('trailer').notNull(),
-	accessTier: varchar("access_tier", { length: 20 }).default('free').notNull(),
-	unlockPoints: integer("unlock_points"),
-	studioId: uuid("studio_id"),
-	videoMediaId: uuid("video_media_id"),
-	thumbnailMediaId: uuid("thumbnail_media_id"),
-	durationSeconds: integer("duration_seconds"),
-	language: varchar({ length: 10 }),
-	status: varchar({ length: 20 }).default('draft').notNull(),
-	scheduledAt: timestamp("scheduled_at", { withTimezone: true, mode: 'string' }),
-	publishedAt: timestamp("published_at", { withTimezone: true, mode: 'string' }),
-	isBoosted: boolean("is_boosted").default(false).notNull(),
-	boostPriority: integer("boost_priority").default(0).notNull(),
-	boostedUntil: timestamp("boosted_until", { withTimezone: true, mode: 'string' }),
-	createdBy: uuid("created_by"),
-	updatedBy: uuid("updated_by"),
-	requestedBy: uuid("requested_by"),
-	approvedBy: uuid("approved_by"),
-	approvedAt: timestamp("approved_at", { withTimezone: true, mode: 'string' }),
-	rejectionReason: varchar("rejection_reason", { length: 500 }),
-	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
-	viewCount: bigint("view_count", { mode: "number" }).default(0).notNull(),
-	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
-	uniqueViewerCount: bigint("unique_viewer_count", { mode: "number" }).default(0).notNull(),
-	likeCount: integer("like_count").default(0).notNull(),
-	dislikeCount: integer("dislike_count").default(0).notNull(),
-	commentCount: integer("comment_count").default(0).notNull(),
-	shareCount: integer("share_count").default(0).notNull(),
-	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
-	totalWatchSeconds: bigint("total_watch_seconds", { mode: "number" }).default(0).notNull(),
-	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
-	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
-	deletedAt: timestamp("deleted_at", { withTimezone: true, mode: 'string' }),
-}, (table) => [
-	index("idx_contents_boost").using("btree", table.boostPriority.desc().nullsFirst().op("int4_ops")).where(sql`(is_boosted AND (deleted_at IS NULL))`),
-	index("idx_contents_scheduled").using("btree", table.scheduledAt.asc().nullsLast().op("timestamptz_ops")).where(sql`((status)::text = 'scheduled'::text)`),
-	index("idx_contents_status_published").using("btree", table.status.asc().nullsLast().op("timestamptz_ops"), table.publishedAt.desc().nullsFirst().op("text_ops")).where(sql`(deleted_at IS NULL)`),
-	index("idx_contents_studio").using("btree", table.studioId.asc().nullsLast().op("uuid_ops")).where(sql`(deleted_at IS NULL)`),
-	index("idx_contents_type").using("btree", table.contentType.asc().nullsLast().op("text_ops")).where(sql`(deleted_at IS NULL)`),
-	foreignKey({
-			columns: [table.approvedBy],
-			foreignColumns: [users.id],
-			name: "contents_approved_by_fkey"
-		}).onDelete("set null"),
-	foreignKey({
-			columns: [table.createdBy],
-			foreignColumns: [users.id],
-			name: "contents_created_by_fkey"
-		}).onDelete("set null"),
-	foreignKey({
-			columns: [table.requestedBy],
-			foreignColumns: [users.id],
-			name: "contents_requested_by_fkey"
-		}).onDelete("set null"),
-	foreignKey({
-			columns: [table.studioId],
-			foreignColumns: [studios.id],
-			name: "contents_studio_id_fkey"
-		}).onDelete("set null"),
-	foreignKey({
-			columns: [table.thumbnailMediaId],
-			foreignColumns: [mediaMetadata.id],
-			name: "contents_thumbnail_media_id_fkey"
-		}).onDelete("set null"),
-	foreignKey({
-			columns: [table.updatedBy],
-			foreignColumns: [users.id],
-			name: "contents_updated_by_fkey"
-		}).onDelete("set null"),
-	foreignKey({
-			columns: [table.videoMediaId],
-			foreignColumns: [mediaMetadata.id],
-			name: "contents_video_media_id_fkey"
-		}).onDelete("set null"),
-	unique("contents_slug_key").on(table.slug),
-	check("contents_access_tier_check", sql`(access_tier)::text = ANY ((ARRAY['free'::character varying, 'exclusive'::character varying])::text[])`),
-	check("contents_content_type_check", sql`(content_type)::text = ANY ((ARRAY['trailer'::character varying, 'bts'::character varying, 'clip'::character varying])::text[])`),
-	check("contents_status_check", sql`(status)::text = ANY ((ARRAY['draft'::character varying, 'pending_approval'::character varying, 'scheduled'::character varying, 'published'::character varying, 'rejected'::character varying, 'archived'::character varying])::text[])`),
-]);
-
 export const contentMedia = pgTable("content_media", {
 	id: uuid().default(sql`uuidv7()`).primaryKey().notNull(),
 	contentId: uuid("content_id").notNull(),
@@ -496,6 +512,110 @@ export const tags = pgTable("tags", {
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
 }, (table) => [
 	unique("tags_slug_key").on(table.slug),
+]);
+
+export const contents = pgTable("contents", {
+	id: uuid().default(sql`uuidv7()`).primaryKey().notNull(),
+	title: varchar({ length: 300 }).notNull(),
+	slug: varchar({ length: 320 }).notNull(),
+	description: text(),
+	contentType: varchar("content_type", { length: 20 }).default('trailer').notNull(),
+	accessTier: varchar("access_tier", { length: 20 }).default('free').notNull(),
+	unlockPoints: integer("unlock_points"),
+	studioId: uuid("studio_id"),
+	videoMediaId: uuid("video_media_id"),
+	thumbnailMediaId: uuid("thumbnail_media_id"),
+	durationSeconds: integer("duration_seconds"),
+	language: varchar({ length: 10 }),
+	status: varchar({ length: 20 }).default('draft').notNull(),
+	scheduledAt: timestamp("scheduled_at", { withTimezone: true, mode: 'string' }),
+	publishedAt: timestamp("published_at", { withTimezone: true, mode: 'string' }),
+	isBoosted: boolean("is_boosted").default(false).notNull(),
+	boostPriority: integer("boost_priority").default(0).notNull(),
+	boostedUntil: timestamp("boosted_until", { withTimezone: true, mode: 'string' }),
+	createdBy: uuid("created_by"),
+	updatedBy: uuid("updated_by"),
+	requestedBy: uuid("requested_by"),
+	approvedBy: uuid("approved_by"),
+	approvedAt: timestamp("approved_at", { withTimezone: true, mode: 'string' }),
+	rejectionReason: varchar("rejection_reason", { length: 500 }),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	viewCount: bigint("view_count", { mode: "number" }).default(0).notNull(),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	uniqueViewerCount: bigint("unique_viewer_count", { mode: "number" }).default(0).notNull(),
+	likeCount: integer("like_count").default(0).notNull(),
+	dislikeCount: integer("dislike_count").default(0).notNull(),
+	commentCount: integer("comment_count").default(0).notNull(),
+	shareCount: integer("share_count").default(0).notNull(),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	totalWatchSeconds: bigint("total_watch_seconds", { mode: "number" }).default(0).notNull(),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	deletedAt: timestamp("deleted_at", { withTimezone: true, mode: 'string' }),
+	licenseStatus: varchar("license_status", { length: 20 }).default('original').notNull(),
+	licenseExpiresAt: timestamp("license_expires_at", { withTimezone: true, mode: 'string' }),
+	licensorName: varchar("licensor_name", { length: 200 }),
+	licenseTerms: varchar("license_terms", { length: 500 }),
+	recommendation: varchar({ length: 20 }).default('normal').notNull(),
+	isSponsored: boolean("is_sponsored").default(false).notNull(),
+	parentContentId: uuid("parent_content_id"),
+	isAdCommercial: boolean("is_ad_commercial").default(false).notNull(),
+}, (table) => [
+	index("idx_contents_boost").using("btree", table.boostPriority.desc().nullsFirst().op("int4_ops")).where(sql`(is_boosted AND (deleted_at IS NULL))`),
+	index("idx_contents_license_expiry").using("btree", table.licenseExpiresAt.asc().nullsLast().op("timestamptz_ops")).where(sql`((license_status)::text = ANY ((ARRAY['licensed'::character varying, 'expiring'::character varying])::text[]))`),
+	index("idx_contents_parent").using("btree", table.parentContentId.asc().nullsLast().op("uuid_ops")).where(sql`(parent_content_id IS NOT NULL)`),
+	index("idx_contents_scheduled").using("btree", table.scheduledAt.asc().nullsLast().op("timestamptz_ops")).where(sql`((status)::text = 'scheduled'::text)`),
+	index("idx_contents_sponsored").using("btree", table.id.asc().nullsLast().op("uuid_ops")).where(sql`(is_sponsored AND (deleted_at IS NULL))`),
+	index("idx_contents_status_published").using("btree", table.status.asc().nullsLast().op("text_ops"), table.publishedAt.desc().nullsFirst().op("text_ops")).where(sql`(deleted_at IS NULL)`),
+	index("idx_contents_studio").using("btree", table.studioId.asc().nullsLast().op("uuid_ops")).where(sql`(deleted_at IS NULL)`),
+	index("idx_contents_type").using("btree", table.contentType.asc().nullsLast().op("text_ops")).where(sql`(deleted_at IS NULL)`),
+	foreignKey({
+			columns: [table.approvedBy],
+			foreignColumns: [users.id],
+			name: "contents_approved_by_fkey"
+		}).onDelete("set null"),
+	foreignKey({
+			columns: [table.createdBy],
+			foreignColumns: [users.id],
+			name: "contents_created_by_fkey"
+		}).onDelete("set null"),
+	foreignKey({
+			columns: [table.parentContentId],
+			foreignColumns: [table.id],
+			name: "contents_parent_content_id_fkey"
+		}).onDelete("set null"),
+	foreignKey({
+			columns: [table.requestedBy],
+			foreignColumns: [users.id],
+			name: "contents_requested_by_fkey"
+		}).onDelete("set null"),
+	foreignKey({
+			columns: [table.studioId],
+			foreignColumns: [studios.id],
+			name: "contents_studio_id_fkey"
+		}).onDelete("set null"),
+	foreignKey({
+			columns: [table.thumbnailMediaId],
+			foreignColumns: [mediaMetadata.id],
+			name: "contents_thumbnail_media_id_fkey"
+		}).onDelete("set null"),
+	foreignKey({
+			columns: [table.updatedBy],
+			foreignColumns: [users.id],
+			name: "contents_updated_by_fkey"
+		}).onDelete("set null"),
+	foreignKey({
+			columns: [table.videoMediaId],
+			foreignColumns: [mediaMetadata.id],
+			name: "contents_video_media_id_fkey"
+		}).onDelete("set null"),
+	unique("contents_slug_key").on(table.slug),
+	check("contents_access_tier_check", sql`(access_tier)::text = ANY ((ARRAY['free'::character varying, 'exclusive'::character varying])::text[])`),
+	check("contents_content_type_check", sql`(content_type)::text = ANY ((ARRAY['trailer'::character varying, 'bts'::character varying, 'clip'::character varying])::text[])`),
+	check("contents_license_status_check", sql`(license_status)::text = ANY ((ARRAY['original'::character varying, 'licensed'::character varying, 'expiring'::character varying, 'expired'::character varying])::text[])`),
+	check("contents_parent_not_self_check", sql`(parent_content_id IS NULL) OR (parent_content_id <> id)`),
+	check("contents_recommendation_check", sql`(recommendation)::text = ANY ((ARRAY['promoted'::character varying, 'normal'::character varying, 'deprioritized'::character varying])::text[])`),
+	check("contents_status_check", sql`(status)::text = ANY ((ARRAY['draft'::character varying, 'pending_approval'::character varying, 'scheduled'::character varying, 'published'::character varying, 'rejected'::character varying, 'archived'::character varying])::text[])`),
 ]);
 
 export const contentChangeHistory = pgTable("content_change_history", {
@@ -749,6 +869,52 @@ export const wallets = pgTable("wallets", {
 	check("wallets_points_balance_check", sql`points_balance >= 0`),
 ]);
 
+export const quests = pgTable("quests", {
+	id: uuid().default(sql`uuidv7()`).primaryKey().notNull(),
+	name: varchar({ length: 200 }).notNull(),
+	description: text(),
+	rewardPoints: integer("reward_points").default(0).notNull(),
+	rewardXp: integer("reward_xp").default(0).notNull(),
+	startAt: timestamp("start_at", { withTimezone: true, mode: 'string' }).notNull(),
+	endAt: timestamp("end_at", { withTimezone: true, mode: 'string' }).notNull(),
+	requireAll: boolean("require_all").default(true).notNull(),
+	status: varchar({ length: 20 }).default('draft').notNull(),
+	createdBy: uuid("created_by"),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	unlockThresholdPoints: integer("unlock_threshold_points"),
+	bannerMediaId: uuid("banner_media_id"),
+}, (table) => [
+	index("idx_quests_active").using("btree", table.status.asc().nullsLast().op("text_ops"), table.endAt.asc().nullsLast().op("text_ops")).where(sql`((status)::text = 'active'::text)`),
+	foreignKey({
+			columns: [table.bannerMediaId],
+			foreignColumns: [mediaMetadata.id],
+			name: "quests_banner_media_id_fkey"
+		}).onDelete("set null"),
+	foreignKey({
+			columns: [table.createdBy],
+			foreignColumns: [users.id],
+			name: "quests_created_by_fkey"
+		}).onDelete("set null"),
+	check("quests_check", sql`end_at > start_at`),
+	check("quests_status_check", sql`(status)::text = ANY ((ARRAY['draft'::character varying, 'active'::character varying, 'ended'::character varying, 'cancelled'::character varying])::text[])`),
+]);
+
+export const userStreaks = pgTable("user_streaks", {
+	userId: uuid("user_id").primaryKey().notNull(),
+	currentStreak: integer("current_streak").default(0).notNull(),
+	longestStreak: integer("longest_streak").default(0).notNull(),
+	lastQualifiedDate: date("last_qualified_date"),
+	totalQualifiedDays: integer("total_qualified_days").default(0).notNull(),
+	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+}, (table) => [
+	foreignKey({
+			columns: [table.userId],
+			foreignColumns: [users.id],
+			name: "user_streaks_user_id_fkey"
+		}).onDelete("cascade"),
+]);
+
 export const ledgerTransactions = pgTable("ledger_transactions", {
 	id: uuid().default(sql`uuidv7()`).primaryKey().notNull(),
 	userId: uuid("user_id").notNull(),
@@ -782,46 +948,7 @@ export const ledgerTransactions = pgTable("ledger_transactions", {
 	check("ledger_transactions_currency_check", sql`(currency)::text = ANY ((ARRAY['points'::character varying, 'xp'::character varying])::text[])`),
 	check("ledger_transactions_direction_check", sql`(direction)::text = ANY ((ARRAY['earn'::character varying, 'spend'::character varying, 'refund'::character varying, 'purchase'::character varying, 'adjust'::character varying])::text[])`),
 	check("ledger_transactions_source_kind_check", sql`(source_kind)::text = ANY ((ARRAY['earned'::character varying, 'purchased'::character varying])::text[])`),
-	check("ledger_transactions_source_type_check", sql`(source_type)::text = ANY ((ARRAY['referral'::character varying, 'daily_streak'::character varying, 'quest'::character varying, 'prediction'::character varying, 'bid'::character varying, 'bid_refund'::character varying, 'content_unlock'::character varying, 'badge'::character varying, 'admin'::character varying, 'subscription'::character varying])::text[])`),
-]);
-
-export const userStreaks = pgTable("user_streaks", {
-	userId: uuid("user_id").primaryKey().notNull(),
-	currentStreak: integer("current_streak").default(0).notNull(),
-	longestStreak: integer("longest_streak").default(0).notNull(),
-	lastQualifiedDate: date("last_qualified_date"),
-	totalQualifiedDays: integer("total_qualified_days").default(0).notNull(),
-	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
-}, (table) => [
-	foreignKey({
-			columns: [table.userId],
-			foreignColumns: [users.id],
-			name: "user_streaks_user_id_fkey"
-		}).onDelete("cascade"),
-]);
-
-export const quests = pgTable("quests", {
-	id: uuid().default(sql`uuidv7()`).primaryKey().notNull(),
-	name: varchar({ length: 200 }).notNull(),
-	description: text(),
-	rewardPoints: integer("reward_points").default(0).notNull(),
-	rewardXp: integer("reward_xp").default(0).notNull(),
-	startAt: timestamp("start_at", { withTimezone: true, mode: 'string' }).notNull(),
-	endAt: timestamp("end_at", { withTimezone: true, mode: 'string' }).notNull(),
-	requireAll: boolean("require_all").default(true).notNull(),
-	status: varchar({ length: 20 }).default('draft').notNull(),
-	createdBy: uuid("created_by"),
-	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
-	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
-}, (table) => [
-	index("idx_quests_active").using("btree", table.status.asc().nullsLast().op("text_ops"), table.endAt.asc().nullsLast().op("text_ops")).where(sql`((status)::text = 'active'::text)`),
-	foreignKey({
-			columns: [table.createdBy],
-			foreignColumns: [users.id],
-			name: "quests_created_by_fkey"
-		}).onDelete("set null"),
-	check("quests_check", sql`end_at > start_at`),
-	check("quests_status_check", sql`(status)::text = ANY ((ARRAY['draft'::character varying, 'active'::character varying, 'ended'::character varying, 'cancelled'::character varying])::text[])`),
+	check("ledger_transactions_source_type_check", sql`(source_type)::text = ANY ((ARRAY['referral'::character varying, 'daily_streak'::character varying, 'quest'::character varying, 'prediction'::character varying, 'bid'::character varying, 'bid_refund'::character varying, 'content_unlock'::character varying, 'content_share'::character varying, 'badge'::character varying, 'admin'::character varying, 'subscription'::character varying])::text[])`),
 ]);
 
 export const predictions = pgTable("predictions", {
@@ -840,8 +967,15 @@ export const predictions = pgTable("predictions", {
 	createdBy: uuid("created_by"),
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
 	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	unlockThresholdPoints: integer("unlock_threshold_points"),
+	bannerMediaId: uuid("banner_media_id"),
 }, (table) => [
 	index("idx_predictions_open").using("btree", table.status.asc().nullsLast().op("text_ops"), table.endAt.asc().nullsLast().op("text_ops")).where(sql`((status)::text = ANY ((ARRAY['open'::character varying, 'locked'::character varying])::text[]))`),
+	foreignKey({
+			columns: [table.bannerMediaId],
+			foreignColumns: [mediaMetadata.id],
+			name: "predictions_banner_media_id_fkey"
+		}).onDelete("set null"),
 	foreignKey({
 			columns: [table.contentId],
 			foreignColumns: [contents.id],
@@ -926,8 +1060,15 @@ export const auctions = pgTable("auctions", {
 	createdBy: uuid("created_by"),
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
 	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	unlockThresholdPoints: integer("unlock_threshold_points"),
+	bannerMediaId: uuid("banner_media_id"),
 }, (table) => [
 	index("idx_auctions_open").using("btree", table.status.asc().nullsLast().op("text_ops"), table.endAt.asc().nullsLast().op("text_ops")).where(sql`((status)::text = 'open'::text)`),
+	foreignKey({
+			columns: [table.bannerMediaId],
+			foreignColumns: [mediaMetadata.id],
+			name: "auctions_banner_media_id_fkey"
+		}).onDelete("set null"),
 	foreignKey({
 			columns: [table.contentId],
 			foreignColumns: [contents.id],

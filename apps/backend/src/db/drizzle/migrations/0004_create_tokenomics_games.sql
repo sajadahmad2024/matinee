@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS ledger_transactions (
     direction              VARCHAR(10) NOT NULL CHECK (direction IN ('earn','spend','refund','purchase','adjust')),
     source_kind            VARCHAR(10) NOT NULL DEFAULT 'earned' CHECK (source_kind IN ('earned','purchased')),
     source_type            VARCHAR(30) NOT NULL
-                             CHECK (source_type IN ('referral','daily_streak','quest','prediction','bid','bid_refund','content_unlock','badge','admin','subscription')),
+                             CHECK (source_type IN ('referral','daily_streak','quest','prediction','bid','bid_refund','content_unlock','content_share','badge','admin','subscription')),
     source_id              UUID,                            -- polymorphic ref to the originating row
     reward_rule_version_id UUID REFERENCES reward_rule_versions(id) ON DELETE SET NULL,
     idempotency_key        VARCHAR(120) NOT NULL UNIQUE,    -- prevents double-credit (e.g. streak:<user>:<date>)
@@ -107,6 +107,8 @@ CREATE TABLE IF NOT EXISTS quests (
     require_all   BOOLEAN NOT NULL DEFAULT true,
     status        VARCHAR(20) NOT NULL DEFAULT 'draft'
                     CHECK (status IN ('draft','active','ended','cancelled')),
+    unlock_threshold_points INTEGER,                  -- locked until user holds ≥ N points (NULL = open)
+    banner_media_id UUID REFERENCES media_metadata(id) ON DELETE SET NULL,  -- per-instance app banner override
     created_by    UUID REFERENCES users(id) ON DELETE SET NULL,
     created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -150,6 +152,8 @@ CREATE TABLE IF NOT EXISTS predictions (
                         CHECK (status IN ('open','locked','resolved','cancelled')),
     reward_points     INTEGER NOT NULL DEFAULT 0,
     reward_xp         INTEGER NOT NULL DEFAULT 0,
+    unlock_threshold_points INTEGER,                 -- locked until user holds ≥ N points (NULL = open)
+    banner_media_id   UUID REFERENCES media_metadata(id) ON DELETE SET NULL,  -- per-instance app banner override
     correct_option_id UUID,                          -- → prediction_options.id (logical; set at resolve)
     resolved_by       UUID REFERENCES users(id) ON DELETE SET NULL,
     resolved_at       TIMESTAMPTZ,
@@ -195,6 +199,8 @@ CREATE TABLE IF NOT EXISTS auctions (
     status         VARCHAR(20) NOT NULL DEFAULT 'scheduled'
                      CHECK (status IN ('scheduled','open','closed','settled','cancelled')),
     min_bid_points INTEGER NOT NULL DEFAULT 0,
+    unlock_threshold_points INTEGER,                 -- locked until user holds ≥ N points (NULL = open)
+    banner_media_id UUID REFERENCES media_metadata(id) ON DELETE SET NULL,  -- per-instance app banner override
     winner_user_id UUID REFERENCES users(id) ON DELETE SET NULL,
     winning_amount INTEGER,
     created_by     UUID REFERENCES users(id) ON DELETE SET NULL,
@@ -216,6 +222,21 @@ CREATE TABLE IF NOT EXISTS bids (
 CREATE INDEX idx_bids_auction ON bids(auction_id, amount_points DESC);
 CREATE INDEX idx_bids_user    ON bids(user_id);
 
+-- ─── App-widget config (per game TYPE; customer app reads this to render widgets) ──
+-- Per-INSTANCE banner overrides live on quests/predictions/auctions.banner_media_id.
+CREATE TABLE IF NOT EXISTS game_widget_configs (
+    game_key        VARCHAR(30) PRIMARY KEY
+                      CHECK (game_key IN ('daily_streak','quest','shared_content','prediction','bidding')),
+    is_visible      BOOLEAN NOT NULL DEFAULT true,
+    widget_style    VARCHAR(20) NOT NULL DEFAULT 'card'
+                      CHECK (widget_style IN ('card','hero','carousel')),
+    cta_label       VARCHAR(80),
+    accent_color    VARCHAR(9),                        -- hex, e.g. '#7C3AED'
+    banner_media_id UUID REFERENCES media_metadata(id) ON DELETE SET NULL,
+    updated_by      UUID REFERENCES users(id) ON DELETE SET NULL,
+    updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
 -- ════════════════════════════════════════════════════════════════════════════
 -- Seed: game reward_rules (config holds the amounts) + version-1 snapshots
 -- ════════════════════════════════════════════════════════════════════════════
@@ -224,11 +245,22 @@ INSERT INTO reward_rules (rule_key, name, description, is_enabled, config, versi
      '{"min_watch_seconds":300,"points_per_day":10,"xp_per_day":5,"bonus_thresholds":{"7":50,"30":300}}'::jsonb, 1),
   ('quest', 'Quests', 'Watch a set of videos before the deadline', true,
      '{"default_points":100,"default_xp":50}'::jsonb, 1),
+  ('shared_content', 'Shared Content', 'Earn for sharing content (autonomous, capped daily)', true,
+     '{"points_per_share":15,"daily_share_cap":3,"xp_per_share":5}'::jsonb, 1),
   ('prediction', 'Predictions', 'Predict outcomes to earn', true,
      '{"default_points":100,"default_xp":25}'::jsonb, 1),
   ('bidding', 'Bidding', 'Spend points to win prizes', true,
      '{"min_increment_points":10}'::jsonb, 1)
 ON CONFLICT (rule_key) DO NOTHING;
+
+-- One app-widget row per fixed game type (visible card with a default CTA)
+INSERT INTO game_widget_configs (game_key, cta_label) VALUES
+  ('daily_streak',  'Keep your streak'),
+  ('quest',         'Start a quest'),
+  ('shared_content','Share & earn'),
+  ('prediction',    'Predict & win'),
+  ('bidding',       'Place a bid')
+ON CONFLICT (game_key) DO NOTHING;
 
 -- Snapshot the current config of every rule as version 1 (referral/daily_login from 0002 too)
 INSERT INTO reward_rule_versions (rule_id, rule_key, version, config)

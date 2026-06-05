@@ -1,7 +1,20 @@
 import { relations } from "drizzle-orm/relations";
-import { mediaMetadata, mediaStatusEvents, users, userEnforcementActions, oauthAccounts, otpCodes, rewardRules, geoPolicies, referralCodes, referralRedemptions, deviceTokens, studios, people, contents, contentMedia, contentChangeHistory, contentReactions, comments, commentReports, contentShares, contentModerationLog, contentUnlocks, contentViews, rewardRuleVersions, wallets, ledgerTransactions, userStreaks, quests, predictions, predictionOptions, predictionEntries, auctions, bids, badges, badgeTriggers, permissions, rolePermissions, roles, contentTags, tags, questContents, deviceTokenTopics, contentGenres, genres, contentWatchlist, userBadges, userRoles, commentReactions, questContentProgress, leaderboardMonthly, userMetrics, contentCast, contentProgress, questParticipations, userDailyActivity, contentDailyStats } from "./schema";
+import { mediaMetadata, gameWidgetConfigs, users, contentSponsorships, contents, contentLicenses, mediaStatusEvents, userEnforcementActions, oauthAccounts, otpCodes, rewardRules, geoPolicies, referralCodes, referralRedemptions, deviceTokens, studios, people, contentMedia, contentChangeHistory, contentReactions, comments, commentReports, contentShares, contentModerationLog, contentUnlocks, contentViews, rewardRuleVersions, wallets, quests, userStreaks, ledgerTransactions, predictions, predictionOptions, predictionEntries, auctions, bids, badges, badgeTriggers, permissions, rolePermissions, roles, contentTags, tags, questContents, deviceTokenTopics, contentGenres, genres, contentWatchlist, userBadges, userRoles, commentReactions, questContentProgress, leaderboardMonthly, userMetrics, contentCast, contentProgress, questParticipations, userDailyActivity, contentDailyStats } from "./schema";
+
+export const gameWidgetConfigsRelations = relations(gameWidgetConfigs, ({one}) => ({
+	mediaMetadatum: one(mediaMetadata, {
+		fields: [gameWidgetConfigs.bannerMediaId],
+		references: [mediaMetadata.id]
+	}),
+	user: one(users, {
+		fields: [gameWidgetConfigs.updatedBy],
+		references: [users.id]
+	}),
+}));
 
 export const mediaMetadataRelations = relations(mediaMetadata, ({one, many}) => ({
+	gameWidgetConfigs: many(gameWidgetConfigs),
+	contentSponsorships: many(contentSponsorships),
 	mediaMetadatum: one(mediaMetadata, {
 		fields: [mediaMetadata.posterMediaId],
 		references: [mediaMetadata.id],
@@ -14,14 +27,17 @@ export const mediaMetadataRelations = relations(mediaMetadata, ({one, many}) => 
 	users: many(users),
 	studios: many(studios),
 	people: many(people),
+	contentMedias: many(contentMedia),
 	contents_thumbnailMediaId: many(contents, {
 		relationName: "contents_thumbnailMediaId_mediaMetadata_id"
 	}),
 	contents_videoMediaId: many(contents, {
 		relationName: "contents_videoMediaId_mediaMetadata_id"
 	}),
-	contentMedias: many(contentMedia),
+	quests: many(quests),
+	predictions: many(predictions),
 	predictionOptions: many(predictionOptions),
+	auctions: many(auctions),
 	badges_activeIconMediaId: many(badges, {
 		relationName: "badges_activeIconMediaId_mediaMetadata_id"
 	}),
@@ -30,14 +46,10 @@ export const mediaMetadataRelations = relations(mediaMetadata, ({one, many}) => 
 	}),
 }));
 
-export const mediaStatusEventsRelations = relations(mediaStatusEvents, ({one}) => ({
-	mediaMetadatum: one(mediaMetadata, {
-		fields: [mediaStatusEvents.mediaId],
-		references: [mediaMetadata.id]
-	}),
-}));
-
 export const usersRelations = relations(users, ({one, many}) => ({
+	gameWidgetConfigs: many(gameWidgetConfigs),
+	contentSponsorships: many(contentSponsorships),
+	contentLicenses: many(contentLicenses),
 	mediaMetadatum: one(mediaMetadata, {
 		fields: [users.avatarMediaId],
 		references: [mediaMetadata.id]
@@ -103,9 +115,9 @@ export const usersRelations = relations(users, ({one, many}) => ({
 	contentViews: many(contentViews),
 	rewardRuleVersions: many(rewardRuleVersions),
 	wallets: many(wallets),
-	ledgerTransactions: many(ledgerTransactions),
-	userStreaks: many(userStreaks),
 	quests: many(quests),
+	userStreaks: many(userStreaks),
+	ledgerTransactions: many(ledgerTransactions),
 	predictions_createdBy: many(predictions, {
 		relationName: "predictions_createdBy_users_id"
 	}),
@@ -136,6 +148,103 @@ export const usersRelations = relations(users, ({one, many}) => ({
 	contentProgresses: many(contentProgress),
 	questParticipations: many(questParticipations),
 	userDailyActivities: many(userDailyActivity),
+}));
+
+export const contentSponsorshipsRelations = relations(contentSponsorships, ({one}) => ({
+	mediaMetadatum: one(mediaMetadata, {
+		fields: [contentSponsorships.bannerMediaId],
+		references: [mediaMetadata.id]
+	}),
+	content: one(contents, {
+		fields: [contentSponsorships.contentId],
+		references: [contents.id]
+	}),
+	user: one(users, {
+		fields: [contentSponsorships.createdBy],
+		references: [users.id]
+	}),
+}));
+
+export const contentsRelations = relations(contents, ({one, many}) => ({
+	contentSponsorships: many(contentSponsorships),
+	contentLicenses: many(contentLicenses),
+	contentMedias: many(contentMedia),
+	user_approvedBy: one(users, {
+		fields: [contents.approvedBy],
+		references: [users.id],
+		relationName: "contents_approvedBy_users_id"
+	}),
+	user_createdBy: one(users, {
+		fields: [contents.createdBy],
+		references: [users.id],
+		relationName: "contents_createdBy_users_id"
+	}),
+	content: one(contents, {
+		fields: [contents.parentContentId],
+		references: [contents.id],
+		relationName: "contents_parentContentId_contents_id"
+	}),
+	contents: many(contents, {
+		relationName: "contents_parentContentId_contents_id"
+	}),
+	user_requestedBy: one(users, {
+		fields: [contents.requestedBy],
+		references: [users.id],
+		relationName: "contents_requestedBy_users_id"
+	}),
+	studio: one(studios, {
+		fields: [contents.studioId],
+		references: [studios.id]
+	}),
+	mediaMetadatum_thumbnailMediaId: one(mediaMetadata, {
+		fields: [contents.thumbnailMediaId],
+		references: [mediaMetadata.id],
+		relationName: "contents_thumbnailMediaId_mediaMetadata_id"
+	}),
+	user_updatedBy: one(users, {
+		fields: [contents.updatedBy],
+		references: [users.id],
+		relationName: "contents_updatedBy_users_id"
+	}),
+	mediaMetadatum_videoMediaId: one(mediaMetadata, {
+		fields: [contents.videoMediaId],
+		references: [mediaMetadata.id],
+		relationName: "contents_videoMediaId_mediaMetadata_id"
+	}),
+	contentChangeHistories: many(contentChangeHistory),
+	contentReactions: many(contentReactions),
+	comments: many(comments),
+	contentShares: many(contentShares),
+	contentUnlocks: many(contentUnlocks),
+	contentViews: many(contentViews),
+	predictions: many(predictions),
+	auctions: many(auctions),
+	contentTags: many(contentTags),
+	questContents: many(questContents),
+	contentGenres: many(contentGenres),
+	contentWatchlists: many(contentWatchlist),
+	questContentProgresses: many(questContentProgress),
+	contentCasts: many(contentCast),
+	contentProgresses: many(contentProgress),
+	contentDailyStats: many(contentDailyStats),
+}));
+
+export const contentLicensesRelations = relations(contentLicenses, ({one}) => ({
+	content: one(contents, {
+		fields: [contentLicenses.contentId],
+		references: [contents.id]
+	}),
+	user: one(users, {
+		fields: [contentLicenses.createdBy],
+		references: [users.id]
+	}),
+}));
+
+export const mediaStatusEventsRelations = relations(mediaStatusEvents, ({one}) => ({
+	mediaMetadatum: one(mediaMetadata, {
+		fields: [mediaStatusEvents.mediaId],
+		references: [mediaMetadata.id]
+	}),
 }));
 
 export const userEnforcementActionsRelations = relations(userEnforcementActions, ({one}) => ({
@@ -222,60 +331,6 @@ export const peopleRelations = relations(people, ({one, many}) => ({
 		references: [mediaMetadata.id]
 	}),
 	contentCasts: many(contentCast),
-}));
-
-export const contentsRelations = relations(contents, ({one, many}) => ({
-	user_approvedBy: one(users, {
-		fields: [contents.approvedBy],
-		references: [users.id],
-		relationName: "contents_approvedBy_users_id"
-	}),
-	user_createdBy: one(users, {
-		fields: [contents.createdBy],
-		references: [users.id],
-		relationName: "contents_createdBy_users_id"
-	}),
-	user_requestedBy: one(users, {
-		fields: [contents.requestedBy],
-		references: [users.id],
-		relationName: "contents_requestedBy_users_id"
-	}),
-	studio: one(studios, {
-		fields: [contents.studioId],
-		references: [studios.id]
-	}),
-	mediaMetadatum_thumbnailMediaId: one(mediaMetadata, {
-		fields: [contents.thumbnailMediaId],
-		references: [mediaMetadata.id],
-		relationName: "contents_thumbnailMediaId_mediaMetadata_id"
-	}),
-	user_updatedBy: one(users, {
-		fields: [contents.updatedBy],
-		references: [users.id],
-		relationName: "contents_updatedBy_users_id"
-	}),
-	mediaMetadatum_videoMediaId: one(mediaMetadata, {
-		fields: [contents.videoMediaId],
-		references: [mediaMetadata.id],
-		relationName: "contents_videoMediaId_mediaMetadata_id"
-	}),
-	contentMedias: many(contentMedia),
-	contentChangeHistories: many(contentChangeHistory),
-	contentReactions: many(contentReactions),
-	comments: many(comments),
-	contentShares: many(contentShares),
-	contentUnlocks: many(contentUnlocks),
-	contentViews: many(contentViews),
-	predictions: many(predictions),
-	auctions: many(auctions),
-	contentTags: many(contentTags),
-	questContents: many(questContents),
-	contentGenres: many(contentGenres),
-	contentWatchlists: many(contentWatchlist),
-	questContentProgresses: many(questContentProgress),
-	contentCasts: many(contentCast),
-	contentProgresses: many(contentProgress),
-	contentDailyStats: many(contentDailyStats),
 }));
 
 export const contentMediaRelations = relations(contentMedia, ({one}) => ({
@@ -413,6 +468,27 @@ export const walletsRelations = relations(wallets, ({one}) => ({
 	}),
 }));
 
+export const questsRelations = relations(quests, ({one, many}) => ({
+	mediaMetadatum: one(mediaMetadata, {
+		fields: [quests.bannerMediaId],
+		references: [mediaMetadata.id]
+	}),
+	user: one(users, {
+		fields: [quests.createdBy],
+		references: [users.id]
+	}),
+	questContents: many(questContents),
+	questContentProgresses: many(questContentProgress),
+	questParticipations: many(questParticipations),
+}));
+
+export const userStreaksRelations = relations(userStreaks, ({one}) => ({
+	user: one(users, {
+		fields: [userStreaks.userId],
+		references: [users.id]
+	}),
+}));
+
 export const ledgerTransactionsRelations = relations(ledgerTransactions, ({one}) => ({
 	rewardRuleVersion: one(rewardRuleVersions, {
 		fields: [ledgerTransactions.rewardRuleVersionId],
@@ -424,24 +500,11 @@ export const ledgerTransactionsRelations = relations(ledgerTransactions, ({one})
 	}),
 }));
 
-export const userStreaksRelations = relations(userStreaks, ({one}) => ({
-	user: one(users, {
-		fields: [userStreaks.userId],
-		references: [users.id]
-	}),
-}));
-
-export const questsRelations = relations(quests, ({one, many}) => ({
-	user: one(users, {
-		fields: [quests.createdBy],
-		references: [users.id]
-	}),
-	questContents: many(questContents),
-	questContentProgresses: many(questContentProgress),
-	questParticipations: many(questParticipations),
-}));
-
 export const predictionsRelations = relations(predictions, ({one, many}) => ({
+	mediaMetadatum: one(mediaMetadata, {
+		fields: [predictions.bannerMediaId],
+		references: [mediaMetadata.id]
+	}),
 	content: one(contents, {
 		fields: [predictions.contentId],
 		references: [contents.id]
@@ -488,6 +551,10 @@ export const predictionEntriesRelations = relations(predictionEntries, ({one}) =
 }));
 
 export const auctionsRelations = relations(auctions, ({one, many}) => ({
+	mediaMetadatum: one(mediaMetadata, {
+		fields: [auctions.bannerMediaId],
+		references: [mediaMetadata.id]
+	}),
 	content: one(contents, {
 		fields: [auctions.contentId],
 		references: [contents.id]

@@ -57,8 +57,13 @@ export function VideoList({ tab, searchQuery, page, pageSize }: VideoListProps) 
       case "rejected":
         videos = REJECTED_VIDEOS;
         break;
+      case "archived":
+        videos = MOCK_VIDEOS.filter((v) => v.status === "archived");
+        break;
       default:
-        videos = MOCK_VIDEOS.filter((v) => v.status !== "draft" && v.status !== "scheduled");
+        videos = MOCK_VIDEOS.filter(
+          (v) => v.status !== "draft" && v.status !== "scheduled" && v.status !== "archived",
+        );
     }
 
     if (searchQuery) {

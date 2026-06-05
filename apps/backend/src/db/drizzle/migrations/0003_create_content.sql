@@ -57,10 +57,14 @@ CREATE TABLE IF NOT EXISTS contents (
     slug                VARCHAR(320) NOT NULL UNIQUE,
     description         TEXT,
     content_type        VARCHAR(20) NOT NULL DEFAULT 'trailer'
-                          CHECK (content_type IN ('trailer','bts','clip')),  -- short vertical videos (exclusivity = access_tier)
+                          CHECK (content_type IN ('trailer','bts','clip')),  -- every type is first-class content
     access_tier         VARCHAR(20) NOT NULL DEFAULT 'free'
-                          CHECK (access_tier IN ('free','exclusive')),
+                          CHECK (access_tier IN ('free','exclusive')),       -- ANY content may be exclusive
     unlock_points       INTEGER,                       -- cost when access_tier='exclusive'
+
+    -- A BTS/clip MAY belong to one primary title (e.g. its trailer); NULL = standalone.
+    -- A title can have many extras. No content REQUIRES a BTS.
+    parent_content_id   UUID REFERENCES contents(id) ON DELETE SET NULL,
 
     studio_id           UUID REFERENCES studios(id) ON DELETE SET NULL,
     -- genres are many-per-content via content_genres (M2M), like tags
@@ -69,6 +73,21 @@ CREATE TABLE IF NOT EXISTS contents (
     thumbnail_media_id  UUID REFERENCES media_metadata(id) ON DELETE SET NULL,  -- primary thumbnail
     duration_seconds    INTEGER,                       -- denormalized from media
     language            VARCHAR(10),
+
+    -- Licensing (admin signals shown on the content row)
+    license_status      VARCHAR(20) NOT NULL DEFAULT 'original'
+                          CHECK (license_status IN ('original','licensed','expiring','expired')),
+    license_expires_at  TIMESTAMPTZ,                    -- NULL for 'original'
+    licensor_name       VARCHAR(200),                  -- rights holder when licensed
+    license_terms       VARCHAR(500),                  -- short terms summary (chip tooltip)
+
+    -- Editorial recommendation (complements is_boosted; 'deprioritized' was unrepresentable)
+    recommendation      VARCHAR(20) NOT NULL DEFAULT 'normal'
+                          CHECK (recommendation IN ('promoted','normal','deprioritized')),
+
+    -- Ad-Sales (denormalized flags; detail in content_sponsorships)
+    is_sponsored        BOOLEAN NOT NULL DEFAULT false,   -- carries a sponsor logo + ad
+    is_ad_commercial    BOOLEAN NOT NULL DEFAULT false,   -- is itself a feed commercial
 
     status              VARCHAR(20) NOT NULL DEFAULT 'draft'
                           CHECK (status IN ('draft','pending_approval','scheduled','published','rejected','archived')),
@@ -97,13 +116,18 @@ CREATE TABLE IF NOT EXISTS contents (
 
     created_at          TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at          TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    deleted_at          TIMESTAMPTZ
+    deleted_at          TIMESTAMPTZ,
+
+    CHECK (parent_content_id IS NULL OR parent_content_id <> id)   -- cannot be its own parent
 );
 CREATE INDEX idx_contents_status_published ON contents(status, published_at DESC) WHERE deleted_at IS NULL;
 CREATE INDEX idx_contents_studio           ON contents(studio_id) WHERE deleted_at IS NULL;
 CREATE INDEX idx_contents_type             ON contents(content_type) WHERE deleted_at IS NULL;
+CREATE INDEX idx_contents_parent           ON contents(parent_content_id) WHERE parent_content_id IS NOT NULL;
 CREATE INDEX idx_contents_boost            ON contents(boost_priority DESC) WHERE is_boosted AND deleted_at IS NULL;
 CREATE INDEX idx_contents_scheduled        ON contents(scheduled_at) WHERE status = 'scheduled';
+CREATE INDEX idx_contents_license_expiry   ON contents(license_expires_at) WHERE license_status IN ('licensed','expiring');
+CREATE INDEX idx_contents_sponsored        ON contents(id) WHERE is_sponsored AND deleted_at IS NULL;
 
 -- Extra gallery images (the editor's multiple thumbnail/poster slots)
 CREATE TABLE IF NOT EXISTS content_media (
@@ -116,6 +140,58 @@ CREATE TABLE IF NOT EXISTS content_media (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 CREATE INDEX idx_content_media_content ON content_media(content_id);
+
+-- Ad-Sales: a content item may be sponsored (carries a sponsor logo + ad) OR be an Ad-Sales
+-- commercial inserted into the swipe feed. One active placement at a time; history retained.
+CREATE TABLE IF NOT EXISTS content_sponsorships (
+    id                  UUID PRIMARY KEY DEFAULT uuidv7(),
+    content_id          UUID NOT NULL REFERENCES contents(id) ON DELETE CASCADE,
+    ad_format           VARCHAR(20) NOT NULL DEFAULT 'sponsored'
+                          CHECK (ad_format IN ('sponsored','commercial')),  -- sponsored content vs feed commercial
+    sponsor_name        VARCHAR(200) NOT NULL,         -- sponsor / advertiser
+    banner_media_id     UUID REFERENCES media_metadata(id) ON DELETE SET NULL,  -- "Sponsored by" logo/banner
+    ad_duration_seconds INTEGER NOT NULL DEFAULT 0,    -- timer: ad length / commercial length
+    placement           VARCHAR(20) NOT NULL DEFAULT 'pre-roll'
+                          CHECK (placement IN ('pre-roll','mid-roll','post-roll','overlay')),  -- sponsored only
+    feed_frequency      INTEGER,                       -- commercial: insert every N videos in the feed
+    skippable_after_seconds INTEGER,                   -- commercial: skip countdown (NULL = not skippable)
+    revenue_cents       BIGINT NOT NULL DEFAULT 0,     -- ad-sales revenue (settled by billing)
+    currency            VARCHAR(3) NOT NULL DEFAULT 'USD',
+    starts_at           TIMESTAMPTZ,
+    ends_at             TIMESTAMPTZ,
+    is_active           BOOLEAN NOT NULL DEFAULT true,
+    created_by          UUID REFERENCES users(id) ON DELETE SET NULL,
+    created_at          TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at          TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX idx_content_sponsorships_content ON content_sponsorships(content_id) WHERE is_active;
+CREATE INDEX idx_content_sponsorships_commercial ON content_sponsorships(content_id)
+  WHERE is_active AND ad_format = 'commercial';
+
+-- Operational licensing agreements (cost / revenue / ROI / renewal) — powers the Licensing table.
+-- (The denormalized license_status/expires chip lives on contents; this is the full record.)
+CREATE TABLE IF NOT EXISTS content_licenses (
+    id                      UUID PRIMARY KEY DEFAULT uuidv7(),
+    content_id              UUID NOT NULL REFERENCES contents(id) ON DELETE CASCADE,
+    licensor_name           VARCHAR(200) NOT NULL,
+    license_type            VARCHAR(20) NOT NULL DEFAULT 'non_exclusive'
+                              CHECK (license_type IN ('exclusive','non_exclusive')),
+    starts_at               TIMESTAMPTZ,
+    expires_at              TIMESTAMPTZ,                 -- days-left + expiry alerts derive from this
+    renewal_status          VARCHAR(20) NOT NULL DEFAULT 'renewing'
+                              CHECK (renewal_status IN ('renewing','in_negotiation','expiring','lapsed','auto_renew')),
+    license_cost_cents      BIGINT NOT NULL DEFAULT 0,
+    currency                VARCHAR(3) NOT NULL DEFAULT 'USD',
+    revenue_generated_cents BIGINT NOT NULL DEFAULT 0,  -- attributed revenue (ROI = revenue / cost)
+    revenue_source          VARCHAR(100),               -- e.g. 'Ads + Subs'
+    terms                   VARCHAR(500),
+    is_active               BOOLEAN NOT NULL DEFAULT true,
+    created_by              UUID REFERENCES users(id) ON DELETE SET NULL,
+    created_at              TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at              TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX idx_content_licenses_content ON content_licenses(content_id) WHERE is_active;
+CREATE INDEX idx_content_licenses_expiry  ON content_licenses(expires_at) WHERE is_active;
 
 CREATE TABLE IF NOT EXISTS content_genres (
     content_id UUID NOT NULL REFERENCES contents(id) ON DELETE CASCADE,
