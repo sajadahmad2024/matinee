@@ -1,8 +1,8 @@
 "use client";
 
-import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import * as React from "react";
 
+import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 
 import { cn } from "@/app/_libs/utils/cn";
 
@@ -34,9 +34,12 @@ function TooltipTrigger({ ...props }: React.ComponentProps<typeof TooltipPrimiti
 function TooltipContent({
   className,
   sideOffset = 0,
+  showArrow = false,
   children,
   ...props
-}: React.ComponentProps<typeof TooltipPrimitive.Content>) {
+}: React.ComponentProps<typeof TooltipPrimitive.Content> & {
+  showArrow?: boolean;
+}) {
   return (
     <TooltipPrimitive.Portal>
       <TooltipPrimitive.Content
@@ -48,7 +51,9 @@ function TooltipContent({
         )}
         {...props}>
         {children}
-        <TooltipPrimitive.Arrow className="bg-primary fill-primary z-50 size-2.5 translate-y-[calc(-50%_-_2px)] rotate-45 rounded-[2px]" />
+        {showArrow && (
+          <TooltipPrimitive.Arrow className="bg-primary fill-primary z-50 size-2.5 translate-y-[calc(-50%_-_2px)] rotate-45 rounded-[2px]" />
+        )}
       </TooltipPrimitive.Content>
     </TooltipPrimitive.Portal>
   );

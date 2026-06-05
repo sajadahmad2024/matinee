@@ -11,9 +11,11 @@ import path from "node:path";
 
 const remotePatterns: RemotePattern[] = [];
 
+const workspaceRoot = path.join(__dirname, "../../");
+
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  outputFileTracingRoot: path.join(__dirname, "./"),
+  outputFileTracingRoot: workspaceRoot,
   poweredByHeader: false,
   productionBrowserSourceMaps: true, // sentry and posthog config
   skipTrailingSlashRedirect: true,
@@ -26,6 +28,7 @@ const nextConfig: NextConfig = {
   // Force Turbopack to resolve Zod via CJS to avoid ESM module splitting
   // that causes "_check is not defined" errors (https://github.com/colinhacks/zod/issues/5469)
   turbopack: {
+    root: workspaceRoot,
     resolveAlias: {
       zod: "zod/index.cjs",
     },

@@ -306,6 +306,9 @@
         ],
         "parameters": [],
         "responses": {
+          "204": {
+            "description": "No Content"
+          },
           "400": {
             "$ref": "#/components/responses/400"
           },
