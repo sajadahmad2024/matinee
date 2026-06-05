@@ -1,39 +1,35 @@
-"use client";
-
-import { useState } from "react";
-
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Suspense } from "react";
 
 import { ModerationAnalytics } from "./_components/moderation-analytics";
-import { type ModerationTicket, ModerationTicketList } from "./_components/moderation-ticket-list";
-import { TicketResolutionModal } from "./_components/ticket-resolution-modal";
+import { ModerationDashboardClient } from "./_components/moderation-dashboard-client";
+import { TimeRangeSelector } from "./_components/time-range-selector";
 
-export default function ModerationQueuePage() {
-  const [timeFilter, setTimeFilter] = useState("24h");
-  const [selectedTicket, setSelectedTicket] = useState<ModerationTicket | null>(null);
-  const [pendingCount] = useState(67);
+export type ModerationSearchParams = {
+  timeRange?: string;
+  q?: string;
+  type?: string;
+  severity?: string;
+  category?: string;
+  page?: string;
+  pageSize?: string;
+};
 
-  const handleOpenTicket = (ticket: ModerationTicket) => {
-    setSelectedTicket(ticket);
-  };
+interface PageProps {
+  searchParams: Promise<ModerationSearchParams>;
+}
 
-  const handleCloseTicket = () => {
-    setSelectedTicket(null);
-  };
+export default async function ModerationQueuePage({ searchParams }: PageProps) {
+  const {
+    timeRange = "24h",
+    q = "",
+    type = "all",
+    severity = "all",
+    category = "all",
+    page = "1",
+    pageSize = "10",
+  } = await searchParams;
 
-  const handleResolveTicket = (ticketId: string, action: string) => {
-    console.warn(`Resolved ticket ${ticketId} with action: ${action}`);
-  };
-
-  const handleNextTicket = () => {
-    setSelectedTicket(null);
-  };
+  const pendingCount = 67; // This would normally come from the server based on timeRange
 
   return (
     <div className="animate-fade-in space-y-6">
@@ -45,34 +41,31 @@ export default function ModerationQueuePage() {
             Review and manage flagged content, users, and community reports.
           </p>
         </div>
-        <Select value={timeFilter} onValueChange={setTimeFilter}>
-          <SelectTrigger className="bg-background/50 w-[130px]">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent className="border-border bg-card">
-            <SelectItem value="24h">Last 24h</SelectItem>
-            <SelectItem value="7d">Last 7 days</SelectItem>
-            <SelectItem value="30d">Last 30 days</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="flex items-center gap-3">
+          <Suspense fallback={<div className="bg-muted h-10 w-[140px] animate-pulse rounded-md" />}>
+            <TimeRangeSelector defaultValue={timeRange} />
+          </Suspense>
+        </div>
       </div>
 
       {/* Analytics Section */}
-      <ModerationAnalytics pendingCount={pendingCount} />
+      <Suspense
+        fallback={<div className="bg-muted/20 h-[300px] w-full animate-pulse rounded-xl" />}>
+        <ModerationAnalytics pendingCount={pendingCount} />
+      </Suspense>
 
-      {/* Ticket List */}
-      <div>
-        <h2 className="text-foreground mb-4 text-lg font-semibold">Pending Tickets</h2>
-        <ModerationTicketList onOpenTicket={handleOpenTicket} />
-      </div>
-
-      {/* Resolution Modal */}
-      <TicketResolutionModal
-        ticket={selectedTicket}
-        onClose={handleCloseTicket}
-        onResolve={handleResolveTicket}
-        onNext={handleNextTicket}
-      />
+      {/* Ticket List and Client State */}
+      <Suspense
+        fallback={<div className="bg-muted/10 h-[600px] w-full animate-pulse rounded-xl" />}>
+        <ModerationDashboardClient
+          searchQuery={q}
+          typeFilter={type}
+          severityFilter={severity}
+          categoryFilter={category}
+          page={Number(page)}
+          pageSize={Number(pageSize)}
+        />
+      </Suspense>
     </div>
   );
 }

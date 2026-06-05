@@ -2,6 +2,7 @@
 
 import { useCallback } from "react";
 
+import type { Route } from "next";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import {
@@ -31,7 +32,7 @@ export function TimeRangeSelector({ defaultValue }: TimeRangeSelectorProps) {
   );
 
   const handleValueChange = (value: string) => {
-    router.push(`${pathname}?${createQueryString("timeRange", value)}`, { scroll: false });
+    router.push(`${pathname}?${createQueryString("timeRange", value)}` as Route, { scroll: false });
   };
 
   return (

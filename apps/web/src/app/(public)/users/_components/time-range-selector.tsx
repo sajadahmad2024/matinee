@@ -42,6 +42,7 @@ export function TimeRangeSelector({ defaultValue }: TimeRangeSelectorProps) {
         <SelectValue />
       </SelectTrigger>
       <SelectContent className="border-border bg-card z-50">
+        <SelectItem value="24h">Last 24 hours</SelectItem>
         <SelectItem value="7d">Last 7 days</SelectItem>
         <SelectItem value="1m">Last month</SelectItem>
         <SelectItem value="1y">Last year</SelectItem>
