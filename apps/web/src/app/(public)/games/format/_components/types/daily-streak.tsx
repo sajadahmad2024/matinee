@@ -6,29 +6,24 @@ import { Sparkles } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 import { GlassCard } from "../../../_components/glass-card";
 import { AppWidgetCard } from "../shared/app-widget-card";
 import { GamificationExtras } from "../shared/gamification-extras";
-import { type PointRule, PointRulesEditor, type RuleTrigger } from "../shared/point-rules-editor";
-
-// The "5 starter options" — time-on-app + engagement triggers.
-const TRIGGERS: RuleTrigger[] = [
-  { value: "watch_minutes_today", label: "Watch time today", unit: "min" },
-  { value: "sessions_today", label: "Sessions today" },
-  { value: "app_open_streak", label: "Daily-open streak", unit: "days" },
-  { value: "videos_completed_today", label: "Videos completed today" },
-  { value: "engagement_actions_today", label: "Engagement actions today" },
-];
-
-const INITIAL_RULES: PointRule[] = [
-  { id: "r1", trigger: "watch_minutes_today", operator: "gte", value: 5, points: 10 },
-  { id: "r2", trigger: "app_open_streak", operator: "gte", value: 7, points: 50 },
-  { id: "r3", trigger: "videos_completed_today", operator: "gte", value: 3, points: 15 },
-];
+import { type Milestone, MilestoneBonusEditor } from "../shared/milestone-bonus-editor";
+import { RewardAmounts } from "../shared/reward-amounts";
 
 export function DailyStreakSettings() {
-  const [rules, setRules] = useState<PointRule[]>(INITIAL_RULES);
+  // Maps 1:1 to reward_rules['daily_streak'].config
+  const [minWatchSeconds, setMinWatchSeconds] = useState(300);
+  const [pointsPerDay, setPointsPerDay] = useState(10);
+  const [xpPerDay, setXpPerDay] = useState(5);
+  const [milestones, setMilestones] = useState<Milestone[]>([
+    { id: "m1", threshold: 7, bonus: 50 },
+    { id: "m2", threshold: 30, bonus: 300 },
+  ]);
 
   return (
     <div className="space-y-6">
@@ -36,10 +31,10 @@ export function DailyStreakSettings() {
         <CardHeader>
           <div className="flex items-start justify-between">
             <div>
-              <CardTitle className="text-base">Streak earning rules</CardTitle>
+              <CardTitle className="text-base">Streak earning</CardTitle>
               <CardDescription>
-                Daily Streak is autonomous — the system computes points from app events.
-                Logic: <strong>time on app + engagement = points</strong>.
+                Autonomous &amp; predictable — qualify each day by watching the minimum and earn a
+                fixed reward. Longer streaks pay milestone bonuses.
               </CardDescription>
             </div>
             <Badge variant="secondary" className="gap-1 text-[10px]">
@@ -47,10 +42,39 @@ export function DailyStreakSettings() {
             </Badge>
           </div>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <PointRulesEditor rules={rules} triggers={TRIGGERS} onChange={setRules} />
+        <CardContent className="space-y-5">
+          <div className="space-y-2">
+            <Label>Minimum watch to qualify (seconds)</Label>
+            <Input
+              type="number"
+              min={0}
+              value={minWatchSeconds}
+              onChange={(e) => setMinWatchSeconds(Number(e.target.value))}
+            />
+          </div>
+
+          <RewardAmounts
+            points={pointsPerDay}
+            xp={xpPerDay}
+            onPoints={setPointsPerDay}
+            onXp={setXpPerDay}
+            pointsLabel="Points per day"
+            xpLabel="XP per day"
+          />
+
+          <div className="space-y-2">
+            <Label>Streak milestone bonuses</Label>
+            <MilestoneBonusEditor
+              milestones={milestones}
+              onChange={setMilestones}
+              thresholdLabel="Day"
+              thresholdSuffix="day streak"
+            />
+          </div>
+
           <p className="text-muted-foreground text-xs">
-            Start with up to 5 behaviours; more can be added and automated across the system.
+            Saved as <code>reward_rules['daily_streak']</code>: <code>min_watch_seconds</code>,{" "}
+            <code>points_per_day</code>, <code>xp_per_day</code>, <code>bonus_thresholds</code>.
           </p>
         </CardContent>
       </GlassCard>

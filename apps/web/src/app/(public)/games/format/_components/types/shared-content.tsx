@@ -2,51 +2,58 @@
 
 import { useState } from "react";
 
-import { Database } from "lucide-react";
-
-import { Badge } from "@/components/ui/badge";
 import { CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 import { GlassCard } from "../../../_components/glass-card";
 import { AppWidgetCard } from "../shared/app-widget-card";
 import { GamificationExtras } from "../shared/gamification-extras";
-import { type PointRule, PointRulesEditor, type RuleTrigger } from "../shared/point-rules-editor";
-
-const TRIGGERS: RuleTrigger[] = [
-  { value: "share_internal", label: "Share to another user (internal)" },
-  { value: "share_external", label: "Share externally" },
-  { value: "referral_completed", label: "Referral completed first game" },
-  { value: "referrals_total", label: "Total referrals" },
-];
-
-const INITIAL_RULES: PointRule[] = [
-  { id: "r1", trigger: "share_external", operator: "gte", value: 1, points: 5 },
-  { id: "r2", trigger: "share_internal", operator: "gte", value: 1, points: 3 },
-  { id: "r3", trigger: "referral_completed", operator: "gte", value: 1, points: 100 },
-];
+import { RewardAmounts } from "../shared/reward-amounts";
 
 export function SharedContentSettings() {
-  const [rules, setRules] = useState<PointRule[]>(INITIAL_RULES);
+  // Maps 1:1 to reward_rules['shared_content'].config
+  const [pointsPerShare, setPointsPerShare] = useState(15);
+  const [xpPerShare, setXpPerShare] = useState(5);
+  const [dailyCap, setDailyCap] = useState(3);
 
   return (
     <div className="space-y-6">
       <GlassCard>
         <CardHeader>
-          <CardTitle className="text-base">Sharing &amp; referral rules</CardTitle>
+          <CardTitle className="text-base">Sharing reward</CardTitle>
           <CardDescription>
-            Reward the behaviour of sharing content (internally or externally) and referrals.
+            Autonomous &amp; predictable — a fixed reward per share, capped per day to prevent
+            farming.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <PointRulesEditor rules={rules} triggers={TRIGGERS} onChange={setRules} />
-          <div className="border-border/30 flex items-center gap-2 border-t pt-3">
-            <Badge variant="outline" className="gap-1 text-[10px]">
-              <Database className="h-3 w-3" /> DB gap
-            </Badge>
-            <span className="text-muted-foreground text-xs">
-              Needs a <code>reward_rules['shared_content']</code> entry — to add when we return to DB.
-            </span>
+        <CardContent className="space-y-5">
+          <RewardAmounts
+            points={pointsPerShare}
+            xp={xpPerShare}
+            onPoints={setPointsPerShare}
+            onXp={setXpPerShare}
+            pointsLabel="Points per share"
+            xpLabel="XP per share"
+          />
+
+          <div className="space-y-2">
+            <Label>Daily share cap</Label>
+            <Input
+              type="number"
+              min={0}
+              value={dailyCap}
+              onChange={(e) => setDailyCap(Number(e.target.value))}
+            />
+            <p className="text-muted-foreground text-xs">
+              Max rewarded shares per user per day.
+            </p>
           </div>
+
+          <p className="text-muted-foreground text-xs">
+            Saved as <code>reward_rules['shared_content']</code>: <code>points_per_share</code>,{" "}
+            <code>xp_per_share</code>, <code>daily_share_cap</code>.
+          </p>
         </CardContent>
       </GlassCard>
 

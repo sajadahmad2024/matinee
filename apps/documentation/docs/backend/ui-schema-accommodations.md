@@ -182,6 +182,32 @@ Web components (`apps/web/.../content/_components/`): `stat-tile`, `section-head
 `content-inventory`, `licensing-rights` + `licensing-table-modal`, `content-performance`; plus the
 Ad-Sales format selector in `new/_components/sponsorship-card`.
 
+## 9. Reward rule model — simple & predictable
+
+To keep integration easy, all earning is **fixed-amount** — no per-rule operators/conditions.
+Every payout is a fixed `points` + fixed `xp`, with optional `threshold → bonus` milestones. The
+`reward_rules.config` JSONB is the single contract (admin-editable, versioned in
+`reward_rule_versions`):
+
+| Rule key | config shape |
+|----------|--------------|
+| `daily_streak` | `{ min_watch_seconds, points_per_day, xp_per_day, bonus_thresholds: { "<day>": <bonus pts> } }` |
+| `shared_content` | `{ points_per_share, xp_per_share, daily_share_cap }` |
+| `quest` | `{ default_points, default_xp }` (per-instance overrides on `quests.reward_points/reward_xp`) |
+| `prediction` | `{ default_points, default_xp }` (per-instance on `predictions`) |
+| `bidding` | `{ min_increment_points }` (spend-only; no fixed earn) |
+| `leveling` | `{ base_xp, growth_multiplier, max_level_cap }` |
+
+Predictability guarantees for the app/award flows:
+- One action → one fixed payout (points and/or xp). Milestones pay once when the threshold is reached.
+- Exactly-once via `ledger_transactions.idempotency_key` (e.g. `streak:<user>:<date>`,
+  `share:<user>:<content>`).
+- Points are spendable (balance up/down, ≥ 0); XP only accumulates and drives level/leaderboard.
+
+The web Settings screens write exactly these keys (the old operator-based rule builder was removed):
+`reward-amounts` + `milestone-bonus-editor` for daily-streak / shared-content; per-instance fixed
+`reward_points`/`reward_xp` for quests / predictions.
+
 ## Follow-up (repository / service layer)
 
 1. `ContentRepository`: select/update the license + `is_sponsored` columns; `SponsorshipRepository`
