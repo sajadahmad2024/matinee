@@ -10,7 +10,7 @@ importers:
     dependencies:
       '@mdx-js/react':
         specifier: 3.1.1
-        version: 3.1.1(@types/react@19.1.13)(react@19.1.1)
+        version: 3.1.1(@types/react@19.2.14)(react@19.1.1)
       axios:
         specifier: 1.12.2
         version: 1.12.2
@@ -596,6 +596,9 @@ importers:
       input-otp:
         specifier: ^1.4.2
         version: 1.4.2(react-dom@19.2.4)(react@19.2.4)
+      lucide-react:
+        specifier: ^1.17.0
+        version: 1.17.0(react@19.2.4)
       mysql2:
         specifier: ^3.18.1
         version: 3.22.4(@types/node@25.9.1)
@@ -8871,21 +8874,21 @@ packages:
     transitivePeerDependencies:
       - supports-color
 
-  /@mdx-js/react@3.1.1(@types/react@19.1.13)(react@19.1.1):
+  /@mdx-js/react@3.1.1(@types/react@19.2.14)(react@19.1.1):
     resolution: {integrity: sha512-f++rKLQgUVYDAtECQ6fn/is15GkEH9+nZPM3MS0RcxVqoTfawHvDlSCH7JbMhAM6uJ32v3eXLvLmLvjGu7PTQw==}
     peerDependencies:
-      '@types/react': 19.1.13
+      '@types/react': '>=16'
       react: '>=16'
     dependencies:
       '@types/mdx': 2.0.13
-      '@types/react': 19.1.13
+      '@types/react': 19.2.14
       react: 19.1.1
     dev: false
 
   /@mdx-js/react@3.1.1(@types/react@19.2.14)(react@19.2.4):
     resolution: {integrity: sha512-f++rKLQgUVYDAtECQ6fn/is15GkEH9+nZPM3MS0RcxVqoTfawHvDlSCH7JbMhAM6uJ32v3eXLvLmLvjGu7PTQw==}
     peerDependencies:
-      '@types/react': 19.1.13
+      '@types/react': '>=16'
       react: '>=16'
     dependencies:
       '@types/mdx': 2.0.13
@@ -15332,12 +15335,6 @@ packages:
     dependencies:
       '@types/history': 4.7.11
       '@types/react': 19.2.14
-
-  /@types/react@19.1.13:
-    resolution: {integrity: sha512-hHkbU/eoO3EG5/MZkuFSKmYqPbSVk5byPFa3e7y/8TybHiLMACgI8seVYlicwk7H5K/rI2px9xrQp/C+AUDTiQ==}
-    dependencies:
-      csstype: 3.2.3
-    dev: false
 
   /@types/react@19.2.14:
     resolution: {integrity: sha512-ilcTH/UniCkMdtexkoCN0bI7pMcJDvmQFPvuPvmEaYA/NSfFTAgdUSLAoVjaRJm7+6PvcM+q1zYOwS4wTYMF9w==}
@@ -25428,6 +25425,14 @@ packages:
   /lru.min@1.1.4:
     resolution: {integrity: sha512-DqC6n3QQ77zdFpCMASA1a3Jlb64Hv2N2DciFGkO/4L9+q/IpIAuRlKOvCXabtRW6cQf8usbmM6BE/TOPysCdIA==}
     engines: {bun: '>=1.0.0', deno: '>=1.30.0', node: '>=8.0.0'}
+    dev: false
+
+  /lucide-react@1.17.0(react@19.2.4):
+    resolution: {integrity: sha512-9FA9evdox/JQL5PT57fdA1x/yg8T7knJ98+zjTL3UfKza6pflQUUh3XtaQIHKvnsJw1lmsEyHVlt5jchYxOQ5w==}
+    peerDependencies:
+      react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
+    dependencies:
+      react: 19.2.4
     dev: false
 
   /luxon@3.7.2:

@@ -1,19 +1,18 @@
-import { Fira_Code, Geologica } from "next/font/google";
+import { Inter, JetBrains_Mono, Rajdhani } from "next/font/google";
 
-/**
- * @description Geologica font
- * @returns {Geologica} Geologica font
- */
-export const geologica = Geologica({
+export const inter = Inter({
   subsets: ["latin"],
-  variable: "--font-geologica",
+  variable: "--font-inter",
+  weight: ["300", "400", "500", "600", "700", "800"],
 });
 
-/**
- * @description Fira Code font
- * @returns {Fira_Code} Fira Code font
- */
-export const firacode = Fira_Code({
+export const rajdhani = Rajdhani({
   subsets: ["latin"],
-  variable: "--font-firacode",
+  variable: "--font-rajdhani",
+  weight: ["500", "600", "700"],
+});
+
+export const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-jetbrains-mono",
 });

@@ -7,5 +7,11 @@
  * @returns {Record<string, string>} Routes
  */
 export const ROUTES = {
-  HOME: "/",
-};
+  AUTH: {
+    LOGIN: "/login",
+    RESET_PASSWORD: "/reset-password",
+  },
+  APP: {
+    DASHBOARD: "/dashboard",
+  },
+} as const;
