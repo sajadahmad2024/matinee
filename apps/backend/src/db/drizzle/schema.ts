@@ -1,4 +1,4 @@
-import { pgTable, foreignKey, check, varchar, boolean, uuid, timestamp, index, integer, bigint, text, numeric, jsonb, uniqueIndex, unique, date, primaryKey } from "drizzle-orm/pg-core"
+import { pgTable, foreignKey, check, varchar, boolean, uuid, timestamp, index, integer, bigint, jsonb, unique, text, numeric, uniqueIndex, date, primaryKey } from "drizzle-orm/pg-core"
 import { sql } from "drizzle-orm"
 
 
@@ -102,6 +102,135 @@ export const contentLicenses = pgTable("content_licenses", {
 		}).onDelete("set null"),
 	check("content_licenses_license_type_check", sql`(license_type)::text = ANY ((ARRAY['exclusive'::character varying, 'non_exclusive'::character varying])::text[])`),
 	check("content_licenses_renewal_status_check", sql`(renewal_status)::text = ANY ((ARRAY['renewing'::character varying, 'in_negotiation'::character varying, 'expiring'::character varying, 'lapsed'::character varying, 'auto_renew'::character varying])::text[])`),
+]);
+
+export const subscriptionPlans = pgTable("subscription_plans", {
+	id: uuid().default(sql`uuidv7()`).primaryKey().notNull(),
+	name: varchar({ length: 150 }).notNull(),
+	description: varchar({ length: 500 }),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	basePriceCents: bigint("base_price_cents", { mode: "number" }).default(0).notNull(),
+	baseCurrency: varchar("base_currency", { length: 3 }).default('USD').notNull(),
+	interval: varchar({ length: 10 }).default('monthly').notNull(),
+	trialDays: integer("trial_days").default(0).notNull(),
+	features: jsonb().default([]).notNull(),
+	isActive: boolean("is_active").default(true).notNull(),
+	isPopular: boolean("is_popular").default(false).notNull(),
+	sortOrder: integer("sort_order").default(0).notNull(),
+	provider: varchar({ length: 20 }).default('stripe').notNull(),
+	providerProductId: varchar("provider_product_id", { length: 120 }),
+	createdBy: uuid("created_by"),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	deletedAt: timestamp("deleted_at", { withTimezone: true, mode: 'string' }),
+}, (table) => [
+	index("idx_subscription_plans_active").using("btree", table.isActive.asc().nullsLast().op("bool_ops")).where(sql`(deleted_at IS NULL)`),
+	foreignKey({
+			columns: [table.createdBy],
+			foreignColumns: [users.id],
+			name: "subscription_plans_created_by_fkey"
+		}).onDelete("set null"),
+	check("subscription_plans_interval_check", sql`("interval")::text = ANY ((ARRAY['monthly'::character varying, 'yearly'::character varying])::text[])`),
+]);
+
+export const planRegionPrices = pgTable("plan_region_prices", {
+	id: uuid().default(sql`uuidv7()`).primaryKey().notNull(),
+	planId: uuid("plan_id").notNull(),
+	region: varchar({ length: 10 }).notNull(),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	priceCents: bigint("price_cents", { mode: "number" }).notNull(),
+	currency: varchar({ length: 3 }).default('USD').notNull(),
+	providerPriceId: varchar("provider_price_id", { length: 120 }),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+}, (table) => [
+	index("idx_plan_region_prices_plan").using("btree", table.planId.asc().nullsLast().op("uuid_ops")),
+	foreignKey({
+			columns: [table.planId],
+			foreignColumns: [subscriptionPlans.id],
+			name: "plan_region_prices_plan_id_fkey"
+		}).onDelete("cascade"),
+	unique("plan_region_prices_plan_id_region_key").on(table.planId, table.region),
+	check("plan_region_prices_region_check", sql`(region)::text = ANY ((ARRAY['NA'::character varying, 'EU'::character varying, 'APAC'::character varying, 'LATAM'::character varying, 'MEA'::character varying])::text[])`),
+]);
+
+export const subscriptions = pgTable("subscriptions", {
+	id: uuid().default(sql`uuidv7()`).primaryKey().notNull(),
+	userId: uuid("user_id").notNull(),
+	planId: uuid("plan_id"),
+	status: varchar({ length: 20 }).default('active').notNull(),
+	region: varchar({ length: 10 }),
+	countryCode: varchar("country_code", { length: 2 }),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	amountCents: bigint("amount_cents", { mode: "number" }).default(0).notNull(),
+	currency: varchar({ length: 3 }).default('USD').notNull(),
+	startedAt: timestamp("started_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	currentPeriodStart: timestamp("current_period_start", { withTimezone: true, mode: 'string' }),
+	currentPeriodEnd: timestamp("current_period_end", { withTimezone: true, mode: 'string' }),
+	trialEndAt: timestamp("trial_end_at", { withTimezone: true, mode: 'string' }),
+	canceledAt: timestamp("canceled_at", { withTimezone: true, mode: 'string' }),
+	cancelReason: varchar("cancel_reason", { length: 200 }),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	ltvCents: bigint("ltv_cents", { mode: "number" }).default(0).notNull(),
+	provider: varchar({ length: 20 }).default('stripe').notNull(),
+	providerSubscriptionId: varchar("provider_subscription_id", { length: 120 }),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+}, (table) => [
+	index("idx_subscriptions_plan").using("btree", table.planId.asc().nullsLast().op("uuid_ops")),
+	index("idx_subscriptions_region").using("btree", table.region.asc().nullsLast().op("text_ops")),
+	index("idx_subscriptions_status").using("btree", table.status.asc().nullsLast().op("text_ops")),
+	index("idx_subscriptions_user").using("btree", table.userId.asc().nullsLast().op("uuid_ops")),
+	foreignKey({
+			columns: [table.planId],
+			foreignColumns: [subscriptionPlans.id],
+			name: "subscriptions_plan_id_fkey"
+		}).onDelete("set null"),
+	foreignKey({
+			columns: [table.userId],
+			foreignColumns: [users.id],
+			name: "subscriptions_user_id_fkey"
+		}).onDelete("cascade"),
+	check("subscriptions_region_check", sql`(region)::text = ANY ((ARRAY['NA'::character varying, 'EU'::character varying, 'APAC'::character varying, 'LATAM'::character varying, 'MEA'::character varying])::text[])`),
+	check("subscriptions_status_check", sql`(status)::text = ANY ((ARRAY['trialing'::character varying, 'active'::character varying, 'past_due'::character varying, 'canceled'::character varying, 'unpaid'::character varying])::text[])`),
+]);
+
+export const subscriptionInvoices = pgTable("subscription_invoices", {
+	id: uuid().default(sql`uuidv7()`).primaryKey().notNull(),
+	subscriptionId: uuid("subscription_id"),
+	userId: uuid("user_id").notNull(),
+	invoiceNumber: varchar("invoice_number", { length: 60 }).notNull(),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	amountCents: bigint("amount_cents", { mode: "number" }).notNull(),
+	currency: varchar({ length: 3 }).default('USD').notNull(),
+	region: varchar({ length: 10 }),
+	status: varchar({ length: 20 }).default('pending').notNull(),
+	paymentMethod: varchar("payment_method", { length: 30 }),
+	platform: varchar({ length: 20 }),
+	billedAt: timestamp("billed_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	paidAt: timestamp("paid_at", { withTimezone: true, mode: 'string' }),
+	refundedAt: timestamp("refunded_at", { withTimezone: true, mode: 'string' }),
+	provider: varchar({ length: 20 }).default('stripe').notNull(),
+	providerInvoiceId: varchar("provider_invoice_id", { length: 120 }),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+}, (table) => [
+	index("idx_sub_invoices_region").using("btree", table.region.asc().nullsLast().op("text_ops")),
+	index("idx_sub_invoices_status").using("btree", table.status.asc().nullsLast().op("text_ops"), table.billedAt.desc().nullsFirst().op("text_ops")),
+	index("idx_sub_invoices_subscription").using("btree", table.subscriptionId.asc().nullsLast().op("uuid_ops")),
+	index("idx_sub_invoices_user").using("btree", table.userId.asc().nullsLast().op("uuid_ops")),
+	foreignKey({
+			columns: [table.subscriptionId],
+			foreignColumns: [subscriptions.id],
+			name: "subscription_invoices_subscription_id_fkey"
+		}).onDelete("set null"),
+	foreignKey({
+			columns: [table.userId],
+			foreignColumns: [users.id],
+			name: "subscription_invoices_user_id_fkey"
+		}).onDelete("cascade"),
+	unique("subscription_invoices_invoice_number_key").on(table.invoiceNumber),
+	check("subscription_invoices_region_check", sql`(region)::text = ANY ((ARRAY['NA'::character varying, 'EU'::character varying, 'APAC'::character varying, 'LATAM'::character varying, 'MEA'::character varying])::text[])`),
+	check("subscription_invoices_status_check", sql`(status)::text = ANY ((ARRAY['paid'::character varying, 'failed'::character varying, 'refunded'::character varying, 'pending'::character varying])::text[])`),
 ]);
 
 export const mediaMetadata = pgTable("media_metadata", {

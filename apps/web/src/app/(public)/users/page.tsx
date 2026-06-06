@@ -14,6 +14,7 @@ import { PushNotificationModal } from "./_components/push-notification-modal";
 import { UserAnalytics } from "./_components/user-analytics";
 import { UserDetailModal } from "./_components/user-detail-modal";
 import { type User, UserListTable } from "./_components/user-list-table";
+import { UserRegionalAnalytics } from "./_components/user-regional-analytics";
 
 export default function UserManagementPage() {
   const [timeRange, setTimeRange] = useState("7d");
@@ -52,6 +53,11 @@ export default function UserManagementPage() {
       </div>
 
       <UserAnalytics />
+
+      <div className="space-y-4">
+        <h2 className="text-foreground text-lg font-semibold">Per-Region User Data</h2>
+        <UserRegionalAnalytics />
+      </div>
 
       <div className="space-y-4">
         <h2 className="text-foreground text-lg font-semibold">User Directory</h2>

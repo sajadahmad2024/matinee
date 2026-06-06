@@ -23,6 +23,8 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 
+import { RegionPriceEditor, type RegionPrice } from "./region-price-editor";
+
 export interface SubscriptionPlan {
   id: string;
   name: string;
@@ -34,6 +36,8 @@ export interface SubscriptionPlan {
   features: string[];
   subscriberCount: number;
   isPopular?: boolean;
+  /** per-region price overrides; regions without an entry use the base price */
+  regionPrices?: RegionPrice[];
 }
 
 interface PlanModalProps {
@@ -53,6 +57,7 @@ export function PlanModal({ open, onOpenChange, plan, onSave }: PlanModalProps) 
       interval: "monthly",
       features: [],
       isPopular: false,
+      regionPrices: [],
     },
   );
 
@@ -63,7 +68,7 @@ export function PlanModal({ open, onOpenChange, plan, onSave }: PlanModalProps) 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="border-border bg-card max-w-lg">
+      <DialogContent className="border-border bg-card max-h-[88vh] max-w-lg overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{plan ? "Edit Plan" : "Create New Plan"}</DialogTitle>
           <DialogDescription>
@@ -124,6 +129,20 @@ export function PlanModal({ open, onOpenChange, plan, onSave }: PlanModalProps) 
                 </SelectContent>
               </Select>
             </div>
+          </div>
+          <div className="border-border/30 space-y-3 rounded-lg border p-3">
+            <div>
+              <Label>Regional pricing</Label>
+              <p className="text-muted-foreground text-xs">
+                Override the base price per macro-region (currency localized).
+              </p>
+            </div>
+            <RegionPriceEditor
+              value={formData.regionPrices ?? []}
+              basePrice={formData.price ?? 0}
+              baseCurrency={formData.currency ?? "USD"}
+              onChange={(regionPrices) => setFormData({ ...formData, regionPrices })}
+            />
           </div>
           <div className="space-y-2">
             <Label>Description</Label>

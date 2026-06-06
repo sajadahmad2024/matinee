@@ -213,6 +213,42 @@ The web Settings screens write exactly these keys (the old operator-based rule b
 `reward-amounts` + `milestone-bonus-editor` for daily-streak / shared-content; per-instance fixed
 `reward_points`/`reward_xp` for quests / predictions.
 
+## 10. User & Subscription regional data + Subscriptions module
+
+Client ask: **per-region user data, regional subscription information, analytics regional & globally.**
+Region model: country (ISO, already on `users.country_code`) → macro-region (NA/EU/APAC/LATAM/MEA),
+with a country drill-down. Users were already region-ready; subscriptions had **no schema at all**.
+
+### New module — `0008_create_subscriptions.sql` (Plans → Subscriptions → Invoices)
+Plans are the foundation (a subscription references a plan; an invoice references a subscription).
+
+```
+subscription_plans      base_price_cents + base_currency, interval, trial_days, features[],
+                        is_active, is_popular, sort_order, provider(stripe), provider_product_id
+plan_region_prices      plan_id, region(NA|EU|APAC|LATAM|MEA), price_cents, currency,
+                        provider_price_id   UNIQUE(plan_id, region)   -- per-region pricing
+subscriptions           user_id, plan_id, status(trialing|active|past_due|canceled|unpaid),
+                        region + country_code snapshot, amount_cents/currency, period dates,
+                        trial_end, canceled_at/reason, ltv_cents, provider_subscription_id
+subscription_invoices   subscription_id, user_id, invoice_number, amount_cents/currency, region,
+                        status(paid|failed|refunded|pending), payment_method, platform(web|ios|android),
+                        billed/paid/refunded_at, provider_invoice_id   -- the Transactions ledger
+```
+Seeded with 2 plans + 10 region prices mirroring the admin paywall. Region gating still comes from
+`geo_policies` (0002). Money is integer cents.
+
+### Regional analytics (derived — no extra tables)
+- **Users by region:** group `users` by `country_code` → macro-region (users, new, active %, churn %).
+- **Subscriptions by region:** group `subscriptions` by `region` (subscribers, MRR, ARPU, churn).
+- **Revenue by region/platform:** aggregate `subscription_invoices` (`region`, `platform`).
+- Global rollups = sum across regions. All powered by the indexes
+  (`idx_subscriptions_region`, `idx_sub_invoices_region`, `idx_users_country_code`).
+
+Web components (`apps/web`): shared `_libs/regions.ts` + `components/custom/regional-breakdown.tsx`;
+`subscriptions/region-price-editor` (per-region plan pricing); `subscription-regional-analytics`
+(new **Regional** tab); `users/user-regional-analytics` (Per-Region User Data); region columns on
+the user directory + subscriber list.
+
 ## Follow-up (repository / service layer)
 
 1. `ContentRepository`: select/update the license + `is_sponsored` columns; `SponsorshipRepository`

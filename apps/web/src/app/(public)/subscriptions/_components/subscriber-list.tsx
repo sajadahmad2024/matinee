@@ -18,6 +18,8 @@ import { Input } from "@/components/ui/input";
 
 import { type Column, DataTable } from "@/components/custom/data-table";
 
+import { regionForCountry, regionLabel } from "@/app/_libs/regions";
+
 import { BillingHistoryModal } from "./subscriber-list/billing-history-modal";
 import { CancelSubscriptionModal } from "./subscriber-list/cancel-subscription-modal";
 import { RefundPaymentModal } from "./subscriber-list/refund-payment-modal";
@@ -86,6 +88,15 @@ export function SubscriberList() {
       header: "Plan",
       accessorKey: "planName",
       className: "text-sm text-foreground",
+    },
+    {
+      header: "Region",
+      cell: (subscriber) => (
+        <div className="text-sm">
+          <span className="text-foreground">{regionLabel(regionForCountry(subscriber.country))}</span>
+          <span className="text-muted-foreground ml-1 text-xs">{subscriber.country}</span>
+        </div>
+      ),
     },
     {
       header: "Status",

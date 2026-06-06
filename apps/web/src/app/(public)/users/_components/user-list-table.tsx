@@ -36,6 +36,8 @@ import { ConfirmationDialog } from "@/components/custom/confirmation-dialog";
 import { type Column, DataTable } from "@/components/custom/data-table";
 import { TablePagination } from "@/components/custom/table-pagination";
 
+import { regionForCountry, regionLabel } from "@/app/_libs/regions";
+
 export interface User {
   id: string;
   name: string;
@@ -247,6 +249,15 @@ export function UserListTable({ onViewUser, onSendNotification }: UserListTableP
             );
         }
       },
+    },
+    {
+      header: "Region",
+      cell: (user) => (
+        <div className="text-sm">
+          <span className="text-foreground">{regionLabel(regionForCountry(user.country))}</span>
+          <span className="text-muted-foreground ml-1 text-xs">{user.country}</span>
+        </div>
+      ),
     },
     {
       header: "Subscription",

@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm/relations";
-import { mediaMetadata, gameWidgetConfigs, users, contentSponsorships, contents, contentLicenses, mediaStatusEvents, userEnforcementActions, oauthAccounts, otpCodes, rewardRules, geoPolicies, referralCodes, referralRedemptions, deviceTokens, studios, people, contentMedia, contentChangeHistory, contentReactions, comments, commentReports, contentShares, contentModerationLog, contentUnlocks, contentViews, rewardRuleVersions, wallets, quests, userStreaks, ledgerTransactions, predictions, predictionOptions, predictionEntries, auctions, bids, badges, badgeTriggers, permissions, rolePermissions, roles, contentTags, tags, questContents, deviceTokenTopics, contentGenres, genres, contentWatchlist, userBadges, userRoles, commentReactions, questContentProgress, leaderboardMonthly, userMetrics, contentCast, contentProgress, questParticipations, userDailyActivity, contentDailyStats } from "./schema";
+import { mediaMetadata, gameWidgetConfigs, users, contentSponsorships, contents, contentLicenses, subscriptionPlans, planRegionPrices, subscriptions, subscriptionInvoices, mediaStatusEvents, userEnforcementActions, oauthAccounts, otpCodes, rewardRules, geoPolicies, referralCodes, referralRedemptions, deviceTokens, studios, people, contentMedia, contentChangeHistory, contentReactions, comments, commentReports, contentShares, contentModerationLog, contentUnlocks, contentViews, rewardRuleVersions, wallets, quests, userStreaks, ledgerTransactions, predictions, predictionOptions, predictionEntries, auctions, bids, badges, badgeTriggers, permissions, rolePermissions, roles, contentTags, tags, questContents, deviceTokenTopics, contentGenres, genres, contentWatchlist, userBadges, userRoles, commentReactions, questContentProgress, leaderboardMonthly, userMetrics, contentCast, contentProgress, questParticipations, userDailyActivity, contentDailyStats } from "./schema";
 
 export const gameWidgetConfigsRelations = relations(gameWidgetConfigs, ({one}) => ({
 	mediaMetadatum: one(mediaMetadata, {
@@ -50,6 +50,9 @@ export const usersRelations = relations(users, ({one, many}) => ({
 	gameWidgetConfigs: many(gameWidgetConfigs),
 	contentSponsorships: many(contentSponsorships),
 	contentLicenses: many(contentLicenses),
+	subscriptionPlans: many(subscriptionPlans),
+	subscriptions: many(subscriptions),
+	subscriptionInvoices: many(subscriptionInvoices),
 	mediaMetadatum: one(mediaMetadata, {
 		fields: [users.avatarMediaId],
 		references: [mediaMetadata.id]
@@ -236,6 +239,45 @@ export const contentLicensesRelations = relations(contentLicenses, ({one}) => ({
 	}),
 	user: one(users, {
 		fields: [contentLicenses.createdBy],
+		references: [users.id]
+	}),
+}));
+
+export const subscriptionPlansRelations = relations(subscriptionPlans, ({one, many}) => ({
+	user: one(users, {
+		fields: [subscriptionPlans.createdBy],
+		references: [users.id]
+	}),
+	planRegionPrices: many(planRegionPrices),
+	subscriptions: many(subscriptions),
+}));
+
+export const planRegionPricesRelations = relations(planRegionPrices, ({one}) => ({
+	subscriptionPlan: one(subscriptionPlans, {
+		fields: [planRegionPrices.planId],
+		references: [subscriptionPlans.id]
+	}),
+}));
+
+export const subscriptionsRelations = relations(subscriptions, ({one, many}) => ({
+	subscriptionPlan: one(subscriptionPlans, {
+		fields: [subscriptions.planId],
+		references: [subscriptionPlans.id]
+	}),
+	user: one(users, {
+		fields: [subscriptions.userId],
+		references: [users.id]
+	}),
+	subscriptionInvoices: many(subscriptionInvoices),
+}));
+
+export const subscriptionInvoicesRelations = relations(subscriptionInvoices, ({one}) => ({
+	subscription: one(subscriptions, {
+		fields: [subscriptionInvoices.subscriptionId],
+		references: [subscriptions.id]
+	}),
+	user: one(users, {
+		fields: [subscriptionInvoices.userId],
 		references: [users.id]
 	}),
 }));
