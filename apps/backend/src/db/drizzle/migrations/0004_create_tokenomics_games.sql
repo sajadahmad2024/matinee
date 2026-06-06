@@ -242,11 +242,11 @@ CREATE TABLE IF NOT EXISTS game_widget_configs (
 -- ════════════════════════════════════════════════════════════════════════════
 INSERT INTO reward_rules (rule_key, name, description, is_enabled, config, version) VALUES
   ('daily_streak', 'Daily Streak', 'Earn for watching every day', true,
-     '{"min_watch_seconds":300,"points_per_day":10,"xp_per_day":5,"bonus_thresholds":{"7":50,"30":300}}'::jsonb, 1),
+     '{"min_watch_seconds":300,"behaviors":[{"key":"watch_min","label":"Watch 5+ min today","points":10,"xp":5},{"key":"complete_videos","label":"Complete 3 videos","points":15,"xp":8},{"key":"engagement","label":"Engagement actions","points":5,"xp":2},{"key":"daily_open","label":"Daily app-open","points":10,"xp":5},{"key":"finish_series","label":"Finish a series","points":20,"xp":10}],"bonus_thresholds":{"7":50,"30":300}}'::jsonb, 1),
   ('quest', 'Quests', 'Watch a set of videos before the deadline', true,
      '{"default_points":100,"default_xp":50}'::jsonb, 1),
   ('shared_content', 'Shared Content', 'Earn for sharing content (autonomous, capped daily)', true,
-     '{"points_per_share":15,"daily_share_cap":3,"xp_per_share":5}'::jsonb, 1),
+     '{"daily_share_cap":3,"behaviors":[{"key":"internal_share","label":"Internal share","points":3,"xp":1},{"key":"external_share","label":"External share","points":15,"xp":5},{"key":"referral_completed","label":"Referral completed","points":100,"xp":25}]}'::jsonb, 1),
   ('prediction', 'Predictions', 'Predict outcomes to earn', true,
      '{"default_points":100,"default_xp":25}'::jsonb, 1),
   ('bidding', 'Bidding', 'Spend points to win prizes', true,

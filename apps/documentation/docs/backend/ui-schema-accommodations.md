@@ -191,12 +191,17 @@ Every payout is a fixed `points` + fixed `xp`, with optional `threshold → bonu
 
 | Rule key | config shape |
 |----------|--------------|
-| `daily_streak` | `{ min_watch_seconds, points_per_day, xp_per_day, bonus_thresholds: { "<day>": <bonus pts> } }` |
-| `shared_content` | `{ points_per_share, xp_per_share, daily_share_cap }` |
+| `daily_streak` | `{ min_watch_seconds, behaviors: [{ key, label, points, xp }], bonus_thresholds: { "<day>": <bonus pts> } }` |
+| `shared_content` | `{ daily_share_cap, behaviors: [{ key, label, points, xp }] }` |
 | `quest` | `{ default_points, default_xp }` (per-instance overrides on `quests.reward_points/reward_xp`) |
 | `prediction` | `{ default_points, default_xp }` (per-instance on `predictions`) |
 | `bidding` | `{ min_increment_points }` (spend-only; no fixed earn) |
 | `leveling` | `{ base_xp, growth_multiplier, max_level_cap }` |
+
+`daily_streak` and `shared_content` support **multiple behaviours** (e.g. watch-time, engagement,
+internal vs external share, referral) — but each behaviour is still a **fixed** `points`/`xp`
+payout, listed in `behaviors[]`. No operators/conditions; the list just enumerates which actions
+pay what. Admins can add behaviours over time.
 
 Predictability guarantees for the app/award flows:
 - One action → one fixed payout (points and/or xp). Milestones pay once when the threshold is reached.

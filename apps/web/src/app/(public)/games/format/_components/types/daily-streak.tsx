@@ -11,15 +11,23 @@ import { Label } from "@/components/ui/label";
 
 import { GlassCard } from "../../../_components/glass-card";
 import { AppWidgetCard } from "../shared/app-widget-card";
+import { type BehaviorReward, BehaviorRewardsEditor } from "../shared/behavior-rewards-editor";
 import { GamificationExtras } from "../shared/gamification-extras";
 import { type Milestone, MilestoneBonusEditor } from "../shared/milestone-bonus-editor";
-import { RewardAmounts } from "../shared/reward-amounts";
+
+// 5 starter behaviours (admins can add/automate more across the system).
+const INITIAL_BEHAVIORS: BehaviorReward[] = [
+  { id: "b1", label: "Watch 5+ min today", points: 10, xp: 5 },
+  { id: "b2", label: "Complete 3 videos", points: 15, xp: 8 },
+  { id: "b3", label: "Engagement actions (like / comment / share)", points: 5, xp: 2 },
+  { id: "b4", label: "Daily app-open", points: 10, xp: 5 },
+  { id: "b5", label: "Finish a series / playlist", points: 20, xp: 10 },
+];
 
 export function DailyStreakSettings() {
   // Maps 1:1 to reward_rules['daily_streak'].config
   const [minWatchSeconds, setMinWatchSeconds] = useState(300);
-  const [pointsPerDay, setPointsPerDay] = useState(10);
-  const [xpPerDay, setXpPerDay] = useState(5);
+  const [behaviors, setBehaviors] = useState<BehaviorReward[]>(INITIAL_BEHAVIORS);
   const [milestones, setMilestones] = useState<Milestone[]>([
     { id: "m1", threshold: 7, bonus: 50 },
     { id: "m2", threshold: 30, bonus: 300 },
@@ -53,14 +61,10 @@ export function DailyStreakSettings() {
             />
           </div>
 
-          <RewardAmounts
-            points={pointsPerDay}
-            xp={xpPerDay}
-            onPoints={setPointsPerDay}
-            onXp={setXpPerDay}
-            pointsLabel="Points per day"
-            xpLabel="XP per day"
-          />
+          <div className="space-y-2">
+            <Label>Earning behaviours</Label>
+            <BehaviorRewardsEditor behaviors={behaviors} onChange={setBehaviors} />
+          </div>
 
           <div className="space-y-2">
             <Label>Streak milestone bonuses</Label>
@@ -74,7 +78,7 @@ export function DailyStreakSettings() {
 
           <p className="text-muted-foreground text-xs">
             Saved as <code>reward_rules['daily_streak']</code>: <code>min_watch_seconds</code>,{" "}
-            <code>points_per_day</code>, <code>xp_per_day</code>, <code>bonus_thresholds</code>.
+            <code>behaviors[]</code> (each fixed points + xp), <code>bonus_thresholds</code>.
           </p>
         </CardContent>
       </GlassCard>
