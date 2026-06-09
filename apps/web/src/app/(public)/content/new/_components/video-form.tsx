@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { BoostModal } from "./boost-modal";
 import { ContentClassificationCard } from "./content-classification-card";
 import { GameAssociationCard, type GameInstance } from "./game-association-card";
+import { LicensingCard } from "./licensing-card";
 import { MediaUploadCard } from "./media-upload-card";
 import { ScheduleModal } from "./schedule-modal";
 import { SponsorshipCard } from "./sponsorship-card";
@@ -140,6 +141,8 @@ export function VideoForm({ initialData, sidebar }: VideoFormProps) {
           />
 
           <ContentClassificationCard />
+
+          <LicensingCard />
 
           <MediaUploadCard />
 

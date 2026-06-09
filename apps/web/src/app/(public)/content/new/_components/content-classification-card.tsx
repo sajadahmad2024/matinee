@@ -16,6 +16,8 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 
+import { MACRO_REGIONS } from "@/app/_libs/regions";
+
 import { GlassCard } from "../../../games/_components/glass-card";
 import { MOCK_VIDEOS } from "../../constants";
 
@@ -37,6 +39,9 @@ export function ContentClassificationCard() {
   const [exclusive, setExclusive] = useState(false);
   const [unlockPoints, setUnlockPoints] = useState(100);
   const [parentId, setParentId] = useState("none");
+  const [language, setLanguage] = useState("en");
+  const [rightsRegion, setRightsRegion] = useState("global");
+  const [recommendation, setRecommendation] = useState("normal");
 
   const canHaveParent = contentType === "bts" || contentType === "clip";
   // Candidate primary titles (a BTS/clip belongs to a trailer/primary title, not another extra)
@@ -72,6 +77,55 @@ export function ContentClassificationCard() {
           <p className="text-muted-foreground text-xs">
             {CONTENT_TYPES.find((t) => t.value === contentType)?.hint}
           </p>
+        </div>
+
+        {/* Metadata & distribution */}
+        <div className="grid gap-4 md:grid-cols-3">
+          <div className="space-y-2">
+            <Label>Language</Label>
+            <Select value={language} onValueChange={setLanguage}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="border-border bg-card z-50">
+                <SelectItem value="en">English</SelectItem>
+                <SelectItem value="hi">Hindi</SelectItem>
+                <SelectItem value="es">Spanish</SelectItem>
+                <SelectItem value="ja">Japanese</SelectItem>
+                <SelectItem value="ko">Korean</SelectItem>
+                <SelectItem value="pt">Portuguese</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <Label>Rights region</Label>
+            <Select value={rightsRegion} onValueChange={setRightsRegion}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="border-border bg-card z-50">
+                <SelectItem value="global">Global</SelectItem>
+                {MACRO_REGIONS.map((r) => (
+                  <SelectItem key={r.code} value={r.code}>
+                    {r.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <Label>Recommendation</Label>
+            <Select value={recommendation} onValueChange={setRecommendation}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="border-border bg-card z-50">
+                <SelectItem value="promoted">Promoted</SelectItem>
+                <SelectItem value="normal">Normal</SelectItem>
+                <SelectItem value="deprioritized">Deprioritized</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         {/* Optional primary title (BTS / clip only) */}
