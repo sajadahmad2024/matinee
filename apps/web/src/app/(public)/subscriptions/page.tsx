@@ -18,6 +18,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PlanConfiguration } from "./_components/plan-configuration";
 import { SubscriberList } from "./_components/subscriber-list";
 import { SubscriptionAnalytics } from "./_components/subscription-analytics";
+import { SubscriptionRegionalAnalytics } from "./_components/subscription-regional-analytics";
 import { TransactionLedger } from "./_components/transaction-ledger";
 
 export default function SubscriptionsPage() {
@@ -71,6 +72,11 @@ export default function SubscriptionsPage() {
             Analytics
           </TabsTrigger>
           <TabsTrigger
+            value="regional"
+            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+            Regional
+          </TabsTrigger>
+          <TabsTrigger
             value="subscribers"
             className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             Subscribers
@@ -89,6 +95,10 @@ export default function SubscriptionsPage() {
 
         <TabsContent value="analytics" className="mt-0">
           <SubscriptionAnalytics />
+        </TabsContent>
+
+        <TabsContent value="regional" className="mt-0">
+          <SubscriptionRegionalAnalytics />
         </TabsContent>
 
         <TabsContent value="subscribers" className="mt-0">

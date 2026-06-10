@@ -256,4 +256,162 @@ export class EnvConfig {
   @IsOptional()
   @IsString()
   AGENT_API_ALLOWED_DOMAINS?: string;
+
+  // ─── Queue (SQS / ElasticMQ) ───────────────────────────────────────────────
+
+  @IsOptional()
+  @IsString()
+  QUEUE_DRIVER?: string;
+
+  @IsOptional()
+  @IsString()
+  SQS_ENDPOINT?: string;
+
+  @IsOptional()
+  @IsString()
+  SQS_REGION?: string;
+
+  @IsOptional()
+  @IsString()
+  SQS_ACCESS_KEY_ID?: string;
+
+  @IsOptional()
+  @IsString()
+  SQS_SECRET_ACCESS_KEY?: string;
+
+  @IsOptional()
+  @IsString()
+  SQS_QUEUE_PREFIX?: string;
+
+  @IsOptional()
+  @IsNumber()
+  QUEUE_VISIBILITY_TIMEOUT?: number;
+
+  @IsOptional()
+  @IsNumber()
+  QUEUE_WAIT_TIME_SECONDS?: number;
+
+  @IsOptional()
+  @IsNumber()
+  QUEUE_MAX_RECEIVE_COUNT?: number;
+
+  @IsOptional()
+  @IsNumber()
+  QUEUE_BATCH_SIZE?: number;
+
+  @IsOptional()
+  @IsBoolean()
+  QUEUE_CONSUMER_ENABLED?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  QUEUE_AUTO_CREATE?: boolean;
+
+  // ─── Cache (Redis / ElastiCache) ───────────────────────────────────────────
+
+  @IsOptional()
+  @IsString()
+  CACHE_KEY_PREFIX?: string;
+
+  @IsOptional()
+  @IsNumber()
+  CACHE_DEFAULT_TTL?: number;
+
+  @IsOptional()
+  @IsBoolean()
+  CACHE_CLUSTER_ENABLED?: boolean;
+
+  // ─── Auth / JWT / Cookies ──────────────────────────────────────────────────
+
+  @IsOptional()
+  @IsNumber()
+  JWT_ACCESS_TTL?: number;
+
+  @IsOptional()
+  @IsNumber()
+  JWT_REFRESH_TTL?: number;
+
+  @IsOptional()
+  @IsNumber()
+  JWT_ADMIN_REFRESH_TTL?: number;
+
+  @IsOptional()
+  @IsNumber()
+  JWT_REMEMBER_TTL?: number;
+
+  @IsOptional()
+  @IsNumber()
+  JWT_RENEW_WINDOW?: number;
+
+  @IsOptional()
+  @IsString()
+  COOKIE_DOMAIN?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  COOKIE_SECURE?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  CSRF_ENABLED?: boolean;
+
+  @IsOptional()
+  @IsString()
+  PHONE_VERIFICATION_PROVIDER?: string;
+
+  // ─── Social OAuth (Google / Apple — redirect flow) ─────────────────────────
+
+  @IsOptional()
+  @IsString()
+  APPLE_CLIENT_ID?: string;
+
+  @IsOptional()
+  @IsString()
+  APPLE_TEAM_ID?: string;
+
+  @IsOptional()
+  @IsString()
+  APPLE_KEY_ID?: string;
+
+  @IsOptional()
+  @IsString()
+  APPLE_PRIVATE_KEY?: string;
+
+  @IsOptional()
+  @IsString()
+  APPLE_CALLBACK_URL?: string;
+
+  @IsOptional()
+  @IsString()
+  OAUTH_SUCCESS_REDIRECT?: string;
+
+  @IsOptional()
+  @IsString()
+  OAUTH_ALLOWED_REDIRECTS?: string;
+
+  // ─── Media (storage / delivery / transcode — env-selected) ──────────────────
+  @IsOptional() @IsString() MEDIA_STORAGE_DRIVER?: string; // s3 | local
+  @IsOptional() @IsString() MEDIA_DELIVERY_DRIVER?: string; // cloudfront | local
+  @IsOptional() @IsString() MEDIA_TRANSCODER?: string; // mediaconvert | local
+  @IsOptional() @IsString() MEDIA_S3_BUCKET?: string;
+  @IsOptional() @IsString() MEDIA_S3_REGION?: string;
+  @IsOptional() @IsString() MEDIA_S3_ENDPOINT?: string;
+  @IsOptional() @IsString() MEDIA_S3_ACCESS_KEY_ID?: string;
+  @IsOptional() @IsString() MEDIA_S3_SECRET_ACCESS_KEY?: string;
+  @IsOptional() @IsString() MEDIA_OUTPUT_BUCKET?: string;
+  @IsOptional() @IsString() MEDIA_CDN_URL?: string;
+  @IsOptional() @IsString() MEDIA_CDN_KEY_PAIR_ID?: string;
+  @IsOptional() @IsString() MEDIA_CDN_PRIVATE_KEY?: string;
+  @IsOptional() @IsString() MEDIA_PUBLIC_BASE_URL?: string;
+  @IsOptional() @IsString() MEDIA_MEDIACONVERT_ENDPOINT?: string;
+  @IsOptional() @IsString() MEDIA_MEDIACONVERT_ROLE_ARN?: string;
+  @IsOptional() @IsString() MEDIA_MEDIACONVERT_QUEUE?: string;
+  @IsOptional() @IsNumber() MEDIA_UPLOAD_URL_TTL?: number;
+  @IsOptional() @IsNumber() MEDIA_SIGNED_URL_TTL?: number;
+  @IsOptional() @IsNumber() MEDIA_MAX_UPLOAD_BYTES?: number;
+  @IsOptional() @IsNumber() MEDIA_TRANSCODE_POLL_INTERVAL?: number;
+  @IsOptional() @IsNumber() MEDIA_TRANSCODE_POLL_MAX_INTERVAL?: number;
+  @IsOptional() @IsNumber() MEDIA_TRANSCODE_STUCK_SECONDS?: number;
+  @IsOptional() @IsNumber() MEDIA_TRANSCODE_MAX_SECONDS?: number;
+  @IsOptional() @IsNumber() MEDIA_ORPHAN_AGE_SECONDS?: number;
 }

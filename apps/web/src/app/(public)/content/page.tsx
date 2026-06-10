@@ -9,7 +9,10 @@ import { Button } from "@/components/ui/button";
 
 import { ContentAnalytics } from "./_components/content-analytics";
 import { ContentFilters } from "./_components/content-filters";
+import { ContentInventory } from "./_components/content-inventory";
+import { ContentPerformance } from "./_components/content-performance";
 import { ContentTabs } from "./_components/content-tabs";
+import { LicensingRights } from "./_components/licensing-rights";
 import { VideoList } from "./_components/video-list";
 import type { TabValue } from "./constants";
 
@@ -45,7 +48,12 @@ export default async function ContentManagementPage({ searchParams }: PageProps)
         </Button>
       </div>
 
-      {/* Analytics Section */}
+      {/* Operational dashboard — inventory, licensing, performance */}
+      <ContentInventory />
+      <LicensingRights />
+      <ContentPerformance />
+
+      {/* Engagement analytics — funnel, sentiment, financial */}
       <Suspense
         fallback={<div className="bg-muted/20 h-[200px] w-full animate-pulse rounded-xl" />}>
         <ContentAnalytics />

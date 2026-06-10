@@ -3,32 +3,22 @@ import { ConfigModule } from '@nestjs/config';
 import { DBService } from '@db/db.service';
 
 // Repositories — centralized data access layer
-import { AuthRepository } from './repositories/auth/auth.repository';
-import { TokenRepository } from './repositories/auth/token.repository';
-import { MfaRepository } from './repositories/auth/mfa.repository';
-import { ApiKeyRepository } from './repositories/auth/api-key.repository';
-import { OAuthRepository } from './repositories/auth/oauth.repository';
 import { UsersRepository } from './repositories/users/users.repository';
+import { RbacRepository } from './repositories/auth/rbac.repository';
+import { IdentityRepository } from './repositories/auth/identity.repository';
+import { ReferralRepository } from './repositories/auth/referral.repository';
+import { EnforcementRepository } from './repositories/auth/enforcement.repository';
+import { DeviceRepository } from './repositories/auth/device.repository';
 import { MediaRepository } from './repositories/media/media.repository';
-import { NotificationsRepository } from './repositories/notifications/notifications.repository';
-import { AgentsRepository } from './repositories/ai/agents.repository';
-import { RagRepository } from './repositories/ai/rag.repository';
-import { AuditRepository } from './repositories/common/audit.repository';
-import { WebhooksRepository } from './repositories/webhooks/webhooks.repository';
 
 const repositories = [
-  AuthRepository,
-  TokenRepository,
-  MfaRepository,
-  ApiKeyRepository,
-  OAuthRepository,
   UsersRepository,
+  RbacRepository,
+  IdentityRepository,
+  ReferralRepository,
+  EnforcementRepository,
+  DeviceRepository,
   MediaRepository,
-  NotificationsRepository,
-  AgentsRepository,
-  RagRepository,
-  AuditRepository,
-  WebhooksRepository,
 ];
 
 @Global()
