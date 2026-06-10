@@ -40,13 +40,8 @@ const eslintConfig = [
       // Console logs: error (allow warn/error)
       "no-console": ["error", { allow: ["warn", "error"] }],
       "@next/next/no-html-link-for-pages": "off",
-      "sort-imports": [
-        "error",
-        {
-          ignoreCase: true,
-          ignoreDeclarationSort: true,
-        },
-      ],
+      // Disable sort-imports as it conflicts with @trivago/prettier-plugin-sort-imports
+      "sort-imports": "off",
       // "import/order": [
       //   "warn",
       //   {

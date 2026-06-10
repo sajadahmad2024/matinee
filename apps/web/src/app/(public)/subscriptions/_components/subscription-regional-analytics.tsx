@@ -55,7 +55,7 @@ const money = (n: number) => `$${n.toLocaleString(undefined, { maximumFractionDi
 const money2 = (n: number) => `$${n.toFixed(2)}`;
 const pct = (n: number) => `${n.toFixed(1)}%`;
 
-export function SubscriptionRegionalAnalytics() {
+export function SubscriptionRegionalAnalytics({ timeRange: _timeRange }: { timeRange?: string }) {
   const totalSubs = REGION_ROWS.reduce((s, r) => s + r.values.subscribers!, 0);
   const totalMrr = REGION_ROWS.reduce((s, r) => s + r.values.mrr!, 0);
   const arpu = totalMrr / totalSubs;

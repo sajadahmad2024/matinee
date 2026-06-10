@@ -1,29 +1,40 @@
-"use client";
-
-import { useState } from "react";
+import { Suspense } from "react";
 
 import { Download, Shield } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { PlanConfiguration } from "./_components/plan-configuration";
 import { SubscriberList } from "./_components/subscriber-list";
 import { SubscriptionAnalytics } from "./_components/subscription-analytics";
 import { SubscriptionRegionalAnalytics } from "./_components/subscription-regional-analytics";
+import { SubscriptionTabs } from "./_components/subscription-tabs";
+import { TimeRangeSelector } from "./_components/time-range-selector";
 import { TransactionLedger } from "./_components/transaction-ledger";
 
-export default function SubscriptionsPage() {
-  const [activeTab, setActiveTab] = useState("analytics");
-  const [timeFilter, setTimeFilter] = useState("30d");
+export type SubscriptionSearchParams = {
+  tab?: "analytics" | "regional" | "subscribers" | "transactions" | "plans";
+  timeRange?: string;
+  q?: string;
+  status?: string;
+  page?: string;
+  pageSize?: string;
+};
+
+interface PageProps {
+  searchParams: Promise<SubscriptionSearchParams>;
+}
+
+export default async function SubscriptionsPage({ searchParams }: PageProps) {
+  const {
+    tab = "analytics",
+    timeRange = "30d",
+    q = "",
+    status = "all",
+    page = "1",
+    pageSize = "10",
+  } = await searchParams;
 
   return (
     <div className="animate-fade-in space-y-6">
@@ -44,18 +55,10 @@ export default function SubscriptionsPage() {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <Select value={timeFilter} onValueChange={setTimeFilter}>
-            <SelectTrigger className="bg-background/50 w-[140px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="border-border bg-card">
-              <SelectItem value="7d">Last 7 days</SelectItem>
-              <SelectItem value="30d">Last 30 days</SelectItem>
-              <SelectItem value="90d">Last 90 days</SelectItem>
-              <SelectItem value="1y">Last year</SelectItem>
-              <SelectItem value="all">All time</SelectItem>
-            </SelectContent>
-          </Select>
+          <Suspense
+            fallback={<div className="bg-muted/20 h-10 w-[140px] animate-pulse rounded-md" />}>
+            <TimeRangeSelector defaultValue={timeRange} />
+          </Suspense>
           <Button variant="outline" className="gap-2">
             <Download className="h-4 w-4" />
             Export
@@ -64,55 +67,45 @@ export default function SubscriptionsPage() {
       </div>
 
       {/* Tabs Navigation */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="border-border/50 bg-background/50 border p-1">
-          <TabsTrigger
-            value="analytics"
-            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-            Analytics
-          </TabsTrigger>
-          <TabsTrigger
-            value="regional"
-            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-            Regional
-          </TabsTrigger>
-          <TabsTrigger
-            value="subscribers"
-            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-            Subscribers
-          </TabsTrigger>
-          <TabsTrigger
-            value="transactions"
-            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-            Transactions
-          </TabsTrigger>
-          <TabsTrigger
-            value="plans"
-            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-            Plans
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="analytics" className="mt-0">
-          <SubscriptionAnalytics />
-        </TabsContent>
-
-        <TabsContent value="regional" className="mt-0">
-          <SubscriptionRegionalAnalytics />
-        </TabsContent>
-
-        <TabsContent value="subscribers" className="mt-0">
-          <SubscriberList />
-        </TabsContent>
-
-        <TabsContent value="transactions" className="mt-0">
-          <TransactionLedger />
-        </TabsContent>
-
-        <TabsContent value="plans" className="mt-0">
-          <PlanConfiguration />
-        </TabsContent>
-      </Tabs>
+      <SubscriptionTabs defaultTab={tab}>
+        {{
+          analytics: (
+            <Suspense fallback={<div className="bg-muted/10 h-[400px] w-full animate-pulse rounded-xl" />}>
+              <SubscriptionAnalytics timeRange={timeRange} />
+            </Suspense>
+          ),
+          regional: (
+            <Suspense fallback={<div className="bg-muted/10 h-[400px] w-full animate-pulse rounded-xl" />}>
+              <SubscriptionRegionalAnalytics timeRange={timeRange} />
+            </Suspense>
+          ),
+          subscribers: (
+            <Suspense fallback={<div className="bg-muted/10 h-[400px] w-full animate-pulse rounded-xl" />}>
+              <SubscriberList
+                searchQuery={q}
+                statusFilter={status}
+                page={Number(page)}
+                pageSize={Number(pageSize)}
+              />
+            </Suspense>
+          ),
+          transactions: (
+            <Suspense fallback={<div className="bg-muted/10 h-[400px] w-full animate-pulse rounded-xl" />}>
+              <TransactionLedger
+                searchQuery={q}
+                statusFilter={status}
+                page={Number(page)}
+                pageSize={Number(pageSize)}
+              />
+            </Suspense>
+          ),
+          plans: (
+            <Suspense fallback={<div className="bg-muted/10 h-[400px] w-full animate-pulse rounded-xl" />}>
+              <PlanConfiguration />
+            </Suspense>
+          ),
+        }}
+      </SubscriptionTabs>
     </div>
   );
 }

@@ -1,6 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import type { Route } from "next";
 
 import { History, MoreHorizontal, RefreshCcw, Search, XCircle } from "lucide-react";
 
@@ -46,12 +48,56 @@ function getStatusBadge(status: Subscriber["planStatus"]) {
   );
 }
 
-export function SubscriberList() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
+interface SubscriberListProps {
+  searchQuery: string;
+  statusFilter: string;
+  page: number;
+  pageSize: number;
+}
+
+export function SubscriberList({
+  searchQuery,
+  statusFilter,
+  page: _page,
+  pageSize: _pageSize,
+}: SubscriberListProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const [localSearch, setLocalSearch] = useState(searchQuery);
   const [historyModal, setHistoryModal] = useState<Subscriber | null>(null);
   const [cancelModal, setCancelModal] = useState<Subscriber | null>(null);
   const [refundModal, setRefundModal] = useState<Subscriber | null>(null);
+
+  // Debounce search update to URL
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (localSearch !== searchQuery) {
+        updateQuery("q", localSearch);
+      }
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [localSearch, searchQuery]);
+
+  // Sync local search state with search parameter changes (e.g. tab changes)
+  useEffect(() => {
+    setLocalSearch(searchQuery);
+  }, [searchQuery]);
+
+  const updateQuery = useCallback(
+    (name: string, value: string) => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (value && value !== "all") {
+        params.set(name, value);
+      } else {
+        params.delete(name);
+      }
+      params.set("page", "1"); // Reset to first page
+      router.push(`${pathname}?${params.toString()}` as Route, { scroll: false });
+    },
+    [searchParams, pathname, router],
+  );
 
   const filteredSubscribers = useMemo(() => {
     return mockSubscribers.filter((sub) => {
@@ -155,15 +201,15 @@ export function SubscriberList() {
       <SubscriberStats
         subscribers={mockSubscribers}
         statusFilter={statusFilter}
-        onStatusFilterChange={setStatusFilter}
+        onStatusFilterChange={(v) => updateQuery("status", v)}
       />
 
       <div className="relative max-w-sm">
         <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
         <Input
           placeholder="Search subscribers..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          value={localSearch}
+          onChange={(e) => setLocalSearch(e.target.value)}
           className="bg-background/50 pl-9"
         />
       </div>
@@ -198,3 +244,4 @@ export function SubscriberList() {
     </div>
   );
 }
+
