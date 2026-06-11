@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import type { Route } from "next";
 import Link from "next/link";
 
-import { Plus } from "lucide-react";
+import { Library, Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
@@ -40,12 +40,20 @@ export default async function ContentManagementPage({ searchParams }: PageProps)
             Manage your video library, games, and content performance
           </p>
         </div>
-        <Button asChild className="gap-2">
-          <Link href={"/content/new" as Route}>
-            <Plus className="h-4 w-4" />
-            Add Video
-          </Link>
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button asChild variant="outline" className="gap-2">
+            <Link href={"/content/taxonomy" as Route}>
+              <Library className="h-4 w-4" />
+              Library
+            </Link>
+          </Button>
+          <Button asChild className="gap-2">
+            <Link href={"/content/new" as Route}>
+              <Plus className="h-4 w-4" />
+              Add Video
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {/* Operational dashboard — inventory, licensing, performance */}

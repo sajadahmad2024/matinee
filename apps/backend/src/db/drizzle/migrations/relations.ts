@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm/relations";
-import { mediaMetadata, gameWidgetConfigs, users, contentSponsorships, contents, contentLicenses, subscriptionPlans, planRegionPrices, subscriptions, subscriptionInvoices, moderationTickets, moderationReports, adminAuditLog, appVersions, appSettings, notificationCampaigns, notificationDeliveries, deviceTokens, userSessions, mediaStatusEvents, userEnforcementActions, oauthAccounts, otpCodes, rewardRules, geoPolicies, referralCodes, referralRedemptions, studios, people, contentMedia, contentChangeHistory, contentReactions, comments, commentReports, contentShares, contentModerationLog, contentUnlocks, contentViews, rewardRuleVersions, wallets, quests, userStreaks, ledgerTransactions, predictions, predictionOptions, predictionEntries, auctions, bids, badges, badgeTriggers, permissions, rolePermissions, roles, contentTags, tags, questContents, deviceTokenTopics, contentGenres, genres, contentWatchlist, userBadges, userRoles, commentReactions, questContentProgress, leaderboardMonthly, userMetrics, contentCast, contentProgress, questParticipations, userDailyActivity, contentDailyStats } from "./schema";
+import { mediaMetadata, gameWidgetConfigs, users, contents, contentSponsorships, contentLicenses, subscriptionPlans, planRegionPrices, subscriptions, subscriptionInvoices, moderationTickets, moderationReports, adminAuditLog, appVersions, appSettings, notificationCampaigns, notificationDeliveries, deviceTokens, userSessions, roles, adminInvites, userMfa, mediaStatusEvents, userEnforcementActions, oauthAccounts, otpCodes, rewardRules, geoPolicies, referralCodes, referralRedemptions, studios, people, contentMedia, contentChangeHistory, contentReactions, comments, commentReports, contentShares, contentModerationLog, contentUnlocks, contentViews, rewardRuleVersions, wallets, quests, userStreaks, ledgerTransactions, predictions, predictionOptions, predictionEntries, auctions, bids, badges, badgeTriggers, rolePermissions, permissions, contentTags, tags, questContents, deviceTokenTopics, contentGenres, genres, contentWatchlist, userBadges, userRoles, commentReactions, questContentProgress, leaderboardMonthly, userMetrics, contentCast, contentProgress, questParticipations, userDailyActivity, contentDailyStats } from "./schema";
 
 export const gameWidgetConfigsRelations = relations(gameWidgetConfigs, ({one}) => ({
 	mediaMetadatum: one(mediaMetadata, {
@@ -28,11 +28,11 @@ export const mediaMetadataRelations = relations(mediaMetadata, ({one, many}) => 
 	studios: many(studios),
 	people: many(people),
 	contentMedias: many(contentMedia),
-	contents_thumbnailMediaId: many(contents, {
-		relationName: "contents_thumbnailMediaId_mediaMetadata_id"
-	}),
 	contents_videoMediaId: many(contents, {
 		relationName: "contents_videoMediaId_mediaMetadata_id"
+	}),
+	contents_thumbnailMediaId: many(contents, {
+		relationName: "contents_thumbnailMediaId_mediaMetadata_id"
 	}),
 	quests: many(quests),
 	predictions: many(predictions),
@@ -53,11 +53,11 @@ export const usersRelations = relations(users, ({one, many}) => ({
 	subscriptionPlans: many(subscriptionPlans),
 	subscriptions: many(subscriptions),
 	subscriptionInvoices: many(subscriptionInvoices),
-	moderationTickets_assignedTo: many(moderationTickets, {
-		relationName: "moderationTickets_assignedTo_users_id"
-	}),
 	moderationTickets_offenderUserId: many(moderationTickets, {
 		relationName: "moderationTickets_offenderUserId_users_id"
+	}),
+	moderationTickets_assignedTo: many(moderationTickets, {
+		relationName: "moderationTickets_assignedTo_users_id"
 	}),
 	moderationTickets_resolvedBy: many(moderationTickets, {
 		relationName: "moderationTickets_resolvedBy_users_id"
@@ -69,6 +69,13 @@ export const usersRelations = relations(users, ({one, many}) => ({
 	notificationCampaigns: many(notificationCampaigns),
 	notificationDeliveries: many(notificationDeliveries),
 	userSessions: many(userSessions),
+	adminInvites_invitedBy: many(adminInvites, {
+		relationName: "adminInvites_invitedBy_users_id"
+	}),
+	adminInvites_acceptedUserId: many(adminInvites, {
+		relationName: "adminInvites_acceptedUserId_users_id"
+	}),
+	userMfas: many(userMfa),
 	mediaMetadatum: one(mediaMetadata, {
 		fields: [users.avatarMediaId],
 		references: [mediaMetadata.id]
@@ -89,35 +96,35 @@ export const usersRelations = relations(users, ({one, many}) => ({
 	users_statusChangedBy: many(users, {
 		relationName: "users_statusChangedBy_users_id"
 	}),
-	userEnforcementActions_performedBy: many(userEnforcementActions, {
-		relationName: "userEnforcementActions_performedBy_users_id"
-	}),
 	userEnforcementActions_userId: many(userEnforcementActions, {
 		relationName: "userEnforcementActions_userId_users_id"
+	}),
+	userEnforcementActions_performedBy: many(userEnforcementActions, {
+		relationName: "userEnforcementActions_performedBy_users_id"
 	}),
 	oauthAccounts: many(oauthAccounts),
 	otpCodes: many(otpCodes),
 	rewardRules: many(rewardRules),
 	geoPolicies: many(geoPolicies),
 	referralCodes: many(referralCodes),
-	referralRedemptions_refereeId: many(referralRedemptions, {
-		relationName: "referralRedemptions_refereeId_users_id"
-	}),
 	referralRedemptions_referrerId: many(referralRedemptions, {
 		relationName: "referralRedemptions_referrerId_users_id"
 	}),
-	deviceTokens: many(deviceTokens),
-	contents_approvedBy: many(contents, {
-		relationName: "contents_approvedBy_users_id"
+	referralRedemptions_refereeId: many(referralRedemptions, {
+		relationName: "referralRedemptions_refereeId_users_id"
 	}),
+	deviceTokens: many(deviceTokens),
 	contents_createdBy: many(contents, {
 		relationName: "contents_createdBy_users_id"
+	}),
+	contents_updatedBy: many(contents, {
+		relationName: "contents_updatedBy_users_id"
 	}),
 	contents_requestedBy: many(contents, {
 		relationName: "contents_requestedBy_users_id"
 	}),
-	contents_updatedBy: many(contents, {
-		relationName: "contents_updatedBy_users_id"
+	contents_approvedBy: many(contents, {
+		relationName: "contents_approvedBy_users_id"
 	}),
 	contentChangeHistories: many(contentChangeHistory),
 	contentReactions: many(contentReactions),
@@ -137,28 +144,28 @@ export const usersRelations = relations(users, ({one, many}) => ({
 	quests: many(quests),
 	userStreaks: many(userStreaks),
 	ledgerTransactions: many(ledgerTransactions),
-	predictions_createdBy: many(predictions, {
-		relationName: "predictions_createdBy_users_id"
-	}),
 	predictions_resolvedBy: many(predictions, {
 		relationName: "predictions_resolvedBy_users_id"
 	}),
-	predictionEntries: many(predictionEntries),
-	auctions_createdBy: many(auctions, {
-		relationName: "auctions_createdBy_users_id"
+	predictions_createdBy: many(predictions, {
+		relationName: "predictions_createdBy_users_id"
 	}),
+	predictionEntries: many(predictionEntries),
 	auctions_winnerUserId: many(auctions, {
 		relationName: "auctions_winnerUserId_users_id"
+	}),
+	auctions_createdBy: many(auctions, {
+		relationName: "auctions_createdBy_users_id"
 	}),
 	bids: many(bids),
 	badges: many(badges),
 	contentWatchlists: many(contentWatchlist),
 	userBadges: many(userBadges),
-	userRoles_assignedBy: many(userRoles, {
-		relationName: "userRoles_assignedBy_users_id"
-	}),
 	userRoles_userId: many(userRoles, {
 		relationName: "userRoles_userId_users_id"
+	}),
+	userRoles_assignedBy: many(userRoles, {
+		relationName: "userRoles_assignedBy_users_id"
 	}),
 	commentReactions: many(commentReactions),
 	questContentProgresses: many(questContentProgress),
@@ -170,13 +177,13 @@ export const usersRelations = relations(users, ({one, many}) => ({
 }));
 
 export const contentSponsorshipsRelations = relations(contentSponsorships, ({one}) => ({
-	mediaMetadatum: one(mediaMetadata, {
-		fields: [contentSponsorships.bannerMediaId],
-		references: [mediaMetadata.id]
-	}),
 	content: one(contents, {
 		fields: [contentSponsorships.contentId],
 		references: [contents.id]
+	}),
+	mediaMetadatum: one(mediaMetadata, {
+		fields: [contentSponsorships.bannerMediaId],
+		references: [mediaMetadata.id]
 	}),
 	user: one(users, {
 		fields: [contentSponsorships.createdBy],
@@ -188,16 +195,6 @@ export const contentsRelations = relations(contents, ({one, many}) => ({
 	contentSponsorships: many(contentSponsorships),
 	contentLicenses: many(contentLicenses),
 	contentMedias: many(contentMedia),
-	user_approvedBy: one(users, {
-		fields: [contents.approvedBy],
-		references: [users.id],
-		relationName: "contents_approvedBy_users_id"
-	}),
-	user_createdBy: one(users, {
-		fields: [contents.createdBy],
-		references: [users.id],
-		relationName: "contents_createdBy_users_id"
-	}),
 	content: one(contents, {
 		fields: [contents.parentContentId],
 		references: [contents.id],
@@ -206,29 +203,39 @@ export const contentsRelations = relations(contents, ({one, many}) => ({
 	contents: many(contents, {
 		relationName: "contents_parentContentId_contents_id"
 	}),
-	user_requestedBy: one(users, {
-		fields: [contents.requestedBy],
-		references: [users.id],
-		relationName: "contents_requestedBy_users_id"
-	}),
 	studio: one(studios, {
 		fields: [contents.studioId],
 		references: [studios.id]
+	}),
+	mediaMetadatum_videoMediaId: one(mediaMetadata, {
+		fields: [contents.videoMediaId],
+		references: [mediaMetadata.id],
+		relationName: "contents_videoMediaId_mediaMetadata_id"
 	}),
 	mediaMetadatum_thumbnailMediaId: one(mediaMetadata, {
 		fields: [contents.thumbnailMediaId],
 		references: [mediaMetadata.id],
 		relationName: "contents_thumbnailMediaId_mediaMetadata_id"
 	}),
+	user_createdBy: one(users, {
+		fields: [contents.createdBy],
+		references: [users.id],
+		relationName: "contents_createdBy_users_id"
+	}),
 	user_updatedBy: one(users, {
 		fields: [contents.updatedBy],
 		references: [users.id],
 		relationName: "contents_updatedBy_users_id"
 	}),
-	mediaMetadatum_videoMediaId: one(mediaMetadata, {
-		fields: [contents.videoMediaId],
-		references: [mediaMetadata.id],
-		relationName: "contents_videoMediaId_mediaMetadata_id"
+	user_requestedBy: one(users, {
+		fields: [contents.requestedBy],
+		references: [users.id],
+		relationName: "contents_requestedBy_users_id"
+	}),
+	user_approvedBy: one(users, {
+		fields: [contents.approvedBy],
+		references: [users.id],
+		relationName: "contents_approvedBy_users_id"
 	}),
 	contentChangeHistories: many(contentChangeHistory),
 	contentReactions: many(contentReactions),
@@ -276,13 +283,13 @@ export const planRegionPricesRelations = relations(planRegionPrices, ({one}) => 
 }));
 
 export const subscriptionsRelations = relations(subscriptions, ({one, many}) => ({
-	subscriptionPlan: one(subscriptionPlans, {
-		fields: [subscriptions.planId],
-		references: [subscriptionPlans.id]
-	}),
 	user: one(users, {
 		fields: [subscriptions.userId],
 		references: [users.id]
+	}),
+	subscriptionPlan: one(subscriptionPlans, {
+		fields: [subscriptions.planId],
+		references: [subscriptionPlans.id]
 	}),
 	subscriptionInvoices: many(subscriptionInvoices),
 }));
@@ -299,15 +306,15 @@ export const subscriptionInvoicesRelations = relations(subscriptionInvoices, ({o
 }));
 
 export const moderationTicketsRelations = relations(moderationTickets, ({one, many}) => ({
-	user_assignedTo: one(users, {
-		fields: [moderationTickets.assignedTo],
-		references: [users.id],
-		relationName: "moderationTickets_assignedTo_users_id"
-	}),
 	user_offenderUserId: one(users, {
 		fields: [moderationTickets.offenderUserId],
 		references: [users.id],
 		relationName: "moderationTickets_offenderUserId_users_id"
+	}),
+	user_assignedTo: one(users, {
+		fields: [moderationTickets.assignedTo],
+		references: [users.id],
+		relationName: "moderationTickets_assignedTo_users_id"
 	}),
 	user_resolvedBy: one(users, {
 		fields: [moderationTickets.resolvedBy],
@@ -318,13 +325,13 @@ export const moderationTicketsRelations = relations(moderationTickets, ({one, ma
 }));
 
 export const moderationReportsRelations = relations(moderationReports, ({one}) => ({
-	user: one(users, {
-		fields: [moderationReports.reporterUserId],
-		references: [users.id]
-	}),
 	moderationTicket: one(moderationTickets, {
 		fields: [moderationReports.ticketId],
 		references: [moderationTickets.id]
+	}),
+	user: one(users, {
+		fields: [moderationReports.reporterUserId],
+		references: [users.id]
 	}),
 }));
 
@@ -362,13 +369,13 @@ export const notificationDeliveriesRelations = relations(notificationDeliveries,
 		fields: [notificationDeliveries.campaignId],
 		references: [notificationCampaigns.id]
 	}),
-	deviceToken: one(deviceTokens, {
-		fields: [notificationDeliveries.deviceTokenId],
-		references: [deviceTokens.id]
-	}),
 	user: one(users, {
 		fields: [notificationDeliveries.userId],
 		references: [users.id]
+	}),
+	deviceToken: one(deviceTokens, {
+		fields: [notificationDeliveries.deviceTokenId],
+		references: [deviceTokens.id]
 	}),
 }));
 
@@ -388,6 +395,36 @@ export const userSessionsRelations = relations(userSessions, ({one}) => ({
 	}),
 }));
 
+export const adminInvitesRelations = relations(adminInvites, ({one}) => ({
+	role: one(roles, {
+		fields: [adminInvites.roleId],
+		references: [roles.id]
+	}),
+	user_invitedBy: one(users, {
+		fields: [adminInvites.invitedBy],
+		references: [users.id],
+		relationName: "adminInvites_invitedBy_users_id"
+	}),
+	user_acceptedUserId: one(users, {
+		fields: [adminInvites.acceptedUserId],
+		references: [users.id],
+		relationName: "adminInvites_acceptedUserId_users_id"
+	}),
+}));
+
+export const rolesRelations = relations(roles, ({many}) => ({
+	adminInvites: many(adminInvites),
+	rolePermissions: many(rolePermissions),
+	userRoles: many(userRoles),
+}));
+
+export const userMfaRelations = relations(userMfa, ({one}) => ({
+	user: one(users, {
+		fields: [userMfa.userId],
+		references: [users.id]
+	}),
+}));
+
 export const mediaStatusEventsRelations = relations(mediaStatusEvents, ({one}) => ({
 	mediaMetadatum: one(mediaMetadata, {
 		fields: [mediaStatusEvents.mediaId],
@@ -396,15 +433,15 @@ export const mediaStatusEventsRelations = relations(mediaStatusEvents, ({one}) =
 }));
 
 export const userEnforcementActionsRelations = relations(userEnforcementActions, ({one}) => ({
-	user_performedBy: one(users, {
-		fields: [userEnforcementActions.performedBy],
-		references: [users.id],
-		relationName: "userEnforcementActions_performedBy_users_id"
-	}),
 	user_userId: one(users, {
 		fields: [userEnforcementActions.userId],
 		references: [users.id],
 		relationName: "userEnforcementActions_userId_users_id"
+	}),
+	user_performedBy: one(users, {
+		fields: [userEnforcementActions.performedBy],
+		references: [users.id],
+		relationName: "userEnforcementActions_performedBy_users_id"
 	}),
 }));
 
@@ -445,15 +482,15 @@ export const referralCodesRelations = relations(referralCodes, ({one}) => ({
 }));
 
 export const referralRedemptionsRelations = relations(referralRedemptions, ({one}) => ({
-	user_refereeId: one(users, {
-		fields: [referralRedemptions.refereeId],
-		references: [users.id],
-		relationName: "referralRedemptions_refereeId_users_id"
-	}),
 	user_referrerId: one(users, {
 		fields: [referralRedemptions.referrerId],
 		references: [users.id],
 		relationName: "referralRedemptions_referrerId_users_id"
+	}),
+	user_refereeId: one(users, {
+		fields: [referralRedemptions.refereeId],
+		references: [users.id],
+		relationName: "referralRedemptions_refereeId_users_id"
 	}),
 }));
 
@@ -485,13 +522,13 @@ export const contentMediaRelations = relations(contentMedia, ({one}) => ({
 }));
 
 export const contentChangeHistoryRelations = relations(contentChangeHistory, ({one}) => ({
-	user: one(users, {
-		fields: [contentChangeHistory.changedBy],
-		references: [users.id]
-	}),
 	content: one(contents, {
 		fields: [contentChangeHistory.contentId],
 		references: [contents.id]
+	}),
+	user: one(users, {
+		fields: [contentChangeHistory.changedBy],
+		references: [users.id]
 	}),
 }));
 
@@ -507,9 +544,9 @@ export const contentReactionsRelations = relations(contentReactions, ({one}) => 
 }));
 
 export const commentsRelations = relations(comments, ({one, many}) => ({
-	content: one(contents, {
-		fields: [comments.contentId],
-		references: [contents.id]
+	user: one(users, {
+		fields: [comments.userId],
+		references: [users.id]
 	}),
 	comment: one(comments, {
 		fields: [comments.parentCommentId],
@@ -519,9 +556,9 @@ export const commentsRelations = relations(comments, ({one, many}) => ({
 	comments: many(comments, {
 		relationName: "comments_parentCommentId_comments_id"
 	}),
-	user: one(users, {
-		fields: [comments.userId],
-		references: [users.id]
+	content: one(contents, {
+		fields: [comments.contentId],
+		references: [contents.id]
 	}),
 	commentReports: many(commentReports),
 	contentModerationLogs: many(contentModerationLog),
@@ -590,13 +627,13 @@ export const contentViewsRelations = relations(contentViews, ({one}) => ({
 }));
 
 export const rewardRuleVersionsRelations = relations(rewardRuleVersions, ({one, many}) => ({
-	user: one(users, {
-		fields: [rewardRuleVersions.changedBy],
-		references: [users.id]
-	}),
 	rewardRule: one(rewardRules, {
 		fields: [rewardRuleVersions.ruleId],
 		references: [rewardRules.id]
+	}),
+	user: one(users, {
+		fields: [rewardRuleVersions.changedBy],
+		references: [users.id]
 	}),
 	ledgerTransactions: many(ledgerTransactions),
 }));
@@ -630,13 +667,13 @@ export const userStreaksRelations = relations(userStreaks, ({one}) => ({
 }));
 
 export const ledgerTransactionsRelations = relations(ledgerTransactions, ({one}) => ({
-	rewardRuleVersion: one(rewardRuleVersions, {
-		fields: [ledgerTransactions.rewardRuleVersionId],
-		references: [rewardRuleVersions.id]
-	}),
 	user: one(users, {
 		fields: [ledgerTransactions.userId],
 		references: [users.id]
+	}),
+	rewardRuleVersion: one(rewardRuleVersions, {
+		fields: [ledgerTransactions.rewardRuleVersionId],
+		references: [rewardRuleVersions.id]
 	}),
 }));
 
@@ -649,37 +686,33 @@ export const predictionsRelations = relations(predictions, ({one, many}) => ({
 		fields: [predictions.contentId],
 		references: [contents.id]
 	}),
-	user_createdBy: one(users, {
-		fields: [predictions.createdBy],
-		references: [users.id],
-		relationName: "predictions_createdBy_users_id"
-	}),
 	user_resolvedBy: one(users, {
 		fields: [predictions.resolvedBy],
 		references: [users.id],
 		relationName: "predictions_resolvedBy_users_id"
+	}),
+	user_createdBy: one(users, {
+		fields: [predictions.createdBy],
+		references: [users.id],
+		relationName: "predictions_createdBy_users_id"
 	}),
 	predictionOptions: many(predictionOptions),
 	predictionEntries: many(predictionEntries),
 }));
 
 export const predictionOptionsRelations = relations(predictionOptions, ({one, many}) => ({
-	mediaMetadatum: one(mediaMetadata, {
-		fields: [predictionOptions.optionMediaId],
-		references: [mediaMetadata.id]
-	}),
 	prediction: one(predictions, {
 		fields: [predictionOptions.predictionId],
 		references: [predictions.id]
+	}),
+	mediaMetadatum: one(mediaMetadata, {
+		fields: [predictionOptions.optionMediaId],
+		references: [mediaMetadata.id]
 	}),
 	predictionEntries: many(predictionEntries),
 }));
 
 export const predictionEntriesRelations = relations(predictionEntries, ({one}) => ({
-	predictionOption: one(predictionOptions, {
-		fields: [predictionEntries.optionId],
-		references: [predictionOptions.id]
-	}),
 	prediction: one(predictions, {
 		fields: [predictionEntries.predictionId],
 		references: [predictions.id]
@@ -687,6 +720,10 @@ export const predictionEntriesRelations = relations(predictionEntries, ({one}) =
 	user: one(users, {
 		fields: [predictionEntries.userId],
 		references: [users.id]
+	}),
+	predictionOption: one(predictionOptions, {
+		fields: [predictionEntries.optionId],
+		references: [predictionOptions.id]
 	}),
 }));
 
@@ -699,15 +736,15 @@ export const auctionsRelations = relations(auctions, ({one, many}) => ({
 		fields: [auctions.contentId],
 		references: [contents.id]
 	}),
-	user_createdBy: one(users, {
-		fields: [auctions.createdBy],
-		references: [users.id],
-		relationName: "auctions_createdBy_users_id"
-	}),
 	user_winnerUserId: one(users, {
 		fields: [auctions.winnerUserId],
 		references: [users.id],
 		relationName: "auctions_winnerUserId_users_id"
+	}),
+	user_createdBy: one(users, {
+		fields: [auctions.createdBy],
+		references: [users.id],
+		relationName: "auctions_createdBy_users_id"
 	}),
 	bids: many(bids),
 }));
@@ -729,10 +766,6 @@ export const badgesRelations = relations(badges, ({one, many}) => ({
 		references: [mediaMetadata.id],
 		relationName: "badges_activeIconMediaId_mediaMetadata_id"
 	}),
-	user: one(users, {
-		fields: [badges.createdBy],
-		references: [users.id]
-	}),
 	mediaMetadatum_inactiveIconMediaId: one(mediaMetadata, {
 		fields: [badges.inactiveIconMediaId],
 		references: [mediaMetadata.id],
@@ -742,6 +775,10 @@ export const badgesRelations = relations(badges, ({one, many}) => ({
 		fields: [badges.triggerKey],
 		references: [badgeTriggers.key]
 	}),
+	user: one(users, {
+		fields: [badges.createdBy],
+		references: [users.id]
+	}),
 	userBadges: many(userBadges),
 }));
 
@@ -750,23 +787,18 @@ export const badgeTriggersRelations = relations(badgeTriggers, ({many}) => ({
 }));
 
 export const rolePermissionsRelations = relations(rolePermissions, ({one}) => ({
-	permission: one(permissions, {
-		fields: [rolePermissions.permissionId],
-		references: [permissions.id]
-	}),
 	role: one(roles, {
 		fields: [rolePermissions.roleId],
 		references: [roles.id]
+	}),
+	permission: one(permissions, {
+		fields: [rolePermissions.permissionId],
+		references: [permissions.id]
 	}),
 }));
 
 export const permissionsRelations = relations(permissions, ({many}) => ({
 	rolePermissions: many(rolePermissions),
-}));
-
-export const rolesRelations = relations(roles, ({many}) => ({
-	rolePermissions: many(rolePermissions),
-	userRoles: many(userRoles),
 }));
 
 export const contentTagsRelations = relations(contentTags, ({one}) => ({
@@ -785,13 +817,13 @@ export const tagsRelations = relations(tags, ({many}) => ({
 }));
 
 export const questContentsRelations = relations(questContents, ({one}) => ({
-	content: one(contents, {
-		fields: [questContents.contentId],
-		references: [contents.id]
-	}),
 	quest: one(quests, {
 		fields: [questContents.questId],
 		references: [quests.id]
+	}),
+	content: one(contents, {
+		fields: [questContents.contentId],
+		references: [contents.id]
 	}),
 }));
 
@@ -818,60 +850,56 @@ export const genresRelations = relations(genres, ({many}) => ({
 }));
 
 export const contentWatchlistRelations = relations(contentWatchlist, ({one}) => ({
-	content: one(contents, {
-		fields: [contentWatchlist.contentId],
-		references: [contents.id]
-	}),
 	user: one(users, {
 		fields: [contentWatchlist.userId],
 		references: [users.id]
 	}),
+	content: one(contents, {
+		fields: [contentWatchlist.contentId],
+		references: [contents.id]
+	}),
 }));
 
 export const userBadgesRelations = relations(userBadges, ({one}) => ({
-	badge: one(badges, {
-		fields: [userBadges.badgeId],
-		references: [badges.id]
-	}),
 	user: one(users, {
 		fields: [userBadges.userId],
 		references: [users.id]
 	}),
+	badge: one(badges, {
+		fields: [userBadges.badgeId],
+		references: [badges.id]
+	}),
 }));
 
 export const userRolesRelations = relations(userRoles, ({one}) => ({
-	user_assignedBy: one(users, {
-		fields: [userRoles.assignedBy],
-		references: [users.id],
-		relationName: "userRoles_assignedBy_users_id"
-	}),
-	role: one(roles, {
-		fields: [userRoles.roleId],
-		references: [roles.id]
-	}),
 	user_userId: one(users, {
 		fields: [userRoles.userId],
 		references: [users.id],
 		relationName: "userRoles_userId_users_id"
 	}),
+	role: one(roles, {
+		fields: [userRoles.roleId],
+		references: [roles.id]
+	}),
+	user_assignedBy: one(users, {
+		fields: [userRoles.assignedBy],
+		references: [users.id],
+		relationName: "userRoles_assignedBy_users_id"
+	}),
 }));
 
 export const commentReactionsRelations = relations(commentReactions, ({one}) => ({
-	comment: one(comments, {
-		fields: [commentReactions.commentId],
-		references: [comments.id]
-	}),
 	user: one(users, {
 		fields: [commentReactions.userId],
 		references: [users.id]
 	}),
+	comment: one(comments, {
+		fields: [commentReactions.commentId],
+		references: [comments.id]
+	}),
 }));
 
 export const questContentProgressRelations = relations(questContentProgress, ({one}) => ({
-	content: one(contents, {
-		fields: [questContentProgress.contentId],
-		references: [contents.id]
-	}),
 	quest: one(quests, {
 		fields: [questContentProgress.questId],
 		references: [quests.id]
@@ -879,6 +907,10 @@ export const questContentProgressRelations = relations(questContentProgress, ({o
 	user: one(users, {
 		fields: [questContentProgress.userId],
 		references: [users.id]
+	}),
+	content: one(contents, {
+		fields: [questContentProgress.contentId],
+		references: [contents.id]
 	}),
 }));
 
@@ -908,13 +940,13 @@ export const contentCastRelations = relations(contentCast, ({one}) => ({
 }));
 
 export const contentProgressRelations = relations(contentProgress, ({one}) => ({
-	content: one(contents, {
-		fields: [contentProgress.contentId],
-		references: [contents.id]
-	}),
 	user: one(users, {
 		fields: [contentProgress.userId],
 		references: [users.id]
+	}),
+	content: one(contents, {
+		fields: [contentProgress.contentId],
+		references: [contents.id]
 	}),
 }));
 

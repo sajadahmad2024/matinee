@@ -50,22 +50,22 @@ export const contentSponsorships = pgTable("content_sponsorships", {
 	index("idx_content_sponsorships_commercial").using("btree", table.contentId.asc().nullsLast().op("uuid_ops")).where(sql`(is_active AND ((ad_format)::text = 'commercial'::text))`),
 	index("idx_content_sponsorships_content").using("btree", table.contentId.asc().nullsLast().op("uuid_ops")).where(sql`is_active`),
 	foreignKey({
-			columns: [table.bannerMediaId],
-			foreignColumns: [mediaMetadata.id],
-			name: "content_sponsorships_banner_media_id_fkey"
-		}).onDelete("set null"),
-	foreignKey({
 			columns: [table.contentId],
 			foreignColumns: [contents.id],
 			name: "content_sponsorships_content_id_fkey"
 		}).onDelete("cascade"),
 	foreignKey({
+			columns: [table.bannerMediaId],
+			foreignColumns: [mediaMetadata.id],
+			name: "content_sponsorships_banner_media_id_fkey"
+		}).onDelete("set null"),
+	foreignKey({
 			columns: [table.createdBy],
 			foreignColumns: [users.id],
 			name: "content_sponsorships_created_by_fkey"
 		}).onDelete("set null"),
-	check("content_sponsorships_ad_format_check", sql`(ad_format)::text = ANY ((ARRAY['sponsored'::character varying, 'commercial'::character varying])::text[])`),
 	check("content_sponsorships_placement_check", sql`(placement)::text = ANY ((ARRAY['pre-roll'::character varying, 'mid-roll'::character varying, 'post-roll'::character varying, 'overlay'::character varying])::text[])`),
+	check("content_sponsorships_ad_format_check", sql`(ad_format)::text = ANY ((ARRAY['sponsored'::character varying, 'commercial'::character varying])::text[])`),
 ]);
 
 export const contentLicenses = pgTable("content_licenses", {
@@ -182,17 +182,17 @@ export const subscriptions = pgTable("subscriptions", {
 	index("idx_subscriptions_status").using("btree", table.status.asc().nullsLast().op("text_ops")),
 	index("idx_subscriptions_user").using("btree", table.userId.asc().nullsLast().op("uuid_ops")),
 	foreignKey({
-			columns: [table.planId],
-			foreignColumns: [subscriptionPlans.id],
-			name: "subscriptions_plan_id_fkey"
-		}).onDelete("set null"),
-	foreignKey({
 			columns: [table.userId],
 			foreignColumns: [users.id],
 			name: "subscriptions_user_id_fkey"
 		}).onDelete("cascade"),
-	check("subscriptions_region_check", sql`(region)::text = ANY ((ARRAY['NA'::character varying, 'EU'::character varying, 'APAC'::character varying, 'LATAM'::character varying, 'MEA'::character varying])::text[])`),
+	foreignKey({
+			columns: [table.planId],
+			foreignColumns: [subscriptionPlans.id],
+			name: "subscriptions_plan_id_fkey"
+		}).onDelete("set null"),
 	check("subscriptions_status_check", sql`(status)::text = ANY ((ARRAY['trialing'::character varying, 'active'::character varying, 'past_due'::character varying, 'canceled'::character varying, 'unpaid'::character varying])::text[])`),
+	check("subscriptions_region_check", sql`(region)::text = ANY ((ARRAY['NA'::character varying, 'EU'::character varying, 'APAC'::character varying, 'LATAM'::character varying, 'MEA'::character varying])::text[])`),
 ]);
 
 export const subscriptionInvoices = pgTable("subscription_invoices", {
@@ -256,25 +256,25 @@ export const moderationTickets = pgTable("moderation_tickets", {
 	index("idx_moderation_tickets_queue").using("btree", table.status.asc().nullsLast().op("text_ops"), table.severity.asc().nullsLast().op("text_ops")).where(sql`((status)::text = ANY ((ARRAY['open'::character varying, 'in_review'::character varying, 'escalated'::character varying])::text[]))`),
 	index("idx_moderation_tickets_subject").using("btree", table.subjectType.asc().nullsLast().op("uuid_ops"), table.subjectId.asc().nullsLast().op("uuid_ops")),
 	foreignKey({
-			columns: [table.assignedTo],
-			foreignColumns: [users.id],
-			name: "moderation_tickets_assigned_to_fkey"
-		}).onDelete("set null"),
-	foreignKey({
 			columns: [table.offenderUserId],
 			foreignColumns: [users.id],
 			name: "moderation_tickets_offender_user_id_fkey"
+		}).onDelete("set null"),
+	foreignKey({
+			columns: [table.assignedTo],
+			foreignColumns: [users.id],
+			name: "moderation_tickets_assigned_to_fkey"
 		}).onDelete("set null"),
 	foreignKey({
 			columns: [table.resolvedBy],
 			foreignColumns: [users.id],
 			name: "moderation_tickets_resolved_by_fkey"
 		}).onDelete("set null"),
-	check("moderation_tickets_category_check", sql`(category)::text = ANY ((ARRAY['hate_speech'::character varying, 'spam'::character varying, 'nudity'::character varying, 'harassment'::character varying, 'other'::character varying])::text[])`),
-	check("moderation_tickets_resolution_check", sql`(resolution)::text = ANY ((ARRAY['content_removed'::character varying, 'user_warned'::character varying, 'user_suspended'::character varying, 'user_banned'::character varying, 'no_action'::character varying])::text[])`),
-	check("moderation_tickets_severity_check", sql`(severity)::text = ANY ((ARRAY['high'::character varying, 'medium'::character varying, 'low'::character varying])::text[])`),
-	check("moderation_tickets_status_check", sql`(status)::text = ANY ((ARRAY['open'::character varying, 'in_review'::character varying, 'resolved'::character varying, 'dismissed'::character varying, 'escalated'::character varying])::text[])`),
 	check("moderation_tickets_subject_type_check", sql`(subject_type)::text = ANY ((ARRAY['comment'::character varying, 'content'::character varying, 'user'::character varying])::text[])`),
+	check("moderation_tickets_severity_check", sql`(severity)::text = ANY ((ARRAY['high'::character varying, 'medium'::character varying, 'low'::character varying])::text[])`),
+	check("moderation_tickets_category_check", sql`(category)::text = ANY ((ARRAY['hate_speech'::character varying, 'spam'::character varying, 'nudity'::character varying, 'harassment'::character varying, 'other'::character varying])::text[])`),
+	check("moderation_tickets_status_check", sql`(status)::text = ANY ((ARRAY['open'::character varying, 'in_review'::character varying, 'resolved'::character varying, 'dismissed'::character varying, 'escalated'::character varying])::text[])`),
+	check("moderation_tickets_resolution_check", sql`(resolution)::text = ANY ((ARRAY['content_removed'::character varying, 'user_warned'::character varying, 'user_suspended'::character varying, 'user_banned'::character varying, 'no_action'::character varying])::text[])`),
 ]);
 
 export const moderationReports = pgTable("moderation_reports", {
@@ -287,15 +287,15 @@ export const moderationReports = pgTable("moderation_reports", {
 }, (table) => [
 	index("idx_moderation_reports_ticket").using("btree", table.ticketId.asc().nullsLast().op("uuid_ops")),
 	foreignKey({
-			columns: [table.reporterUserId],
-			foreignColumns: [users.id],
-			name: "moderation_reports_reporter_user_id_fkey"
-		}).onDelete("set null"),
-	foreignKey({
 			columns: [table.ticketId],
 			foreignColumns: [moderationTickets.id],
 			name: "moderation_reports_ticket_id_fkey"
 		}).onDelete("cascade"),
+	foreignKey({
+			columns: [table.reporterUserId],
+			foreignColumns: [users.id],
+			name: "moderation_reports_reporter_user_id_fkey"
+		}).onDelete("set null"),
 	check("moderation_reports_reason_check", sql`(reason)::text = ANY ((ARRAY['hate_speech'::character varying, 'spam'::character varying, 'nudity'::character varying, 'harassment'::character varying, 'other'::character varying])::text[])`),
 ]);
 
@@ -385,8 +385,8 @@ export const notificationCampaigns = pgTable("notification_campaigns", {
 			foreignColumns: [users.id],
 			name: "notification_campaigns_created_by_fkey"
 		}).onDelete("set null"),
-	check("notification_campaigns_status_check", sql`(status)::text = ANY ((ARRAY['draft'::character varying, 'scheduled'::character varying, 'sending'::character varying, 'sent'::character varying, 'failed'::character varying, 'canceled'::character varying])::text[])`),
 	check("notification_campaigns_target_type_check", sql`(target_type)::text = ANY ((ARRAY['all'::character varying, 'segment'::character varying, 'selected'::character varying])::text[])`),
+	check("notification_campaigns_status_check", sql`(status)::text = ANY ((ARRAY['draft'::character varying, 'scheduled'::character varying, 'sending'::character varying, 'sent'::character varying, 'failed'::character varying, 'canceled'::character varying])::text[])`),
 ]);
 
 export const notificationDeliveries = pgTable("notification_deliveries", {
@@ -408,14 +408,14 @@ export const notificationDeliveries = pgTable("notification_deliveries", {
 			name: "notification_deliveries_campaign_id_fkey"
 		}).onDelete("cascade"),
 	foreignKey({
-			columns: [table.deviceTokenId],
-			foreignColumns: [deviceTokens.id],
-			name: "notification_deliveries_device_token_id_fkey"
-		}).onDelete("set null"),
-	foreignKey({
 			columns: [table.userId],
 			foreignColumns: [users.id],
 			name: "notification_deliveries_user_id_fkey"
+		}).onDelete("set null"),
+	foreignKey({
+			columns: [table.deviceTokenId],
+			foreignColumns: [deviceTokens.id],
+			name: "notification_deliveries_device_token_id_fkey"
 		}).onDelete("set null"),
 	check("notification_deliveries_status_check", sql`(status)::text = ANY ((ARRAY['queued'::character varying, 'sent'::character varying, 'delivered'::character varying, 'opened'::character varying, 'failed'::character varying])::text[])`),
 ]);
@@ -487,6 +487,57 @@ export const socialMentions = pgTable("social_mentions", {
 	check("social_mentions_sentiment_check", sql`(sentiment)::text = ANY ((ARRAY['positive'::character varying, 'neutral'::character varying, 'negative'::character varying])::text[])`),
 ]);
 
+export const adminInvites = pgTable("admin_invites", {
+	id: uuid().default(sql`uuidv7()`).primaryKey().notNull(),
+	email: varchar({ length: 255 }).notNull(),
+	roleId: uuid("role_id"),
+	tokenHash: varchar("token_hash", { length: 255 }).notNull(),
+	status: varchar({ length: 20 }).default('pending').notNull(),
+	invitedBy: uuid("invited_by"),
+	acceptedUserId: uuid("accepted_user_id"),
+	expiresAt: timestamp("expires_at", { withTimezone: true, mode: 'string' }),
+	acceptedAt: timestamp("accepted_at", { withTimezone: true, mode: 'string' }),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+}, (table) => [
+	index("idx_admin_invites_email").using("btree", table.email.asc().nullsLast().op("text_ops")),
+	index("idx_admin_invites_pending").using("btree", table.status.asc().nullsLast().op("text_ops")).where(sql`((status)::text = 'pending'::text)`),
+	foreignKey({
+			columns: [table.roleId],
+			foreignColumns: [roles.id],
+			name: "admin_invites_role_id_fkey"
+		}).onDelete("set null"),
+	foreignKey({
+			columns: [table.invitedBy],
+			foreignColumns: [users.id],
+			name: "admin_invites_invited_by_fkey"
+		}).onDelete("set null"),
+	foreignKey({
+			columns: [table.acceptedUserId],
+			foreignColumns: [users.id],
+			name: "admin_invites_accepted_user_id_fkey"
+		}).onDelete("set null"),
+	unique("admin_invites_token_hash_key").on(table.tokenHash),
+	check("admin_invites_status_check", sql`(status)::text = ANY ((ARRAY['pending'::character varying, 'accepted'::character varying, 'revoked'::character varying, 'expired'::character varying])::text[])`),
+]);
+
+export const userMfa = pgTable("user_mfa", {
+	userId: uuid("user_id").primaryKey().notNull(),
+	method: varchar({ length: 20 }).default('totp').notNull(),
+	secret: varchar({ length: 255 }),
+	isEnabled: boolean("is_enabled").default(false).notNull(),
+	backupCodes: jsonb("backup_codes").default([]).notNull(),
+	verifiedAt: timestamp("verified_at", { withTimezone: true, mode: 'string' }),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+}, (table) => [
+	foreignKey({
+			columns: [table.userId],
+			foreignColumns: [users.id],
+			name: "user_mfa_user_id_fkey"
+		}).onDelete("cascade"),
+	check("user_mfa_method_check", sql`(method)::text = ANY ((ARRAY['totp'::character varying, 'sms'::character varying, 'email'::character varying])::text[])`),
+]);
+
 export const users = pgTable("users", {
 	id: uuid().default(sql`uuidv7()`).primaryKey().notNull(),
 	accountType: varchar("account_type", { length: 20 }).default('guest').notNull(),
@@ -543,11 +594,11 @@ export const users = pgTable("users", {
 			foreignColumns: [table.id],
 			name: "users_status_changed_by_fkey"
 		}).onDelete("set null"),
-	check("users_account_type_check", sql`(account_type)::text = ANY ((ARRAY['guest'::character varying, 'customer'::character varying, 'admin'::character varying])::text[])`),
 	check("users_acquisition_channel_check", sql`(acquisition_channel)::text = ANY ((ARRAY['organic'::character varying, 'paid_social'::character varying, 'referral'::character varying, 'influencer'::character varying, 'search'::character varying, 'other'::character varying])::text[])`),
+	check("users_account_type_check", sql`(account_type)::text = ANY ((ARRAY['guest'::character varying, 'customer'::character varying, 'admin'::character varying])::text[])`),
 	check("users_gender_check", sql`(gender)::text = ANY ((ARRAY['male'::character varying, 'female'::character varying, 'other'::character varying, 'prefer_not_to_say'::character varying])::text[])`),
-	check("users_location_source_check", sql`(location_source)::text = ANY ((ARRAY['ip'::character varying, 'device'::character varying, 'manual'::character varying])::text[])`),
 	check("users_primary_auth_method_check", sql`(primary_auth_method)::text = ANY ((ARRAY['phone'::character varying, 'google'::character varying, 'apple'::character varying, 'email'::character varying])::text[])`),
+	check("users_location_source_check", sql`(location_source)::text = ANY ((ARRAY['ip'::character varying, 'device'::character varying, 'manual'::character varying])::text[])`),
 	check("users_status_check", sql`(status)::text = ANY ((ARRAY['active'::character varying, 'suspended'::character varying, 'banned'::character varying, 'disabled'::character varying])::text[])`),
 ]);
 
@@ -599,10 +650,10 @@ export const mediaMetadata = pgTable("media_metadata", {
 			foreignColumns: [table.id],
 			name: "media_metadata_poster_media_id_fkey"
 		}).onDelete("set null"),
-	check("media_metadata_access_level_check", sql`(access_level)::text = ANY ((ARRAY['public'::character varying, 'protected'::character varying, 'private'::character varying])::text[])`),
 	check("media_metadata_media_type_check", sql`(media_type)::text = ANY ((ARRAY['image'::character varying, 'video'::character varying, 'audio'::character varying, 'document'::character varying, 'other'::character varying])::text[])`),
-	check("media_metadata_status_check", sql`(status)::text = ANY ((ARRAY['pending'::character varying, 'uploading'::character varying, 'uploaded'::character varying, 'processing'::character varying, 'ready'::character varying, 'failed'::character varying, 'archived'::character varying])::text[])`),
 	check("media_metadata_usage_type_check", sql`(usage_type)::text = ANY ((ARRAY['content_video'::character varying, 'content_trailer'::character varying, 'content_thumbnail'::character varying, 'avatar'::character varying, 'studio_logo'::character varying, 'banner'::character varying, 'document'::character varying, 'generic'::character varying])::text[])`),
+	check("media_metadata_access_level_check", sql`(access_level)::text = ANY ((ARRAY['public'::character varying, 'protected'::character varying, 'private'::character varying])::text[])`),
+	check("media_metadata_status_check", sql`(status)::text = ANY ((ARRAY['pending'::character varying, 'uploading'::character varying, 'uploaded'::character varying, 'processing'::character varying, 'ready'::character varying, 'failed'::character varying, 'archived'::character varying])::text[])`),
 ]);
 
 export const mediaStatusEvents = pgTable("media_status_events", {
@@ -633,15 +684,15 @@ export const userEnforcementActions = pgTable("user_enforcement_actions", {
 	index("idx_user_enforcement_performed_by").using("btree", table.performedBy.asc().nullsLast().op("uuid_ops")),
 	index("idx_user_enforcement_user").using("btree", table.userId.asc().nullsLast().op("uuid_ops")),
 	foreignKey({
-			columns: [table.performedBy],
-			foreignColumns: [users.id],
-			name: "user_enforcement_actions_performed_by_fkey"
-		}).onDelete("set null"),
-	foreignKey({
 			columns: [table.userId],
 			foreignColumns: [users.id],
 			name: "user_enforcement_actions_user_id_fkey"
 		}).onDelete("cascade"),
+	foreignKey({
+			columns: [table.performedBy],
+			foreignColumns: [users.id],
+			name: "user_enforcement_actions_performed_by_fkey"
+		}).onDelete("set null"),
 	check("user_enforcement_actions_action_check", sql`(action)::text = ANY ((ARRAY['suspend'::character varying, 'ban'::character varying, 'reinstate'::character varying, 'disable'::character varying, 'enable'::character varying])::text[])`),
 ]);
 
@@ -786,18 +837,18 @@ export const referralRedemptions = pgTable("referral_redemptions", {
 	index("idx_referral_redemptions_referrer").using("btree", table.referrerId.asc().nullsLast().op("uuid_ops")),
 	index("idx_referral_redemptions_status").using("btree", table.status.asc().nullsLast().op("text_ops")),
 	foreignKey({
-			columns: [table.refereeId],
-			foreignColumns: [users.id],
-			name: "referral_redemptions_referee_id_fkey"
-		}).onDelete("cascade"),
-	foreignKey({
 			columns: [table.referrerId],
 			foreignColumns: [users.id],
 			name: "referral_redemptions_referrer_id_fkey"
 		}).onDelete("cascade"),
+	foreignKey({
+			columns: [table.refereeId],
+			foreignColumns: [users.id],
+			name: "referral_redemptions_referee_id_fkey"
+		}).onDelete("cascade"),
 	unique("referral_redemptions_referee_id_key").on(table.refereeId),
-	check("referral_redemptions_check", sql`referrer_id <> referee_id`),
 	check("referral_redemptions_status_check", sql`(status)::text = ANY ((ARRAY['pending'::character varying, 'qualified'::character varying, 'rewarded'::character varying, 'reverted'::character varying])::text[])`),
+	check("referral_redemptions_check", sql`referrer_id <> referee_id`),
 ]);
 
 export const deviceTokens = pgTable("device_tokens", {
@@ -955,24 +1006,9 @@ export const contents = pgTable("contents", {
 	index("idx_contents_studio").using("btree", table.studioId.asc().nullsLast().op("uuid_ops")).where(sql`(deleted_at IS NULL)`),
 	index("idx_contents_type").using("btree", table.contentType.asc().nullsLast().op("text_ops")).where(sql`(deleted_at IS NULL)`),
 	foreignKey({
-			columns: [table.approvedBy],
-			foreignColumns: [users.id],
-			name: "contents_approved_by_fkey"
-		}).onDelete("set null"),
-	foreignKey({
-			columns: [table.createdBy],
-			foreignColumns: [users.id],
-			name: "contents_created_by_fkey"
-		}).onDelete("set null"),
-	foreignKey({
 			columns: [table.parentContentId],
 			foreignColumns: [table.id],
 			name: "contents_parent_content_id_fkey"
-		}).onDelete("set null"),
-	foreignKey({
-			columns: [table.requestedBy],
-			foreignColumns: [users.id],
-			name: "contents_requested_by_fkey"
 		}).onDelete("set null"),
 	foreignKey({
 			columns: [table.studioId],
@@ -980,9 +1016,19 @@ export const contents = pgTable("contents", {
 			name: "contents_studio_id_fkey"
 		}).onDelete("set null"),
 	foreignKey({
+			columns: [table.videoMediaId],
+			foreignColumns: [mediaMetadata.id],
+			name: "contents_video_media_id_fkey"
+		}).onDelete("set null"),
+	foreignKey({
 			columns: [table.thumbnailMediaId],
 			foreignColumns: [mediaMetadata.id],
 			name: "contents_thumbnail_media_id_fkey"
+		}).onDelete("set null"),
+	foreignKey({
+			columns: [table.createdBy],
+			foreignColumns: [users.id],
+			name: "contents_created_by_fkey"
 		}).onDelete("set null"),
 	foreignKey({
 			columns: [table.updatedBy],
@@ -990,16 +1036,21 @@ export const contents = pgTable("contents", {
 			name: "contents_updated_by_fkey"
 		}).onDelete("set null"),
 	foreignKey({
-			columns: [table.videoMediaId],
-			foreignColumns: [mediaMetadata.id],
-			name: "contents_video_media_id_fkey"
+			columns: [table.requestedBy],
+			foreignColumns: [users.id],
+			name: "contents_requested_by_fkey"
+		}).onDelete("set null"),
+	foreignKey({
+			columns: [table.approvedBy],
+			foreignColumns: [users.id],
+			name: "contents_approved_by_fkey"
 		}).onDelete("set null"),
 	unique("contents_slug_key").on(table.slug),
-	check("contents_access_tier_check", sql`(access_tier)::text = ANY ((ARRAY['free'::character varying, 'exclusive'::character varying])::text[])`),
-	check("contents_content_type_check", sql`(content_type)::text = ANY ((ARRAY['trailer'::character varying, 'bts'::character varying, 'clip'::character varying])::text[])`),
 	check("contents_license_status_check", sql`(license_status)::text = ANY ((ARRAY['original'::character varying, 'licensed'::character varying, 'expiring'::character varying, 'expired'::character varying])::text[])`),
-	check("contents_parent_not_self_check", sql`(parent_content_id IS NULL) OR (parent_content_id <> id)`),
 	check("contents_recommendation_check", sql`(recommendation)::text = ANY ((ARRAY['promoted'::character varying, 'normal'::character varying, 'deprioritized'::character varying])::text[])`),
+	check("contents_parent_not_self_check", sql`(parent_content_id IS NULL) OR (parent_content_id <> id)`),
+	check("contents_content_type_check", sql`(content_type)::text = ANY ((ARRAY['trailer'::character varying, 'bts'::character varying, 'clip'::character varying])::text[])`),
+	check("contents_access_tier_check", sql`(access_tier)::text = ANY ((ARRAY['free'::character varying, 'exclusive'::character varying])::text[])`),
 	check("contents_status_check", sql`(status)::text = ANY ((ARRAY['draft'::character varying, 'pending_approval'::character varying, 'scheduled'::character varying, 'published'::character varying, 'rejected'::character varying, 'archived'::character varying])::text[])`),
 ]);
 
@@ -1014,15 +1065,15 @@ export const contentChangeHistory = pgTable("content_change_history", {
 }, (table) => [
 	index("idx_content_change_history_content").using("btree", table.contentId.asc().nullsLast().op("timestamptz_ops"), table.createdAt.desc().nullsFirst().op("timestamptz_ops")),
 	foreignKey({
-			columns: [table.changedBy],
-			foreignColumns: [users.id],
-			name: "content_change_history_changed_by_fkey"
-		}).onDelete("set null"),
-	foreignKey({
 			columns: [table.contentId],
 			foreignColumns: [contents.id],
 			name: "content_change_history_content_id_fkey"
 		}).onDelete("cascade"),
+	foreignKey({
+			columns: [table.changedBy],
+			foreignColumns: [users.id],
+			name: "content_change_history_changed_by_fkey"
+		}).onDelete("set null"),
 	check("content_change_history_action_check", sql`(action)::text = ANY ((ARRAY['created'::character varying, 'updated'::character varying, 'submitted'::character varying, 'approved'::character varying, 'rejected'::character varying, 'scheduled'::character varying, 'published'::character varying, 'boosted'::character varying, 'archived'::character varying])::text[])`),
 ]);
 
@@ -1068,9 +1119,9 @@ export const comments = pgTable("comments", {
 	index("idx_comments_flagged").using("btree", table.contentId.asc().nullsLast().op("uuid_ops")).where(sql`is_flagged`),
 	index("idx_comments_parent").using("btree", table.parentCommentId.asc().nullsLast().op("uuid_ops")),
 	foreignKey({
-			columns: [table.contentId],
-			foreignColumns: [contents.id],
-			name: "comments_content_id_fkey"
+			columns: [table.userId],
+			foreignColumns: [users.id],
+			name: "comments_user_id_fkey"
 		}).onDelete("cascade"),
 	foreignKey({
 			columns: [table.parentCommentId],
@@ -1078,9 +1129,9 @@ export const comments = pgTable("comments", {
 			name: "comments_parent_comment_id_fkey"
 		}).onDelete("cascade"),
 	foreignKey({
-			columns: [table.userId],
-			foreignColumns: [users.id],
-			name: "comments_user_id_fkey"
+			columns: [table.contentId],
+			foreignColumns: [contents.id],
+			name: "comments_content_id_fkey"
 		}).onDelete("cascade"),
 	check("comments_status_check", sql`(status)::text = ANY ((ARRAY['visible'::character varying, 'hidden'::character varying, 'deleted'::character varying])::text[])`),
 ]);
@@ -1219,15 +1270,15 @@ export const rewardRuleVersions = pgTable("reward_rule_versions", {
 }, (table) => [
 	index("idx_reward_rule_versions_key").using("btree", table.ruleKey.asc().nullsLast().op("int4_ops"), table.version.asc().nullsLast().op("text_ops")),
 	foreignKey({
-			columns: [table.changedBy],
-			foreignColumns: [users.id],
-			name: "reward_rule_versions_changed_by_fkey"
-		}).onDelete("set null"),
-	foreignKey({
 			columns: [table.ruleId],
 			foreignColumns: [rewardRules.id],
 			name: "reward_rule_versions_rule_id_fkey"
 		}).onDelete("cascade"),
+	foreignKey({
+			columns: [table.changedBy],
+			foreignColumns: [users.id],
+			name: "reward_rule_versions_changed_by_fkey"
+		}).onDelete("set null"),
 	unique("reward_rule_versions_rule_id_version_key").on(table.ruleId, table.version),
 ]);
 
@@ -1320,20 +1371,20 @@ export const ledgerTransactions = pgTable("ledger_transactions", {
 	index("idx_ledger_source").using("btree", table.sourceType.asc().nullsLast().op("text_ops"), table.sourceId.asc().nullsLast().op("uuid_ops")),
 	index("idx_ledger_user").using("btree", table.userId.asc().nullsLast().op("timestamptz_ops"), table.createdAt.desc().nullsFirst().op("uuid_ops")),
 	foreignKey({
-			columns: [table.rewardRuleVersionId],
-			foreignColumns: [rewardRuleVersions.id],
-			name: "ledger_transactions_reward_rule_version_id_fkey"
-		}).onDelete("set null"),
-	foreignKey({
 			columns: [table.userId],
 			foreignColumns: [users.id],
 			name: "ledger_transactions_user_id_fkey"
 		}).onDelete("cascade"),
+	foreignKey({
+			columns: [table.rewardRuleVersionId],
+			foreignColumns: [rewardRuleVersions.id],
+			name: "ledger_transactions_reward_rule_version_id_fkey"
+		}).onDelete("set null"),
 	unique("ledger_transactions_idempotency_key_key").on(table.idempotencyKey),
+	check("ledger_transactions_source_type_check", sql`(source_type)::text = ANY ((ARRAY['referral'::character varying, 'daily_streak'::character varying, 'quest'::character varying, 'prediction'::character varying, 'bid'::character varying, 'bid_refund'::character varying, 'content_unlock'::character varying, 'content_share'::character varying, 'badge'::character varying, 'admin'::character varying, 'subscription'::character varying])::text[])`),
 	check("ledger_transactions_currency_check", sql`(currency)::text = ANY ((ARRAY['points'::character varying, 'xp'::character varying])::text[])`),
 	check("ledger_transactions_direction_check", sql`(direction)::text = ANY ((ARRAY['earn'::character varying, 'spend'::character varying, 'refund'::character varying, 'purchase'::character varying, 'adjust'::character varying])::text[])`),
 	check("ledger_transactions_source_kind_check", sql`(source_kind)::text = ANY ((ARRAY['earned'::character varying, 'purchased'::character varying])::text[])`),
-	check("ledger_transactions_source_type_check", sql`(source_type)::text = ANY ((ARRAY['referral'::character varying, 'daily_streak'::character varying, 'quest'::character varying, 'prediction'::character varying, 'bid'::character varying, 'bid_refund'::character varying, 'content_unlock'::character varying, 'content_share'::character varying, 'badge'::character varying, 'admin'::character varying, 'subscription'::character varying])::text[])`),
 ]);
 
 export const predictions = pgTable("predictions", {
@@ -1367,17 +1418,17 @@ export const predictions = pgTable("predictions", {
 			name: "predictions_content_id_fkey"
 		}).onDelete("set null"),
 	foreignKey({
-			columns: [table.createdBy],
-			foreignColumns: [users.id],
-			name: "predictions_created_by_fkey"
-		}).onDelete("set null"),
-	foreignKey({
 			columns: [table.resolvedBy],
 			foreignColumns: [users.id],
 			name: "predictions_resolved_by_fkey"
 		}).onDelete("set null"),
-	check("predictions_check", sql`end_at > start_at`),
+	foreignKey({
+			columns: [table.createdBy],
+			foreignColumns: [users.id],
+			name: "predictions_created_by_fkey"
+		}).onDelete("set null"),
 	check("predictions_status_check", sql`(status)::text = ANY ((ARRAY['open'::character varying, 'locked'::character varying, 'resolved'::character varying, 'cancelled'::character varying])::text[])`),
+	check("predictions_check", sql`end_at > start_at`),
 ]);
 
 export const predictionOptions = pgTable("prediction_options", {
@@ -1391,15 +1442,15 @@ export const predictionOptions = pgTable("prediction_options", {
 }, (table) => [
 	index("idx_prediction_options_prediction").using("btree", table.predictionId.asc().nullsLast().op("uuid_ops")),
 	foreignKey({
-			columns: [table.optionMediaId],
-			foreignColumns: [mediaMetadata.id],
-			name: "prediction_options_option_media_id_fkey"
-		}).onDelete("set null"),
-	foreignKey({
 			columns: [table.predictionId],
 			foreignColumns: [predictions.id],
 			name: "prediction_options_prediction_id_fkey"
 		}).onDelete("cascade"),
+	foreignKey({
+			columns: [table.optionMediaId],
+			foreignColumns: [mediaMetadata.id],
+			name: "prediction_options_option_media_id_fkey"
+		}).onDelete("set null"),
 ]);
 
 export const predictionEntries = pgTable("prediction_entries", {
@@ -1413,11 +1464,6 @@ export const predictionEntries = pgTable("prediction_entries", {
 }, (table) => [
 	index("idx_prediction_entries_prediction").using("btree", table.predictionId.asc().nullsLast().op("uuid_ops")),
 	foreignKey({
-			columns: [table.optionId],
-			foreignColumns: [predictionOptions.id],
-			name: "prediction_entries_option_id_fkey"
-		}).onDelete("cascade"),
-	foreignKey({
 			columns: [table.predictionId],
 			foreignColumns: [predictions.id],
 			name: "prediction_entries_prediction_id_fkey"
@@ -1426,6 +1472,11 @@ export const predictionEntries = pgTable("prediction_entries", {
 			columns: [table.userId],
 			foreignColumns: [users.id],
 			name: "prediction_entries_user_id_fkey"
+		}).onDelete("cascade"),
+	foreignKey({
+			columns: [table.optionId],
+			foreignColumns: [predictionOptions.id],
+			name: "prediction_entries_option_id_fkey"
 		}).onDelete("cascade"),
 	unique("prediction_entries_prediction_id_user_id_key").on(table.predictionId, table.userId),
 ]);
@@ -1460,17 +1511,17 @@ export const auctions = pgTable("auctions", {
 			name: "auctions_content_id_fkey"
 		}).onDelete("set null"),
 	foreignKey({
-			columns: [table.createdBy],
-			foreignColumns: [users.id],
-			name: "auctions_created_by_fkey"
-		}).onDelete("set null"),
-	foreignKey({
 			columns: [table.winnerUserId],
 			foreignColumns: [users.id],
 			name: "auctions_winner_user_id_fkey"
 		}).onDelete("set null"),
-	check("auctions_check", sql`end_at > start_at`),
+	foreignKey({
+			columns: [table.createdBy],
+			foreignColumns: [users.id],
+			name: "auctions_created_by_fkey"
+		}).onDelete("set null"),
 	check("auctions_status_check", sql`(status)::text = ANY ((ARRAY['scheduled'::character varying, 'open'::character varying, 'closed'::character varying, 'settled'::character varying, 'cancelled'::character varying])::text[])`),
+	check("auctions_check", sql`end_at > start_at`),
 ]);
 
 export const bids = pgTable("bids", {
@@ -1529,11 +1580,6 @@ export const badges = pgTable("badges", {
 			name: "badges_active_icon_media_id_fkey"
 		}).onDelete("set null"),
 	foreignKey({
-			columns: [table.createdBy],
-			foreignColumns: [users.id],
-			name: "badges_created_by_fkey"
-		}).onDelete("set null"),
-	foreignKey({
 			columns: [table.inactiveIconMediaId],
 			foreignColumns: [mediaMetadata.id],
 			name: "badges_inactive_icon_media_id_fkey"
@@ -1543,6 +1589,11 @@ export const badges = pgTable("badges", {
 			foreignColumns: [badgeTriggers.key],
 			name: "badges_trigger_key_fkey"
 		}).onDelete("restrict"),
+	foreignKey({
+			columns: [table.createdBy],
+			foreignColumns: [users.id],
+			name: "badges_created_by_fkey"
+		}).onDelete("set null"),
 	unique("badges_slug_key").on(table.slug),
 	check("badges_operator_check", sql`(operator)::text = ANY ((ARRAY['gt'::character varying, 'gte'::character varying, 'eq'::character varying, 'lt'::character varying, 'lte'::character varying])::text[])`),
 ]);
@@ -1562,14 +1613,14 @@ export const rolePermissions = pgTable("role_permissions", {
 }, (table) => [
 	index("idx_role_permissions_role_id").using("btree", table.roleId.asc().nullsLast().op("uuid_ops")),
 	foreignKey({
-			columns: [table.permissionId],
-			foreignColumns: [permissions.id],
-			name: "role_permissions_permission_id_fkey"
-		}).onDelete("cascade"),
-	foreignKey({
 			columns: [table.roleId],
 			foreignColumns: [roles.id],
 			name: "role_permissions_role_id_fkey"
+		}).onDelete("cascade"),
+	foreignKey({
+			columns: [table.permissionId],
+			foreignColumns: [permissions.id],
+			name: "role_permissions_permission_id_fkey"
 		}).onDelete("cascade"),
 	primaryKey({ columns: [table.roleId, table.permissionId], name: "role_permissions_pkey"}),
 ]);
@@ -1597,14 +1648,14 @@ export const questContents = pgTable("quest_contents", {
 	contentId: uuid("content_id").notNull(),
 }, (table) => [
 	foreignKey({
-			columns: [table.contentId],
-			foreignColumns: [contents.id],
-			name: "quest_contents_content_id_fkey"
-		}).onDelete("cascade"),
-	foreignKey({
 			columns: [table.questId],
 			foreignColumns: [quests.id],
 			name: "quest_contents_quest_id_fkey"
+		}).onDelete("cascade"),
+	foreignKey({
+			columns: [table.contentId],
+			foreignColumns: [contents.id],
+			name: "quest_contents_content_id_fkey"
 		}).onDelete("cascade"),
 	primaryKey({ columns: [table.questId, table.contentId], name: "quest_contents_pkey"}),
 ]);
@@ -1649,14 +1700,14 @@ export const contentWatchlist = pgTable("content_watchlist", {
 }, (table) => [
 	index("idx_content_watchlist_content").using("btree", table.contentId.asc().nullsLast().op("uuid_ops")),
 	foreignKey({
-			columns: [table.contentId],
-			foreignColumns: [contents.id],
-			name: "content_watchlist_content_id_fkey"
-		}).onDelete("cascade"),
-	foreignKey({
 			columns: [table.userId],
 			foreignColumns: [users.id],
 			name: "content_watchlist_user_id_fkey"
+		}).onDelete("cascade"),
+	foreignKey({
+			columns: [table.contentId],
+			foreignColumns: [contents.id],
+			name: "content_watchlist_content_id_fkey"
 		}).onDelete("cascade"),
 	primaryKey({ columns: [table.userId, table.contentId], name: "content_watchlist_pkey"}),
 ]);
@@ -1668,14 +1719,14 @@ export const userBadges = pgTable("user_badges", {
 }, (table) => [
 	index("idx_user_badges_badge").using("btree", table.badgeId.asc().nullsLast().op("uuid_ops")),
 	foreignKey({
-			columns: [table.badgeId],
-			foreignColumns: [badges.id],
-			name: "user_badges_badge_id_fkey"
-		}).onDelete("cascade"),
-	foreignKey({
 			columns: [table.userId],
 			foreignColumns: [users.id],
 			name: "user_badges_user_id_fkey"
+		}).onDelete("cascade"),
+	foreignKey({
+			columns: [table.badgeId],
+			foreignColumns: [badges.id],
+			name: "user_badges_badge_id_fkey"
 		}).onDelete("cascade"),
 	primaryKey({ columns: [table.userId, table.badgeId], name: "user_badges_pkey"}),
 ]);
@@ -1689,20 +1740,20 @@ export const userRoles = pgTable("user_roles", {
 	index("idx_user_roles_role_id").using("btree", table.roleId.asc().nullsLast().op("uuid_ops")),
 	index("idx_user_roles_user_id").using("btree", table.userId.asc().nullsLast().op("uuid_ops")),
 	foreignKey({
-			columns: [table.assignedBy],
+			columns: [table.userId],
 			foreignColumns: [users.id],
-			name: "user_roles_assigned_by_fkey"
-		}).onDelete("set null"),
+			name: "user_roles_user_id_fkey"
+		}).onDelete("cascade"),
 	foreignKey({
 			columns: [table.roleId],
 			foreignColumns: [roles.id],
 			name: "user_roles_role_id_fkey"
 		}).onDelete("cascade"),
 	foreignKey({
-			columns: [table.userId],
+			columns: [table.assignedBy],
 			foreignColumns: [users.id],
-			name: "user_roles_user_id_fkey"
-		}).onDelete("cascade"),
+			name: "user_roles_assigned_by_fkey"
+		}).onDelete("set null"),
 	primaryKey({ columns: [table.userId, table.roleId], name: "user_roles_pkey"}),
 ]);
 
@@ -1713,14 +1764,14 @@ export const commentReactions = pgTable("comment_reactions", {
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
 }, (table) => [
 	foreignKey({
-			columns: [table.commentId],
-			foreignColumns: [comments.id],
-			name: "comment_reactions_comment_id_fkey"
-		}).onDelete("cascade"),
-	foreignKey({
 			columns: [table.userId],
 			foreignColumns: [users.id],
 			name: "comment_reactions_user_id_fkey"
+		}).onDelete("cascade"),
+	foreignKey({
+			columns: [table.commentId],
+			foreignColumns: [comments.id],
+			name: "comment_reactions_comment_id_fkey"
 		}).onDelete("cascade"),
 	primaryKey({ columns: [table.commentId, table.userId], name: "comment_reactions_pkey"}),
 	check("comment_reactions_reaction_check", sql`(reaction)::text = ANY ((ARRAY['like'::character varying, 'dislike'::character varying])::text[])`),
@@ -1733,11 +1784,6 @@ export const questContentProgress = pgTable("quest_content_progress", {
 	completedAt: timestamp("completed_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
 }, (table) => [
 	foreignKey({
-			columns: [table.contentId],
-			foreignColumns: [contents.id],
-			name: "quest_content_progress_content_id_fkey"
-		}).onDelete("cascade"),
-	foreignKey({
 			columns: [table.questId],
 			foreignColumns: [quests.id],
 			name: "quest_content_progress_quest_id_fkey"
@@ -1746,6 +1792,11 @@ export const questContentProgress = pgTable("quest_content_progress", {
 			columns: [table.userId],
 			foreignColumns: [users.id],
 			name: "quest_content_progress_user_id_fkey"
+		}).onDelete("cascade"),
+	foreignKey({
+			columns: [table.contentId],
+			foreignColumns: [contents.id],
+			name: "quest_content_progress_content_id_fkey"
 		}).onDelete("cascade"),
 	primaryKey({ columns: [table.questId, table.userId, table.contentId], name: "quest_content_progress_pkey"}),
 ]);
@@ -1811,14 +1862,14 @@ export const contentProgress = pgTable("content_progress", {
 	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
 }, (table) => [
 	foreignKey({
-			columns: [table.contentId],
-			foreignColumns: [contents.id],
-			name: "content_progress_content_id_fkey"
-		}).onDelete("cascade"),
-	foreignKey({
 			columns: [table.userId],
 			foreignColumns: [users.id],
 			name: "content_progress_user_id_fkey"
+		}).onDelete("cascade"),
+	foreignKey({
+			columns: [table.contentId],
+			foreignColumns: [contents.id],
+			name: "content_progress_content_id_fkey"
 		}).onDelete("cascade"),
 	primaryKey({ columns: [table.userId, table.contentId], name: "content_progress_pkey"}),
 ]);
