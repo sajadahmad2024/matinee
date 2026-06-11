@@ -2,8 +2,7 @@
 
 import { DollarSign, Globe, TrendingDown, Users } from "lucide-react";
 
-import { Card, CardContent } from "@/components/ui/card";
-
+import { MetricTile } from "@/components/custom/metric-tile";
 import { RegionalBreakdown, type RegionRow } from "@/components/custom/regional-breakdown";
 
 // Mock regional subscription metrics (derives from subscriptions ⋈ users.country_code later).
@@ -66,10 +65,10 @@ export function SubscriptionRegionalAnalytics({ timeRange: _timeRange }: { timeR
     <div className="space-y-6">
       {/* Global summary */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <GlobalTile icon={Users} label="Subscribers (global)" value={totalSubs.toLocaleString()} accent="text-primary" />
-        <GlobalTile icon={DollarSign} label="MRR (global)" value={money(totalMrr)} accent="text-success" sub={`ARR ${money(totalMrr * 12)}`} />
-        <GlobalTile icon={Globe} label="ARPU (global)" value={money2(arpu)} accent="text-accent" />
-        <GlobalTile icon={TrendingDown} label="Blended churn" value={pct(churn)} accent="text-warning" />
+        <MetricTile icon={Users} label="Subscribers (global)" value={totalSubs.toLocaleString()} accent="text-primary" />
+        <MetricTile icon={DollarSign} label="MRR (global)" value={money(totalMrr)} accent="text-success" sub={`ARR ${money(totalMrr * 12)}`} />
+        <MetricTile icon={Globe} label="ARPU (global)" value={money2(arpu)} accent="text-accent" />
+        <MetricTile icon={TrendingDown} label="Blended churn" value={pct(churn)} accent="text-warning" />
       </div>
 
       {/* Regional breakdown */}
@@ -91,32 +90,5 @@ export function SubscriptionRegionalAnalytics({ timeRange: _timeRange }: { timeR
         />
       </div>
     </div>
-  );
-}
-
-function GlobalTile({
-  icon: Icon,
-  label,
-  value,
-  sub,
-  accent,
-}: {
-  icon: React.ElementType;
-  label: string;
-  value: string;
-  sub?: string;
-  accent: string;
-}) {
-  return (
-    <Card className="border-border/50 bg-card/50">
-      <CardContent className="p-4">
-        <div className="text-muted-foreground flex items-center gap-1.5 text-xs">
-          <Icon className={`h-4 w-4 ${accent}`} />
-          {label}
-        </div>
-        <p className={`font-gaming mt-1 text-2xl font-bold ${accent}`}>{value}</p>
-        {sub && <p className="text-muted-foreground mt-0.5 text-xs">{sub}</p>}
-      </CardContent>
-    </Card>
   );
 }

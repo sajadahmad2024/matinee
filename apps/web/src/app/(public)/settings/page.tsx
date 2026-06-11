@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
-
 import { Bell, Coins, Flag, Lock, Shield, Smartphone, TrendingUp, Users } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+import { useTabParam } from "@/app/_libs/use-tab-param";
 
 import { AdminManagement } from "./_components/admin-management";
 import { AppVersionSettings } from "./_components/app-version-settings";
@@ -16,7 +16,7 @@ import { ReferralEconomySettings } from "./_components/referral-economy-settings
 import { SecurityAccessSettings } from "./_components/security-access-settings";
 
 export default function SettingsPage() {
-  const [activeTab, setActiveTab] = useState("economy");
+  const [activeTab, setActiveTab] = useTabParam("economy");
 
   return (
     <div className="animate-fade-in space-y-6">

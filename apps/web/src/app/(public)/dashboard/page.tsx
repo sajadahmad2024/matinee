@@ -19,6 +19,8 @@ import {
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
+import { useTabParam } from "@/app/_libs/use-tab-param";
+
 import { CommunitySection } from "./_components/community-section";
 import { ConversionFunnelChart } from "./_components/conversion-funnel-chart";
 import { CriticalKPIs } from "./_components/critical-kpis";
@@ -52,6 +54,7 @@ export default function DashboardPage() {
     return () => clearInterval(interval);
   }, []);
 
+  const [tab, setTab] = useTabParam("overview");
   const tabTrigger =
     "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground gap-2";
 
@@ -65,7 +68,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <Tabs defaultValue="overview" className="space-y-6">
+      <Tabs value={tab} onValueChange={setTab} className="space-y-6">
         <TabsList className="border-border/50 bg-background/50 flex h-auto flex-wrap border p-1">
           <TabsTrigger value="overview" className={tabTrigger}>
             <LayoutDashboard className="h-4 w-4" /> Overview

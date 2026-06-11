@@ -40,19 +40,19 @@ export function FormatTabs({ defaultTab, children }: FormatTabsProps) {
       <TabsList className="bg-muted/30 p-1">
         <TabsTrigger
           value="settings"
-          className="data-[state=active]:bg-background cursor-pointer gap-2">
+          className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground cursor-pointer gap-2">
           <Settings className="h-4 w-4" />
           Settings
         </TabsTrigger>
         <TabsTrigger
           value="gamification"
-          className="data-[state=active]:bg-background cursor-pointer gap-2">
+          className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground cursor-pointer gap-2">
           <Sparkles className="h-4 w-4" />
           Gamification
         </TabsTrigger>
         <TabsTrigger
           value="analytics"
-          className="data-[state=active]:bg-background cursor-pointer gap-2">
+          className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground cursor-pointer gap-2">
           <BarChart3 className="h-4 w-4" />
           Analytics
         </TabsTrigger>

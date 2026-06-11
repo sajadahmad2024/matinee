@@ -8,6 +8,8 @@ import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
+import { useTabParam } from "@/app/_libs/use-tab-param";
+
 import { TaxonomyManager, type TaxonomyItem } from "./_components/taxonomy-manager";
 
 const STUDIOS: TaxonomyItem[] = [
@@ -41,6 +43,7 @@ const CAST: TaxonomyItem[] = [
 ];
 
 export default function TaxonomyPage() {
+  const [tab, setTab] = useTabParam("studios");
   return (
     <div className="animate-fade-in space-y-6">
       <div className="flex items-center gap-3">
@@ -57,7 +60,7 @@ export default function TaxonomyPage() {
         </div>
       </div>
 
-      <Tabs defaultValue="studios" className="space-y-6">
+      <Tabs value={tab} onValueChange={setTab} className="space-y-6">
         <TabsList className="bg-muted/30 p-1">
           <TabsTrigger value="studios">Studios</TabsTrigger>
           <TabsTrigger value="genres">Genres</TabsTrigger>

@@ -2,8 +2,7 @@
 
 import { Globe, TrendingDown, UserPlus, Users } from "lucide-react";
 
-import { Card, CardContent } from "@/components/ui/card";
-
+import { MetricTile } from "@/components/custom/metric-tile";
 import { RegionalBreakdown, type RegionRow } from "@/components/custom/regional-breakdown";
 
 // Mock per-region user metrics (derives from users.country_code later).
@@ -66,10 +65,10 @@ export function UserRegionalAnalytics() {
   return (
     <div className="space-y-4">
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <GlobalTile icon={Users} label="Users (global)" value={num(totalUsers)} accent="text-primary" />
-        <GlobalTile icon={UserPlus} label="New this month" value={num(totalNew)} accent="text-success" />
-        <GlobalTile icon={Globe} label="Active rate" value={pct(activePct)} accent="text-accent" />
-        <GlobalTile icon={TrendingDown} label="Blended churn" value={pct(churnPct)} accent="text-warning" />
+        <MetricTile icon={Users} label="Users (global)" value={num(totalUsers)} accent="text-primary" />
+        <MetricTile icon={UserPlus} label="New this month" value={num(totalNew)} accent="text-success" />
+        <MetricTile icon={Globe} label="Active rate" value={pct(activePct)} accent="text-accent" />
+        <MetricTile icon={TrendingDown} label="Blended churn" value={pct(churnPct)} accent="text-warning" />
       </div>
 
       <div className="space-y-2">
@@ -90,29 +89,5 @@ export function UserRegionalAnalytics() {
         />
       </div>
     </div>
-  );
-}
-
-function GlobalTile({
-  icon: Icon,
-  label,
-  value,
-  accent,
-}: {
-  icon: React.ElementType;
-  label: string;
-  value: string;
-  accent: string;
-}) {
-  return (
-    <Card className="border-border/50 bg-card/50">
-      <CardContent className="p-4">
-        <div className="text-muted-foreground flex items-center gap-1.5 text-xs">
-          <Icon className={`h-4 w-4 ${accent}`} />
-          {label}
-        </div>
-        <p className={`font-gaming mt-1 text-2xl font-bold ${accent}`}>{value}</p>
-      </CardContent>
-    </Card>
   );
 }
