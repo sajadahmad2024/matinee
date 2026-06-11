@@ -23,8 +23,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { TimeRangeSelector } from "@/components/custom/time-range-selector";
 
-import { useTabParam } from "@/app/_libs/use-tab-param";
-
 import { CommunitySection } from "./_components/community-section";
 import { ConversionFunnelChart } from "./_components/conversion-funnel-chart";
 import { CriticalKPIs } from "./_components/critical-kpis";
@@ -58,7 +56,7 @@ export default function DashboardPage() {
     return () => clearInterval(interval);
   }, []);
 
-  const [tab, setTab] = useTabParam("overview");
+  const [tab, setTab] = useState("overview");
   const timeRange = useSearchParams().get("timeRange") ?? "30d";
   const tabTrigger =
     "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground gap-2";
