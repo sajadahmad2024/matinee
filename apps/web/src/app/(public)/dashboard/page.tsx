@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 
+import { useSearchParams } from "next/navigation";
+
 import {
   Activity,
   Coins,
@@ -18,6 +20,8 @@ import {
 } from "lucide-react";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+import { TimeRangeSelector } from "@/components/custom/time-range-selector";
 
 import { useTabParam } from "@/app/_libs/use-tab-param";
 
@@ -55,6 +59,7 @@ export default function DashboardPage() {
   }, []);
 
   const [tab, setTab] = useTabParam("overview");
+  const timeRange = useSearchParams().get("timeRange") ?? "30d";
   const tabTrigger =
     "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground gap-2";
 
@@ -66,6 +71,7 @@ export default function DashboardPage() {
           <h1 className="font-gaming text-foreground text-3xl font-bold">Dashboard</h1>
           <p className="text-foreground-secondary mt-1 text-sm">Executive Overview & Live Command</p>
         </div>
+        <TimeRangeSelector defaultValue={timeRange} />
       </div>
 
       <Tabs value={tab} onValueChange={setTab} className="space-y-6">

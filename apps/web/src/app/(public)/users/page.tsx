@@ -2,13 +2,9 @@
 
 import { useState } from "react";
 
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { useSearchParams } from "next/navigation";
+
+import { TimeRangeSelector } from "@/components/custom/time-range-selector";
 
 import { PushNotificationModal } from "./_components/push-notification-modal";
 import { UserAnalytics } from "./_components/user-analytics";
@@ -17,7 +13,8 @@ import { type User, UserListTable } from "./_components/user-list-table";
 import { UserRegionalAnalytics } from "./_components/user-regional-analytics";
 
 export default function UserManagementPage() {
-  const [timeRange, setTimeRange] = useState("7d");
+  const searchParams = useSearchParams();
+  const timeRange = searchParams.get("timeRange") ?? "7d";
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [notificationUsers, setNotificationUsers] = useState<User[]>([]);
@@ -40,16 +37,7 @@ export default function UserManagementPage() {
           <h1 className="font-gaming text-foreground text-3xl font-bold">User Management</h1>
           <p className="text-foreground-secondary mt-1">CRM & 360° user profiles with analytics.</p>
         </div>
-        <Select value={timeRange} onValueChange={setTimeRange}>
-          <SelectTrigger className="w-[140px]">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent className="border-border bg-card z-50">
-            <SelectItem value="7d">Last 7 days</SelectItem>
-            <SelectItem value="1m">Last month</SelectItem>
-            <SelectItem value="1y">Last year</SelectItem>
-          </SelectContent>
-        </Select>
+        <TimeRangeSelector defaultValue={timeRange} />
       </div>
 
       <UserAnalytics />
