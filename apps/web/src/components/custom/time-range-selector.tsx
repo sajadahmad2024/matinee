@@ -63,9 +63,10 @@ export function TimeRangeSelector({ defaultValue }: TimeRangeSelectorProps) {
     setOpen(false);
   };
 
+  const dateOnly = (v: string) => v.slice(0, 10);
   const label =
     defaultValue === "custom" && from && to
-      ? `${from} → ${to}`
+      ? `${dateOnly(from)} → ${dateOnly(to)}`
       : (PRESETS.find((p) => p.value === defaultValue)?.label ?? "Last 30 days");
 
   return (
@@ -76,7 +77,7 @@ export function TimeRangeSelector({ defaultValue }: TimeRangeSelectorProps) {
           <span className="truncate">{label}</span>
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="border-border bg-card w-[260px] p-2" align="end">
+      <PopoverContent className="border-border bg-card w-[280px] p-2" align="end">
         <div className="space-y-0.5">
           {PRESETS.map((p) => (
             <button
@@ -95,9 +96,15 @@ export function TimeRangeSelector({ defaultValue }: TimeRangeSelectorProps) {
 
         <div className="border-border/40 mt-2 space-y-2 border-t pt-2">
           <Label className="text-muted-foreground text-xs">Custom range</Label>
-          <div className="grid grid-cols-2 gap-2">
-            <Input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className="h-8 text-xs" />
-            <Input type="date" value={to} onChange={(e) => setTo(e.target.value)} className="h-8 text-xs" />
+          <div className="space-y-2">
+            <div className="space-y-1">
+              <Label className="text-muted-foreground text-[10px]">From</Label>
+              <Input type="datetime-local" value={from} onChange={(e) => setFrom(e.target.value)} className="h-8 text-xs" />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-muted-foreground text-[10px]">To</Label>
+              <Input type="datetime-local" value={to} onChange={(e) => setTo(e.target.value)} className="h-8 text-xs" />
+            </div>
           </div>
           <Button size="sm" className="w-full" onClick={applyCustom} disabled={!from || !to}>
             Apply range
