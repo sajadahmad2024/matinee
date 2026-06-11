@@ -14,6 +14,7 @@ import { GlassCard } from "../../../_components/glass-card";
 import { AppWidgetCard } from "../shared/app-widget-card";
 import { CreateInstanceModal } from "../instances/create-instance-modal";
 import { GamificationExtras } from "../shared/gamification-extras";
+import { InstanceResolveModal } from "../shared/instance-resolve-modal";
 import { InstanceResultModal } from "../shared/instance-result-modal";
 import { type GameInstance, InstancesList } from "../shared/instances-list";
 
@@ -63,6 +64,7 @@ export function BiddingSettings() {
 export function BiddingGamification() {
   const [createOpen, setCreateOpen] = useState(false);
   const [result, setResult] = useState<GameInstance | null>(null);
+  const [resolve, setResolve] = useState<GameInstance | null>(null);
 
   return (
     <div className="space-y-6">
@@ -83,6 +85,7 @@ export function BiddingGamification() {
             instances={MOCK_AUCTIONS}
             emptyLabel="No auctions yet."
             onView={setResult}
+            onResolve={setResolve}
             onArchive={(i) => toast.success(`Archived “${i.name}”`)}
             onDelete={(i) => toast.success(`Deleted “${i.name}”`)}
           />
@@ -96,6 +99,12 @@ export function BiddingGamification() {
         open={!!result}
         onOpenChange={(o) => !o && setResult(null)}
         instance={result}
+        kind="auction"
+      />
+      <InstanceResolveModal
+        open={!!resolve}
+        onOpenChange={(o) => !o && setResolve(null)}
+        instance={resolve}
         kind="auction"
       />
     </div>

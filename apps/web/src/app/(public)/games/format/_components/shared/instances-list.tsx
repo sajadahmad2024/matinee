@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 
-import { Archive, BarChart3, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { Archive, BarChart3, Gavel, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -55,6 +55,7 @@ interface InstancesListProps {
   instances: GameInstance[];
   onView?: (i: GameInstance) => void;
   onEdit?: (i: GameInstance) => void;
+  onResolve?: (i: GameInstance) => void;
   onArchive?: (i: GameInstance) => void;
   onDelete?: (i: GameInstance) => void;
   emptyLabel?: string;
@@ -64,6 +65,7 @@ export function InstancesList({
   instances,
   onView,
   onEdit,
+  onResolve,
   onArchive,
   onDelete,
   emptyLabel = "Nothing scheduled yet.",
@@ -138,6 +140,11 @@ export function InstancesList({
                     {!archived && (
                       <DropdownMenuItem onClick={() => onEdit?.(i)}>
                         <Pencil className="mr-2 h-4 w-4" /> Edit
+                      </DropdownMenuItem>
+                    )}
+                    {onResolve && i.status === "active" && (
+                      <DropdownMenuItem onClick={() => onResolve(i)}>
+                        <Gavel className="mr-2 h-4 w-4" /> Resolve / settle
                       </DropdownMenuItem>
                     )}
                     {i.status !== "archived" && (
