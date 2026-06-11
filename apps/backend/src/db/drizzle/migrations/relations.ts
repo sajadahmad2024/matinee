@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm/relations";
-import { mediaMetadata, gameWidgetConfigs, users, contentSponsorships, contents, contentLicenses, subscriptionPlans, planRegionPrices, subscriptions, subscriptionInvoices, mediaStatusEvents, userEnforcementActions, oauthAccounts, otpCodes, rewardRules, geoPolicies, referralCodes, referralRedemptions, deviceTokens, studios, people, contentMedia, contentChangeHistory, contentReactions, comments, commentReports, contentShares, contentModerationLog, contentUnlocks, contentViews, rewardRuleVersions, wallets, quests, userStreaks, ledgerTransactions, predictions, predictionOptions, predictionEntries, auctions, bids, badges, badgeTriggers, permissions, rolePermissions, roles, contentTags, tags, questContents, deviceTokenTopics, contentGenres, genres, contentWatchlist, userBadges, userRoles, commentReactions, questContentProgress, leaderboardMonthly, userMetrics, contentCast, contentProgress, questParticipations, userDailyActivity, contentDailyStats } from "./schema";
+import { mediaMetadata, gameWidgetConfigs, users, contentSponsorships, contents, contentLicenses, subscriptionPlans, planRegionPrices, subscriptions, subscriptionInvoices, moderationTickets, moderationReports, adminAuditLog, appVersions, appSettings, notificationCampaigns, notificationDeliveries, deviceTokens, userSessions, mediaStatusEvents, userEnforcementActions, oauthAccounts, otpCodes, rewardRules, geoPolicies, referralCodes, referralRedemptions, studios, people, contentMedia, contentChangeHistory, contentReactions, comments, commentReports, contentShares, contentModerationLog, contentUnlocks, contentViews, rewardRuleVersions, wallets, quests, userStreaks, ledgerTransactions, predictions, predictionOptions, predictionEntries, auctions, bids, badges, badgeTriggers, permissions, rolePermissions, roles, contentTags, tags, questContents, deviceTokenTopics, contentGenres, genres, contentWatchlist, userBadges, userRoles, commentReactions, questContentProgress, leaderboardMonthly, userMetrics, contentCast, contentProgress, questParticipations, userDailyActivity, contentDailyStats } from "./schema";
 
 export const gameWidgetConfigsRelations = relations(gameWidgetConfigs, ({one}) => ({
 	mediaMetadatum: one(mediaMetadata, {
@@ -15,6 +15,7 @@ export const gameWidgetConfigsRelations = relations(gameWidgetConfigs, ({one}) =
 export const mediaMetadataRelations = relations(mediaMetadata, ({one, many}) => ({
 	gameWidgetConfigs: many(gameWidgetConfigs),
 	contentSponsorships: many(contentSponsorships),
+	users: many(users),
 	mediaMetadatum: one(mediaMetadata, {
 		fields: [mediaMetadata.posterMediaId],
 		references: [mediaMetadata.id],
@@ -24,7 +25,6 @@ export const mediaMetadataRelations = relations(mediaMetadata, ({one, many}) => 
 		relationName: "mediaMetadata_posterMediaId_mediaMetadata_id"
 	}),
 	mediaStatusEvents: many(mediaStatusEvents),
-	users: many(users),
 	studios: many(studios),
 	people: many(people),
 	contentMedias: many(contentMedia),
@@ -53,6 +53,22 @@ export const usersRelations = relations(users, ({one, many}) => ({
 	subscriptionPlans: many(subscriptionPlans),
 	subscriptions: many(subscriptions),
 	subscriptionInvoices: many(subscriptionInvoices),
+	moderationTickets_assignedTo: many(moderationTickets, {
+		relationName: "moderationTickets_assignedTo_users_id"
+	}),
+	moderationTickets_offenderUserId: many(moderationTickets, {
+		relationName: "moderationTickets_offenderUserId_users_id"
+	}),
+	moderationTickets_resolvedBy: many(moderationTickets, {
+		relationName: "moderationTickets_resolvedBy_users_id"
+	}),
+	moderationReports: many(moderationReports),
+	adminAuditLogs: many(adminAuditLog),
+	appVersions: many(appVersions),
+	appSettings: many(appSettings),
+	notificationCampaigns: many(notificationCampaigns),
+	notificationDeliveries: many(notificationDeliveries),
+	userSessions: many(userSessions),
 	mediaMetadatum: one(mediaMetadata, {
 		fields: [users.avatarMediaId],
 		references: [mediaMetadata.id]
@@ -282,6 +298,96 @@ export const subscriptionInvoicesRelations = relations(subscriptionInvoices, ({o
 	}),
 }));
 
+export const moderationTicketsRelations = relations(moderationTickets, ({one, many}) => ({
+	user_assignedTo: one(users, {
+		fields: [moderationTickets.assignedTo],
+		references: [users.id],
+		relationName: "moderationTickets_assignedTo_users_id"
+	}),
+	user_offenderUserId: one(users, {
+		fields: [moderationTickets.offenderUserId],
+		references: [users.id],
+		relationName: "moderationTickets_offenderUserId_users_id"
+	}),
+	user_resolvedBy: one(users, {
+		fields: [moderationTickets.resolvedBy],
+		references: [users.id],
+		relationName: "moderationTickets_resolvedBy_users_id"
+	}),
+	moderationReports: many(moderationReports),
+}));
+
+export const moderationReportsRelations = relations(moderationReports, ({one}) => ({
+	user: one(users, {
+		fields: [moderationReports.reporterUserId],
+		references: [users.id]
+	}),
+	moderationTicket: one(moderationTickets, {
+		fields: [moderationReports.ticketId],
+		references: [moderationTickets.id]
+	}),
+}));
+
+export const adminAuditLogRelations = relations(adminAuditLog, ({one}) => ({
+	user: one(users, {
+		fields: [adminAuditLog.actorId],
+		references: [users.id]
+	}),
+}));
+
+export const appVersionsRelations = relations(appVersions, ({one}) => ({
+	user: one(users, {
+		fields: [appVersions.createdBy],
+		references: [users.id]
+	}),
+}));
+
+export const appSettingsRelations = relations(appSettings, ({one}) => ({
+	user: one(users, {
+		fields: [appSettings.updatedBy],
+		references: [users.id]
+	}),
+}));
+
+export const notificationCampaignsRelations = relations(notificationCampaigns, ({one, many}) => ({
+	user: one(users, {
+		fields: [notificationCampaigns.createdBy],
+		references: [users.id]
+	}),
+	notificationDeliveries: many(notificationDeliveries),
+}));
+
+export const notificationDeliveriesRelations = relations(notificationDeliveries, ({one}) => ({
+	notificationCampaign: one(notificationCampaigns, {
+		fields: [notificationDeliveries.campaignId],
+		references: [notificationCampaigns.id]
+	}),
+	deviceToken: one(deviceTokens, {
+		fields: [notificationDeliveries.deviceTokenId],
+		references: [deviceTokens.id]
+	}),
+	user: one(users, {
+		fields: [notificationDeliveries.userId],
+		references: [users.id]
+	}),
+}));
+
+export const deviceTokensRelations = relations(deviceTokens, ({one, many}) => ({
+	notificationDeliveries: many(notificationDeliveries),
+	user: one(users, {
+		fields: [deviceTokens.userId],
+		references: [users.id]
+	}),
+	deviceTokenTopics: many(deviceTokenTopics),
+}));
+
+export const userSessionsRelations = relations(userSessions, ({one}) => ({
+	user: one(users, {
+		fields: [userSessions.userId],
+		references: [users.id]
+	}),
+}));
+
 export const mediaStatusEventsRelations = relations(mediaStatusEvents, ({one}) => ({
 	mediaMetadatum: one(mediaMetadata, {
 		fields: [mediaStatusEvents.mediaId],
@@ -349,14 +455,6 @@ export const referralRedemptionsRelations = relations(referralRedemptions, ({one
 		references: [users.id],
 		relationName: "referralRedemptions_referrerId_users_id"
 	}),
-}));
-
-export const deviceTokensRelations = relations(deviceTokens, ({one, many}) => ({
-	user: one(users, {
-		fields: [deviceTokens.userId],
-		references: [users.id]
-	}),
-	deviceTokenTopics: many(deviceTokenTopics),
 }));
 
 export const studiosRelations = relations(studios, ({one, many}) => ({

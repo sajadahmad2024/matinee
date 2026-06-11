@@ -64,6 +64,34 @@
       "when": 1733900000000,
       "tag": "0008_create_subscriptions",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1734000000000,
+      "tag": "0009_create_moderation",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1734100000000,
+      "tag": "0010_create_platform",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1734200000000,
+      "tag": "0011_create_notifications",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1734300000000,
+      "tag": "0012_create_analytics",
+      "breakpoints": true
     }
   ]
 }

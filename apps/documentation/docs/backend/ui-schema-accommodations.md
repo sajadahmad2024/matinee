@@ -280,6 +280,27 @@ CSV export), and Core Data Graphs (retention cohort, redemption-rate trend, funn
 4. *(minor)* extend `content_watch_events.event_type` with `start` / `swipe_away` / `loop` for
    precise swipe-through & re-watch (otherwise derived from heartbeats/duration).
 
+## 12. End-to-end DB review — new modules (migrations 0009–0012)
+
+A full review against the app surface found five operational features with no backing table and the
+analytics gaps from §11. Added as new `CREATE TABLE` migrations:
+
+- **`0009_create_moderation.sql`** — `moderation_tickets` (unified queue across comment/content/user:
+  severity, category, report_count, repeat-offender, status, assignment, resolution) + `moderation_reports`
+  (per-report rollup). Generalizes the comment-only `comment_reports`.
+- **`0010_create_platform.sql`** — `admin_audit_log` (actor/action/target/ip → Settings audit log),
+  `app_versions` (per-platform force-update/supported), `app_settings` (typed key-value: security
+  policy + feature flags + economy knobs; 5 seeded).
+- **`0011_create_notifications.sql`** — `notification_campaigns` (title/message/deeplink/target/
+  schedule/status + counts) + `notification_deliveries` (per `device_tokens`).
+- **`0012_create_analytics.sql`** — `user_sessions` (length/foreground-count/doomscroll/gamified/
+  region → Screen-Time, ARPDAU, funnel first-session), `marketing_spend` (channel×month → CAC,
+  LTV:CAC), `social_mentions` (external GA/social listening → Community-External). Plus
+  `users.acquisition_channel` added in place on `0002` (LTV-by-channel).
+
+Still deferred (auth-rebuild territory): admin MFA/2FA + invite flow; and the minor
+`content_watch_events.event_type` extension (`start`/`swipe_away`/`loop`) — derived for now.
+
 ## Follow-up (repository / service layer)
 
 1. `ContentRepository`: select/update the license + `is_sponsored` columns; `SponsorshipRepository`

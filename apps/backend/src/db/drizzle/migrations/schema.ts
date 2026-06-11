@@ -1,4 +1,4 @@
-import { pgTable, foreignKey, check, varchar, boolean, uuid, timestamp, index, integer, bigint, jsonb, unique, text, numeric, uniqueIndex, date, primaryKey } from "drizzle-orm/pg-core"
+import { pgTable, foreignKey, check, varchar, boolean, uuid, timestamp, index, integer, bigint, jsonb, unique, text, date, uniqueIndex, numeric, primaryKey } from "drizzle-orm/pg-core"
 import { sql } from "drizzle-orm"
 
 
@@ -233,6 +233,324 @@ export const subscriptionInvoices = pgTable("subscription_invoices", {
 	check("subscription_invoices_status_check", sql`(status)::text = ANY ((ARRAY['paid'::character varying, 'failed'::character varying, 'refunded'::character varying, 'pending'::character varying])::text[])`),
 ]);
 
+export const moderationTickets = pgTable("moderation_tickets", {
+	id: uuid().default(sql`uuidv7()`).primaryKey().notNull(),
+	subjectType: varchar("subject_type", { length: 20 }).notNull(),
+	subjectId: uuid("subject_id"),
+	offenderUserId: uuid("offender_user_id"),
+	severity: varchar({ length: 10 }).default('low').notNull(),
+	category: varchar({ length: 20 }).default('other').notNull(),
+	contentSnapshot: text("content_snapshot"),
+	reportCount: integer("report_count").default(1).notNull(),
+	isRepeatOffender: boolean("is_repeat_offender").default(false).notNull(),
+	status: varchar({ length: 20 }).default('open').notNull(),
+	assignedTo: uuid("assigned_to"),
+	resolution: varchar({ length: 30 }),
+	resolutionNote: varchar("resolution_note", { length: 500 }),
+	resolvedBy: uuid("resolved_by"),
+	resolvedAt: timestamp("resolved_at", { withTimezone: true, mode: 'string' }),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+}, (table) => [
+	index("idx_moderation_tickets_offender").using("btree", table.offenderUserId.asc().nullsLast().op("uuid_ops")),
+	index("idx_moderation_tickets_queue").using("btree", table.status.asc().nullsLast().op("text_ops"), table.severity.asc().nullsLast().op("text_ops")).where(sql`((status)::text = ANY ((ARRAY['open'::character varying, 'in_review'::character varying, 'escalated'::character varying])::text[]))`),
+	index("idx_moderation_tickets_subject").using("btree", table.subjectType.asc().nullsLast().op("uuid_ops"), table.subjectId.asc().nullsLast().op("uuid_ops")),
+	foreignKey({
+			columns: [table.assignedTo],
+			foreignColumns: [users.id],
+			name: "moderation_tickets_assigned_to_fkey"
+		}).onDelete("set null"),
+	foreignKey({
+			columns: [table.offenderUserId],
+			foreignColumns: [users.id],
+			name: "moderation_tickets_offender_user_id_fkey"
+		}).onDelete("set null"),
+	foreignKey({
+			columns: [table.resolvedBy],
+			foreignColumns: [users.id],
+			name: "moderation_tickets_resolved_by_fkey"
+		}).onDelete("set null"),
+	check("moderation_tickets_category_check", sql`(category)::text = ANY ((ARRAY['hate_speech'::character varying, 'spam'::character varying, 'nudity'::character varying, 'harassment'::character varying, 'other'::character varying])::text[])`),
+	check("moderation_tickets_resolution_check", sql`(resolution)::text = ANY ((ARRAY['content_removed'::character varying, 'user_warned'::character varying, 'user_suspended'::character varying, 'user_banned'::character varying, 'no_action'::character varying])::text[])`),
+	check("moderation_tickets_severity_check", sql`(severity)::text = ANY ((ARRAY['high'::character varying, 'medium'::character varying, 'low'::character varying])::text[])`),
+	check("moderation_tickets_status_check", sql`(status)::text = ANY ((ARRAY['open'::character varying, 'in_review'::character varying, 'resolved'::character varying, 'dismissed'::character varying, 'escalated'::character varying])::text[])`),
+	check("moderation_tickets_subject_type_check", sql`(subject_type)::text = ANY ((ARRAY['comment'::character varying, 'content'::character varying, 'user'::character varying])::text[])`),
+]);
+
+export const moderationReports = pgTable("moderation_reports", {
+	id: uuid().default(sql`uuidv7()`).primaryKey().notNull(),
+	ticketId: uuid("ticket_id").notNull(),
+	reporterUserId: uuid("reporter_user_id"),
+	reason: varchar({ length: 20 }).default('other').notNull(),
+	note: varchar({ length: 500 }),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+}, (table) => [
+	index("idx_moderation_reports_ticket").using("btree", table.ticketId.asc().nullsLast().op("uuid_ops")),
+	foreignKey({
+			columns: [table.reporterUserId],
+			foreignColumns: [users.id],
+			name: "moderation_reports_reporter_user_id_fkey"
+		}).onDelete("set null"),
+	foreignKey({
+			columns: [table.ticketId],
+			foreignColumns: [moderationTickets.id],
+			name: "moderation_reports_ticket_id_fkey"
+		}).onDelete("cascade"),
+	check("moderation_reports_reason_check", sql`(reason)::text = ANY ((ARRAY['hate_speech'::character varying, 'spam'::character varying, 'nudity'::character varying, 'harassment'::character varying, 'other'::character varying])::text[])`),
+]);
+
+export const adminAuditLog = pgTable("admin_audit_log", {
+	id: uuid().default(sql`uuidv7()`).primaryKey().notNull(),
+	actorId: uuid("actor_id"),
+	actorLabel: varchar("actor_label", { length: 150 }),
+	action: varchar({ length: 80 }).notNull(),
+	targetType: varchar("target_type", { length: 40 }),
+	targetId: uuid("target_id"),
+	targetLabel: varchar("target_label", { length: 200 }),
+	metadata: jsonb().default({}).notNull(),
+	ipAddress: varchar("ip_address", { length: 45 }),
+	userAgent: varchar("user_agent", { length: 300 }),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+}, (table) => [
+	index("idx_admin_audit_log_actor").using("btree", table.actorId.asc().nullsLast().op("timestamptz_ops"), table.createdAt.desc().nullsFirst().op("timestamptz_ops")),
+	index("idx_admin_audit_log_target").using("btree", table.targetType.asc().nullsLast().op("text_ops"), table.targetId.asc().nullsLast().op("text_ops")),
+	index("idx_admin_audit_log_time").using("btree", table.createdAt.desc().nullsFirst().op("timestamptz_ops")),
+	foreignKey({
+			columns: [table.actorId],
+			foreignColumns: [users.id],
+			name: "admin_audit_log_actor_id_fkey"
+		}).onDelete("set null"),
+]);
+
+export const appVersions = pgTable("app_versions", {
+	id: uuid().default(sql`uuidv7()`).primaryKey().notNull(),
+	platform: varchar({ length: 10 }).notNull(),
+	version: varchar({ length: 20 }).notNull(),
+	isSupported: boolean("is_supported").default(true).notNull(),
+	forceUpdate: boolean("force_update").default(false).notNull(),
+	isLatest: boolean("is_latest").default(false).notNull(),
+	updateMessage: varchar("update_message", { length: 300 }),
+	releasedAt: timestamp("released_at", { withTimezone: true, mode: 'string' }),
+	createdBy: uuid("created_by"),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+}, (table) => [
+	index("idx_app_versions_platform").using("btree", table.platform.asc().nullsLast().op("text_ops"), table.forceUpdate.asc().nullsLast().op("text_ops")),
+	foreignKey({
+			columns: [table.createdBy],
+			foreignColumns: [users.id],
+			name: "app_versions_created_by_fkey"
+		}).onDelete("set null"),
+	unique("app_versions_platform_version_key").on(table.platform, table.version),
+	check("app_versions_platform_check", sql`(platform)::text = ANY ((ARRAY['ios'::character varying, 'android'::character varying])::text[])`),
+]);
+
+export const appSettings = pgTable("app_settings", {
+	key: varchar({ length: 80 }).primaryKey().notNull(),
+	value: jsonb().notNull(),
+	category: varchar({ length: 40 }).default('general').notNull(),
+	description: varchar({ length: 300 }),
+	updatedBy: uuid("updated_by"),
+	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+}, (table) => [
+	index("idx_app_settings_category").using("btree", table.category.asc().nullsLast().op("text_ops")),
+	foreignKey({
+			columns: [table.updatedBy],
+			foreignColumns: [users.id],
+			name: "app_settings_updated_by_fkey"
+		}).onDelete("set null"),
+	check("app_settings_category_check", sql`(category)::text = ANY ((ARRAY['general'::character varying, 'security'::character varying, 'feature_flag'::character varying, 'economy'::character varying, 'notifications'::character varying])::text[])`),
+]);
+
+export const notificationCampaigns = pgTable("notification_campaigns", {
+	id: uuid().default(sql`uuidv7()`).primaryKey().notNull(),
+	title: varchar({ length: 150 }).notNull(),
+	message: varchar({ length: 500 }).notNull(),
+	deepLink: varchar("deep_link", { length: 300 }),
+	targetType: varchar("target_type", { length: 20 }).default('all').notNull(),
+	targetFilter: jsonb("target_filter").default({}).notNull(),
+	status: varchar({ length: 20 }).default('draft').notNull(),
+	scheduledAt: timestamp("scheduled_at", { withTimezone: true, mode: 'string' }),
+	sentAt: timestamp("sent_at", { withTimezone: true, mode: 'string' }),
+	recipientCount: integer("recipient_count").default(0).notNull(),
+	deliveredCount: integer("delivered_count").default(0).notNull(),
+	openedCount: integer("opened_count").default(0).notNull(),
+	createdBy: uuid("created_by"),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+}, (table) => [
+	index("idx_notification_campaigns_status").using("btree", table.status.asc().nullsLast().op("text_ops"), table.scheduledAt.asc().nullsLast().op("text_ops")),
+	foreignKey({
+			columns: [table.createdBy],
+			foreignColumns: [users.id],
+			name: "notification_campaigns_created_by_fkey"
+		}).onDelete("set null"),
+	check("notification_campaigns_status_check", sql`(status)::text = ANY ((ARRAY['draft'::character varying, 'scheduled'::character varying, 'sending'::character varying, 'sent'::character varying, 'failed'::character varying, 'canceled'::character varying])::text[])`),
+	check("notification_campaigns_target_type_check", sql`(target_type)::text = ANY ((ARRAY['all'::character varying, 'segment'::character varying, 'selected'::character varying])::text[])`),
+]);
+
+export const notificationDeliveries = pgTable("notification_deliveries", {
+	id: uuid().default(sql`uuidv7()`).primaryKey().notNull(),
+	campaignId: uuid("campaign_id").notNull(),
+	userId: uuid("user_id"),
+	deviceTokenId: uuid("device_token_id"),
+	status: varchar({ length: 20 }).default('queued').notNull(),
+	error: varchar({ length: 300 }),
+	sentAt: timestamp("sent_at", { withTimezone: true, mode: 'string' }),
+	openedAt: timestamp("opened_at", { withTimezone: true, mode: 'string' }),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+}, (table) => [
+	index("idx_notification_deliveries_campaign").using("btree", table.campaignId.asc().nullsLast().op("uuid_ops")),
+	index("idx_notification_deliveries_user").using("btree", table.userId.asc().nullsLast().op("uuid_ops")),
+	foreignKey({
+			columns: [table.campaignId],
+			foreignColumns: [notificationCampaigns.id],
+			name: "notification_deliveries_campaign_id_fkey"
+		}).onDelete("cascade"),
+	foreignKey({
+			columns: [table.deviceTokenId],
+			foreignColumns: [deviceTokens.id],
+			name: "notification_deliveries_device_token_id_fkey"
+		}).onDelete("set null"),
+	foreignKey({
+			columns: [table.userId],
+			foreignColumns: [users.id],
+			name: "notification_deliveries_user_id_fkey"
+		}).onDelete("set null"),
+	check("notification_deliveries_status_check", sql`(status)::text = ANY ((ARRAY['queued'::character varying, 'sent'::character varying, 'delivered'::character varying, 'opened'::character varying, 'failed'::character varying])::text[])`),
+]);
+
+export const userSessions = pgTable("user_sessions", {
+	id: uuid().default(sql`uuidv7()`).primaryKey().notNull(),
+	userId: uuid("user_id").notNull(),
+	startedAt: timestamp("started_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	endedAt: timestamp("ended_at", { withTimezone: true, mode: 'string' }),
+	durationSeconds: integer("duration_seconds"),
+	foregroundCount: integer("foreground_count").default(1).notNull(),
+	videosViewed: integer("videos_viewed").default(0).notNull(),
+	pointsEarned: integer("points_earned").default(0).notNull(),
+	isGamified: boolean("is_gamified").default(false).notNull(),
+	countryCode: varchar("country_code", { length: 2 }),
+	region: varchar({ length: 10 }),
+	platform: varchar({ length: 20 }),
+	appVersion: varchar("app_version", { length: 20 }),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+}, (table) => [
+	index("idx_user_sessions_region").using("btree", table.region.asc().nullsLast().op("text_ops")),
+	index("idx_user_sessions_time").using("btree", table.startedAt.asc().nullsLast().op("timestamptz_ops")),
+	index("idx_user_sessions_user").using("btree", table.userId.asc().nullsLast().op("timestamptz_ops"), table.startedAt.desc().nullsFirst().op("timestamptz_ops")),
+	foreignKey({
+			columns: [table.userId],
+			foreignColumns: [users.id],
+			name: "user_sessions_user_id_fkey"
+		}).onDelete("cascade"),
+	check("user_sessions_region_check", sql`(region)::text = ANY ((ARRAY['NA'::character varying, 'EU'::character varying, 'APAC'::character varying, 'LATAM'::character varying, 'MEA'::character varying])::text[])`),
+]);
+
+export const marketingSpend = pgTable("marketing_spend", {
+	id: uuid().default(sql`uuidv7()`).primaryKey().notNull(),
+	channel: varchar({ length: 30 }).notNull(),
+	periodMonth: date("period_month").notNull(),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	spendCents: bigint("spend_cents", { mode: "number" }).default(0).notNull(),
+	currency: varchar({ length: 3 }).default('USD').notNull(),
+	newUsers: integer("new_users").default(0).notNull(),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+}, (table) => [
+	unique("marketing_spend_channel_period_month_key").on(table.channel, table.periodMonth),
+	check("marketing_spend_channel_check", sql`(channel)::text = ANY ((ARRAY['organic'::character varying, 'paid_social'::character varying, 'referral'::character varying, 'influencer'::character varying, 'search'::character varying, 'other'::character varying])::text[])`),
+]);
+
+export const socialMentions = pgTable("social_mentions", {
+	id: uuid().default(sql`uuidv7()`).primaryKey().notNull(),
+	platform: varchar({ length: 20 }).notNull(),
+	externalId: varchar("external_id", { length: 120 }),
+	authorHandle: varchar("author_handle", { length: 120 }),
+	url: varchar({ length: 500 }),
+	content: text(),
+	sentiment: varchar({ length: 10 }),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	impressions: bigint({ mode: "number" }).default(0).notNull(),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	engagement: bigint({ mode: "number" }).default(0).notNull(),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	emvCents: bigint("emv_cents", { mode: "number" }).default(0).notNull(),
+	isViralMoment: boolean("is_viral_moment").default(false).notNull(),
+	mentionedAt: timestamp("mentioned_at", { withTimezone: true, mode: 'string' }),
+	ingestedAt: timestamp("ingested_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+}, (table) => [
+	index("idx_social_mentions_platform").using("btree", table.platform.asc().nullsLast().op("timestamptz_ops"), table.mentionedAt.desc().nullsFirst().op("text_ops")),
+	index("idx_social_mentions_sentiment").using("btree", table.sentiment.asc().nullsLast().op("text_ops")),
+	index("idx_social_mentions_viral").using("btree", table.isViralMoment.asc().nullsLast().op("bool_ops")).where(sql`is_viral_moment`),
+	check("social_mentions_platform_check", sql`(platform)::text = ANY ((ARRAY['x'::character varying, 'tiktok'::character varying, 'instagram'::character varying, 'reddit'::character varying, 'youtube'::character varying, 'other'::character varying])::text[])`),
+	check("social_mentions_sentiment_check", sql`(sentiment)::text = ANY ((ARRAY['positive'::character varying, 'neutral'::character varying, 'negative'::character varying])::text[])`),
+]);
+
+export const users = pgTable("users", {
+	id: uuid().default(sql`uuidv7()`).primaryKey().notNull(),
+	accountType: varchar("account_type", { length: 20 }).default('guest').notNull(),
+	email: varchar({ length: 255 }),
+	passwordHash: varchar("password_hash", { length: 255 }),
+	phone: varchar({ length: 20 }),
+	username: varchar({ length: 50 }),
+	firstName: varchar("first_name", { length: 100 }),
+	lastName: varchar("last_name", { length: 100 }),
+	gender: varchar({ length: 20 }),
+	avatarUrl: text("avatar_url"),
+	avatarMediaId: uuid("avatar_media_id"),
+	primaryAuthMethod: varchar("primary_auth_method", { length: 20 }),
+	countryCode: varchar("country_code", { length: 2 }),
+	region: varchar({ length: 100 }),
+	timezone: varchar({ length: 64 }),
+	locationSource: varchar("location_source", { length: 10 }),
+	locationUpdatedAt: timestamp("location_updated_at", { withTimezone: true, mode: 'string' }),
+	walletAddress: varchar("wallet_address", { length: 64 }),
+	tokenVersion: integer("token_version").default(0).notNull(),
+	mergedIntoUserId: uuid("merged_into_user_id"),
+	status: varchar({ length: 20 }).default('active').notNull(),
+	suspendedUntil: timestamp("suspended_until", { withTimezone: true, mode: 'string' }),
+	statusReason: varchar("status_reason", { length: 500 }),
+	statusChangedBy: uuid("status_changed_by"),
+	statusChangedAt: timestamp("status_changed_at", { withTimezone: true, mode: 'string' }),
+	isEmailVerified: boolean("is_email_verified").default(false).notNull(),
+	isPhoneVerified: boolean("is_phone_verified").default(false).notNull(),
+	lastLoginAt: timestamp("last_login_at", { withTimezone: true, mode: 'string' }),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	deletedAt: timestamp("deleted_at", { withTimezone: true, mode: 'string' }),
+	acquisitionChannel: varchar("acquisition_channel", { length: 30 }),
+}, (table) => [
+	index("idx_users_account_type").using("btree", table.accountType.asc().nullsLast().op("text_ops")).where(sql`(deleted_at IS NULL)`),
+	index("idx_users_avatar_media").using("btree", table.avatarMediaId.asc().nullsLast().op("uuid_ops")).where(sql`(avatar_media_id IS NOT NULL)`),
+	index("idx_users_country_code").using("btree", table.countryCode.asc().nullsLast().op("text_ops")).where(sql`(deleted_at IS NULL)`),
+	uniqueIndex("idx_users_email").using("btree", sql`lower((email)::text)`).where(sql`((email IS NOT NULL) AND (deleted_at IS NULL))`),
+	uniqueIndex("idx_users_phone").using("btree", table.phone.asc().nullsLast().op("text_ops")).where(sql`((phone IS NOT NULL) AND (deleted_at IS NULL))`),
+	index("idx_users_status").using("btree", table.status.asc().nullsLast().op("text_ops")).where(sql`(deleted_at IS NULL)`),
+	uniqueIndex("idx_users_username").using("btree", sql`lower((username)::text)`).where(sql`((username IS NOT NULL) AND (deleted_at IS NULL))`),
+	foreignKey({
+			columns: [table.avatarMediaId],
+			foreignColumns: [mediaMetadata.id],
+			name: "users_avatar_media_id_fkey"
+		}).onDelete("set null"),
+	foreignKey({
+			columns: [table.mergedIntoUserId],
+			foreignColumns: [table.id],
+			name: "users_merged_into_user_id_fkey"
+		}).onDelete("set null"),
+	foreignKey({
+			columns: [table.statusChangedBy],
+			foreignColumns: [table.id],
+			name: "users_status_changed_by_fkey"
+		}).onDelete("set null"),
+	check("users_account_type_check", sql`(account_type)::text = ANY ((ARRAY['guest'::character varying, 'customer'::character varying, 'admin'::character varying])::text[])`),
+	check("users_acquisition_channel_check", sql`(acquisition_channel)::text = ANY ((ARRAY['organic'::character varying, 'paid_social'::character varying, 'referral'::character varying, 'influencer'::character varying, 'search'::character varying, 'other'::character varying])::text[])`),
+	check("users_gender_check", sql`(gender)::text = ANY ((ARRAY['male'::character varying, 'female'::character varying, 'other'::character varying, 'prefer_not_to_say'::character varying])::text[])`),
+	check("users_location_source_check", sql`(location_source)::text = ANY ((ARRAY['ip'::character varying, 'device'::character varying, 'manual'::character varying])::text[])`),
+	check("users_primary_auth_method_check", sql`(primary_auth_method)::text = ANY ((ARRAY['phone'::character varying, 'google'::character varying, 'apple'::character varying, 'email'::character varying])::text[])`),
+	check("users_status_check", sql`(status)::text = ANY ((ARRAY['active'::character varying, 'suspended'::character varying, 'banned'::character varying, 'disabled'::character varying])::text[])`),
+]);
+
 export const mediaMetadata = pgTable("media_metadata", {
 	id: uuid().default(sql`uuidv7()`).primaryKey().notNull(),
 	mediaType: varchar("media_type", { length: 20 }).notNull(),
@@ -301,68 +619,6 @@ export const mediaStatusEvents = pgTable("media_status_events", {
 			foreignColumns: [mediaMetadata.id],
 			name: "media_status_events_media_id_fkey"
 		}).onDelete("cascade"),
-]);
-
-export const users = pgTable("users", {
-	id: uuid().default(sql`uuidv7()`).primaryKey().notNull(),
-	accountType: varchar("account_type", { length: 20 }).default('guest').notNull(),
-	email: varchar({ length: 255 }),
-	passwordHash: varchar("password_hash", { length: 255 }),
-	phone: varchar({ length: 20 }),
-	username: varchar({ length: 50 }),
-	firstName: varchar("first_name", { length: 100 }),
-	lastName: varchar("last_name", { length: 100 }),
-	gender: varchar({ length: 20 }),
-	avatarUrl: text("avatar_url"),
-	avatarMediaId: uuid("avatar_media_id"),
-	primaryAuthMethod: varchar("primary_auth_method", { length: 20 }),
-	countryCode: varchar("country_code", { length: 2 }),
-	region: varchar({ length: 100 }),
-	timezone: varchar({ length: 64 }),
-	locationSource: varchar("location_source", { length: 10 }),
-	locationUpdatedAt: timestamp("location_updated_at", { withTimezone: true, mode: 'string' }),
-	walletAddress: varchar("wallet_address", { length: 64 }),
-	tokenVersion: integer("token_version").default(0).notNull(),
-	mergedIntoUserId: uuid("merged_into_user_id"),
-	status: varchar({ length: 20 }).default('active').notNull(),
-	suspendedUntil: timestamp("suspended_until", { withTimezone: true, mode: 'string' }),
-	statusReason: varchar("status_reason", { length: 500 }),
-	statusChangedBy: uuid("status_changed_by"),
-	statusChangedAt: timestamp("status_changed_at", { withTimezone: true, mode: 'string' }),
-	isEmailVerified: boolean("is_email_verified").default(false).notNull(),
-	isPhoneVerified: boolean("is_phone_verified").default(false).notNull(),
-	lastLoginAt: timestamp("last_login_at", { withTimezone: true, mode: 'string' }),
-	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
-	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
-	deletedAt: timestamp("deleted_at", { withTimezone: true, mode: 'string' }),
-}, (table) => [
-	index("idx_users_account_type").using("btree", table.accountType.asc().nullsLast().op("text_ops")).where(sql`(deleted_at IS NULL)`),
-	index("idx_users_avatar_media").using("btree", table.avatarMediaId.asc().nullsLast().op("uuid_ops")).where(sql`(avatar_media_id IS NOT NULL)`),
-	index("idx_users_country_code").using("btree", table.countryCode.asc().nullsLast().op("text_ops")).where(sql`(deleted_at IS NULL)`),
-	uniqueIndex("idx_users_email").using("btree", sql`lower((email)::text)`).where(sql`((email IS NOT NULL) AND (deleted_at IS NULL))`),
-	uniqueIndex("idx_users_phone").using("btree", table.phone.asc().nullsLast().op("text_ops")).where(sql`((phone IS NOT NULL) AND (deleted_at IS NULL))`),
-	index("idx_users_status").using("btree", table.status.asc().nullsLast().op("text_ops")).where(sql`(deleted_at IS NULL)`),
-	uniqueIndex("idx_users_username").using("btree", sql`lower((username)::text)`).where(sql`((username IS NOT NULL) AND (deleted_at IS NULL))`),
-	foreignKey({
-			columns: [table.avatarMediaId],
-			foreignColumns: [mediaMetadata.id],
-			name: "users_avatar_media_id_fkey"
-		}).onDelete("set null"),
-	foreignKey({
-			columns: [table.mergedIntoUserId],
-			foreignColumns: [table.id],
-			name: "users_merged_into_user_id_fkey"
-		}).onDelete("set null"),
-	foreignKey({
-			columns: [table.statusChangedBy],
-			foreignColumns: [table.id],
-			name: "users_status_changed_by_fkey"
-		}).onDelete("set null"),
-	check("users_account_type_check", sql`(account_type)::text = ANY ((ARRAY['guest'::character varying, 'customer'::character varying, 'admin'::character varying])::text[])`),
-	check("users_gender_check", sql`(gender)::text = ANY ((ARRAY['male'::character varying, 'female'::character varying, 'other'::character varying, 'prefer_not_to_say'::character varying])::text[])`),
-	check("users_location_source_check", sql`(location_source)::text = ANY ((ARRAY['ip'::character varying, 'device'::character varying, 'manual'::character varying])::text[])`),
-	check("users_primary_auth_method_check", sql`(primary_auth_method)::text = ANY ((ARRAY['phone'::character varying, 'google'::character varying, 'apple'::character varying, 'email'::character varying])::text[])`),
-	check("users_status_check", sql`(status)::text = ANY ((ARRAY['active'::character varying, 'suspended'::character varying, 'banned'::character varying, 'disabled'::character varying])::text[])`),
 ]);
 
 export const userEnforcementActions = pgTable("user_enforcement_actions", {

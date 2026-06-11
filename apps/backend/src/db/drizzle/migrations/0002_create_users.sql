@@ -28,6 +28,8 @@ CREATE TABLE IF NOT EXISTS users (
     timezone            VARCHAR(64),                 -- IANA tz; streak day boundaries + display
     location_source     VARCHAR(10) CHECK (location_source IN ('ip','device','manual')),
     location_updated_at TIMESTAMPTZ,
+    acquisition_channel VARCHAR(30)                  -- LTV-by-channel + CAC (marketing_spend, 0012)
+                          CHECK (acquisition_channel IN ('organic','paid_social','referral','influencer','search','other')),
     wallet_address      VARCHAR(64),                 -- forward hook for on-chain rewards (Rewards module)
     token_version       INTEGER NOT NULL DEFAULT 0,  -- bump to invalidate all stateless JWTs
     merged_into_user_id UUID REFERENCES users(id) ON DELETE SET NULL,  -- guest → real-user merge pointer
