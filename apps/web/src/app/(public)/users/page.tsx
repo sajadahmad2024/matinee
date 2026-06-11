@@ -1,34 +1,19 @@
 "use client";
 
-import { useState } from "react";
-
 import { useSearchParams } from "next/navigation";
 
 import { TimeRangeSelector } from "@/components/custom/time-range-selector";
 
-import { PushNotificationModal } from "./_components/push-notification-modal";
 import { UserAnalytics } from "./_components/user-analytics";
-import { UserDetailModal } from "./_components/user-detail-modal";
-import { type User, UserListTable } from "./_components/user-list-table";
+import { UserDirectory } from "./_components/user-directory";
 import { UserRegionalAnalytics } from "./_components/user-regional-analytics";
 
 export default function UserManagementPage() {
   const searchParams = useSearchParams();
   const timeRange = searchParams.get("timeRange") ?? "7d";
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [isDetailOpen, setIsDetailOpen] = useState(false);
-  const [notificationUsers, setNotificationUsers] = useState<User[]>([]);
-  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
-
-  const handleViewUser = (user: User) => {
-    setSelectedUser(user);
-    setIsDetailOpen(true);
-  };
-
-  const handleSendNotification = (users: User[]) => {
-    setNotificationUsers(users);
-    setIsNotificationOpen(true);
-  };
+  const searchQuery = searchParams.get("q") ?? "";
+  const page = parseInt(searchParams.get("page") ?? "1", 10);
+  const pageSize = parseInt(searchParams.get("pageSize") ?? "10", 10);
 
   return (
     <div className="animate-fade-in space-y-6">
@@ -47,17 +32,10 @@ export default function UserManagementPage() {
         <UserRegionalAnalytics />
       </div>
 
-      <div className="space-y-4">
-        <h2 className="text-foreground text-lg font-semibold">User Directory</h2>
-        <UserListTable onViewUser={handleViewUser} onSendNotification={handleSendNotification} />
-      </div>
-
-      <UserDetailModal user={selectedUser} open={isDetailOpen} onOpenChange={setIsDetailOpen} />
-
-      <PushNotificationModal
-        users={notificationUsers}
-        open={isNotificationOpen}
-        onOpenChange={setIsNotificationOpen}
+      <UserDirectory
+        searchQuery={searchQuery}
+        page={page}
+        pageSize={pageSize}
       />
     </div>
   );

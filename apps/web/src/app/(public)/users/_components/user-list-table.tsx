@@ -2,6 +2,9 @@
 
 import { useMemo, useState } from "react";
 
+import type { Route } from "next";
+import { useRouter } from "next/navigation";
+
 import {
   AlertTriangle,
   Bell,
@@ -52,6 +55,11 @@ export interface User {
 }
 
 interface UserListTableProps {
+  searchQuery?: string;
+  statusFilter?: string;
+  subscriptionFilter?: string;
+  page?: number;
+  pageSize?: number;
   onViewUser: (user: User) => void;
   onSendNotification: (users: User[]) => void;
 }
@@ -160,17 +168,58 @@ const mockUsers: User[] = [
   },
 ];
 
-export function UserListTable({ onViewUser, onSendNotification }: UserListTableProps) {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [subscriptionFilter, setSubscriptionFilter] = useState<string>("all");
+export function UserListTable({
+  searchQuery: propSearchQuery,
+  statusFilter: propStatusFilter,
+  subscriptionFilter: propSubscriptionFilter,
+  page: propPage,
+  pageSize: propPageSize,
+  onViewUser,
+  onSendNotification,
+}: UserListTableProps) {
+  const router = useRouter();
+  const [localSearchQuery, setLocalSearchQuery] = useState("");
+  const [localStatusFilter, setLocalStatusFilter] = useState<string>("all");
+  const [localSubscriptionFilter, setLocalSubscriptionFilter] = useState<string>("all");
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [localCurrentPage, setLocalCurrentPage] = useState(1);
+  const [localPageSize, setLocalPageSize] = useState(10);
   const [confirmDialog, setConfirmDialog] = useState<{
     open: boolean;
     action: "ban" | "delete";
   }>({ open: false, action: "ban" });
+
+  const searchQuery = propSearchQuery !== undefined ? propSearchQuery : localSearchQuery;
+  const statusFilter = propStatusFilter !== undefined ? propStatusFilter : localStatusFilter;
+  const subscriptionFilter = propSubscriptionFilter !== undefined ? propSubscriptionFilter : localSubscriptionFilter;
+  const currentPage = propPage !== undefined ? propPage : localCurrentPage;
+  const pageSize = propPageSize !== undefined ? propPageSize : localPageSize;
+
+  const setSearchQuery = propSearchQuery !== undefined ? () => {} : setLocalSearchQuery;
+  const setStatusFilter = propStatusFilter !== undefined ? () => {} : setLocalStatusFilter;
+  const setSubscriptionFilter = propSubscriptionFilter !== undefined ? () => {} : setLocalSubscriptionFilter;
+
+  const handlePageChange = (p: number) => {
+    if (propPage !== undefined) {
+      const params = new URLSearchParams(window.location.search);
+      params.set("page", p.toString());
+      router.push(`${window.location.pathname}?${params.toString()}` as Route, { scroll: false });
+    } else {
+      setLocalCurrentPage(p);
+    }
+  };
+
+  const handlePageSizeChange = (size: number) => {
+    if (propPageSize !== undefined) {
+      const params = new URLSearchParams(window.location.search);
+      params.set("pageSize", size.toString());
+      params.set("page", "1");
+      router.push(`${window.location.pathname}?${params.toString()}` as Route, { scroll: false });
+    } else {
+      setLocalPageSize(size);
+      setLocalCurrentPage(1);
+    }
+  };
 
   const filteredUsers = mockUsers.filter((user) => {
     const matchesSearch =
@@ -337,41 +386,43 @@ export function UserListTable({ onViewUser, onSendNotification }: UserListTableP
   return (
     <div className="space-y-4">
       {/* Search & Filters Bar */}
-      <div className="flex flex-col gap-4 sm:flex-row">
-        <div className="relative flex-1">
-          <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
-          <Input
-            placeholder="Search by name, email, or User ID..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
-          />
+      {propSearchQuery === undefined && (
+        <div className="flex flex-col gap-4 sm:flex-row">
+          <div className="relative flex-1">
+            <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+            <Input
+              placeholder="Search by name, email, or User ID..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="min-w-[150px]">
+                <Filter className="mr-2 h-4 w-4" />
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent className="border-border bg-card z-50">
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="active">Active</SelectItem>
+                <SelectItem value="suspended">Suspended</SelectItem>
+                <SelectItem value="banned">Banned</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={subscriptionFilter} onValueChange={setSubscriptionFilter}>
+              <SelectTrigger className="min-w-[150px]">
+                <SelectValue placeholder="Subscription" />
+              </SelectTrigger>
+              <SelectContent className="border-border bg-card z-50">
+                <SelectItem value="all">All Users</SelectItem>
+                <SelectItem value="subscribed">Subscribed</SelectItem>
+                <SelectItem value="free">Free</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="min-w-[150px]">
-              <Filter className="mr-2 h-4 w-4" />
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent className="border-border bg-card z-50">
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="active">Active</SelectItem>
-              <SelectItem value="suspended">Suspended</SelectItem>
-              <SelectItem value="banned">Banned</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select value={subscriptionFilter} onValueChange={setSubscriptionFilter}>
-            <SelectTrigger className="min-w-[150px]">
-              <SelectValue placeholder="Subscription" />
-            </SelectTrigger>
-            <SelectContent className="border-border bg-card z-50">
-              <SelectItem value="all">All Users</SelectItem>
-              <SelectItem value="subscribed">Subscribed</SelectItem>
-              <SelectItem value="free">Free</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
+      )}
 
       {/* Bulk Actions (Top) */}
       {selectedUserIds.length > 0 && (
@@ -408,11 +459,8 @@ export function UserListTable({ onViewUser, onSendNotification }: UserListTableP
           totalPages={totalPages}
           pageSize={pageSize}
           totalItems={filteredUsers.length}
-          onPageChange={setCurrentPage}
-          onPageSizeChange={(size) => {
-            setPageSize(size);
-            setCurrentPage(1);
-          }}
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
         />
       </div>
 

@@ -59,7 +59,7 @@ interface GameAnalyticsProps {
   timeRange?: string;
 }
 
-export function GameAnalytics({ timeRange = "7d" }: GameAnalyticsProps) {
+export function GameAnalytics({ timeRange: _timeRange = "7d" }: GameAnalyticsProps) {
   // In the future, this is where we would fetch data based on timeRange
   // const { data } = useQuery({ queryKey: ['game-analytics', timeRange], queryFn: () => fetchAnalytics(timeRange) });
 

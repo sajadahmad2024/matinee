@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 
+import type { Route } from "next";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { Filter, Search, SlidersHorizontal } from "lucide-react";
@@ -38,7 +39,7 @@ export function ContentFilters({ searchQuery }: ContentFiltersProps) {
         params.delete(name);
       }
       params.delete("page");
-      router.push(`${pathname}?${params.toString()}`, { scroll: false });
+      router.push(`${pathname}?${params.toString()}` as Route, { scroll: false });
     },
     [searchParams, pathname, router],
   );
