@@ -152,8 +152,10 @@ CREATE TABLE IF NOT EXISTS predictions (
                         CHECK (status IN ('open','locked','resolved','cancelled')),
     reward_points     INTEGER NOT NULL DEFAULT 0,
     reward_xp         INTEGER NOT NULL DEFAULT 0,
+    entry_cost_points INTEGER NOT NULL DEFAULT 0,     -- points spent to enter this prediction
+    payout_multiplier INTEGER NOT NULL DEFAULT 1,     -- correct payout = entry_cost × multiplier (e.g. 5 / 10)
     unlock_threshold_points INTEGER,                 -- locked until user holds ≥ N points (NULL = open)
-    banner_media_id   UUID REFERENCES media_metadata(id) ON DELETE SET NULL,  -- per-instance app banner override
+    banner_media_id   UUID REFERENCES media_metadata(id) ON DELETE SET NULL,  -- per-instance app banner override / visual element
     correct_option_id UUID,                          -- → prediction_options.id (logical; set at resolve)
     resolved_by       UUID REFERENCES users(id) ON DELETE SET NULL,
     resolved_at       TIMESTAMPTZ,
@@ -181,7 +183,8 @@ CREATE TABLE IF NOT EXISTS prediction_entries (
     user_id        UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     option_id      UUID NOT NULL REFERENCES prediction_options(id) ON DELETE CASCADE,
     is_correct     BOOLEAN,
-    points_awarded INTEGER NOT NULL DEFAULT 0,
+    points_staked  INTEGER NOT NULL DEFAULT 0,        -- entry cost spent (debited via ledger)
+    points_awarded INTEGER NOT NULL DEFAULT 0,        -- payout on correct (staked × multiplier)
     created_at     TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     UNIQUE (prediction_id, user_id)                  -- one entry per user
 );
@@ -248,7 +251,7 @@ INSERT INTO reward_rules (rule_key, name, description, is_enabled, config, versi
   ('shared_content', 'Shared Content', 'Earn for sharing content (autonomous, capped daily)', true,
      '{"daily_share_cap":3,"behaviors":[{"key":"internal_share","label":"Internal share","points":3,"xp":1},{"key":"external_share","label":"External share","points":15,"xp":5},{"key":"referral_completed","label":"Referral completed","points":100,"xp":25}]}'::jsonb, 1),
   ('prediction', 'Predictions', 'Predict outcomes to earn', true,
-     '{"default_points":100,"default_xp":25}'::jsonb, 1),
+     '{"default_points":100,"default_xp":25,"default_entry_cost":50,"default_multiplier":5}'::jsonb, 1),
   ('bidding', 'Bidding', 'Spend points to win prizes', true,
      '{"min_increment_points":10}'::jsonb, 1)
 ON CONFLICT (rule_key) DO NOTHING;

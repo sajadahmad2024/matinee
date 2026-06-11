@@ -301,6 +301,24 @@ analytics gaps from §11. Added as new `CREATE TABLE` migrations:
 Still deferred (auth-rebuild territory): admin MFA/2FA + invite flow; and the minor
 `content_watch_events.event_type` extension (`start`/`swipe_away`/`loop`) — derived for now.
 
+## 13. Final cross-check (Game Centre / Content / Dashboard) — schema fixes
+
+A last UI-vs-schema pass over the three modules found two places the UI collected data the
+schema couldn't store (added in place):
+
+- **Predictive economics** — the Create Prediction form captures **entry cost** + **×5/×10
+  multiplier**, but `predictions` had neither. Added `predictions.entry_cost_points` +
+  `predictions.payout_multiplier`, plus `prediction_entries.points_staked` (the debited stake;
+  payout = staked × multiplier). The `prediction` reward-rule seed config now carries
+  `default_entry_cost` + `default_multiplier`.
+- **Content rights region** — the classification card captures **Rights region** (geomapping/rights),
+  with no column. Added `contents.rights_region` (`global | NA | EU | APAC | LATAM | MEA`).
+  Country-level availability gating still comes from `geo_policies`.
+
+Everything else in the three modules mapped cleanly to existing tables (game widgets, instances +
+unlock/banner, badges/leveling/leaderboards, content licensing/sponsorship/taxonomy/workflow,
+dashboard analytics). "Challenges" in the dashboard maps to quests/predictions (no new entity).
+
 ## Follow-up (repository / service layer)
 
 1. `ContentRepository`: select/update the license + `is_sponsored` columns; `SponsorshipRepository`

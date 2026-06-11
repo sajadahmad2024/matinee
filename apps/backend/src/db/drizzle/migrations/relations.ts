@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm/relations";
-import { mediaMetadata, gameWidgetConfigs, users, contents, contentSponsorships, contentLicenses, subscriptionPlans, planRegionPrices, subscriptions, subscriptionInvoices, moderationTickets, moderationReports, adminAuditLog, appVersions, appSettings, notificationCampaigns, notificationDeliveries, deviceTokens, userSessions, roles, adminInvites, userMfa, mediaStatusEvents, userEnforcementActions, oauthAccounts, otpCodes, rewardRules, geoPolicies, referralCodes, referralRedemptions, studios, people, contentMedia, contentChangeHistory, contentReactions, comments, commentReports, contentShares, contentModerationLog, contentUnlocks, contentViews, rewardRuleVersions, wallets, quests, userStreaks, ledgerTransactions, predictions, predictionOptions, predictionEntries, auctions, bids, badges, badgeTriggers, rolePermissions, permissions, contentTags, tags, questContents, deviceTokenTopics, contentGenres, genres, contentWatchlist, userBadges, userRoles, commentReactions, questContentProgress, leaderboardMonthly, userMetrics, contentCast, contentProgress, questParticipations, userDailyActivity, contentDailyStats } from "./schema";
+import { mediaMetadata, gameWidgetConfigs, users, contents, contentSponsorships, contentLicenses, subscriptionPlans, planRegionPrices, subscriptions, subscriptionInvoices, moderationTickets, moderationReports, adminAuditLog, appVersions, appSettings, notificationCampaigns, notificationDeliveries, deviceTokens, userSessions, roles, adminInvites, userMfa, mediaStatusEvents, userEnforcementActions, oauthAccounts, otpCodes, rewardRules, geoPolicies, referralCodes, referralRedemptions, studios, people, contentMedia, contentChangeHistory, contentReactions, comments, commentReports, contentShares, contentModerationLog, contentUnlocks, contentViews, rewardRuleVersions, wallets, quests, userStreaks, ledgerTransactions, predictions, predictionOptions, auctions, bids, predictionEntries, badges, badgeTriggers, rolePermissions, permissions, contentTags, tags, questContents, deviceTokenTopics, contentGenres, genres, contentWatchlist, userBadges, userRoles, commentReactions, questContentProgress, leaderboardMonthly, userMetrics, contentCast, contentProgress, questParticipations, userDailyActivity, contentDailyStats } from "./schema";
 
 export const gameWidgetConfigsRelations = relations(gameWidgetConfigs, ({one}) => ({
 	mediaMetadatum: one(mediaMetadata, {
@@ -35,9 +35,9 @@ export const mediaMetadataRelations = relations(mediaMetadata, ({one, many}) => 
 		relationName: "contents_thumbnailMediaId_mediaMetadata_id"
 	}),
 	quests: many(quests),
-	predictions: many(predictions),
 	predictionOptions: many(predictionOptions),
 	auctions: many(auctions),
+	predictions: many(predictions),
 	badges_activeIconMediaId: many(badges, {
 		relationName: "badges_activeIconMediaId_mediaMetadata_id"
 	}),
@@ -144,13 +144,6 @@ export const usersRelations = relations(users, ({one, many}) => ({
 	quests: many(quests),
 	userStreaks: many(userStreaks),
 	ledgerTransactions: many(ledgerTransactions),
-	predictions_resolvedBy: many(predictions, {
-		relationName: "predictions_resolvedBy_users_id"
-	}),
-	predictions_createdBy: many(predictions, {
-		relationName: "predictions_createdBy_users_id"
-	}),
-	predictionEntries: many(predictionEntries),
 	auctions_winnerUserId: many(auctions, {
 		relationName: "auctions_winnerUserId_users_id"
 	}),
@@ -158,6 +151,13 @@ export const usersRelations = relations(users, ({one, many}) => ({
 		relationName: "auctions_createdBy_users_id"
 	}),
 	bids: many(bids),
+	predictions_resolvedBy: many(predictions, {
+		relationName: "predictions_resolvedBy_users_id"
+	}),
+	predictions_createdBy: many(predictions, {
+		relationName: "predictions_createdBy_users_id"
+	}),
+	predictionEntries: many(predictionEntries),
 	badges: many(badges),
 	contentWatchlists: many(contentWatchlist),
 	userBadges: many(userBadges),
@@ -243,8 +243,8 @@ export const contentsRelations = relations(contents, ({one, many}) => ({
 	contentShares: many(contentShares),
 	contentUnlocks: many(contentUnlocks),
 	contentViews: many(contentViews),
-	predictions: many(predictions),
 	auctions: many(auctions),
+	predictions: many(predictions),
 	contentTags: many(contentTags),
 	questContents: many(questContents),
 	contentGenres: many(contentGenres),
@@ -677,7 +677,20 @@ export const ledgerTransactionsRelations = relations(ledgerTransactions, ({one})
 	}),
 }));
 
+export const predictionOptionsRelations = relations(predictionOptions, ({one, many}) => ({
+	prediction: one(predictions, {
+		fields: [predictionOptions.predictionId],
+		references: [predictions.id]
+	}),
+	mediaMetadatum: one(mediaMetadata, {
+		fields: [predictionOptions.optionMediaId],
+		references: [mediaMetadata.id]
+	}),
+	predictionEntries: many(predictionEntries),
+}));
+
 export const predictionsRelations = relations(predictions, ({one, many}) => ({
+	predictionOptions: many(predictionOptions),
 	mediaMetadatum: one(mediaMetadata, {
 		fields: [predictions.bannerMediaId],
 		references: [mediaMetadata.id]
@@ -696,35 +709,7 @@ export const predictionsRelations = relations(predictions, ({one, many}) => ({
 		references: [users.id],
 		relationName: "predictions_createdBy_users_id"
 	}),
-	predictionOptions: many(predictionOptions),
 	predictionEntries: many(predictionEntries),
-}));
-
-export const predictionOptionsRelations = relations(predictionOptions, ({one, many}) => ({
-	prediction: one(predictions, {
-		fields: [predictionOptions.predictionId],
-		references: [predictions.id]
-	}),
-	mediaMetadatum: one(mediaMetadata, {
-		fields: [predictionOptions.optionMediaId],
-		references: [mediaMetadata.id]
-	}),
-	predictionEntries: many(predictionEntries),
-}));
-
-export const predictionEntriesRelations = relations(predictionEntries, ({one}) => ({
-	prediction: one(predictions, {
-		fields: [predictionEntries.predictionId],
-		references: [predictions.id]
-	}),
-	user: one(users, {
-		fields: [predictionEntries.userId],
-		references: [users.id]
-	}),
-	predictionOption: one(predictionOptions, {
-		fields: [predictionEntries.optionId],
-		references: [predictionOptions.id]
-	}),
 }));
 
 export const auctionsRelations = relations(auctions, ({one, many}) => ({
@@ -757,6 +742,21 @@ export const bidsRelations = relations(bids, ({one}) => ({
 	user: one(users, {
 		fields: [bids.userId],
 		references: [users.id]
+	}),
+}));
+
+export const predictionEntriesRelations = relations(predictionEntries, ({one}) => ({
+	prediction: one(predictions, {
+		fields: [predictionEntries.predictionId],
+		references: [predictions.id]
+	}),
+	user: one(users, {
+		fields: [predictionEntries.userId],
+		references: [users.id]
+	}),
+	predictionOption: one(predictionOptions, {
+		fields: [predictionEntries.optionId],
+		references: [predictionOptions.id]
 	}),
 }));
 

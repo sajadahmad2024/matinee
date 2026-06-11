@@ -85,6 +85,11 @@ CREATE TABLE IF NOT EXISTS contents (
     recommendation      VARCHAR(20) NOT NULL DEFAULT 'normal'
                           CHECK (recommendation IN ('promoted','normal','deprioritized')),
 
+    -- Rights focus region (geomapping/rights — where this content is primarily licensed/served;
+    -- country-level availability gating still comes from geo_policies)
+    rights_region       VARCHAR(10) NOT NULL DEFAULT 'global'
+                          CHECK (rights_region IN ('global','NA','EU','APAC','LATAM','MEA')),
+
     -- Ad-Sales (denormalized flags; detail in content_sponsorships)
     is_sponsored        BOOLEAN NOT NULL DEFAULT false,   -- carries a sponsor logo + ad
     is_ad_commercial    BOOLEAN NOT NULL DEFAULT false,   -- is itself a feed commercial

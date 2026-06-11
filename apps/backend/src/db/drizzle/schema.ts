@@ -996,6 +996,7 @@ export const contents = pgTable("contents", {
 	isSponsored: boolean("is_sponsored").default(false).notNull(),
 	parentContentId: uuid("parent_content_id"),
 	isAdCommercial: boolean("is_ad_commercial").default(false).notNull(),
+	rightsRegion: varchar("rights_region", { length: 10 }).default('global').notNull(),
 }, (table) => [
 	index("idx_contents_boost").using("btree", table.boostPriority.desc().nullsFirst().op("int4_ops")).where(sql`(is_boosted AND (deleted_at IS NULL))`),
 	index("idx_contents_license_expiry").using("btree", table.licenseExpiresAt.asc().nullsLast().op("timestamptz_ops")).where(sql`((license_status)::text = ANY ((ARRAY['licensed'::character varying, 'expiring'::character varying])::text[]))`),
@@ -1049,6 +1050,7 @@ export const contents = pgTable("contents", {
 	check("contents_license_status_check", sql`(license_status)::text = ANY ((ARRAY['original'::character varying, 'licensed'::character varying, 'expiring'::character varying, 'expired'::character varying])::text[])`),
 	check("contents_recommendation_check", sql`(recommendation)::text = ANY ((ARRAY['promoted'::character varying, 'normal'::character varying, 'deprioritized'::character varying])::text[])`),
 	check("contents_parent_not_self_check", sql`(parent_content_id IS NULL) OR (parent_content_id <> id)`),
+	check("contents_rights_region_check", sql`(rights_region)::text = ANY ((ARRAY['global'::character varying, 'NA'::character varying, 'EU'::character varying, 'APAC'::character varying, 'LATAM'::character varying, 'MEA'::character varying])::text[])`),
 	check("contents_content_type_check", sql`(content_type)::text = ANY ((ARRAY['trailer'::character varying, 'bts'::character varying, 'clip'::character varying])::text[])`),
 	check("contents_access_tier_check", sql`(access_tier)::text = ANY ((ARRAY['free'::character varying, 'exclusive'::character varying])::text[])`),
 	check("contents_status_check", sql`(status)::text = ANY ((ARRAY['draft'::character varying, 'pending_approval'::character varying, 'scheduled'::character varying, 'published'::character varying, 'rejected'::character varying, 'archived'::character varying])::text[])`),
@@ -1387,50 +1389,6 @@ export const ledgerTransactions = pgTable("ledger_transactions", {
 	check("ledger_transactions_source_kind_check", sql`(source_kind)::text = ANY ((ARRAY['earned'::character varying, 'purchased'::character varying])::text[])`),
 ]);
 
-export const predictions = pgTable("predictions", {
-	id: uuid().default(sql`uuidv7()`).primaryKey().notNull(),
-	question: varchar({ length: 500 }).notNull(),
-	description: text(),
-	contentId: uuid("content_id"),
-	startAt: timestamp("start_at", { withTimezone: true, mode: 'string' }).notNull(),
-	endAt: timestamp("end_at", { withTimezone: true, mode: 'string' }).notNull(),
-	status: varchar({ length: 20 }).default('open').notNull(),
-	rewardPoints: integer("reward_points").default(0).notNull(),
-	rewardXp: integer("reward_xp").default(0).notNull(),
-	correctOptionId: uuid("correct_option_id"),
-	resolvedBy: uuid("resolved_by"),
-	resolvedAt: timestamp("resolved_at", { withTimezone: true, mode: 'string' }),
-	createdBy: uuid("created_by"),
-	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
-	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
-	unlockThresholdPoints: integer("unlock_threshold_points"),
-	bannerMediaId: uuid("banner_media_id"),
-}, (table) => [
-	index("idx_predictions_open").using("btree", table.status.asc().nullsLast().op("text_ops"), table.endAt.asc().nullsLast().op("text_ops")).where(sql`((status)::text = ANY ((ARRAY['open'::character varying, 'locked'::character varying])::text[]))`),
-	foreignKey({
-			columns: [table.bannerMediaId],
-			foreignColumns: [mediaMetadata.id],
-			name: "predictions_banner_media_id_fkey"
-		}).onDelete("set null"),
-	foreignKey({
-			columns: [table.contentId],
-			foreignColumns: [contents.id],
-			name: "predictions_content_id_fkey"
-		}).onDelete("set null"),
-	foreignKey({
-			columns: [table.resolvedBy],
-			foreignColumns: [users.id],
-			name: "predictions_resolved_by_fkey"
-		}).onDelete("set null"),
-	foreignKey({
-			columns: [table.createdBy],
-			foreignColumns: [users.id],
-			name: "predictions_created_by_fkey"
-		}).onDelete("set null"),
-	check("predictions_status_check", sql`(status)::text = ANY ((ARRAY['open'::character varying, 'locked'::character varying, 'resolved'::character varying, 'cancelled'::character varying])::text[])`),
-	check("predictions_check", sql`end_at > start_at`),
-]);
-
 export const predictionOptions = pgTable("prediction_options", {
 	id: uuid().default(sql`uuidv7()`).primaryKey().notNull(),
 	predictionId: uuid("prediction_id").notNull(),
@@ -1451,34 +1409,6 @@ export const predictionOptions = pgTable("prediction_options", {
 			foreignColumns: [mediaMetadata.id],
 			name: "prediction_options_option_media_id_fkey"
 		}).onDelete("set null"),
-]);
-
-export const predictionEntries = pgTable("prediction_entries", {
-	id: uuid().default(sql`uuidv7()`).primaryKey().notNull(),
-	predictionId: uuid("prediction_id").notNull(),
-	userId: uuid("user_id").notNull(),
-	optionId: uuid("option_id").notNull(),
-	isCorrect: boolean("is_correct"),
-	pointsAwarded: integer("points_awarded").default(0).notNull(),
-	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
-}, (table) => [
-	index("idx_prediction_entries_prediction").using("btree", table.predictionId.asc().nullsLast().op("uuid_ops")),
-	foreignKey({
-			columns: [table.predictionId],
-			foreignColumns: [predictions.id],
-			name: "prediction_entries_prediction_id_fkey"
-		}).onDelete("cascade"),
-	foreignKey({
-			columns: [table.userId],
-			foreignColumns: [users.id],
-			name: "prediction_entries_user_id_fkey"
-		}).onDelete("cascade"),
-	foreignKey({
-			columns: [table.optionId],
-			foreignColumns: [predictionOptions.id],
-			name: "prediction_entries_option_id_fkey"
-		}).onDelete("cascade"),
-	unique("prediction_entries_prediction_id_user_id_key").on(table.predictionId, table.userId),
 ]);
 
 export const auctions = pgTable("auctions", {
@@ -1552,6 +1482,81 @@ export const levelDefinitions = pgTable("level_definitions", {
 	xpToAdvance: numeric("xp_to_advance").notNull(),
 	cumulativeToReach: numeric("cumulative_to_reach").notNull(),
 });
+
+export const predictions = pgTable("predictions", {
+	id: uuid().default(sql`uuidv7()`).primaryKey().notNull(),
+	question: varchar({ length: 500 }).notNull(),
+	description: text(),
+	contentId: uuid("content_id"),
+	startAt: timestamp("start_at", { withTimezone: true, mode: 'string' }).notNull(),
+	endAt: timestamp("end_at", { withTimezone: true, mode: 'string' }).notNull(),
+	status: varchar({ length: 20 }).default('open').notNull(),
+	rewardPoints: integer("reward_points").default(0).notNull(),
+	rewardXp: integer("reward_xp").default(0).notNull(),
+	correctOptionId: uuid("correct_option_id"),
+	resolvedBy: uuid("resolved_by"),
+	resolvedAt: timestamp("resolved_at", { withTimezone: true, mode: 'string' }),
+	createdBy: uuid("created_by"),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	unlockThresholdPoints: integer("unlock_threshold_points"),
+	bannerMediaId: uuid("banner_media_id"),
+	entryCostPoints: integer("entry_cost_points").default(0).notNull(),
+	payoutMultiplier: integer("payout_multiplier").default(1).notNull(),
+}, (table) => [
+	index("idx_predictions_open").using("btree", table.status.asc().nullsLast().op("text_ops"), table.endAt.asc().nullsLast().op("text_ops")).where(sql`((status)::text = ANY ((ARRAY['open'::character varying, 'locked'::character varying])::text[]))`),
+	foreignKey({
+			columns: [table.bannerMediaId],
+			foreignColumns: [mediaMetadata.id],
+			name: "predictions_banner_media_id_fkey"
+		}).onDelete("set null"),
+	foreignKey({
+			columns: [table.contentId],
+			foreignColumns: [contents.id],
+			name: "predictions_content_id_fkey"
+		}).onDelete("set null"),
+	foreignKey({
+			columns: [table.resolvedBy],
+			foreignColumns: [users.id],
+			name: "predictions_resolved_by_fkey"
+		}).onDelete("set null"),
+	foreignKey({
+			columns: [table.createdBy],
+			foreignColumns: [users.id],
+			name: "predictions_created_by_fkey"
+		}).onDelete("set null"),
+	check("predictions_status_check", sql`(status)::text = ANY ((ARRAY['open'::character varying, 'locked'::character varying, 'resolved'::character varying, 'cancelled'::character varying])::text[])`),
+	check("predictions_check", sql`end_at > start_at`),
+]);
+
+export const predictionEntries = pgTable("prediction_entries", {
+	id: uuid().default(sql`uuidv7()`).primaryKey().notNull(),
+	predictionId: uuid("prediction_id").notNull(),
+	userId: uuid("user_id").notNull(),
+	optionId: uuid("option_id").notNull(),
+	isCorrect: boolean("is_correct"),
+	pointsAwarded: integer("points_awarded").default(0).notNull(),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	pointsStaked: integer("points_staked").default(0).notNull(),
+}, (table) => [
+	index("idx_prediction_entries_prediction").using("btree", table.predictionId.asc().nullsLast().op("uuid_ops")),
+	foreignKey({
+			columns: [table.predictionId],
+			foreignColumns: [predictions.id],
+			name: "prediction_entries_prediction_id_fkey"
+		}).onDelete("cascade"),
+	foreignKey({
+			columns: [table.userId],
+			foreignColumns: [users.id],
+			name: "prediction_entries_user_id_fkey"
+		}).onDelete("cascade"),
+	foreignKey({
+			columns: [table.optionId],
+			foreignColumns: [predictionOptions.id],
+			name: "prediction_entries_option_id_fkey"
+		}).onDelete("cascade"),
+	unique("prediction_entries_prediction_id_user_id_key").on(table.predictionId, table.userId),
+]);
 
 export const badges = pgTable("badges", {
 	id: uuid().default(sql`uuidv7()`).primaryKey().notNull(),
