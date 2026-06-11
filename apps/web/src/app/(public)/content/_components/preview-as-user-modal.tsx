@@ -31,6 +31,10 @@ export function PreviewAsUserModal({ open, onOpenChange, video }: PreviewAsUserM
           <div className="border-border/60 relative aspect-[9/16] overflow-hidden rounded-[2rem] border-4 bg-black">
             {/* video surface */}
             <div className="from-primary/40 to-accent/20 absolute inset-0 bg-linear-to-br" />
+            {video.thumbnail && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={video.thumbnail} alt={video.title} className="absolute inset-0 h-full w-full object-cover" />
+            )}
             {video.sponsored && (
               <div className="absolute top-3 left-3">
                 <Badge className="bg-white/90 text-black text-[10px]">Sponsored · {video.sponsor}</Badge>

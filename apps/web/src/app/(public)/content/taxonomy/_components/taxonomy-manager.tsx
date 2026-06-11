@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { ImagePlus, Pencil, Plus, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -33,6 +34,7 @@ export interface TaxonomyItem {
   name: string;
   meta?: string; // description / role
   count?: number; // content using it
+  image?: string; // logo / photo (media url)
 }
 
 interface TaxonomyManagerProps {
@@ -44,39 +46,49 @@ interface TaxonomyManagerProps {
   metaLabel?: string;
   /** show a "Used by" count column */
   showCount?: boolean;
+  /** label for the image (e.g. "Logo" / "Photo"); enables the image column + uploader */
+  imageLabel?: string;
 }
 
-export function TaxonomyManager({ title, noun, initialItems, metaLabel, showCount = true }: TaxonomyManagerProps) {
+export function TaxonomyManager({ title, noun, initialItems, metaLabel, showCount = true, imageLabel }: TaxonomyManagerProps) {
   const [items, setItems] = useState<TaxonomyItem[]>(initialItems);
   const [editing, setEditing] = useState<TaxonomyItem | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [deleting, setDeleting] = useState<TaxonomyItem | null>(null);
   const [name, setName] = useState("");
   const [meta, setMeta] = useState("");
+  const [image, setImage] = useState<string | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const initials = (n: string) => n.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
 
   const openCreate = () => {
     setEditing(null);
     setName("");
     setMeta("");
+    setImage(null);
     setModalOpen(true);
   };
   const openEdit = (item: TaxonomyItem) => {
     setEditing(item);
     setName(item.name);
     setMeta(item.meta ?? "");
+    setImage(item.image ?? null);
     setModalOpen(true);
+  };
+
+  const pickImage = (file?: File) => {
+    if (file) setImage(URL.createObjectURL(file));
   };
 
   const save = () => {
     if (!name.trim()) return;
+    const patch = { name: name.trim(), meta: meta.trim() || undefined, image: image ?? undefined };
     if (editing) {
-      setItems((prev) => prev.map((i) => (i.id === editing.id ? { ...i, name: name.trim(), meta: meta.trim() || undefined } : i)));
+      setItems((prev) => prev.map((i) => (i.id === editing.id ? { ...i, ...patch } : i)));
       toast.success(`${noun} updated`);
     } else {
-      setItems((prev) => [
-        { id: `${noun.toLowerCase()}_${Date.now()}`, name: name.trim(), meta: meta.trim() || undefined, count: 0 },
-        ...prev,
-      ]);
+      setItems((prev) => [{ id: `${noun.toLowerCase()}_${Date.now()}`, count: 0, ...patch }, ...prev]);
       toast.success(`${noun} created`);
     }
     setModalOpen(false);
@@ -105,6 +117,7 @@ export function TaxonomyManager({ title, noun, initialItems, metaLabel, showCoun
         <Table>
           <TableHeader className="bg-muted/30">
             <TableRow>
+              {imageLabel && <TableHead className="w-[60px]">{imageLabel}</TableHead>}
               <TableHead>Name</TableHead>
               {metaLabel && <TableHead>{metaLabel}</TableHead>}
               {showCount && <TableHead className="text-right">Used by</TableHead>}
@@ -114,13 +127,23 @@ export function TaxonomyManager({ title, noun, initialItems, metaLabel, showCoun
           <TableBody>
             {items.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={4} className="text-muted-foreground py-8 text-center">
+                <TableCell colSpan={5} className="text-muted-foreground py-8 text-center">
                   No {title.toLowerCase()} yet.
                 </TableCell>
               </TableRow>
             ) : (
               items.map((item) => (
                 <TableRow key={item.id}>
+                  {imageLabel && (
+                    <TableCell>
+                      <Avatar className="h-9 w-9 rounded-md">
+                        <AvatarImage src={item.image} alt={item.name} className="object-cover" />
+                        <AvatarFallback className="bg-primary/15 text-primary rounded-md text-xs">
+                          {initials(item.name)}
+                        </AvatarFallback>
+                      </Avatar>
+                    </TableCell>
+                  )}
                   <TableCell className="text-foreground font-medium">{item.name}</TableCell>
                   {metaLabel && <TableCell className="text-muted-foreground text-sm">{item.meta ?? "—"}</TableCell>}
                   {showCount && (
@@ -155,6 +178,34 @@ export function TaxonomyManager({ title, noun, initialItems, metaLabel, showCoun
             <DialogTitle>{editing ? `Edit ${noun}` : `Add ${noun}`}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
+            {imageLabel && (
+              <div className="space-y-2">
+                <Label>{imageLabel}</Label>
+                <div className="flex items-center gap-3">
+                  <Avatar className="h-14 w-14 rounded-lg">
+                    <AvatarImage src={image ?? undefined} alt="" className="object-cover" />
+                    <AvatarFallback className="bg-primary/15 text-primary rounded-lg">
+                      {name.trim() ? initials(name) : <ImagePlus className="h-5 w-5" />}
+                    </AvatarFallback>
+                  </Avatar>
+                  <input
+                    ref={fileRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => pickImage(e.target.files?.[0] ?? undefined)}
+                  />
+                  <Button type="button" variant="outline" size="sm" onClick={() => fileRef.current?.click()}>
+                    Upload
+                  </Button>
+                  {image && (
+                    <Button type="button" variant="ghost" size="sm" className="text-muted-foreground gap-1" onClick={() => setImage(null)}>
+                      <X className="h-4 w-4" /> Remove
+                    </Button>
+                  )}
+                </div>
+              </div>
+            )}
             <div className="space-y-2">
               <Label>{noun} name</Label>
               <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={`${noun} name`} autoFocus />

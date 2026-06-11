@@ -66,7 +66,7 @@ export default function TaxonomyPage() {
         </TabsList>
 
         <TabsContent value="studios">
-          <TaxonomyManager title="Studios" noun="Studio" metaLabel="Country" initialItems={STUDIOS} />
+          <TaxonomyManager title="Studios" noun="Studio" metaLabel="Country" imageLabel="Logo" initialItems={STUDIOS} />
         </TabsContent>
         <TabsContent value="genres">
           <TaxonomyManager title="Genres" noun="Genre" initialItems={GENRES} />
@@ -75,7 +75,7 @@ export default function TaxonomyPage() {
           <TaxonomyManager title="Tags" noun="Tag" initialItems={TAGS} />
         </TabsContent>
         <TabsContent value="cast">
-          <TaxonomyManager title="Cast & Crew" noun="Person" metaLabel="Role" initialItems={CAST} />
+          <TaxonomyManager title="Cast & Crew" noun="Person" metaLabel="Role" imageLabel="Photo" initialItems={CAST} />
         </TabsContent>
       </Tabs>
     </div>

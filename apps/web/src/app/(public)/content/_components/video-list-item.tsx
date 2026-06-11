@@ -106,6 +106,10 @@ export function VideoListItem({ video, onEdit, onAnalytics, onLeaderboards }: Vi
                     }}
                   />
                 </div>
+                {video.thumbnail && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={video.thumbnail} alt={video.title} className="absolute inset-0 h-full w-full object-cover" />
+                )}
 
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div
