@@ -6,6 +6,7 @@ import {
   Archive,
   BarChart3,
   Calendar,
+  CheckCircle2,
   ChevronDown,
   Clock,
   Eye,
@@ -19,6 +20,7 @@ import {
   ThumbsUp,
   Trash2,
   Trophy,
+  XCircle,
   Zap,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -40,6 +42,7 @@ import { cn } from "@/app/_libs/utils/cn";
 import { GlassCard } from "../../games/_components/glass-card";
 import type { VideoItem } from "../constants";
 import { ContentSignals } from "./content-signals";
+import { ApprovalModal } from "./approval-modal";
 import { PreviewAsUserModal } from "./preview-as-user-modal";
 import { StatusBadge } from "./status-badge";
 import { WorkflowHistory } from "./workflow-history";
@@ -55,6 +58,9 @@ export function VideoListItem({ video, onEdit, onAnalytics, onLeaderboards }: Vi
   const [isHovered, setIsHovered] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [approval, setApproval] = useState<"approve" | "reject" | null>(null);
+
+  const isPending = video.status === "pending";
 
   const formatNumber = (num: number) => {
     if (num >= 1000000) return (num / 1000000).toFixed(1) + "M";
@@ -191,6 +197,25 @@ export function VideoListItem({ video, onEdit, onAnalytics, onLeaderboards }: Vi
                 <ContentSignals video={video} />
               </div>
 
+              {/* approval actions (Requests tab) — always visible for pending submissions */}
+              {isPending && (
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    className="bg-success hover:bg-success/90 gap-1.5"
+                    onClick={() => setApproval("approve")}>
+                    <CheckCircle2 className="h-4 w-4" /> Approve
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="border-destructive/40 text-destructive hover:bg-destructive/10 gap-1.5"
+                    onClick={() => setApproval("reject")}>
+                    <XCircle className="h-4 w-4" /> Reject
+                  </Button>
+                </div>
+              )}
+
               {/* hover actions */}
               <div
                 className={cn(
@@ -290,6 +315,15 @@ export function VideoListItem({ video, onEdit, onAnalytics, onLeaderboards }: Vi
       </ContextMenu>
 
       <PreviewAsUserModal open={previewOpen} onOpenChange={setPreviewOpen} video={video} />
+
+      {approval && (
+        <ApprovalModal
+          open={!!approval}
+          onOpenChange={(o) => !o && setApproval(null)}
+          mode={approval}
+          title={video.title}
+        />
+      )}
     </>
   );
 }
