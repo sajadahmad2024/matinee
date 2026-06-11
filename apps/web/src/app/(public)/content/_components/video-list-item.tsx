@@ -85,8 +85,8 @@ export function VideoListItem({ video, onEdit, onAnalytics, onLeaderboards }: Vi
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}>
             <div className="relative flex items-center gap-5 p-4">
-              {/* Thumbnail */}
-              <div className="group/thumb relative h-24 w-36 shrink-0 overflow-hidden rounded-lg">
+              {/* Thumbnail — vertical 9:16 (mobile short video) */}
+              <div className="group/thumb relative h-28 w-[63px] shrink-0 overflow-hidden rounded-lg">
                 <div
                   className={cn(
                     "absolute inset-0 bg-linear-to-br",
@@ -114,10 +114,10 @@ export function VideoListItem({ video, onEdit, onAnalytics, onLeaderboards }: Vi
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div
                     className={cn(
-                      "bg-background/30 flex h-12 w-12 items-center justify-center rounded-full border border-white/20 backdrop-blur-sm transition-all duration-300",
+                      "bg-background/30 flex h-9 w-9 items-center justify-center rounded-full border border-white/20 backdrop-blur-sm transition-all duration-300",
                       "group-hover/thumb:bg-primary/50 group-hover/thumb:scale-110",
                     )}>
-                    <Play className="ml-0.5 h-5 w-5 text-white" />
+                    <Play className="ml-0.5 h-4 w-4 text-white" />
                   </div>
                 </div>
 
