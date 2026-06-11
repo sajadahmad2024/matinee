@@ -249,6 +249,37 @@ Web components (`apps/web`): shared `_libs/regions.ts` + `components/custom/regi
 (new **Regional** tab); `users/user-regional-analytics` (Per-Region User Data); region columns on
 the user directory + subscriber list.
 
+## 11. Executive dashboard analytics — DB review
+
+The dashboard now surfaces User Analytics, Points Economy, Session Quality, Monetization & Funnel,
+Community, an enhanced Global Activity Map (Master↔Regional, Activity/Points/Revenue mode, snapshot,
+CSV export), and Core Data Graphs (retention cohort, redemption-rate trend, funnel, K-factor).
+
+**Already supported (derive — no schema change):**
+- Content quality (starts/completes/**completion rate**, avg watch + %watched, swipe-through≈short
+  watch_events, re-watches≈repeat views, engagement/session): `content_watch_events`,
+  `content_views`, `content_progress`, reactions/comments/`content_shares`.
+- Points economy (earned-by-source, spent/redeemed, **balance distribution**, streaks, leaderboard):
+  `ledger_transactions` (source_type/direction), `wallets`, `user_streaks`, `leaderboard_monthly`.
+- Points-economy map mode, trial→paid by region, ARPU: `ledger`⋈`users.country_code`,
+  `subscriptions` (0008).
+- In-app community (comments/week, reply rate, reaction-to-view, in-app shares): `comments`,
+  `comment_reactions`, `content_reactions`, `content_shares.channel`.
+
+**Gaps to add when we do the DB pass (these tiles are mock / flagged `pending` in the UI):**
+1. **`user_sessions`** (+ optional session events) — session-length distribution, time-of-day
+   heatmap, background↔foreground transitions, "doomscroll depth", funnel **first-session** step,
+   DAU/**ARPDAU**. Suggested: `id, user_id, started_at, ended_at, duration_seconds, foreground_count,
+   videos_viewed, region/country, device/platform`.
+2. **Acquisition + CAC** — `users.acquisition_channel` (organic/paid_social/referral/influencer/…)
+   + a `marketing_spend` (or channel-cost) source → **LTV by channel** and **CAC**, **K-factor**
+   denominator. (Referrals already exist via `referral_*`.)
+3. **`social_mentions` / `external_metrics`** — brand mentions, sentiment, viral moments,
+   impressions, earned-media-value, top advocates. External integration (GA / social listening);
+   ingested table, not user-generated.
+4. *(minor)* extend `content_watch_events.event_type` with `start` / `swipe_away` / `loop` for
+   precise swipe-through & re-watch (otherwise derived from heartbeats/duration).
+
 ## Follow-up (repository / service layer)
 
 1. `ContentRepository`: select/update the license + `is_sponsored` columns; `SponsorshipRepository`
