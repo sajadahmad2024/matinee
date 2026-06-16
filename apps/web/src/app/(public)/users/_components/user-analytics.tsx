@@ -5,9 +5,11 @@ import { Area, AreaChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { CardContent } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 
-import { AnalyticsCard } from "./analytics-card";
+import { AnalyticsHeader } from "../../games/_components/analytics-header";
+import { GlassCard } from "../../games/_components/glass-card";
 
 const funnelData = [
   { stage: "Visitors", value: 50000, percent: 100 },
@@ -53,7 +55,14 @@ const churnRisk = [
   { name: "LoyalFan_2023", ltv: 542, lastActive: "21 days ago" },
 ];
 
-export function UserAnalytics() {
+interface UserAnalyticsProps {
+  timeRange?: string;
+}
+
+export function UserAnalytics({ timeRange = "7d" }: UserAnalyticsProps) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const _timeRange = timeRange; // Intentionally kept for future data fetching
+
   const dauMauRatio = (
     (engagementData[engagementData.length - 1].dau /
       engagementData[engagementData.length - 1].mau) *
@@ -65,12 +74,14 @@ export function UserAnalytics() {
       {/* Row 1: Funnel & Engagement */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Acquisition Funnel */}
-        <AnalyticsCard
-          title="Acquisition Funnel"
-          subtitle="User journey conversion rates"
-          icon={TrendingUp}
-          iconClassName="text-accent">
-          <div className="space-y-3">
+        <GlassCard>
+          <AnalyticsHeader
+            title="Acquisition Funnel"
+            description="User journey conversion rates"
+            icon={TrendingUp}
+            iconColor="text-accent"
+          />
+          <CardContent className="space-y-3 pt-4">
             {funnelData.map((stage) => (
               <div key={stage.stage} className="space-y-1">
                 <div className="flex items-center justify-between text-sm">
@@ -86,215 +97,240 @@ export function UserAnalytics() {
                 <p className="text-muted-foreground text-right text-xs">{stage.percent}%</p>
               </div>
             ))}
-          </div>
-        </AnalyticsCard>
+          </CardContent>
+        </GlassCard>
 
         {/* DAU vs MAU */}
-        <AnalyticsCard
-          title="Engagement (DAU/MAU)"
-          subtitle="Daily vs Monthly active users"
-          icon={Users}
-          iconClassName="text-success"
-          badge={
-            <Badge variant="outline" className="text-accent">
-              {dauMauRatio}% Stickiness
-            </Badge>
-          }>
-          <ChartContainer
-            config={{
-              dau: { label: "DAU", color: "hsl(var(--accent))" },
-              mau: { label: "MAU", color: "hsl(var(--muted-foreground))" },
-            }}
-            className="h-[180px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={engagementData}>
-                <defs>
-                  <linearGradient id="dauGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="hsl(var(--accent))" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="hsl(var(--accent))" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <XAxis
-                  dataKey="day"
-                  stroke="hsl(var(--muted-foreground))"
-                  fontSize={11}
-                  tickLine={false}
-                  axisLine={false}
-                />
-                <YAxis
-                  stroke="hsl(var(--muted-foreground))"
-                  fontSize={11}
-                  tickLine={false}
-                  axisLine={false}
-                  tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`}
-                />
-                <ChartTooltip content={<ChartTooltipContent />} />
-                <Area
-                  type="monotone"
-                  dataKey="dau"
-                  stroke="hsl(var(--accent))"
-                  fill="url(#dauGradient)"
-                  strokeWidth={2}
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </ChartContainer>
-        </AnalyticsCard>
+        <GlassCard>
+          <div className="flex items-start justify-between">
+            <AnalyticsHeader
+              title="Engagement (DAU/MAU)"
+              description="Daily vs Monthly active users"
+              icon={Users}
+              iconColor="text-success"
+            />
+            <div className="pt-6 pr-6">
+              <Badge variant="outline" className="text-accent">
+                {dauMauRatio}% Stickiness
+              </Badge>
+            </div>
+          </div>
+          <CardContent>
+            <ChartContainer
+              config={{
+                dau: { label: "DAU", color: "hsl(var(--accent))" },
+                mau: { label: "MAU", color: "hsl(var(--muted-foreground))" },
+              }}
+              className="h-[180px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={engagementData}>
+                  <defs>
+                    <linearGradient id="dauGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="hsl(var(--accent))" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="hsl(var(--accent))" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <XAxis
+                    dataKey="day"
+                    stroke="hsl(var(--muted-foreground))"
+                    fontSize={11}
+                    tickLine={false}
+                    axisLine={false}
+                  />
+                  <YAxis
+                    stroke="hsl(var(--muted-foreground))"
+                    fontSize={11}
+                    tickLine={false}
+                    axisLine={false}
+                    tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`}
+                  />
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Area
+                    type="monotone"
+                    dataKey="dau"
+                    stroke="hsl(var(--accent))"
+                    fill="url(#dauGradient)"
+                    strokeWidth={2}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </ChartContainer>
+          </CardContent>
+        </GlassCard>
       </div>
 
       {/* Row 2: Retention Cohorts */}
-      <AnalyticsCard
-        title="Retention Cohorts"
-        subtitle="Return rates by cohort week"
-        icon={Target}
-        iconClassName="text-warning">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-border/50 border-b">
-                <th className="text-muted-foreground px-3 py-2 text-left text-xs font-medium">
-                  Cohort
-                </th>
-                <th className="text-muted-foreground px-3 py-2 text-center text-xs font-medium">
-                  Day 1
-                </th>
-                <th className="text-muted-foreground px-3 py-2 text-center text-xs font-medium">
-                  Day 7
-                </th>
-                <th className="text-muted-foreground px-3 py-2 text-center text-xs font-medium">
-                  Day 30
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {retentionData.map((row) => (
-                <tr key={row.cohort} className="border-border/30 border-b">
-                  <td className="text-foreground-secondary px-3 py-3 text-sm">{row.cohort}</td>
-                  <td className="px-3 py-3 text-center">
-                    <span
-                      className="inline-block rounded px-3 py-1 font-mono text-xs"
-                      style={{
-                        backgroundColor: `hsl(var(--success) / ${row.d1 / 100})`,
-                        color: row.d1 > 50 ? "white" : "inherit",
-                      }}>
-                      {row.d1}%
-                    </span>
-                  </td>
-                  <td className="px-3 py-3 text-center">
-                    <span
-                      className="inline-block rounded px-3 py-1 font-mono text-xs"
-                      style={{
-                        backgroundColor: `hsl(var(--success) / ${row.d7 / 100})`,
-                        color: row.d7 > 50 ? "white" : "inherit",
-                      }}>
-                      {row.d7}%
-                    </span>
-                  </td>
-                  <td className="px-3 py-3 text-center">
-                    <span
-                      className="inline-block rounded px-3 py-1 font-mono text-xs"
-                      style={{
-                        backgroundColor: `hsl(var(--success) / ${row.d30 / 100})`,
-                        color: row.d30 > 50 ? "white" : "inherit",
-                      }}>
-                      {row.d30}%
-                    </span>
-                  </td>
+      <GlassCard>
+        <AnalyticsHeader
+          title="Retention Cohorts"
+          description="Return rates by cohort week"
+          icon={Target}
+          iconColor="text-warning"
+        /> 
+        <CardContent className="pt-2">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-border/50 border-b">
+                  <th className="text-muted-foreground px-3 py-2 text-left text-xs font-medium">
+                    Cohort
+                  </th>
+                  <th className="text-muted-foreground px-3 py-2 text-center text-xs font-medium">
+                    Day 1
+                  </th>
+                  <th className="text-muted-foreground px-3 py-2 text-center text-xs font-medium">
+                    Day 7
+                  </th>
+                  <th className="text-muted-foreground px-3 py-2 text-center text-xs font-medium">
+                    Day 30
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </AnalyticsCard>
+              </thead>
+              <tbody>
+                {retentionData.map((row) => (
+                  <tr key={row.cohort} className="border-border/30 border-b">
+                    <td className="text-foreground-secondary px-3 py-3 text-sm">{row.cohort}</td>
+                    <td className="px-3 py-3 text-center">
+                      <span
+                        className="inline-block rounded px-3 py-1 font-mono text-xs"
+                        style={{
+                          backgroundColor: `hsl(var(--success) / ${row.d1 / 100})`,
+                          color: row.d1 > 50 ? "white" : "inherit",
+                        }}>
+                        {row.d1}%
+                      </span>
+                    </td>
+                    <td className="px-3 py-3 text-center">
+                      <span
+                        className="inline-block rounded px-3 py-1 font-mono text-xs"
+                        style={{
+                          backgroundColor: `hsl(var(--success) / ${row.d7 / 100})`,
+                          color: row.d7 > 50 ? "white" : "inherit",
+                        }}>
+                        {row.d7}%
+                      </span>
+                    </td>
+                    <td className="px-3 py-3 text-center">
+                      <span
+                        className="inline-block rounded px-3 py-1 font-mono text-xs"
+                        style={{
+                          backgroundColor: `hsl(var(--success) / ${row.d30 / 100})`,
+                          color: row.d30 > 50 ? "white" : "inherit",
+                        }}>
+                        {row.d30}%
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </GlassCard>
 
       {/* Row 3: Segmentation Cards */}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         {/* Whales */}
-        <AnalyticsCard
-          title="Top Spenders"
-          subtitle="Highest revenue users"
-          icon={Crown}
-          iconClassName="text-warning">
-          <div className="space-y-3">
-            {whales.map((user, index) => (
-              <div key={user.name} className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="text-muted-foreground w-4 font-mono text-xs">#{index + 1}</span>
-                  <Avatar className="h-6 w-6">
-                    <AvatarImage src={user.avatar} />
-                    <AvatarFallback className="bg-accent/10 text-accent text-xs">
-                      {user.name.slice(0, 2).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span className="text-foreground max-w-[100px] truncate text-sm">
-                    {user.name}
-                  </span>
-                </div>
-                <span className="text-success font-mono text-sm">${user.revenue}</span>
-              </div>
-            ))}
-          </div>
-        </AnalyticsCard>
-
-        {/* Power Gamers */}
-        <AnalyticsCard
-          title="Power Gamers"
-          subtitle="Highest participation"
-          icon={Gamepad2}
-          iconClassName="text-accent">
-          <div className="space-y-3">
-            {powerGamers.map((user, index) => (
-              <div key={user.name} className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="text-muted-foreground w-4 font-mono text-xs">#{index + 1}</span>
-                  <Avatar className="h-6 w-6">
-                    <AvatarFallback className="bg-accent/10 text-accent text-xs">
-                      {user.name.slice(0, 2).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span className="text-foreground max-w-[100px] truncate text-sm">
-                    {user.name}
-                  </span>
-                </div>
-                <div className="text-right">
-                  <span className="text-foreground font-mono text-sm">{user.games}</span>
-                  <span className="text-muted-foreground ml-1 text-xs">games</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </AnalyticsCard>
-
-        {/* Churn Risk */}
-        <AnalyticsCard
-          title="Churn Risk"
-          subtitle="High-value users at risk"
-          icon={AlertTriangle}
-          iconClassName="text-destructive"
-          className="bg-destructive/5 border-destructive/20">
-          <div className="space-y-3">
-            {churnRisk.map((user) => (
-              <div key={user.name} className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Avatar className="h-6 w-6">
-                    <AvatarFallback className="bg-destructive/10 text-destructive text-xs">
-                      {user.name.slice(0, 2).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <span className="text-foreground block max-w-[100px] truncate text-sm">
+        <GlassCard>
+          <AnalyticsHeader
+            title="Top Spenders"
+            description="Highest revenue users"
+            icon={Crown}
+            iconColor="text-warning"
+          />
+          <CardContent className="pt-2">
+            <div className="space-y-3">
+              {whales.map((user, index) => (
+                <div key={user.name} className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-muted-foreground w-4 font-mono text-xs">
+                      #{index + 1}
+                    </span>
+                    <Avatar className="h-6 w-6">
+                      <AvatarImage src={user.avatar} />
+                      <AvatarFallback className="bg-accent/10 text-accent text-xs">
+                        {user.name.slice(0, 2).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="text-foreground max-w-[100px] truncate text-sm">
                       {user.name}
                     </span>
-                    <span className="text-destructive text-xs">{user.lastActive}</span>
+                  </div>
+                  <span className="text-success font-mono text-sm">${user.revenue}</span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </GlassCard>
+
+        {/* Power Gamers */}
+        <GlassCard>
+          <AnalyticsHeader
+            title="Power Gamers"
+            description="Highest participation"
+            icon={Gamepad2}
+            iconColor="text-accent"
+          />
+          <CardContent className="pt-2">
+            <div className="space-y-3">
+              {powerGamers.map((user, index) => (
+                <div key={user.name} className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-muted-foreground w-4 font-mono text-xs">
+                      #{index + 1}
+                    </span>
+                    <Avatar className="h-6 w-6">
+                      <AvatarFallback className="bg-accent/10 text-accent text-xs">
+                        {user.name.slice(0, 2).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="text-foreground max-w-[100px] truncate text-sm">
+                      {user.name}
+                    </span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-foreground font-mono text-sm">{user.games}</span>
+                    <span className="text-muted-foreground ml-1 text-xs">games</span>
                   </div>
                 </div>
-                <Badge variant="outline" className="text-xs">
-                  ${user.ltv} LTV
-                </Badge>
-              </div>
-            ))}
-          </div>
-        </AnalyticsCard>
+              ))}
+            </div>
+          </CardContent>
+        </GlassCard>
+
+        {/* Churn Risk */}
+        <GlassCard className="bg-destructive/5 border-destructive/20">
+          <AnalyticsHeader
+            title="Churn Risk"
+            description="High-value users at risk"
+            icon={AlertTriangle}
+            iconColor="text-destructive"
+          />
+          <CardContent className="pt-2">
+            <div className="space-y-3">
+              {churnRisk.map((user) => (
+                <div key={user.name} className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Avatar className="h-6 w-6">
+                      <AvatarFallback className="bg-destructive/10 text-destructive text-xs">
+                        {user.name.slice(0, 2).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <span className="text-foreground block max-w-[100px] truncate text-sm">
+                        {user.name}
+                      </span>
+                      <span className="text-destructive text-xs">{user.lastActive}</span>
+                    </div>
+                  </div>
+                  <Badge variant="outline" className="text-xs">
+                    ${user.ltv} LTV
+                  </Badge>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </GlassCard>
       </div>
     </div>
   );

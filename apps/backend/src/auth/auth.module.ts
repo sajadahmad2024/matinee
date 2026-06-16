@@ -1,80 +1,85 @@
-import { Module } from '@nestjs/common';
-import { JwtModule } from '@nestjs/jwt';
-import { PassportModule } from '@nestjs/passport';
-import { ConfigModule, ConfigService } from '@nestjs/config';
 import { EnvConfig } from '@config/env.config';
 import { HashingService } from '@common/hashing/hashing.service';
 import { BcryptService } from '@common/hashing/bcrypt.service';
+import { SmsModule } from '@sms/sms.module';
+import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
 
-// Controller
-import { AuthController } from './auth.controller';
-
-// Services
-import { AuthService } from './auth.service';
+// Core services
 import { TokenService } from './services/token.service';
-import { MfaService } from './services/mfa.service';
-import { ApiKeyService } from './services/api-key.service';
-import { OAuthService } from './services/oauth.service';
+import { SessionService } from './services/session.service';
+import { FirebaseAdminService } from './services/firebase-admin.service';
 
-// Strategies
-import { JwtStrategy } from './strategies/jwt.strategy';
-import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
-import { GoogleOAuthStrategy } from './strategies/google-oauth.strategy';
-import { GithubOAuthStrategy } from './strategies/github-oauth.strategy';
+// Providers (phone verification — env-selected)
+import { PhoneVerificationProvider } from './providers/phone-verification.provider';
+import { TwilioOtpProvider } from './providers/twilio-otp.provider';
+import { FirebasePhoneProvider } from './providers/firebase-phone.provider';
 
-// Guards
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { RolesGuard } from './guards/roles.guard';
-import { PermissionsGuard } from './guards/permissions.guard';
-import { ApiKeyGuard } from './guards/api-key.guard';
+// Providers (social OAuth — redirect flow)
+import { GoogleOAuthProvider } from './providers/social/google-oauth.provider';
+import { AppleOAuthProvider } from './providers/social/apple-oauth.provider';
+
+// Customer auth
+import { CustomerAuthController } from './customer/customer-auth.controller';
+import { CustomerAuthService } from './customer/customer-auth.service';
+
+// Devices
+import { DeviceController } from './devices/device.controller';
+import { DeviceService } from './devices/device.service';
+
+// Admin auth
+import { AdminAuthController } from './admin/admin-auth.controller';
+import { AdminAuthService } from './admin/admin-auth.service';
+
+// Admin management
+import { AdminManagementService } from './admin/admin-management.service';
+import { AdminAdminsController } from './admin/admin-admins.controller';
+import { AdminRolesController } from './admin/admin-roles.controller';
+import { AdminPermissionsController } from './admin/admin-permissions.controller';
+import { AdminUsersController } from './admin/admin-users.controller';
+
+const phoneVerificationProvider = {
+  provide: PhoneVerificationProvider,
+  useFactory: (config: ConfigService<EnvConfig>, twilio: TwilioOtpProvider, firebase: FirebasePhoneProvider) =>
+    config.get<string>('PHONE_VERIFICATION_PROVIDER') === 'firebase' ? firebase : twilio,
+  inject: [ConfigService, TwilioOtpProvider, FirebasePhoneProvider],
+};
 
 @Module({
-  imports: [
-    PassportModule.register({ defaultStrategy: 'jwt' }),
-    JwtModule.registerAsync({
-      imports: [ConfigModule],
-      useFactory: (configService: ConfigService<EnvConfig>) => ({
-        secret: configService.get<string>('JWT_SECRET') ?? 'default-secret-change-me',
-        signOptions: {
-          expiresIn: 900, // 15 minutes
-        },
-      }),
-      inject: [ConfigService],
-    }),
+  imports: [ConfigModule, JwtModule.register({}), SmsModule],
+  controllers: [
+    CustomerAuthController,
+    DeviceController,
+    AdminAuthController,
+    AdminAdminsController,
+    AdminRolesController,
+    AdminPermissionsController,
+    AdminUsersController,
   ],
-  controllers: [AuthController],
   providers: [
-    // Services
-    AuthService,
+    // Core
     TokenService,
-    MfaService,
-    ApiKeyService,
-    OAuthService,
-
-    // Hashing
+    SessionService,
+    FirebaseAdminService,
     { provide: HashingService, useClass: BcryptService },
 
-    // Strategies
-    JwtStrategy,
-    JwtRefreshStrategy,
-    GoogleOAuthStrategy,
-    GithubOAuthStrategy,
+    // Phone verification providers + env-selected facade
+    TwilioOtpProvider,
+    FirebasePhoneProvider,
+    phoneVerificationProvider,
 
-    // Guards (exported for global registration)
-    JwtAuthGuard,
-    RolesGuard,
-    PermissionsGuard,
-    ApiKeyGuard,
+    // Social OAuth providers (redirect flow)
+    GoogleOAuthProvider,
+    AppleOAuthProvider,
+
+    // Domain services
+    CustomerAuthService,
+    DeviceService,
+    AdminAuthService,
+    AdminManagementService,
   ],
-  exports: [
-    AuthService,
-    TokenService,
-    ApiKeyService,
-    JwtAuthGuard,
-    RolesGuard,
-    PermissionsGuard,
-    ApiKeyGuard,
-    HashingService,
-  ],
+  // Exported so the global guards/interceptor (registered in AppModule) can resolve them.
+  exports: [TokenService, SessionService],
 })
 export class AuthModule {}

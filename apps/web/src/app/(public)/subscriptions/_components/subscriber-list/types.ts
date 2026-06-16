@@ -5,6 +5,7 @@ export interface Subscriber {
   name: string;
   email: string;
   avatar: string;
+  country: string; // macro-region derives from this (regionForCountry)
   planStatus: "active" | "past_due" | "canceled" | "unpaid";
   planName: string;
   startDate: string;
@@ -18,6 +19,7 @@ export const mockSubscribers: Subscriber[] = [
     name: "Sarah Chen",
     email: "sarah.chen@email.com",
     avatar: "",
+    country: "USA",
     planStatus: "active",
     planName: "Premium Annual",
     startDate: "2024-01-15",
@@ -29,6 +31,7 @@ export const mockSubscribers: Subscriber[] = [
     name: "Marcus Johnson",
     email: "marcus.j@email.com",
     avatar: "",
+    country: "UK",
     planStatus: "active",
     planName: "Premium Monthly",
     startDate: "2024-06-01",
@@ -40,6 +43,7 @@ export const mockSubscribers: Subscriber[] = [
     name: "Aiko Tanaka",
     email: "aiko.t@email.com",
     avatar: "",
+    country: "Japan",
     planStatus: "past_due",
     planName: "Premium Monthly",
     startDate: "2024-03-10",
@@ -51,6 +55,7 @@ export const mockSubscribers: Subscriber[] = [
     name: "James Wilson",
     email: "jwilson@email.com",
     avatar: "",
+    country: "Canada",
     planStatus: "canceled",
     planName: "Premium Annual",
     startDate: "2023-08-20",
@@ -62,6 +67,7 @@ export const mockSubscribers: Subscriber[] = [
     name: "Priya Patel",
     email: "priya.p@email.com",
     avatar: "",
+    country: "India",
     planStatus: "active",
     planName: "Basic Monthly",
     startDate: "2024-09-05",
@@ -73,6 +79,7 @@ export const mockSubscribers: Subscriber[] = [
     name: "Luis Rodriguez",
     email: "luis.r@email.com",
     avatar: "",
+    country: "Mexico",
     planStatus: "unpaid",
     planName: "Premium Monthly",
     startDate: "2024-04-18",
@@ -84,6 +91,7 @@ export const mockSubscribers: Subscriber[] = [
     name: "Emma Thompson",
     email: "emma.t@email.com",
     avatar: "",
+    country: "Australia",
     planStatus: "active",
     planName: "Premium Annual",
     startDate: "2024-02-28",

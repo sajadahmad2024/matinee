@@ -1,13 +1,12 @@
 "use client";
 
-import { useState } from "react";
-
-import { Gamepad2, Trophy } from "lucide-react";
+import { Gamepad2 } from "lucide-react";
 import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
+import { CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
-import { FORMAT_CONFIGS, MOCK_GAME_INSTANCES } from "../constants";
+import { type GameTypeSlug, getGameType } from "../../_config/game-types";
+import { GlassCard } from "../../_components/glass-card";
 import { DailyActivityChart } from "./analytics/daily-activity-chart";
 import { GameStatsCards } from "./analytics/game-stats-cards";
 import { PeakHoursChart } from "./analytics/peak-hours-chart";
@@ -16,70 +15,59 @@ import { PlayerRetentionChart } from "./analytics/player-retention-chart";
 import { RewardDistributionCard } from "./analytics/reward-distribution-card";
 import { FormatHeader } from "./format-header";
 import { FormatTabs } from "./format-tabs";
-import { CreateGameModal } from "./games/create-game-modal";
-import { GameAnalyticsModal } from "./games/game-analytics-modal";
-import { type GameInstance, GameInstancesList } from "./games/game-instances-list";
-import { BasicInformationCard } from "./settings/basic-information-card";
-import { LeaderboardRewardsCard } from "./settings/leaderboard-rewards-card";
+import { BiddingGamification, BiddingSettings } from "./types/bidding";
+import { DailyStreakGamification, DailyStreakSettings } from "./types/daily-streak";
+import { PredictiveGamification, PredictiveSettings } from "./types/predictive";
+import { QuestsGamification, QuestsSettings } from "./types/quests";
+import { SharedContentGamification, SharedContentSettings } from "./types/shared-content";
 
 interface FormatDetailsClientProps {
   id: string;
   tab: string;
 }
 
+/** Per-type Settings + Gamification views (Analytics is shared). */
+const TYPE_VIEWS: Record<
+  GameTypeSlug,
+  { Settings: React.ComponentType; Gamification: React.ComponentType }
+> = {
+  "daily-streak": { Settings: DailyStreakSettings, Gamification: DailyStreakGamification },
+  quests: { Settings: QuestsSettings, Gamification: QuestsGamification },
+  "shared-content": { Settings: SharedContentSettings, Gamification: SharedContentGamification },
+  predictive: { Settings: PredictiveSettings, Gamification: PredictiveGamification },
+  bidding: { Settings: BiddingSettings, Gamification: BiddingGamification },
+};
+
 export function FormatDetailsClient({ id, tab }: FormatDetailsClientProps) {
-  const formatConfig = id ? FORMAT_CONFIGS[id] : null;
-  const FormatIcon = formatConfig?.icon || Gamepad2;
+  const gameType = getGameType(id);
 
-  // --- Form State ---
-  const [name, setName] = useState(formatConfig?.name || "");
-  const [description, setDescription] = useState("Users predict what happens next in the video");
-  const [devId, setDevId] = useState("game_predict_v1");
-  const [enableDefaultRewards, setEnableDefaultRewards] = useState(true);
-  const [topPlayersToReward, setTopPlayersToReward] = useState(3);
-  const [bonusPoints, setBonusPoints] = useState(100);
+  if (!gameType) {
+    return (
+      <GlassCard>
+        <CardHeader>
+          <CardTitle>Unknown game type</CardTitle>
+          <CardDescription>“{id}” is not a recognized game type.</CardDescription>
+        </CardHeader>
+      </GlassCard>
+    );
+  }
 
-  // --- Modal Visibility State ---
-  const [createGameOpen, setCreateGameOpen] = useState(false);
-  const [gameAnalyticsOpen, setGameAnalyticsOpen] = useState(false);
-  const [selectedGame, setSelectedGame] = useState<GameInstance | null>(null);
-
-  const handleOpenGameAnalytics = (game: GameInstance) => {
-    setSelectedGame(game);
-    setGameAnalyticsOpen(true);
-  };
+  const Icon = gameType.icon ?? Gamepad2;
+  const { Settings, Gamification } = TYPE_VIEWS[gameType.slug];
 
   return (
     <div className="space-y-6">
       <FormatHeader
-        name={name}
+        name={gameType.name}
         isNew={false}
-        onSave={() => toast.success("Game format saved successfully")}
-        formatIcon={FormatIcon}
+        onSave={() => toast.success(`${gameType.name} settings saved`)}
+        formatIcon={Icon}
       />
 
-      <FormatTabs defaultTab={tab} gameCount={MOCK_GAME_INSTANCES.length}>
+      <FormatTabs defaultTab={tab}>
         {{
-          settings: (
-            <div className="grid gap-6 lg:grid-cols-2">
-              <BasicInformationCard
-                name={name}
-                setName={setName}
-                description={description}
-                setDescription={setDescription}
-                devId={devId}
-                setDevId={setDevId}
-              />
-              <LeaderboardRewardsCard
-                enableDefaultRewards={enableDefaultRewards}
-                setEnableDefaultRewards={setEnableDefaultRewards}
-                topPlayersToReward={topPlayersToReward}
-                setTopPlayersToReward={setTopPlayersToReward}
-                bonusPoints={bonusPoints}
-                setBonusPoints={setBonusPoints}
-              />
-            </div>
-          ),
+          settings: <Settings />,
+          gamification: <Gamification />,
           analytics: (
             <div className="space-y-6">
               <GameStatsCards />
@@ -90,51 +78,12 @@ export function FormatDetailsClient({ id, tab }: FormatDetailsClientProps) {
               <div className="grid gap-6 lg:grid-cols-3">
                 <RewardDistributionCard />
                 <PeakHoursChart />
-                <PerformanceSummaryCard
-                  activeGamesCount={MOCK_GAME_INSTANCES.filter((g) => g.status === "active").length}
-                />
+                <PerformanceSummaryCard activeGamesCount={gameType.activeInstances} />
               </div>
-            </div>
-          ),
-          games: (
-            <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-foreground text-lg font-semibold">Games Using This Format</h3>
-                  <p className="text-muted-foreground text-sm">
-                    {MOCK_GAME_INSTANCES.length} games created with{" "}
-                    {formatConfig?.name || "this format"}
-                  </p>
-                </div>
-                <Button onClick={() => setCreateGameOpen(true)} className="gap-2">
-                  <Trophy className="h-4 w-4" />
-                  Create Game
-                </Button>
-              </div>
-              <GameInstancesList
-                gameInstances={MOCK_GAME_INSTANCES}
-                formatIcon={FormatIcon}
-                onOpenAnalytics={handleOpenGameAnalytics}
-                onViewVideo={() => {}}
-              />
             </div>
           ),
         }}
       </FormatTabs>
-
-      <CreateGameModal
-        open={createGameOpen}
-        onOpenChange={setCreateGameOpen}
-        formatConfig={formatConfig}
-        formatId={id}
-        FormatIcon={FormatIcon}
-      />
-
-      <GameAnalyticsModal
-        open={gameAnalyticsOpen}
-        onOpenChange={setGameAnalyticsOpen}
-        game={selectedGame}
-      />
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { CreditCard, Gamepad2, Play, Shield, User as UserIcon, Users } from "luc
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
+import { UserAdminActions } from "./user-admin-actions";
 import { UserDetailHeader } from "./user-details/user-detail-header";
 import { UserGamesTab } from "./user-details/user-games-tab";
 import { UserModerationTab } from "./user-details/user-moderation-tab";
@@ -31,6 +32,8 @@ export function UserDetailModal({ user, open, onOpenChange }: UserDetailModalPro
         </DialogHeader>
 
         <UserDetailHeader user={user} />
+
+        <UserAdminActions user={user} />
 
         <Tabs defaultValue="overview" className="mt-4">
           <TabsList className="bg-muted/30 flex h-auto flex-wrap gap-1">

@@ -32,6 +32,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+import { regionForCountry, regionLabel } from "@/app/_libs/regions";
 import { ConfirmationDialog } from "@/components/custom/confirmation-dialog";
 import { type Column, DataTable } from "@/components/custom/data-table";
 import { TablePagination } from "@/components/custom/table-pagination";
@@ -247,6 +248,15 @@ export function UserListTable({ onViewUser, onSendNotification }: UserListTableP
             );
         }
       },
+    },
+    {
+      header: "Region",
+      cell: (user) => (
+        <div className="text-sm">
+          <span className="text-foreground">{regionLabel(regionForCountry(user.country))}</span>
+          <span className="text-muted-foreground ml-1 text-xs">{user.country}</span>
+        </div>
+      ),
     },
     {
       header: "Subscription",

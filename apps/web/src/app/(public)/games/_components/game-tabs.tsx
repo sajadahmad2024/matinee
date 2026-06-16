@@ -41,25 +41,25 @@ export function GameTabs({ defaultTab, children }: GameTabsProps) {
       <TabsList className="bg-muted/30 h-auto flex-wrap p-1">
         <TabsTrigger
           value="formats"
-          className="data-[state=active]:bg-background cursor-pointer gap-2">
+          className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground cursor-pointer gap-2">
           <Gamepad2 className="h-4 w-4" />
           Game Formats
         </TabsTrigger>
         <TabsTrigger
           value="leveling"
-          className="data-[state=active]:bg-background cursor-pointer gap-2">
+          className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground cursor-pointer gap-2">
           <BarChart3 className="h-4 w-4" />
           Leveling
         </TabsTrigger>
         <TabsTrigger
           value="badges"
-          className="data-[state=active]:bg-background cursor-pointer gap-2">
+          className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground cursor-pointer gap-2">
           <Award className="h-4 w-4" />
           Badges
         </TabsTrigger>
         <TabsTrigger
           value="leaderboards"
-          className="data-[state=active]:bg-background cursor-pointer gap-2">
+          className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground cursor-pointer gap-2">
           <Trophy className="h-4 w-4" />
           Leaderboards
         </TabsTrigger>

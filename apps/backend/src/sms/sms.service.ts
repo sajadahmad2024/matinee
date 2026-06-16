@@ -1,6 +1,5 @@
-import { Injectable, Logger, BadRequestException, Inject } from '@nestjs/common';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Cache } from 'cache-manager';
+import { Injectable, Logger, BadRequestException } from '@nestjs/common';
+import { CacheService } from '@cache/cache.service';
 import { randomInt } from 'crypto';
 import { SmsProvider } from './providers/sms.provider';
 import { SendSmsOptions, SmsResult, OtpOptions } from './interfaces/sms.interface';
@@ -20,7 +19,7 @@ export class SmsService {
 
   constructor(
     private readonly smsProvider: SmsProvider,
-    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
+    private readonly cache: CacheService,
   ) {}
 
   /**
@@ -50,8 +49,7 @@ export class SmsService {
 
     // Store OTP in cache with TTL
     const cacheKey = `${OTP_CACHE_PREFIX}${options.to}`;
-    const ttlMs = expiresInMinutes * 60 * 1000;
-    await this.cacheManager.set(cacheKey, otp, ttlMs);
+    await this.cache.set(cacheKey, otp, expiresInMinutes * 60);
 
     this.logger.log(`OTP generated for ${options.to} (expires in ${expiresInMinutes}min)`);
 
@@ -74,7 +72,7 @@ export class SmsService {
    */
   async verifyOtp(to: string, otp: string): Promise<boolean> {
     const cacheKey = `${OTP_CACHE_PREFIX}${to}`;
-    const storedOtp = await this.cacheManager.get<string>(cacheKey);
+    const storedOtp = await this.cache.get<string>(cacheKey);
 
     if (!storedOtp) {
       this.logger.warn(`OTP verification failed for ${to}: no OTP found or expired`);
@@ -87,7 +85,7 @@ export class SmsService {
     }
 
     // Consume the OTP so it cannot be reused
-    await this.cacheManager.del(cacheKey);
+    await this.cache.del(cacheKey);
     this.logger.log(`OTP verified successfully for ${to}`);
     return true;
   }

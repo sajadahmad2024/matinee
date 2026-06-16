@@ -66,7 +66,7 @@ export function ThumbnailUpload({ onSelect }: ThumbnailUploadProps) {
             key={thumb.id}
             onClick={() => selectAutoThumbnail(index)}
             className={cn(
-              "bg-background-tertiary hover:border-primary/50 border-border relative flex aspect-video cursor-pointer items-center justify-center rounded-lg border-2 transition-all",
+              "bg-background-tertiary hover:border-primary/50 border-border relative flex aspect-[9/16] cursor-pointer items-center justify-center rounded-lg border-2 transition-all",
               selectedIndex === index ? "border-primary ring-primary/30 ring-2" : "",
             )}>
             <div className="text-center">
@@ -91,7 +91,7 @@ export function ThumbnailUpload({ onSelect }: ThumbnailUploadProps) {
           onDragLeave={() => setIsDragging(false)}
           onDrop={handleDrop}
           className={cn(
-            "border-border hover:border-primary/50 relative flex aspect-video cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed transition-all",
+            "border-border hover:border-primary/50 relative flex aspect-[9/16] cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed transition-all",
             customPreview ? "border-success bg-success/5" : "",
             isDragging ? "border-primary bg-primary/10" : "",
           )}>

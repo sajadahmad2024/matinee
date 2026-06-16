@@ -1,60 +1,58 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { MediaFile } from '../interfaces/media.interface';
+import { AccessLevel, MediaStatus, MediaType, UsageType } from '../constants/media.constant';
 
-export class MediaResponseDto {
-  @ApiProperty({ description: 'Media ID', example: '550e8400-e29b-41d4-a716-446655440000' })
-  id!: string;
-
-  @ApiProperty({ description: 'Owner user ID', example: '550e8400-e29b-41d4-a716-446655440001' })
-  userId!: string;
-
-  @ApiProperty({ description: 'Stored filename', example: 'media/2026/02/abc123-image.png' })
-  filename!: string;
-
-  @ApiProperty({ description: 'Original filename from upload', example: 'my-photo.png' })
-  originalName!: string;
-
-  @ApiProperty({ description: 'MIME type', example: 'image/png' })
-  mimeType!: string;
-
-  @ApiProperty({ description: 'File size in bytes (as string)', example: '1048576' })
-  size!: string;
-
-  @ApiProperty({ description: 'Storage provider used', example: 's3' })
-  storageProvider!: string;
-
-  @ApiProperty({ description: 'Storage key / path', example: 'media/2026/02/abc123-image.png' })
-  storageKey!: string;
-
-  @ApiPropertyOptional({ description: 'Public URL of the file', nullable: true })
+/** The asset descriptor returned across the API; other modules store only `id`. */
+export class MediaDto {
+  @ApiProperty() id!: string;
+  @ApiProperty({ enum: MediaType }) mediaType!: MediaType;
+  @ApiProperty({ enum: UsageType }) usageType!: UsageType;
+  @ApiProperty({ enum: AccessLevel }) accessLevel!: AccessLevel;
+  @ApiProperty({ enum: MediaStatus }) status!: MediaStatus;
+  @ApiPropertyOptional({ nullable: true }) mimeType!: string | null;
+  @ApiPropertyOptional({ nullable: true }) originalFilename!: string | null;
+  @ApiPropertyOptional({ nullable: true }) fileSizeBytes!: number | null;
+  @ApiPropertyOptional({ nullable: true }) width!: number | null;
+  @ApiPropertyOptional({ nullable: true }) height!: number | null;
+  @ApiPropertyOptional({ nullable: true }) durationSeconds!: string | null;
+  @ApiProperty() isHls!: boolean;
+  @ApiPropertyOptional({ nullable: true, description: 'Live transcode progress 0–100; null when not transcoding' })
+  processingProgress!: number | null;
+  @ApiPropertyOptional({ nullable: true }) posterMediaId!: string | null;
+  @ApiPropertyOptional({ nullable: true }) altText!: string | null;
+  @ApiProperty() createdAt!: string;
+  @ApiPropertyOptional({ nullable: true, description: 'Ready-to-use URL for PUBLIC assets; null for protected (use /playback)' })
   url!: string | null;
+}
 
-  @ApiPropertyOptional({ description: 'Thumbnail URL if available', nullable: true })
-  thumbnailUrl!: string | null;
+/** The presigned target the client uploads bytes to (direct-to-storage). */
+export class UploadTargetDto {
+  @ApiProperty() url!: string;
+  @ApiProperty({ example: 'PUT' }) method!: string;
+  @ApiProperty({ type: 'object', additionalProperties: { type: 'string' } }) headers!: Record<string, string>;
+  @ApiProperty() expiresInSeconds!: number;
+}
 
-  @ApiPropertyOptional({ description: 'Additional metadata', nullable: true, type: Object })
-  metadata!: Record<string, unknown> | null;
+/** Response to an upload request: the new media id + where to PUT the bytes. */
+export class UploadTicketDto {
+  @ApiProperty({ description: 'Persist this; send it to other modules for association' }) mediaId!: string;
+  @ApiProperty({ enum: MediaStatus }) status!: MediaStatus;
+  @ApiProperty({ type: UploadTargetDto }) upload!: UploadTargetDto;
+}
 
-  @ApiProperty({ description: 'Upload timestamp' })
-  createdAt!: Date;
+/** One lifecycle transition (status-by-status audit). */
+export class MediaStatusEventDto {
+  @ApiProperty() id!: string;
+  @ApiProperty({ enum: MediaStatus }) status!: MediaStatus;
+  @ApiPropertyOptional({ nullable: true }) detail!: string | null;
+  @ApiPropertyOptional({ nullable: true, description: 'Transcode progress 0–100 for this event' }) progress!: number | null;
+  @ApiProperty() createdAt!: string;
+}
 
-  /**
-   * Factory method to create a MediaResponseDto from a MediaFile domain object.
-   */
-  static fromMediaFile(mediaFile: MediaFile): MediaResponseDto {
-    const dto = new MediaResponseDto();
-    dto.id = mediaFile.id;
-    dto.userId = mediaFile.userId;
-    dto.filename = mediaFile.filename;
-    dto.originalName = mediaFile.originalName;
-    dto.mimeType = mediaFile.mimeType;
-    dto.size = mediaFile.size;
-    dto.storageProvider = mediaFile.storageProvider;
-    dto.storageKey = mediaFile.storageKey;
-    dto.url = mediaFile.url;
-    dto.thumbnailUrl = mediaFile.thumbnailUrl;
-    dto.metadata = mediaFile.metadata;
-    dto.createdAt = mediaFile.createdAt;
-    return dto;
-  }
+/** Signed playback descriptor for a ready asset. */
+export class PlaybackDto {
+  @ApiProperty({ enum: ['hls', 'file'] }) kind!: 'hls' | 'file';
+  @ApiProperty() url!: string;
+  @ApiProperty({ type: 'object', additionalProperties: { type: 'string' }, description: 'Signed cookies to send on CDN requests (HLS); empty otherwise' })
+  cookies!: Record<string, string>;
+  @ApiProperty() expiresInSeconds!: number;
 }

@@ -107,7 +107,7 @@ function getCohortColor(value: number | null): string {
   return "hsl(var(--destructive) / 0.5)";
 }
 
-export function SubscriptionAnalytics() {
+export function SubscriptionAnalytics({ timeRange: _timeRange }: { timeRange?: string }) {
   return (
     <div className="space-y-6">
       {/* Key Metrics Row */}
@@ -324,7 +324,7 @@ export function SubscriptionAnalytics() {
                   cy="50%"
                   outerRadius={65}
                   dataKey="value"
-                  label={({ name, percent }) => `${(percent * 100).toFixed(0)}%`}
+                  label={({ percent }) => `${(percent * 100).toFixed(0)}%`}
                   labelLine={false}>
                   {cancellationReasons.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />

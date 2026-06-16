@@ -1,6 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+
+import type { Route } from "next";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { AlertTriangle, DollarSign, RefreshCcw, Search, TrendingUp } from "lucide-react";
 
@@ -16,7 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { Column, DataTable } from "@/components/custom/data-table";
+import { type Column, DataTable } from "@/components/custom/data-table";
 
 interface Transaction {
   id: string;
@@ -141,9 +144,53 @@ function getStatusBadge(status: Transaction["status"]) {
   );
 }
 
-export function TransactionLedger() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
+interface TransactionLedgerProps {
+  searchQuery: string;
+  statusFilter: string;
+  page: number;
+  pageSize: number;
+}
+
+export function TransactionLedger({
+  searchQuery,
+  statusFilter,
+  page: _page,
+  pageSize: _pageSize,
+}: TransactionLedgerProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const [localSearch, setLocalSearch] = useState(searchQuery);
+
+  // Debounce search update to URL
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (localSearch !== searchQuery) {
+        updateQuery("q", localSearch);
+      }
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [localSearch, searchQuery]);
+
+  // Sync local search with query changes
+  useEffect(() => {
+    setLocalSearch(searchQuery);
+  }, [searchQuery]);
+
+  const updateQuery = useCallback(
+    (name: string, value: string) => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (value && value !== "all") {
+        params.set(name, value);
+      } else {
+        params.delete(name);
+      }
+      params.set("page", "1"); // Reset pagination
+      router.push(`${pathname}?${params.toString()}` as Route, { scroll: false });
+    },
+    [searchParams, pathname, router],
+  );
 
   const filteredTransactions = useMemo(() => {
     return mockTransactions.filter((tx) => {
@@ -164,7 +211,7 @@ export function TransactionLedger() {
     .filter((tx) => tx.status === "refunded")
     .reduce((sum, tx) => sum + tx.amount, 0);
   const netRevenue = grossVolume - refundedAmount;
-  const refundRate = ((refundedAmount / grossVolume) * 100).toFixed(1);
+  const refundRate = grossVolume > 0 ? ((refundedAmount / grossVolume) * 100).toFixed(1) : "0.0";
 
   const columns: Column<Transaction>[] = [
     {
@@ -272,12 +319,12 @@ export function TransactionLedger() {
           <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
           <Input
             placeholder="Search by invoice, name, or email..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            value={localSearch}
+            onChange={(e) => setLocalSearch(e.target.value)}
             className="bg-background/50 pl-9"
           />
         </div>
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
+        <Select value={statusFilter} onValueChange={(v) => updateQuery("status", v)}>
           <SelectTrigger className="bg-background/50 w-[150px]">
             <SelectValue placeholder="All Status" />
           </SelectTrigger>
@@ -292,7 +339,7 @@ export function TransactionLedger() {
         <Button
           variant={statusFilter === "failed" ? "default" : "outline"}
           size="sm"
-          onClick={() => setStatusFilter(statusFilter === "failed" ? "all" : "failed")}
+          onClick={() => updateQuery("status", statusFilter === "failed" ? "all" : "failed")}
           className="gap-2">
           <AlertTriangle className="h-4 w-4" />
           Failed Payments
@@ -300,7 +347,7 @@ export function TransactionLedger() {
         <Button
           variant={statusFilter === "refunded" ? "default" : "outline"}
           size="sm"
-          onClick={() => setStatusFilter(statusFilter === "refunded" ? "all" : "refunded")}
+          onClick={() => updateQuery("status", statusFilter === "refunded" ? "all" : "refunded")}
           className="gap-2">
           <RefreshCcw className="h-4 w-4" />
           Refunded

@@ -2,11 +2,5 @@ import { SetMetadata } from '@nestjs/common';
 
 export const ROLES_KEY = 'roles';
 
-/**
- * Sets required roles for a route. The RolesGuard uses OR logic:
- * the user needs at least ONE of the specified roles to access the route.
- *
- * @example
- * @Roles('admin', 'moderator')
- */
+/** Requires ANY of the listed roles (OR logic). Admin RBAC. */
 export const Roles = (...roles: string[]) => SetMetadata(ROLES_KEY, roles);

@@ -17,12 +17,21 @@ import { EnvConfig } from '@config/env.config';
 
 // Business modules (versioned APIs — included in Swagger docs)
 import { AuthModule } from './auth/auth.module';
-import { UsersModule } from './users/users.module';
 import { MediaModule } from './media/media.module';
+import { ContentModule } from './content/content.module';
+import { ProfileModule } from './profile/profile.module';
+import { EngagementModule } from './engagement/engagement.module';
+import { TokenomicsModule } from './tokenomics/tokenomics.module';
+import { ProgressionModule } from './progression/progression.module';
+import { RedemptionModule } from './redemption/redemption.module';
+import { SubscriptionsModule } from './subscriptions/subscriptions.module';
+import { BadgesModule } from './badges/badges.module';
+import { GamesModule } from './games/games.module';
+import { ModerationModule } from './moderation/moderation.module';
+import { AnalyticsModule } from './analytics/analytics.module';
 import { NotificationsModule } from './notifications/notifications.module';
-import { AgentsModule } from './ai/agents/agents.module';
-import { WebhooksModule } from './webhooks/webhooks.module';
-import { UsersV2Module } from './users/users-v2.module';
+import { PlatformModule } from './platform/platform.module';
+import { EventsModule } from './events/events.module';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { ErrorHandlerService } from '@common/services/error-handler.service';
 import { TraceIdInterceptor } from '@interceptors/trace-id.interceptor';
@@ -79,14 +88,7 @@ async function bootstrap() {
   //   3. The new docs will be available at /api/v{n}
   // ─────────────────────────────────────────────────────────────────────────────
 
-  const V1_MODULES = [
-    AuthModule,
-    UsersModule,
-    MediaModule,
-    NotificationsModule,
-    AgentsModule,
-    WebhooksModule,
-  ];
+  const V1_MODULES = [AuthModule, MediaModule, ContentModule, ProfileModule, EngagementModule, TokenomicsModule, ProgressionModule, RedemptionModule, SubscriptionsModule, BadgesModule, GamesModule, ModerationModule, AnalyticsModule, NotificationsModule, PlatformModule, EventsModule];
 
   if (!isProd) {
     // V1 API docs at /api/v1
@@ -100,22 +102,6 @@ async function bootstrap() {
       include: V1_MODULES,
     });
     SwaggerModule.setup(`${RouteNames.API_DOCS}/v1`, app, v1Document);
-
-    // V2 API docs at /api/v2 (add new versioned modules here as they are created)
-    const V2_MODULES = [
-      UsersV2Module,
-    ];
-
-    const v2Config = new DocumentBuilder()
-      .setTitle('Project/App Name APIs — v2')
-      .setDescription('API v2 documentation for the backend services of Project/App Name')
-      .setVersion('2.0')
-      .addBearerAuth()
-      .build();
-    const v2Document = SwaggerModule.createDocument(app, v2Config, {
-      include: V2_MODULES,
-    });
-    SwaggerModule.setup(`${RouteNames.API_DOCS}/v2`, app, v2Document);
 
     // Default /api redirects to latest stable version
     const expressInstance = app.getHttpAdapter().getInstance() as any;

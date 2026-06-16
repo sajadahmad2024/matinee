@@ -14,7 +14,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
-import { Subscriber } from "./types";
+import type { Subscriber } from "./types";
 
 interface CancelSubscriptionModalProps {
   subscriber: Subscriber | null;

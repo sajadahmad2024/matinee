@@ -1,21 +1,15 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
-import { DBModule } from '@db/db.module';
-import { NotificationsService } from './notifications.service';
-import { NotificationsController } from './notifications.controller';
-import { PushProvider } from './providers/push.provider';
-import { FcmPushProvider } from './providers/fcm.provider';
+import { AdminNotificationController } from './admin-notification.controller';
+import { NotificationAdminService } from './notification-admin.service';
 
+/**
+ * Notifications authoring module (admin) — compose/broadcast + campaigns. Resolves an audience
+ * (all customers / segment / selected) and fans out into user_notifications inboxes (the customer
+ * inbox in the profile module consumes them). Fan-out is synchronous for now → moves to a worker
+ * job + device push when those land.
+ */
 @Module({
-  imports: [ConfigModule, DBModule],
-  controllers: [NotificationsController],
-  providers: [
-    NotificationsService,
-    {
-      provide: PushProvider,
-      useClass: FcmPushProvider,
-    },
-  ],
-  exports: [NotificationsService],
+  controllers: [AdminNotificationController],
+  providers: [NotificationAdminService],
 })
 export class NotificationsModule {}

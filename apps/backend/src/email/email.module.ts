@@ -4,6 +4,7 @@ import { EmailService } from '@email/email.service';
 import { EmailProvider } from '@email/providers/email.provider';
 import { SmtpEmailProvider } from '@email/providers/smtp.provider';
 import { SesEmailProvider } from '@email/providers/ses.provider';
+import { SendGridEmailProvider } from '@email/providers/sendgrid.provider';
 import { EmailProviderType } from '@email/interfaces/email.interface';
 
 const logger = new Logger('EmailModule');
@@ -19,6 +20,8 @@ const emailProviderFactory = {
     switch (providerType) {
       case 'ses':
         return new SesEmailProvider(configService);
+      case 'sendgrid':
+        return new SendGridEmailProvider(configService);
       case 'smtp':
       default:
         return new SmtpEmailProvider(configService);
