@@ -1,157 +1,194 @@
+import { EnvConfig } from '@config/env.config';
+import { MediaRepository, MediaRecord } from '@db/repositories/media/media.repository';
+import { QueueService } from '@queue/queue.service';
+import { JobName, QueueName } from '@queue/queue.constant';
+import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { randomUUID } from 'crypto';
 import {
-  ForbiddenException,
-  Injectable,
-  Logger,
-  NotFoundException,
-} from '@nestjs/common';
-import { v4 as uuidv4 } from 'uuid';
-import { MediaRepository } from '@db/repositories/media/media.repository';
+  AccessLevel,
+  MEDIA_DELIVERY_PROVIDER,
+  MediaStatus,
+  MediaType,
+  STORAGE_PROVIDER,
+  UsageType,
+} from './constants/media.constant';
 import { StorageProvider } from './providers/storage.provider';
-import { MediaFile, StorageProviderType } from './interfaces/media.interface';
-
-/** Default signed URL expiration: 1 hour */
-const SIGNED_URL_EXPIRY_SECONDS = 3600;
+import { MediaDeliveryProvider } from './providers/delivery.provider';
+import { MediaDto, MediaStatusEventDto, PlaybackDto, UploadTicketDto } from './dto/media-response.dto';
+import { RequestUploadDto } from './dto/request-upload.dto';
+import { CompleteUploadDto } from './dto/complete-upload.dto';
+import { toMediaDto } from './mappers/media.mapper';
+import { MediaCleanupJob } from './interfaces/media-jobs.interface';
 
 @Injectable()
 export class MediaService {
-  private readonly logger = new Logger(MediaService.name);
-
   constructor(
-    private readonly mediaRepository: MediaRepository,
-    private readonly storageProvider: StorageProvider,
+    private readonly media: MediaRepository,
+    @Inject(STORAGE_PROVIDER) private readonly storage: StorageProvider,
+    @Inject(MEDIA_DELIVERY_PROVIDER) private readonly delivery: MediaDeliveryProvider,
+    private readonly queue: QueueService,
+    private readonly config: ConfigService<EnvConfig>,
   ) {}
 
-  /**
-   * Upload a file for a given user.
-   * Generates a unique storage key, delegates to the storage provider,
-   * and persists the record via the repository.
-   */
-  async upload(
-    userId: string,
-    file: Express.Multer.File,
-    metadata?: Record<string, unknown>,
-  ): Promise<MediaFile> {
-    const storageKey = this.generateStorageKey(file.originalname);
+  private get signedTtl(): number {
+    return this.config.get<number>('MEDIA_SIGNED_URL_TTL') ?? 900;
+  }
 
-    const uploadResult = await this.storageProvider.upload(file, storageKey);
+  // ─── Upload (request → client PUTs to storage → complete) ─────────────────────
 
-    const mediaRecord = await this.mediaRepository.create({
-      userId,
-      filename: storageKey,
-      originalName: file.originalname,
-      mimeType: file.mimetype,
-      size: String(file.size),
-      storageProvider: this.getProviderName(),
-      storageKey: uploadResult.storageKey,
-      url: uploadResult.url,
-      thumbnailUrl: uploadResult.thumbnailUrl,
-      metadata: metadata ?? null,
+  async requestUpload(input: RequestUploadDto, uploaderId?: string): Promise<UploadTicketDto> {
+    const accessLevel = input.accessLevel ?? this.defaultAccess(input.usageType);
+    const assetRoot = `media/${input.usageType}/${randomUUID()}`;
+    const storageKey = `${assetRoot}/original/${this.safeName(input.filename)}`;
+
+    const record = await this.media.create({
+      mediaType: input.mediaType,
+      usageType: input.usageType,
+      accessLevel,
+      storageProvider: this.storage.name,
+      storageBucket: this.storage.bucket || undefined,
+      storageKey,
+      cdnProvider: this.delivery.name,
+      originalFilename: input.filename,
+      mimeType: input.mimeType,
+      fileSizeBytes: input.sizeBytes,
+      uploadedBy: uploaderId,
+      altText: input.altText,
     });
 
-    this.logger.log(
-      `Media uploaded: id=${mediaRecord.id}, user=${userId}, key=${storageKey}`,
-    );
-
-    return mediaRecord;
+    const maxBytes = this.config.get<number>('MEDIA_MAX_UPLOAD_BYTES') ?? 10 * 1024 * 1024 * 1024;
+    const upload = await this.storage.createUploadUrl({ key: storageKey, contentType: input.mimeType, maxBytes });
+    return { mediaId: record.id, status: record.status, upload };
   }
 
-  /**
-   * Get a media record by its ID.
-   */
-  async getById(id: string): Promise<MediaFile> {
-    const mediaFile = await this.mediaRepository.findById(id);
-
-    if (!mediaFile) {
-      throw new NotFoundException(`Media with id '${id}' not found`);
+  async completeUpload(id: string, input: CompleteUploadDto): Promise<MediaDto> {
+    const record = await this.media.findById(id);
+    if (!record) {
+      throw new NotFoundException('Media not found');
+    }
+    if (record.status !== MediaStatus.PENDING && record.status !== MediaStatus.UPLOADED) {
+      throw new BadRequestException(`Media is already ${record.status}`);
+    }
+    if (!record.storageKey) {
+      throw new BadRequestException('Media has no storage key');
+    }
+    const head = await this.storage.headObject(record.storageKey);
+    if (!head.exists) {
+      throw new BadRequestException('No uploaded object found for this media — upload first');
     }
 
-    return mediaFile;
+    const updated = await this.media.markUploaded(id, {
+      fileSizeBytes: input.sizeBytes ?? head.size,
+      checksum: input.checksum ?? head.etag,
+      mimeType: head.contentType ?? record.mimeType ?? undefined,
+    });
+    const row = updated ?? record;
+
+    if (record.mediaType === MediaType.VIDEO) {
+      // Async hand-off to the worker (SQS); the worker owns the processing → ready
+      // transitions. Returns status `uploaded` — poll /events or GET for progress.
+      await this.queue.send(QueueName.MEDIA, JobName.TRANSCODE_VIDEO, { mediaId: id });
+      return toMediaDto(row, null);
+    }
+
+    // Non-video → immediately servable; delivery prefix = the object key itself.
+    const ready = (await this.media.markReady(id, { deliveryPrefix: row.storageKey ?? undefined, isHls: false })) ?? row;
+    return toMediaDto(ready, this.resolveUrl(ready));
   }
 
-  /**
-   * Get paginated media records for a specific user.
-   */
-  async getByUserId(
-    userId: string,
-    page: number,
-    pageSize: number,
-  ): Promise<{ data: MediaFile[]; total: number }> {
-    return this.mediaRepository.findByUserId(userId, page, pageSize);
+  // ─── Read / serve ─────────────────────────────────────────────────────────────
+
+  async getById(id: string): Promise<MediaDto> {
+    const record = await this.requireRecord(id);
+    return toMediaDto(record, this.resolveUrl(record));
   }
 
-  /**
-   * Delete a media file. Verifies ownership before proceeding.
-   * Removes the file from the storage provider and deletes the DB record.
-   */
-  async delete(id: string, userId: string): Promise<void> {
-    const mediaFile = await this.mediaRepository.findById(id);
-
-    if (!mediaFile) {
-      throw new NotFoundException(`Media with id '${id}' not found`);
-    }
-
-    if (mediaFile.userId !== userId) {
-      throw new ForbiddenException('You do not have permission to delete this media');
-    }
-
-    await this.storageProvider.delete(mediaFile.storageKey);
-    await this.mediaRepository.delete(id);
-
-    this.logger.log(`Media deleted: id=${id}, user=${userId}`);
+  /** Full status-by-status history of an asset (admin visibility / debugging). */
+  async getEvents(id: string): Promise<MediaStatusEventDto[]> {
+    await this.requireRecord(id);
+    const events = await this.media.findEvents(id);
+    return events.map((e) => ({ id: e.id, status: e.status, detail: e.detail, progress: e.progress, createdAt: e.createdAt }));
   }
 
-  /**
-   * Generate a presigned URL for a media file. Verifies ownership.
-   */
-  async getSignedUrl(id: string, userId: string): Promise<string> {
-    const mediaFile = await this.mediaRepository.findById(id);
+  async getPlayback(id: string): Promise<PlaybackDto> {
+    const record = await this.requireRecord(id);
+    if (record.status !== MediaStatus.READY) {
+      throw new BadRequestException(`Media is not ready (status: ${record.status})`);
+    }
+    const ttl = this.signedTtl;
+    const isPublic = record.accessLevel === AccessLevel.PUBLIC;
 
-    if (!mediaFile) {
-      throw new NotFoundException(`Media with id '${id}' not found`);
+    if (record.isHls && record.hlsMasterKey) {
+      const url = this.delivery.publicUrl(record.hlsMasterKey);
+      const cookies = isPublic ? {} : await this.delivery.signedCookies(record.deliveryPrefix ?? '', ttl);
+      return { kind: 'hls', url, cookies, expiresInSeconds: ttl };
     }
 
-    if (mediaFile.userId !== userId) {
-      throw new ForbiddenException('You do not have permission to access this media');
-    }
-
-    const signedUrl = await this.storageProvider.getSignedUrl(
-      mediaFile.storageKey,
-      SIGNED_URL_EXPIRY_SECONDS,
-    );
-
-    return signedUrl;
+    const key = record.storageKey ?? '';
+    const url = isPublic ? this.delivery.publicUrl(key) : await this.delivery.signedUrl(key, ttl);
+    return { kind: 'file', url, cookies: {}, expiresInSeconds: ttl };
   }
 
-  /**
-   * Generate a unique storage key based on date and UUID.
-   * Format: media/YYYY/MM/uuid-originalname
-   */
-  private generateStorageKey(originalName: string): string {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const uniqueId = uuidv4();
-
-    // Sanitize the original name to prevent path traversal
-    const sanitizedName = originalName.replace(/[^a-zA-Z0-9._-]/g, '_');
-
-    return `media/${year}/${month}/${uniqueId}-${sanitizedName}`;
+  async remove(id: string): Promise<void> {
+    const removed = await this.media.softDelete(id);
+    if (!removed) {
+      throw new NotFoundException('Media not found');
+    }
+    const job: MediaCleanupJob = {
+      mediaId: id,
+      storageKey: removed.storageKey,
+      deliveryPrefix: this.assetRoot(removed),
+    };
+    await this.queue.send(QueueName.MEDIA, JobName.MEDIA_CLEANUP, job);
   }
 
-  /**
-   * Derive the provider name from the injected StorageProvider instance.
-   */
-  private getProviderName(): string {
-    const constructorName = this.storageProvider.constructor.name;
+  // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-    if (constructorName.toLowerCase().includes('s3')) {
-      return StorageProviderType.S3;
+  private async requireRecord(id: string): Promise<MediaRecord> {
+    const record = await this.media.findById(id);
+    if (!record) {
+      throw new NotFoundException('Media not found');
     }
+    return record;
+  }
 
-    if (constructorName.toLowerCase().includes('cloudinary')) {
-      return StorageProviderType.CLOUDINARY;
+  /** Ready PUBLIC assets get a direct URL; protected/private return null (use /playback). */
+  private resolveUrl(record: MediaRecord): string | null {
+    if (record.status !== MediaStatus.READY || record.accessLevel !== AccessLevel.PUBLIC) {
+      return null;
     }
+    const key = record.isHls ? record.hlsMasterKey : record.storageKey;
+    return key ? this.delivery.publicUrl(key) : null;
+  }
 
-    return StorageProviderType.LOCAL;
+  private defaultAccess(usage: UsageType): AccessLevel {
+    switch (usage) {
+      case UsageType.CONTENT_VIDEO:
+      case UsageType.CONTENT_TRAILER:
+        return AccessLevel.PROTECTED;
+      case UsageType.CONTENT_THUMBNAIL:
+      case UsageType.AVATAR:
+      case UsageType.STUDIO_LOGO:
+      case UsageType.BANNER:
+        return AccessLevel.PUBLIC;
+      case UsageType.DOCUMENT:
+        return AccessLevel.PRIVATE;
+      default:
+        return AccessLevel.PROTECTED;
+    }
+  }
+
+  /** The asset's root prefix (everything under it: original + hls + poster). */
+  private assetRoot(record: MediaRecord): string {
+    if (record.storageKey) {
+      return record.storageKey.replace(/\/original\/[^/]*$/, '/');
+    }
+    return record.deliveryPrefix ?? '';
+  }
+
+  private safeName(filename: string): string {
+    const base = filename.split(/[\\/]/).pop() ?? 'file';
+    return base.replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 200) || 'file';
   }
 }

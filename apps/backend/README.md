@@ -1,6 +1,12 @@
 # NestJS Enterprise Boilerplate
 
-A **production-grade** NestJS 11 application template designed for **humans and AI agents**. Pre-configured with authentication, common enterprise modules, AI integration, observability stack, and background workers.
+A **production-grade** NestJS 11 application template designed for **humans and AI agents**. Pre-configured with authentication, common enterprise modules, observability stack, and background workers.
+
+> **Current build scope:** this product app is being assembled module by module. Active
+> modules are **Auth, Users, Email, SMS, Queue (SQS), Cache (Redis/ElastiCache)** plus the
+> infra/observability stack. The Media, Notifications, AI/RAG, Webhooks and Gateway modules
+> from the boilerplate have been removed for now and will be reintroduced incrementally — some
+> feature sections below describe those and are kept as reference.
 
 ---
 
@@ -21,17 +27,23 @@ docker ps  # Verify Docker is running
 ```bash
 pnpm install               # Install dependencies
 pnpm run setup             # Copy .env.example → .env (one-time)
-pnpm local:up              # Start everything (Docker + DB migrate + dev server)
+pnpm local:up              # ⬅️  ONE command brings up the entire stack
 ```
+
+> **`pnpm local:up` is the single command for the whole stack.** It starts Docker
+> (**PostgreSQL**, **Redis**, **ElasticMQ** = local SQS, Prometheus, Grafana, Jaeger, Loki),
+> applies DB migrations, and runs the **API and the Worker together** in watch mode.
+> Moving to cloud is **env-only, no code change**: point `SQS_ENDPOINT` at AWS SQS and
+> `REDIS_HOST` at ElastiCache.
 
 ### Step-by-step startup
 
 ```bash
 pnpm generate:prometheus   # Generate Prometheus config
-pnpm db:dev:up             # Start Docker containers (Postgres, Redis, monitoring)
+pnpm db:dev:up             # Start Docker (Postgres, Redis, ElasticMQ/SQS, monitoring)
 sleep 5                    # Wait for DB availability
 pnpm db:migrate            # Apply Drizzle SQL migrations
-pnpm start:dev             # Start API + Worker in dev mode
+pnpm start:dev             # Start API + Worker concurrently in dev mode
 ```
 
 ### Accessible Endpoints
@@ -40,11 +52,11 @@ pnpm start:dev             # Start API + Worker in dev mode
 |---------|-----|
 | App | http://localhost:3000 |
 | Swagger API Docs (v1) | http://localhost:3000/api/v1 |
-| Swagger API Docs (v2) | http://localhost:3000/api/v2 |
+| OpenAPI JSON (SDK gen) | http://localhost:3000/api/v1-json |
 | Health Check | http://localhost:3000/health |
 | Health UI | http://localhost:3000/health/health-ui |
 | Dev Tools | http://localhost:3000/dev-tools |
-| Bull Board (Queues) | http://localhost:3000/admin/queues |
+| ElasticMQ (local SQS) | http://localhost:9326 |
 | Prometheus | http://localhost:9090 |
 | Grafana | http://localhost:3001 (admin/admin) |
 | Jaeger | http://localhost:16686 |
@@ -58,7 +70,8 @@ pnpm start:dev             # Start API + Worker in dev mode
 
 - **NestJS 11** with strict TypeScript
 - **Drizzle ORM** (SQL-first workflow) + PostgreSQL
-- **Redis** (caching + BullMQ job queues)
+- **AWS SQS** queues — **ElasticMQ** locally; switch to AWS via env only (no code change)
+- **Redis / ElastiCache** caching — env-driven; namespacing + version-key invalidation
 - **OpenTelemetry + Jaeger** (distributed tracing)
 - **Prometheus + Grafana** (metrics & dashboards)
 - **Winston + Loki** (structured logging)
@@ -74,42 +87,52 @@ pnpm start:dev             # Start API + Worker in dev mode
 
 ```
 src/
-├── auth/               # JWT + OAuth + API Keys + MFA + RBAC
+├── auth/               # JWT + OAuth (Google/Apple) + RBAC  (being rebuilt for the product)
 ├── users/              # User management with roles
-├── media/              # File uploads (S3/Cloudinary)
 ├── email/              # Templated emails (SMTP/SES)
 ├── sms/                # SMS + OTP (Twilio/SNS)
-├── notifications/      # Multi-channel notifications (FCM/in-app)
-├── webhooks/           # Outbound webhooks with HMAC signatures
-├── ai/                 # AI service layer + RAG + Agents
-│   ├── providers/      #   Claude & OpenAI providers
-│   ├── rag/            #   pgvector RAG pipeline
-│   └── agents/         #   Agent framework with tools
-├── gateway/            # WebSocket gateway (Socket.IO)
+├── queue/              # Queue abstraction (SQS) — cloud-portable
+│   ├── drivers/        #   SqsQueueDriver (ElasticMQ local / AWS SQS prod)
+│   └── consumer/       #   @QueueHandler discovery + worker long-poll runtime
+├── cache/              # CacheService (Redis local / ElastiCache prod) + invalidation
+├── background/         # Worker jobs (SQS handlers + cron scheduler)
+│   ├── email/          #   Email OTP handler
+│   └── cron/           #   Daily cron: schedule → enqueue → handler
 ├── api/                # Infrastructure APIs
 │   ├── health/         #   Health checks (DB, Redis, memory)
 │   ├── metrics/        #   Prometheus metrics
 │   ├── tracing/        #   OpenTelemetry tracing
 │   └── dev-tools/      #   Developer tools dashboard
-├── background/         # BullMQ queues & workers
 ├── common/             # Shared utilities, guards, filters, decorators
-│   ├── audit/          #   Application-level audit logging
-│   └── export/         #   CSV/PDF/Excel data export
-├── config/             # Environment configuration
+├── config/             # Environment configuration + validation
 ├── db/                 # Drizzle ORM + centralized repositories
-│   ├── drizzle/        #   Schema, migrations, migrate runner
-│   ├── repositories/   #   ALL repositories (auth/, users/, media/, etc.)
+│   ├── drizzle/        #   Schema, migrations (0000_init, 0001_create_users)
+│   ├── repositories/   #   Repositories (auth/, users/)
 │   └── seeds/          #   Raw SQL seed files
 ├── redis/              # Redis client & health
 ├── otel/               # OpenTelemetry setup
 ├── logger/             # Winston logging
 ├── interceptors/       # Global interceptors
-├── middlewares/         # Express middlewares
-├── app.module.ts       # Main application module
+├── middlewares/        # Express middlewares
+├── app.module.ts       # API application module
 ├── main.ts             # API entry point
 ├── worker.main.ts      # Worker entry point
-└── worker.module.ts    # Worker module
+└── worker.module.ts    # Worker module (SQS consumer + cron)
 ```
+
+### Queue & Cache — cloud-portable (env-only switch)
+
+Both infra modules are written once and selected by environment — **moving from local
+to stage/prod requires no code change**:
+
+| Concern | Local (Docker) | Stage / Prod | Switch via |
+|---------|----------------|--------------|------------|
+| Queue | ElasticMQ | AWS SQS | `SQS_ENDPOINT` empty → real AWS; creds from IAM role |
+| Cache | Redis container | AWS ElastiCache | `REDIS_HOST`, `REDIS_TLS_ENABLED`, `CACHE_CLUSTER_ENABLED` |
+
+- **Producer:** inject `QueueService` and call `send(QueueName.X, JobName.Y, payload)`.
+- **Consumer (worker only):** a class with `@QueueHandler({ queue, name })` + `handle()`; discovered automatically at worker boot, long-polls, acks on success, redrives to a per-queue **DLQ** after `QUEUE_MAX_RECEIVE_COUNT`.
+- **Cache:** `CacheService` (`get`/`set`/`getOrSet`) with key namespacing and **version-key tag invalidation** (`invalidateTag`) — no `SCAN`/`KEYS` in prod — plus `withLock` for stampede protection.
 
 ### Module Structure Convention
 
@@ -226,7 +249,7 @@ Outbound webhook system with HMAC-SHA256 signed payloads:
 
 - **CRUD** — Create, list, update, delete webhook subscriptions
 - **Event-based dispatch** — Subscribe webhooks to specific events
-- **Reliable delivery** — BullMQ queue with 5 retries and exponential backoff
+- **Reliable delivery** — SQS queue with DLQ redrive after `QUEUE_MAX_RECEIVE_COUNT` receives
 - **Signature verification** — HMAC-SHA256 signatures (`X-Webhook-Signature` header)
 - **Delivery tracking** — Full delivery history with response status and retry info
 - **Test events** — Send test payloads to verify endpoints
@@ -318,7 +341,7 @@ See `.env.example` for all environment variables. Key sections:
 
 - **Common** — PORT, NODE_ENV, CORS
 - **Database** — PostgreSQL connection
-- **Redis** — Cache and queue backend
+- **Redis / ElastiCache** — Cache backend (queues run on AWS SQS / ElasticMQ)
 - **Auth** — JWT secrets, OAuth credentials, MFA encryption
 - **Media** — S3/Cloudinary credentials
 - **Email** — SMTP/SES configuration

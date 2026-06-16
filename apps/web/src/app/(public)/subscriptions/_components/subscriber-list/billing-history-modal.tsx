@@ -9,7 +9,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-import { billingHistory, Subscriber } from "./types";
+import { billingHistory, type Subscriber } from "./types";
 
 interface BillingHistoryModalProps {
   subscriber: Subscriber | null;

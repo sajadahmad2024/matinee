@@ -10,7 +10,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-import { Subscriber } from "./types";
+import type { Subscriber } from "./types";
 
 interface RefundPaymentModalProps {
   subscriber: Subscriber | null;

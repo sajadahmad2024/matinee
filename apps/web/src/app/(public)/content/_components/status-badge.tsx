@@ -7,7 +7,8 @@ export type ContentStatus =
   | "scheduled"
   | "boosted"
   | "rejected"
-  | "pending";
+  | "pending"
+  | "archived";
 
 interface StatusBadgeProps {
   status: ContentStatus;
@@ -42,6 +43,10 @@ const statusConfig: Record<ContentStatus, { label: string; className: string }> 
   pending: {
     label: "Pending Review",
     className: "bg-warning/20 text-warning",
+  },
+  archived: {
+    label: "Archived",
+    className: "bg-muted/50 text-muted-foreground",
   },
 };
 

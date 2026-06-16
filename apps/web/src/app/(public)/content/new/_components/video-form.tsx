@@ -11,10 +11,12 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 
 import { BoostModal } from "./boost-modal";
-import { type BTSContent } from "./bts-modal";
+import { ContentClassificationCard } from "./content-classification-card";
 import { GameAssociationCard, type GameInstance } from "./game-association-card";
+import { LicensingCard } from "./licensing-card";
 import { MediaUploadCard } from "./media-upload-card";
 import { ScheduleModal } from "./schedule-modal";
+import { SponsorshipCard } from "./sponsorship-card";
 import { VideoActionsCard } from "./video-actions-card";
 import { VideoDetailsCard } from "./video-details-card";
 
@@ -29,7 +31,6 @@ interface VideoFormProps {
     cast?: string[];
     isPublished?: boolean;
     gameInstances?: GameInstance[];
-    btsContent?: BTSContent[];
   };
   sidebar?: React.ReactNode; // Optional extra content for the right column
 }
@@ -51,8 +52,6 @@ export function VideoForm({ initialData, sidebar }: VideoFormProps) {
     initialData?.gameInstances || [],
   );
   const [selectedFormat, setSelectedFormat] = useState("");
-
-  const [btsContent, setBtsContent] = useState<BTSContent[]>(initialData?.btsContent || []);
 
   // --- Modal States ---
   const [boostModalOpen, setBoostModalOpen] = useState(false);
@@ -92,16 +91,6 @@ export function VideoForm({ initialData, sidebar }: VideoFormProps) {
       },
     ]);
     setSelectedFormat("");
-  };
-
-  const handleAddBTS = (bts: BTSContent) => {
-    setBtsContent([...btsContent, bts]);
-    toast.success(`BTS "${bts.name}" added successfully`);
-  };
-
-  const removeBTS = (id: string) => {
-    setBtsContent(btsContent.filter((b) => b.id !== id));
-    toast.success("BTS content removed");
   };
 
   const handleSave = () => {
@@ -151,11 +140,11 @@ export function VideoForm({ initialData, sidebar }: VideoFormProps) {
             onRemoveCast={removeCast}
           />
 
-          <MediaUploadCard
-            btsContent={btsContent}
-            onAddBTS={handleAddBTS}
-            onRemoveBTS={removeBTS}
-          />
+          <ContentClassificationCard />
+
+          <LicensingCard />
+
+          <MediaUploadCard />
 
           <GameAssociationCard
             gameInstances={gameInstances}
@@ -167,6 +156,8 @@ export function VideoForm({ initialData, sidebar }: VideoFormProps) {
               setGameInstances(gameInstances.filter((g) => g.id !== id))
             }
           />
+
+          <SponsorshipCard />
         </div>
 
         {/* Sidebar Area */}

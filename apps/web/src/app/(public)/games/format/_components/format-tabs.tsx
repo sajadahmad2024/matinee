@@ -4,21 +4,20 @@ import { useCallback } from "react";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-import { BarChart3, Gamepad2, Settings } from "lucide-react";
+import { BarChart3, Settings, Sparkles } from "lucide-react";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface FormatTabsProps {
   defaultTab: string;
-  gameCount: number;
   children: {
     settings: React.ReactNode;
+    gamification: React.ReactNode;
     analytics: React.ReactNode;
-    games: React.ReactNode;
   };
 }
 
-export function FormatTabs({ defaultTab, gameCount, children }: FormatTabsProps) {
+export function FormatTabs({ defaultTab, children }: FormatTabsProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -41,27 +40,27 @@ export function FormatTabs({ defaultTab, gameCount, children }: FormatTabsProps)
       <TabsList className="bg-muted/30 p-1">
         <TabsTrigger
           value="settings"
-          className="data-[state=active]:bg-background cursor-pointer gap-2">
+          className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground cursor-pointer gap-2">
           <Settings className="h-4 w-4" />
           Settings
         </TabsTrigger>
         <TabsTrigger
-          value="analytics"
-          className="data-[state=active]:bg-background cursor-pointer gap-2">
-          <BarChart3 className="h-4 w-4" />
-          Analytics
+          value="gamification"
+          className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground cursor-pointer gap-2">
+          <Sparkles className="h-4 w-4" />
+          Gamification
         </TabsTrigger>
         <TabsTrigger
-          value="games"
-          className="data-[state=active]:bg-background cursor-pointer gap-2">
-          <Gamepad2 className="h-4 w-4" />
-          Games ({gameCount})
+          value="analytics"
+          className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground cursor-pointer gap-2">
+          <BarChart3 className="h-4 w-4" />
+          Analytics
         </TabsTrigger>
       </TabsList>
 
       <TabsContent value="settings">{children.settings}</TabsContent>
+      <TabsContent value="gamification">{children.gamification}</TabsContent>
       <TabsContent value="analytics">{children.analytics}</TabsContent>
-      <TabsContent value="games">{children.games}</TabsContent>
     </Tabs>
   );
 }

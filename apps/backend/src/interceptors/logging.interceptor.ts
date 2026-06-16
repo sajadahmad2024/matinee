@@ -5,6 +5,40 @@ import { tap } from 'rxjs/operators';
 import { LoggerService } from '@logger/logger.service';
 import { getTraceContext } from '@common/helpers/trace-context.util';
 
+/** Never log these — credentials, OTP codes, and any token material. */
+const SENSITIVE_KEYS = new Set([
+  'password',
+  'newpassword',
+  'currentpassword',
+  'code',
+  'otp',
+  'otptoken',
+  'token',
+  'accesstoken',
+  'refreshtoken',
+  'firebasetoken',
+  'idtoken',
+  'identitytoken',
+  'guesttoken',
+  'state',
+  'secret',
+  'authorization',
+]);
+
+function redact(value: unknown): unknown {
+  if (Array.isArray(value)) {
+    return value.map(redact);
+  }
+  if (value && typeof value === 'object') {
+    const out: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
+      out[k] = SENSITIVE_KEYS.has(k.toLowerCase()) ? '[REDACTED]' : redact(v);
+    }
+    return out;
+  }
+  return value;
+}
+
 @Injectable()
 export class HttpLoggingInterceptor implements NestInterceptor {
   constructor(private readonly logger: LoggerService) {}
@@ -36,7 +70,7 @@ export class HttpLoggingInterceptor implements NestInterceptor {
             `Start: ${startTime}, End: ${endTime}, Duration: ${responseTime}ms\n` +
             `Remote: ${remoteAddr}, Method: ${method}, URL: ${url}, HTTP/${httpVersion}\n` +
             `User-Agent: ${userAgent}, Referrer: ${referrer}\n` +
-            `Body: ${JSON.stringify(body)}, Query: ${JSON.stringify(query)}\n` +
+            `Body: ${JSON.stringify(redact(body))}, Query: ${JSON.stringify(redact(query))}\n` +
             `Status: ${statusCode}, Content-Length: ${contentLength}\n`,
           'HTTP'
         );

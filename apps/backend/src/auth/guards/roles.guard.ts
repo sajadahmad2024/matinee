@@ -1,36 +1,26 @@
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
 import { ROLES_KEY } from '../decorators/roles.decorator';
-import { AuthUser } from '../interfaces/auth-user.interface';
+import { AuthContext } from '../interfaces/auth-context.interface';
 
-/**
- * Guard that enforces role-based access control with OR logic.
- * The user needs at least ONE of the required roles to pass.
- * If no roles are specified on the route, access is granted.
- */
+/** Enforces `@Roles(...)` with OR logic over the user's resolved roles. */
 @Injectable()
 export class RolesGuard implements CanActivate {
   constructor(private readonly reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
-    const requiredRoles = this.reflector.getAllAndOverride<string[]>(
-      ROLES_KEY,
-      [context.getHandler(), context.getClass()],
-    );
-
-    if (!requiredRoles || requiredRoles.length === 0) {
+    const required = this.reflector.getAllAndOverride<string[]>(ROLES_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+    if (!required || required.length === 0) {
       return true;
     }
-
-    const request = context.switchToHttp().getRequest<Request>();
-    const user = request.user as AuthUser;
-
-    if (!user || !user.roles) {
-      return false;
+    const user = context.switchToHttp().getRequest<Request & { user?: AuthContext }>().user;
+    if (!user || !required.some((role) => user.roles.includes(role))) {
+      throw new ForbiddenException('Insufficient role');
     }
-
-    // OR logic: user needs at least one of the required roles
-    return requiredRoles.some((role) => user.roles.includes(role));
+    return true;
   }
 }

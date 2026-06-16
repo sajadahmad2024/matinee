@@ -1,117 +1,71 @@
-import {
-  Body,
-  Controller,
-  DefaultValuePipe,
-  Delete,
-  Get,
-  Param,
-  ParseIntPipe,
-  ParseUUIDPipe,
-  Post,
-  Query,
-  UploadedFile,
-  UseInterceptors,
-} from '@nestjs/common';
 import { RouteNames } from '@common/route-names';
-import {
-  ApiBearerAuth,
-  ApiBody,
-  ApiConsumes,
-  ApiOperation,
-  ApiParam,
-  ApiQuery,
-  ApiTags,
-} from '@nestjs/swagger';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import { AuthUser } from '../auth/interfaces/auth-user.interface';
+import { ApiEnvelope } from '@common/swagger/api-envelope.decorator';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post } from '@nestjs/common';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { AdminOnly } from '@auth/decorators/account-type.decorator';
+import { CurrentUser } from '@auth/decorators/current-user.decorator';
 import { MediaService } from './media.service';
-import { UploadMediaDto } from './dto/upload-media.dto';
-import { MediaResponseDto } from './dto/media-response.dto';
-import { FileUploadInterceptor } from './interceptors/file-upload.interceptor';
+import { RequestUploadDto } from './dto/request-upload.dto';
+import { CompleteUploadDto } from './dto/complete-upload.dto';
+import { MediaDto, MediaStatusEventDto, PlaybackDto, UploadTicketDto } from './dto/media-response.dto';
+import { MessageResponseDto } from '@common/dto/message-response.dto';
 
-@Controller({ path: RouteNames.MEDIA, version: '1' })
 @ApiTags('Media')
 @ApiBearerAuth()
+@Controller({ path: RouteNames.MEDIA, version: '1' })
 export class MediaController {
-  constructor(private readonly mediaService: MediaService) {}
+  constructor(private readonly media: MediaService) {}
 
-  @Post()
-  @UseInterceptors(FileUploadInterceptor)
-  @ApiOperation({ summary: 'Upload a media file' })
-  @ApiConsumes('multipart/form-data')
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        file: { type: 'string', format: 'binary', description: 'The file to upload' },
-        metadata: { type: 'object', description: 'Optional JSON metadata', nullable: true },
-      },
-      required: ['file'],
-    },
-  })
-  async upload(
-    @CurrentUser() user: AuthUser,
-    @UploadedFile() file: Express.Multer.File,
-    @Body() dto: UploadMediaDto,
-  ) {
-    const mediaFile = await this.mediaService.upload(
-      user.id,
-      file,
-      dto.metadata,
-    );
-
-    return MediaResponseDto.fromMediaFile(mediaFile);
+  @Post('uploads')
+  @AdminOnly()
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Request a secure upload — returns a media id + presigned target' })
+  @ApiEnvelope(UploadTicketDto, { status: 201 })
+  requestUpload(@CurrentUser('id') userId: string, @Body() dto: RequestUploadDto) {
+    return this.media.requestUpload(dto, userId);
   }
 
-  @Get()
-  @ApiOperation({ summary: 'List current user media files with pagination' })
-  @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
-  @ApiQuery({ name: 'pageSize', required: false, type: Number, example: 20 })
-  async list(
-    @CurrentUser() user: AuthUser,
-    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
-    @Query('pageSize', new DefaultValuePipe(20), ParseIntPipe) pageSize: number,
-  ) {
-    const result = await this.mediaService.getByUserId(user.id, page, pageSize);
-
-    return {
-      data: result.data.map((item) => MediaResponseDto.fromMediaFile(item)),
-      meta: {
-        page,
-        pageSize,
-        total: result.total,
-        totalPages: Math.ceil(result.total / pageSize),
-      },
-    };
+  @Post(':id/complete')
+  @AdminOnly()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Finalize an upload — verifies the object, transcodes video, marks ready' })
+  @ApiEnvelope(MediaDto)
+  completeUpload(@Param('id') id: string, @Body() dto: CompleteUploadDto) {
+    return this.media.completeUpload(id, dto);
   }
 
+  // Reads are intentionally available to ANY authenticated account type (guest/customer/admin) —
+  // media is an asset-delivery layer; content-tier gating happens at the content/access layer. The
+  // global AuthGuard still requires a valid token (these are not @Public).
   @Get(':id')
-  @ApiOperation({ summary: 'Get a media file by ID' })
-  @ApiParam({ name: 'id', type: String, description: 'Media UUID' })
-  async getById(@Param('id', ParseUUIDPipe) id: string) {
-    const mediaFile = await this.mediaService.getById(id);
-    return MediaResponseDto.fromMediaFile(mediaFile);
+  @ApiOperation({ summary: 'Get media metadata (+ direct URL for public, ready assets)' })
+  @ApiEnvelope(MediaDto)
+  getById(@Param('id') id: string) {
+    return this.media.getById(id);
+  }
+
+  @Get(':id/events')
+  @AdminOnly()
+  @ApiOperation({ summary: 'Status-by-status lifecycle history of an asset' })
+  @ApiEnvelope(MediaStatusEventDto, { isArray: true })
+  getEvents(@Param('id') id: string) {
+    return this.media.getEvents(id);
+  }
+
+  @Get(':id/playback')
+  @ApiOperation({ summary: 'Get a signed playback descriptor (HLS cookies / signed URL) for a ready asset' })
+  @ApiEnvelope(PlaybackDto)
+  getPlayback(@Param('id') id: string) {
+    return this.media.getPlayback(id);
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Delete a media file (ownership verified)' })
-  @ApiParam({ name: 'id', type: String, description: 'Media UUID' })
-  async remove(
-    @CurrentUser() user: AuthUser,
-    @Param('id', ParseUUIDPipe) id: string,
-  ) {
-    await this.mediaService.delete(id, user.id);
-    return { message: 'Media deleted successfully' };
-  }
-
-  @Get(':id/signed-url')
-  @ApiOperation({ summary: 'Get a presigned URL for a media file (ownership verified)' })
-  @ApiParam({ name: 'id', type: String, description: 'Media UUID' })
-  async getSignedUrl(
-    @CurrentUser() user: AuthUser,
-    @Param('id', ParseUUIDPipe) id: string,
-  ) {
-    const signedUrl = await this.mediaService.getSignedUrl(id, user.id);
-    return { signedUrl };
+  @AdminOnly()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Soft-delete an asset (storage objects cleaned up async)' })
+  @ApiEnvelope(MessageResponseDto)
+  async remove(@Param('id') id: string) {
+    await this.media.remove(id);
+    return { message: 'Media deleted' };
   }
 }

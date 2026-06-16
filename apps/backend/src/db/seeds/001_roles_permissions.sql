@@ -1,56 +1,51 @@
--- Seed: Roles & Permissions
--- Idempotent — safe to re-run
+-- Seed: Admin RBAC — roles, permissions, grants
+-- Idempotent — safe to re-run. Extracted from migration 0002 (structure stays in
+-- the migration; this data lives here per the seeds-separate-from-migrations rule).
+--
+-- Customers are identified by users.account_type (guest/customer/admin), NOT a role.
+-- Roles + permissions govern the ADMIN panel only.
 
--- Roles
-INSERT INTO roles (name, description) VALUES
-    ('admin', 'Full system administrator with all permissions'),
-    ('user', 'Standard user with basic permissions'),
-    ('moderator', 'Moderator with elevated content management permissions')
+-- System roles
+INSERT INTO roles (name, description, is_system) VALUES
+    ('super_admin', 'Full access; can manage admins, roles and permissions', true),
+    ('admin',       'Administrative access per assigned permissions',         true)
 ON CONFLICT (name) DO NOTHING;
 
--- Permissions
+-- Permissions (admin RBAC + per-module permissions added as modules ship)
 INSERT INTO permissions (name, description, resource, action) VALUES
-    ('users:read', 'View user profiles', 'users', 'read'),
-    ('users:write', 'Create and update users', 'users', 'write'),
-    ('users:delete', 'Delete users', 'users', 'delete'),
-    ('roles:read', 'View roles', 'roles', 'read'),
-    ('roles:write', 'Create and update roles', 'roles', 'write'),
-    ('media:read', 'View media files', 'media', 'read'),
-    ('media:write', 'Upload media files', 'media', 'write'),
-    ('media:delete', 'Delete media files', 'media', 'delete'),
-    ('ai:read', 'Access AI features', 'ai', 'read'),
-    ('ai:write', 'Create AI content', 'ai', 'write'),
-    ('notifications:read', 'View notifications', 'notifications', 'read'),
-    ('notifications:write', 'Send notifications', 'notifications', 'write'),
-    ('webhooks:read', 'View webhooks', 'webhooks', 'read'),
-    ('webhooks:write', 'Manage webhooks', 'webhooks', 'write')
+    ('admins:read',       'View admin users',                    'admins',      'read'),
+    ('admins:write',      'Create and update admins',            'admins',      'write'),
+    ('admins:delete',     'Deactivate/revoke admins',            'admins',      'delete'),
+    ('roles:read',        'View roles',                          'roles',       'read'),
+    ('roles:write',       'Create and update roles',             'roles',       'write'),
+    ('roles:delete',      'Delete roles',                        'roles',       'delete'),
+    ('permissions:read',  'View permissions',                    'permissions', 'read'),
+    ('users:read',        'View customers',                      'users',       'read'),
+    ('users:write',       'Update customers',                    'users',       'write'),
+    ('users:delete',      'Deactivate customers',                'users',       'delete'),
+    ('users:moderate',    'Suspend / ban / reinstate customers', 'users',       'moderate'),
+    ('rewards:read',      'View tokenomics config',              'rewards',     'read'),
+    ('rewards:write',     'Edit tokenomics config',              'rewards',     'write'),
+    ('compliance:read',   'View geo/compliance policy',          'compliance',  'read'),
+    ('compliance:write',  'Edit geo/compliance policy',          'compliance',  'write'),
+    -- Content module
+    ('content:read',      'View content',                        'content',     'read'),
+    ('content:write',     'Create and update content',           'content',     'write'),
+    ('content:publish',   'Approve, publish and reject content', 'content',     'publish')
 ON CONFLICT (name) DO NOTHING;
 
--- Admin: all permissions
+-- super_admin → ALL permissions. Re-applied on every seed so module-added
+-- permissions (content:*, future modules) are always covered.
 INSERT INTO role_permissions (role_id, permission_id)
-SELECT r.id, p.id
-FROM roles r, permissions p
+SELECT r.id, p.id FROM roles r, permissions p
+WHERE r.name = 'super_admin'
+ON CONFLICT DO NOTHING;
+
+-- admin → manage customers + rewards, read-only on admin/role config
+INSERT INTO role_permissions (role_id, permission_id)
+SELECT r.id, p.id FROM roles r, permissions p
 WHERE r.name = 'admin'
-ON CONFLICT DO NOTHING;
-
--- User: read-only
-INSERT INTO role_permissions (role_id, permission_id)
-SELECT r.id, p.id
-FROM roles r, permissions p
-WHERE r.name = 'user'
-  AND p.name IN ('users:read', 'media:read', 'ai:read', 'notifications:read', 'webhooks:read')
-ON CONFLICT DO NOTHING;
-
--- Moderator: read + write (no delete)
-INSERT INTO role_permissions (role_id, permission_id)
-SELECT r.id, p.id
-FROM roles r, permissions p
-WHERE r.name = 'moderator'
-  AND p.name IN (
-    'users:read', 'users:write',
-    'media:read', 'media:write',
-    'ai:read', 'ai:write',
-    'notifications:read', 'notifications:write',
-    'webhooks:read', 'webhooks:write'
-  )
+  AND p.name IN ('admins:read','roles:read','permissions:read',
+                 'users:read','users:write','users:delete','users:moderate',
+                 'rewards:read','rewards:write','compliance:read')
 ON CONFLICT DO NOTHING;

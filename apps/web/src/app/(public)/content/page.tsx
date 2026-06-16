@@ -3,13 +3,16 @@ import { Suspense } from "react";
 import type { Route } from "next";
 import Link from "next/link";
 
-import { Plus } from "lucide-react";
+import { Library, Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
 import { ContentAnalytics } from "./_components/content-analytics";
 import { ContentFilters } from "./_components/content-filters";
+import { ContentInventory } from "./_components/content-inventory";
+import { ContentPerformance } from "./_components/content-performance";
 import { ContentTabs } from "./_components/content-tabs";
+import { LicensingRights } from "./_components/licensing-rights";
 import { VideoList } from "./_components/video-list";
 import type { TabValue } from "./constants";
 
@@ -37,21 +40,26 @@ export default async function ContentManagementPage({ searchParams }: PageProps)
             Manage your video library, games, and content performance
           </p>
         </div>
-        <Button asChild className="gap-2">
-          <Link href={"/content/new" as Route}>
-            <Plus className="h-4 w-4" />
-            Add Video
-          </Link>
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button asChild variant="outline" className="gap-2">
+            <Link href={"/content/taxonomy" as Route}>
+              <Library className="h-4 w-4" />
+              Library
+            </Link>
+          </Button>
+          <Button asChild className="gap-2">
+            <Link href={"/content/new" as Route}>
+              <Plus className="h-4 w-4" />
+              Add Video
+            </Link>
+          </Button>
+        </div>
       </div>
 
-      {/* Analytics Section */}
-      <Suspense
-        fallback={<div className="bg-muted/20 h-[200px] w-full animate-pulse rounded-xl" />}>
-        <ContentAnalytics />
-      </Suspense>
+      {/* Inventory snapshot */}
+      <ContentInventory />
 
-      {/* Content Tabs & Filters */}
+      {/* Video library — the primary working surface (kept high up) */}
       <div className="space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <ContentTabs activeTab={tab} />
@@ -63,6 +71,14 @@ export default async function ContentManagementPage({ searchParams }: PageProps)
           <VideoList tab={tab} searchQuery={q} page={Number(page)} pageSize={Number(pageSize)} />
         </Suspense>
       </div>
+
+      {/* Analytics — licensing, performance, engagement (below the library) */}
+      <LicensingRights />
+      <ContentPerformance />
+      <Suspense
+        fallback={<div className="bg-muted/20 h-[200px] w-full animate-pulse rounded-xl" />}>
+        <ContentAnalytics />
+      </Suspense>
     </div>
   );
 }

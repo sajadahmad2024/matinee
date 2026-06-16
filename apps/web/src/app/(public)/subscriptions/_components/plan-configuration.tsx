@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { Check, Crown, Edit, Plus, Star, Trash2, Zap } from "lucide-react";
+import { Check, Crown, Edit, Globe, Plus, Star, Trash2, Zap } from "lucide-react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
@@ -30,6 +30,13 @@ const mockPlans: SubscriptionPlan[] = [
       "Basic game participation",
     ],
     subscriberCount: 1245,
+    regionPrices: [
+      { region: "NA", amount: 9.99, currency: "USD" },
+      { region: "EU", amount: 8.99, currency: "EUR" },
+      { region: "APAC", amount: 4.99, currency: "USD" },
+      { region: "LATAM", amount: 3.99, currency: "USD" },
+      { region: "MEA", amount: 4.99, currency: "USD" },
+    ],
   },
   {
     id: "2",
@@ -48,6 +55,13 @@ const mockPlans: SubscriptionPlan[] = [
     ],
     subscriberCount: 856,
     isPopular: true,
+    regionPrices: [
+      { region: "NA", amount: 99.99, currency: "USD" },
+      { region: "EU", amount: 89.99, currency: "EUR" },
+      { region: "APAC", amount: 49.99, currency: "USD" },
+      { region: "LATAM", amount: 39.99, currency: "USD" },
+      { region: "MEA", amount: 49.99, currency: "USD" },
+    ],
   },
 ];
 
@@ -177,6 +191,25 @@ export function PlanConfiguration() {
                   </div>
                   <p className="text-muted-foreground mt-1 text-sm">{plan.description}</p>
                 </div>
+
+                {plan.regionPrices && plan.regionPrices.length > 0 && (
+                  <div className="border-border/30 flex flex-wrap items-center gap-1.5 rounded-lg border border-dashed p-2">
+                    <Globe className="text-muted-foreground h-3.5 w-3.5" />
+                    <span className="text-muted-foreground text-[11px]">
+                      {plan.regionPrices.length} regions priced
+                    </span>
+                    {plan.regionPrices.slice(0, 3).map((rp) => (
+                      <Badge key={rp.region} variant="outline" className="text-[10px]">
+                        {rp.region} {rp.currency} {rp.amount}
+                      </Badge>
+                    ))}
+                    {plan.regionPrices.length > 3 && (
+                      <span className="text-muted-foreground text-[10px]">
+                        +{plan.regionPrices.length - 3}
+                      </span>
+                    )}
+                  </div>
+                )}
 
                 <div className="space-y-2">
                   {plan.features.slice(0, 4).map((feature, i) => (

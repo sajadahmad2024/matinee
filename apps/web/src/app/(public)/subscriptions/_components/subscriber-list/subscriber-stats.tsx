@@ -4,7 +4,7 @@ import { CheckCircle, Clock, Users, AlertCircle } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
 
-import { Subscriber } from "./types";
+import type { Subscriber } from "./types";
 
 interface SubscriberStatsProps {
   subscribers: Subscriber[];

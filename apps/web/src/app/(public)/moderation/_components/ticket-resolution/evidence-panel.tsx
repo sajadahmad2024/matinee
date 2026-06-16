@@ -68,7 +68,9 @@ export function EvidencePanel({ ticket }: EvidencePanelProps) {
         </h3>
         <div className="max-h-[150px] space-y-2 overflow-y-auto">
           {mockReporters.map((reporter) => (
-            <div key={reporter.id} className="hover:bg-accent/10 flex items-center gap-3 rounded-lg p-2">
+            <div
+              key={reporter.id}
+              className="hover:bg-accent/10 flex items-center gap-3 rounded-lg p-2">
               <Flag className="text-warning h-4 w-4" />
               <div className="min-w-0 flex-1">
                 <p className="text-foreground text-sm font-medium">{reporter.name}</p>
