@@ -1,0 +1,95 @@
+# Standalone WORKER deployment — SEPARATE from backend-prod (the API).
+#
+# Same image as the API, but the command is overridden to run the worker entrypoint
+# (dist/worker.main.js) instead of the default API (dist/main.js). It is fully independent:
+#   - it has NO Service (no inbound HTTP — it pulls jobs from SQS),
+#   - it shares only the image + config (same backend-configmap: DB/Redis/SQS endpoints),
+#   - it talks to the API ONLY through SQS/Postgres/Redis — never directly,
+# so it can be scaled on its own `replicas` (or an HPA) and keeps running if the API is down.
+#
+# Multiple replicas are safe: SQS distributes messages across consumers, the cron scheduler is
+# single-flight via a Redis distributed lock, and failed jobs retry via visibility timeout → DLQ.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-worker-prod
+  namespace: <namespace-name>
+spec:
+  replicas: 2                      # scale workers independently of the API (kubectl scale / HPA below)
+  selector:
+    matchLabels:
+      app: backend-worker-prod
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: backend-worker-prod
+    spec:
+      # terminationGracePeriod must exceed the SQS visibility/long-poll window so in-flight jobs
+      # drain on SIGTERM (the worker's shutdown hooks await in-flight handlers before exit).
+      terminationGracePeriodSeconds: 60
+      imagePullSecrets:
+      - name: docker-creds
+      containers:
+      - name: backend-worker-prod
+        image: <image-uri>
+        imagePullPolicy: Always
+        command: ["node", "dist/worker.main.js"]   # <- run the WORKER, not the API
+        envFrom:
+        - configMapRef:
+            name: backend-configmap                # same env as the API (DB/Redis/SQS)
+        env:
+        - name: WORKER_HEALTH_PORT                 # enables the liveness endpoint (worker has no HTTP API)
+          value: "3001"
+        - name: QUEUE_CONSUMER_ENABLED             # the worker is the only role that consumes queues
+          value: "true"
+        ports:
+        - name: worker-health
+          containerPort: 3001
+        livenessProbe:                              # restart a hung/dead worker
+          httpGet:
+            path: /health
+            port: 3001
+          initialDelaySeconds: 15
+          periodSeconds: 15
+          failureThreshold: 3
+        readinessProbe:                             # not ready until the context (consumers) is up
+          httpGet:
+            path: /health
+            port: 3001
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        resources:
+          requests:
+            cpu: "500m"
+            memory: "512Mi"
+          limits:
+            cpu: "1000m"
+            memory: "1024Mi"
+# No Service: the worker exposes no app traffic. The health port is probed by the kubelet directly.
+---
+# Optional: autoscale workers. CPU is the simplest signal available out-of-the-box; for queue-driven
+# scaling, point an HPA/KEDA ScaledObject at SQS ApproximateNumberOfMessages instead.
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: backend-worker-prod
+  namespace: <namespace-name>
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: backend-worker-prod
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
