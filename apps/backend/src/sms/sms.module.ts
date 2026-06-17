@@ -5,6 +5,8 @@ import { SmsService } from './sms.service';
 import { SmsProvider } from './providers/sms.provider';
 import { TwilioSmsProvider } from './providers/twilio.provider';
 import { SnsSmsProvider } from './providers/sns.provider';
+import { LogSmsProvider } from './providers/log.provider';
+import { CacheService } from '@cache/cache.service';
 import { SmsProviderType } from './interfaces/sms.interface';
 
 const logger = new Logger('SmsModule');
@@ -15,13 +17,15 @@ const logger = new Logger('SmsModule');
   providers: [
     {
       provide: SmsProvider,
-      useFactory: (configService: ConfigService<EnvConfig>): SmsProvider => {
+      useFactory: (configService: ConfigService<EnvConfig>, cache: CacheService): SmsProvider => {
         const providerName =
           (configService.get<string>('SMS_PROVIDER' as keyof EnvConfig) ?? 'twilio') as SmsProviderType;
 
         logger.log(`Initializing SMS provider: ${providerName}`);
 
         switch (providerName) {
+          case 'log':
+            return new LogSmsProvider(cache);
           case 'sns':
             return new SnsSmsProvider(configService);
           case 'twilio':
@@ -29,7 +33,7 @@ const logger = new Logger('SmsModule');
             return new TwilioSmsProvider(configService);
         }
       },
-      inject: [ConfigService],
+      inject: [ConfigService, CacheService],
     },
     SmsService,
   ],

@@ -1,4 +1,5 @@
 import { EmailModule } from '@email/email.module';
+import { SmsModule } from '@sms/sms.module';
 import { MediaModule } from '@media/media.module';
 import { Module } from '@nestjs/common';
 import { EmailJobService } from './email/email-job.service';
@@ -29,7 +30,7 @@ import {
  * the handlers that do the work pushed onto the queue. Import ONLY in WorkerModule.
  */
 @Module({
-  imports: [EmailModule, MediaModule, CronModule],
+  imports: [EmailModule, SmsModule, MediaModule, CronModule],
   providers: [
     EmailJobService,
     EmailOtpHandler,
