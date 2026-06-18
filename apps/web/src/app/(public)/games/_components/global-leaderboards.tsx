@@ -2,6 +2,7 @@
 
 import { useCallback } from "react";
 
+import type { Route } from "next";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { Calendar, Crown, ExternalLink, Gamepad2, Medal, Star, Trophy, Users } from "lucide-react";
@@ -270,7 +271,7 @@ export function GlobalLeaderboards() {
     (name: string, value: string) => {
       const params = new URLSearchParams(searchParams.toString());
       params.set(name, value);
-      router.push(`${pathname}?${params.toString()}`, { scroll: false });
+      router.push(`${pathname}?${params.toString()}` as Route, { scroll: false });
     },
     [pathname, router, searchParams],
   );
