@@ -51,7 +51,25 @@ async function bootstrap(): Promise<void> {
   process.once('SIGINT', closeHealth);
 }
 
-// Exit non-zero on a failed boot so the orchestrator surfaces it (CrashLoopBackOff) and restarts —
+// A long-running worker must NEVER die silently — a dead worker drains no queues while the API
+// stays up and looks healthy (the exact failure we hit locally). So we fail LOUD and exit non-zero
+// on any fatal condition; the supervisor restarts us:
+//   • prod/k3s   → the Deployment restarts the pod (CrashLoopBackOff surfaces it)
+//   • local dev  → `concurrently --restart-tries -1` (see package.json start:dev) respawns the child
+// Per-message handler errors are already contained by the consumer's poll loop (they redrive to the
+// DLQ), so these guards only catch truly unexpected escapes — and make them visible instead of fatal-silent.
+process.on('unhandledRejection', (reason) => {
+  // eslint-disable-next-line no-console
+  console.error('[worker] FATAL unhandledRejection — exiting for restart:', reason);
+  process.exit(1);
+});
+process.on('uncaughtException', (err) => {
+  // eslint-disable-next-line no-console
+  console.error('[worker] FATAL uncaughtException — exiting for restart:', err);
+  process.exit(1);
+});
+
+// Exit non-zero on a failed boot so the supervisor surfaces it and restarts —
 // rather than leaving a silently dead worker that drains no queues.
 bootstrap().catch((err) => {
   // eslint-disable-next-line no-console

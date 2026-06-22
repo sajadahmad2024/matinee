@@ -137,8 +137,9 @@ const validationSchema = Joi.object({
   APP_LOGS_URL: Joi.string().required(),
   DEV_DOCS_URL: Joi.string().required(),
   SERVICES_HEALTH_URL: Joi.string().required(),
-  // Queue (SQS / ElasticMQ) — Joi coerces strings to numbers/booleans for flat get()
-  QUEUE_DRIVER: Joi.string().valid('sqs', 'memory').default('sqs'),
+  // Queue (SQS everywhere) — Joi coerces strings to numbers/booleans for flat get().
+  // Local uses ElasticMQ via SQS_ENDPOINT; prod uses real AWS SQS (empty SQS_ENDPOINT). Same driver.
+  QUEUE_DRIVER: Joi.string().valid('sqs').default('sqs'),
   SQS_ENDPOINT: Joi.string().allow('').default(''),
   SQS_PORT: Joi.number().default(9326),
   SQS_REGION: Joi.string().default('us-east-1'),
