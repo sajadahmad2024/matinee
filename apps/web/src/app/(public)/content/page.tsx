@@ -12,11 +12,13 @@ import { ContentFilters } from "./_components/content-filters";
 import { ContentInventory } from "./_components/content-inventory";
 import { ContentPerformance } from "./_components/content-performance";
 import { ContentTabs } from "./_components/content-tabs";
+import { ContentViewTabs } from "./_components/content-view-tabs";
 import { LicensingRights } from "./_components/licensing-rights";
 import { VideoList } from "./_components/video-list";
 import type { TabValue } from "./constants";
 
 export type ContentSearchParams = {
+  view?: string;
   tab?: TabValue;
   q?: string;
   page?: string;
@@ -28,7 +30,7 @@ interface PageProps {
 }
 
 export default async function ContentManagementPage({ searchParams }: PageProps) {
-  const { tab = "all", q = "", page = "1", pageSize = "10" } = await searchParams;
+  const { view = "library", tab = "all", q = "", page = "1", pageSize = "10" } = await searchParams;
 
   return (
     <div className="animate-fade-in space-y-6">
@@ -56,29 +58,43 @@ export default async function ContentManagementPage({ searchParams }: PageProps)
         </div>
       </div>
 
-      {/* Inventory snapshot */}
-      <ContentInventory />
+      {/* Top-level split: operate (Library) vs report (Analytics) — no longer one long scroll */}
+      <ContentViewTabs activeView={view} />
 
-      {/* Video library — the primary working surface (kept high up) */}
-      <div className="space-y-4">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <ContentTabs activeTab={tab} />
-          <ContentFilters searchQuery={q} />
-        </div>
+      {view === "library" ? (
+        <>
+          {/* Inventory snapshot */}
+          <ContentInventory />
 
-        <Suspense
-          fallback={<div className="bg-muted/10 h-[400px] w-full animate-pulse rounded-xl" />}>
-          <VideoList tab={tab} searchQuery={q} page={Number(page)} pageSize={Number(pageSize)} />
-        </Suspense>
-      </div>
+          {/* Video library — the primary working surface */}
+          <div className="space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <ContentTabs activeTab={tab} />
+              <ContentFilters searchQuery={q} />
+            </div>
 
-      {/* Analytics — licensing, performance, engagement (below the library) */}
-      <LicensingRights />
-      <ContentPerformance />
-      <Suspense
-        fallback={<div className="bg-muted/20 h-[200px] w-full animate-pulse rounded-xl" />}>
-        <ContentAnalytics />
-      </Suspense>
+            <Suspense
+              fallback={<div className="bg-muted/10 h-[400px] w-full animate-pulse rounded-xl" />}>
+              <VideoList
+                tab={tab}
+                searchQuery={q}
+                page={Number(page)}
+                pageSize={Number(pageSize)}
+              />
+            </Suspense>
+          </div>
+        </>
+      ) : (
+        <>
+          {/* Analytics — licensing, performance, engagement (its own view, not stacked) */}
+          <LicensingRights />
+          <ContentPerformance />
+          <Suspense
+            fallback={<div className="bg-muted/20 h-[200px] w-full animate-pulse rounded-xl" />}>
+            <ContentAnalytics />
+          </Suspense>
+        </>
+      )}
     </div>
   );
 }

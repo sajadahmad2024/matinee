@@ -1,6 +1,16 @@
 "use client";
 
-import { AlertTriangle, Coins, Play, Target, TrendingUp, Trophy } from "lucide-react";
+import {
+  AlertTriangle,
+  Coins,
+  Gamepad2,
+  Play,
+  Target,
+  TrendingDown,
+  TrendingUp,
+  Trophy,
+  Users,
+} from "lucide-react";
 import {
   Bar,
   BarChart,
@@ -15,11 +25,35 @@ import {
 } from "recharts";
 
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 
 import { AnalyticsHeader } from "./analytics-header";
 import { GlassCard } from "./glass-card";
+
+// --- Health summary (status at a glance) ---
+type HealthStat = {
+  label: string;
+  value: string;
+  delta?: string;
+  trend?: "up" | "down";
+  tone: "success" | "warning" | "accent";
+  icon: typeof Users;
+};
+
+const healthStats: HealthStat[] = [
+  { label: "Active Players (7d)", value: "24.4K", delta: "+6.1%", trend: "up", tone: "accent", icon: Users },
+  { label: "Completion Rate", value: "78%", delta: "+2.3%", trend: "up", tone: "success", icon: Target },
+  { label: "Points Minted", value: "890K", delta: "healthy", tone: "success", icon: Coins },
+  { label: "Formats Live", value: "5", delta: "1 needs attention", tone: "warning", icon: Gamepad2 },
+];
+
+const toneText: Record<HealthStat["tone"], string> = {
+  success: "text-success",
+  warning: "text-warning",
+  accent: "text-accent",
+};
 
 // --- Mock Data ---
 
@@ -65,17 +99,53 @@ export function GameAnalytics({ timeRange = "7d" }: GameAnalyticsProps) {
 
   return (
     <div className="space-y-6">
-      {/* Leaderboard Stagnation Alert */}
+      {/* Health summary — answers "how are the games doing?" at a glance */}
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        {healthStats.map((s) => {
+          const Icon = s.icon;
+          return (
+            <Card key={s.label}>
+              <CardContent className="py-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground text-xs">{s.label}</span>
+                  <Icon className={`h-4 w-4 ${toneText[s.tone]}`} />
+                </div>
+                <p className="text-foreground mt-2 text-2xl font-bold">{s.value}</p>
+                {s.delta && (
+                  <div className={`mt-1 flex items-center gap-1 text-xs ${toneText[s.tone]}`}>
+                    {s.trend === "up" && <TrendingUp className="h-3 w-3" />}
+                    {s.trend === "down" && <TrendingDown className="h-3 w-3" />}
+                    <span>{s.delta}</span>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+
+      {/* Leaderboard Stagnation Alert — now actionable, not passive */}
       <Card className="border-warning/20 bg-warning/5">
         <CardContent className="py-3">
-          <div className="flex items-center gap-3">
-            <AlertTriangle className="text-warning h-5 w-5" />
-            <div>
-              <p className="text-foreground text-sm font-medium">Leaderboard Stagnation Detected</p>
-              <p className="text-muted-foreground text-xs">
-                Top 3 positions in Weekly Contest have been held by the same users for 4 consecutive
-                weeks. Consider balancing or adding new rewards.
-              </p>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-3">
+              <AlertTriangle className="text-warning h-5 w-5 shrink-0" />
+              <div>
+                <p className="text-foreground text-sm font-medium">
+                  Leaderboard Stagnation Detected
+                </p>
+                <p className="text-muted-foreground text-xs">
+                  Top 3 positions in Weekly Contest held by the same users for 4 consecutive weeks.
+                </p>
+              </div>
+            </div>
+            <div className="flex shrink-0 items-center gap-2 sm:pl-4">
+              <Button size="sm" variant="outline" className="cursor-pointer">
+                View leaderboard
+              </Button>
+              <Button size="sm" className="cursor-pointer">
+                Rebalance rewards
+              </Button>
             </div>
           </div>
         </CardContent>

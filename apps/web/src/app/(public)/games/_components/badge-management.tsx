@@ -2,11 +2,28 @@
 
 import { useState } from "react";
 
-import { Crown, Flame, Plus, Settings, Star, Trophy, Upload, Users, Zap } from "lucide-react";
+import {
+  AlertTriangle,
+  Award,
+  Crown,
+  Flame,
+  Plus,
+  Settings,
+  Star,
+  Trophy,
+  TrendingDown,
+  Upload,
+  Users,
+  Zap,
+} from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
+/** A badge is "underperforming" when few users have earned it, or it's inactive. */
+const LOW_ADOPTION_THRESHOLD = 600;
+const isUnderperforming = (b: BadgeItem) => !b.isActive || b.usersEarned < LOW_ADOPTION_THRESHOLD;
 import {
   Dialog,
   DialogContent,
@@ -161,10 +178,17 @@ const mockBadges: BadgeItem[] = [
 function BadgeCard({ badge }: { badge: BadgeItem }) {
   const triggerLabel = TRIGGER_OPTIONS.find((t) => t.value === badge.trigger)?.label;
   const operatorLabel = OPERATOR_OPTIONS.find((o) => o.value === badge.operator)?.label;
+  const lowAdoption = badge.isActive && badge.usersEarned < LOW_ADOPTION_THRESHOLD;
 
   return (
     <GlassCard
-      className={!badge.isActive ? "opacity-60" : "hover:border-accent/30 transition-colors"}>
+      className={
+        !badge.isActive
+          ? "opacity-60"
+          : lowAdoption
+            ? "border-warning/30 hover:border-warning/50 transition-colors"
+            : "hover:border-accent/30 transition-colors"
+      }>
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
@@ -173,12 +197,18 @@ function BadgeCard({ badge }: { badge: BadgeItem }) {
               {ICON_MAP[badge.iconType]}
             </div>
             <div>
-              <CardTitle className="flex items-center gap-2 text-base">
+              <CardTitle className="flex flex-wrap items-center gap-2 text-base">
                 {badge.name}
                 {!badge.isActive && (
                   <Badge variant="secondary" className="text-xs">
                     Inactive
                   </Badge>
+                )}
+                {lowAdoption && (
+                  <span className="text-warning bg-warning/10 inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-medium">
+                    <TrendingDown className="h-3 w-3" />
+                    Low adoption
+                  </span>
                 )}
               </CardTitle>
               <p className="text-muted-foreground mt-1 text-xs">{badge.description}</p>
@@ -323,6 +353,29 @@ function CreateBadgeDialog({
 export function BadgeManagement() {
   const [isAddOpen, setIsAddOpen] = useState(false);
 
+  // Performance summary + most-adopted first so admins see impact before scrolling.
+  const activeCount = mockBadges.filter((b) => b.isActive).length;
+  const totalEarned = mockBadges.reduce((sum, b) => sum + b.usersEarned, 0);
+  const underperformers = mockBadges.filter(isUnderperforming);
+  const sortedBadges = [...mockBadges].sort((a, b) => b.usersEarned - a.usersEarned);
+
+  const summary = [
+    { label: "Total badges", value: String(mockBadges.length), tone: "accent", icon: Award },
+    { label: "Active", value: `${activeCount}/${mockBadges.length}`, tone: "success", icon: Trophy },
+    { label: "Total earned", value: totalEarned.toLocaleString(), tone: "success", icon: Users },
+    {
+      label: "Need attention",
+      value: String(underperformers.length),
+      tone: "warning",
+      icon: AlertTriangle,
+    },
+  ] as const;
+  const tone: Record<string, string> = {
+    accent: "text-accent",
+    success: "text-success",
+    warning: "text-warning",
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -333,8 +386,34 @@ export function BadgeManagement() {
         <CreateBadgeDialog open={isAddOpen} onOpenChange={setIsAddOpen} />
       </div>
 
+      {/* Performance summary — identify underperformers without opening each card */}
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        {summary.map((s) => {
+          const Icon = s.icon;
+          return (
+            <Card key={s.label}>
+              <CardContent className="py-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground text-xs">{s.label}</span>
+                  <Icon className={`h-4 w-4 ${tone[s.tone]}`} />
+                </div>
+                <p className="text-foreground mt-2 text-2xl font-bold">{s.value}</p>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+
+      {underperformers.length > 0 && (
+        <p className="text-muted-foreground text-xs">
+          Sorted by adoption ·{" "}
+          <span className="text-warning">{underperformers.length} badge(s) flagged</span> for low
+          adoption or inactive status.
+        </p>
+      )}
+
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {mockBadges.map((badge) => (
+        {sortedBadges.map((badge) => (
           <BadgeCard key={badge.id} badge={badge} />
         ))}
       </div>

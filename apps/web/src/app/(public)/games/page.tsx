@@ -19,7 +19,7 @@ interface PageProps {
 }
 
 export default async function GameCenterPage({ searchParams }: PageProps) {
-  const { timeRange = "7d", tab = "formats" } = await searchParams;
+  const { timeRange = "7d", tab = "overview" } = await searchParams;
 
   return (
     <div className="animate-fade-in space-y-6">
@@ -38,21 +38,24 @@ export default async function GameCenterPage({ searchParams }: PageProps) {
         </div>
       </div>
 
-      {/* Tabs Section */}
+      {/* Tabs Section — "Overview" holds the performance/health analytics (previously
+          duplicated under every tab); the other tabs are now focused on their own job. */}
       <GameTabs defaultTab={tab}>
         {{
+          overview: (
+            <Suspense
+              fallback={
+                <div className="bg-muted/20 h-[400px] w-full animate-pulse rounded-xl" />
+              }>
+              <GameAnalytics timeRange={timeRange} />
+            </Suspense>
+          ),
           formats: <GameFormatsLibrary />,
           leveling: <LevelingConfiguration />,
           badges: <BadgeManagement />,
           leaderboards: <GlobalLeaderboards />,
         }}
       </GameTabs>
-
-      {/* Analytics Section */}
-      <Suspense
-        fallback={<div className="bg-muted/20 h-[400px] w-full animate-pulse rounded-xl" />}>
-        <GameAnalytics timeRange={timeRange} />
-      </Suspense>
     </div>
   );
 }

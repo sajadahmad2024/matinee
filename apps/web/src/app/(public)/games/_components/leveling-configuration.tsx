@@ -2,12 +2,30 @@
 
 import { useMemo, useState } from "react";
 
-import { AlertCircle, RotateCcw, Save, TrendingUp } from "lucide-react";
+import {
+  Activity,
+  AlertCircle,
+  AlertTriangle,
+  ChevronDown,
+  ChevronUp,
+  RotateCcw,
+  Save,
+  TrendingUp,
+  Users,
+} from "lucide-react";
 import { Area, AreaChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
+// Progression health (mock) — surfaces real-user outcomes, not just raw config.
+const PROGRESSION_HEALTH = [
+  { label: "Median level", value: "Lvl 6", icon: Activity, cls: "text-accent" },
+  { label: "Reached Lvl 5+", value: "62%", icon: Users, cls: "text-success" },
+  { label: "Biggest drop-off", value: "Lvl 7", icon: AlertTriangle, cls: "text-warning" },
+  { label: "Avg days to Lvl 10", value: "18d", icon: TrendingUp, cls: "text-accent" },
+];
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -99,6 +117,7 @@ function CurveVisualizer({ data }: { data: LevelStep[] }) {
 
 export function LevelingConfiguration() {
   const [config, setConfig] = useState({ baseXP: 20, multiplier: 1.5, maxLevel: 100 });
+  const [showTable, setShowTable] = useState(false);
 
   const levelData = useMemo(() => {
     const data: LevelStep[] = [];
@@ -125,6 +144,33 @@ export function LevelingConfiguration() {
         onReset={() => setConfig({ baseXP: 20, multiplier: 1.5, maxLevel: 100 })}
         onSave={() => {}}
       />
+
+      {/* Progression health — where real users are, and where they stall */}
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        {PROGRESSION_HEALTH.map((s) => {
+          const Icon = s.icon;
+          return (
+            <Card key={s.label}>
+              <CardContent className="py-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground text-xs">{s.label}</span>
+                  <Icon className={`h-4 w-4 ${s.cls}`} />
+                </div>
+                <p className="text-foreground mt-2 text-2xl font-bold">{s.value}</p>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+
+      <div className="bg-warning/10 border-warning/20 flex items-start gap-2 rounded-lg border p-3">
+        <AlertTriangle className="text-warning mt-0.5 h-4 w-4 shrink-0" />
+        <p className="text-muted-foreground text-sm">
+          <span className="text-warning font-medium">Progression bottleneck:</span> most users stop
+          advancing at <span className="text-foreground font-medium">Level 7</span> — consider
+          easing the curve between Lvl 6–8.
+        </p>
+      </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <GlassCard>
@@ -192,8 +238,26 @@ export function LevelingConfiguration() {
 
       <GlassCard>
         <CardHeader>
-          <CardTitle className="text-base">Level Requirements Table</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-base">Level Requirements Table</CardTitle>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="gap-2"
+              onClick={() => setShowTable((v) => !v)}>
+              {showTable ? (
+                <>
+                  Hide <ChevronUp className="h-4 w-4" />
+                </>
+              ) : (
+                <>
+                  Show full table <ChevronDown className="h-4 w-4" />
+                </>
+              )}
+            </Button>
+          </div>
         </CardHeader>
+        {showTable && (
         <CardContent>
           <div className="overflow-x-auto">
             <table className="w-full">
@@ -244,6 +308,7 @@ export function LevelingConfiguration() {
             <Badge variant="outline">Max Level: {config.maxLevel}</Badge>
           </div>
         </CardContent>
+        )}
       </GlassCard>
     </div>
   );

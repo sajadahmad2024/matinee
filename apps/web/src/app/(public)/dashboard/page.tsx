@@ -66,6 +66,13 @@ export default function DashboardPage() {
   const tabTrigger =
     "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground gap-2";
 
+  // Active-context labels so the data scope is always visible (not just buried in dropdowns).
+  const regionLabel = region === "global" ? "Global" : region.toUpperCase();
+  const timeRangeLabel =
+    (
+      { "7d": "Last 7 days", "30d": "Last 30 days", "90d": "Last 90 days" } as Record<string, string>
+    )[timeRange] ?? timeRange;
+
   return (
     <div className="animate-fade-in space-y-6">
       {/* Header */}
@@ -73,6 +80,15 @@ export default function DashboardPage() {
         <div>
           <h1 className="font-gaming text-foreground text-3xl font-bold">Dashboard</h1>
           <p className="text-foreground-secondary mt-1 text-sm">Executive Overview & Live Command</p>
+          <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
+            <span className="text-muted-foreground">Showing</span>
+            <span className="bg-primary/10 text-primary rounded px-2 py-0.5 font-medium">
+              {regionLabel}
+            </span>
+            <span className="bg-muted/50 text-foreground-secondary rounded px-2 py-0.5 font-medium">
+              {timeRangeLabel}
+            </span>
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <RegionFilter defaultValue={region} />
@@ -99,7 +115,7 @@ export default function DashboardPage() {
           </TabsTrigger>
         </TabsList>
 
-        {/* OVERVIEW — the executive snapshot */}
+        {/* OVERVIEW — flow: live pulse → highlights → health → core business metrics → regional */}
         <TabsContent value="overview" className="mt-0 space-y-6">
           <RealTimePulse
             liveUsers={liveUsers}
@@ -107,6 +123,35 @@ export default function DashboardPage() {
             subscribedUsers={subscribedUsers}
             signedUpUsers={signedUpUsers}
           />
+
+          {/* Highlights — key trends summarised so admins don't have to read every chart */}
+          <section>
+            <h2 className="text-foreground mb-4 text-lg font-semibold">Highlights</h2>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+              <Highlight
+                icon={LineChart}
+                label="D30 Retention"
+                value="38%"
+                delta="+3 pts vs last period"
+                tone="success"
+              />
+              <Highlight
+                icon={Users}
+                label="Visitor → Subscriber"
+                value="4.0%"
+                delta="+0.4 pts vs last period"
+                tone="success"
+              />
+              <Highlight
+                icon={TrendingUp}
+                label="Churn"
+                value="4.2%"
+                delta="-0.8 pts (improving)"
+                tone="success"
+              />
+            </div>
+          </section>
+
           <section>
             <h2 className="text-foreground mb-4 text-lg font-semibold">Critical Health Metrics</h2>
             <CriticalKPIs
@@ -123,17 +168,28 @@ export default function DashboardPage() {
               avgDailySessions={3.2}
             />
           </section>
-          <DashboardCard title="Global Activity Map" icon={Globe} iconColor="text-primary" className="gap-0">
-            <GlobalActivityMap />
-          </DashboardCard>
+
+          {/* Core business metrics — promoted above the fold (most critical) */}
           <div className="grid gap-4 lg:grid-cols-2">
-            <DashboardCard title="Retention Cohort (D1 / D7 / D30)" icon={LineChart} iconColor="text-primary">
+            <DashboardCard
+              title="Retention Cohort (D1 / D7 / D30)"
+              icon={LineChart}
+              iconColor="text-primary">
               <RetentionCohortChart />
             </DashboardCard>
             <DashboardCard title="Conversion Funnel" icon={Users} iconColor="text-accent">
               <ConversionFunnelChart />
             </DashboardCard>
           </div>
+
+          {/* Regional breakdown — exploratory, moved lower and renamed (it's a regional ranking) */}
+          <DashboardCard
+            title="Activity by Region (Top Markets)"
+            icon={Globe}
+            iconColor="text-primary"
+            className="gap-0">
+            <GlobalActivityMap />
+          </DashboardCard>
         </TabsContent>
 
         {/* ENGAGEMENT — content quality + session quality */}
@@ -193,5 +249,32 @@ function SectionTitle({ icon: Icon, color, children }: { icon: React.ElementType
     <h2 className="text-foreground flex items-center gap-2 text-lg font-semibold">
       <Icon className={`h-5 w-5 ${color}`} /> {children}
     </h2>
+  );
+}
+
+function Highlight({
+  icon: Icon,
+  label,
+  value,
+  delta,
+  tone,
+}: {
+  icon: React.ElementType;
+  label: string;
+  value: string;
+  delta: string;
+  tone: "success" | "warning" | "accent";
+}) {
+  const toneText =
+    tone === "success" ? "text-success" : tone === "warning" ? "text-warning" : "text-accent";
+  return (
+    <div className="border-border/50 bg-background/50 rounded-xl border p-4">
+      <div className="flex items-center justify-between">
+        <span className="text-muted-foreground text-xs">{label}</span>
+        <Icon className={`h-4 w-4 ${toneText}`} />
+      </div>
+      <p className="text-foreground mt-2 text-2xl font-bold">{value}</p>
+      <p className={`mt-1 text-xs ${toneText}`}>{delta}</p>
+    </div>
   );
 }

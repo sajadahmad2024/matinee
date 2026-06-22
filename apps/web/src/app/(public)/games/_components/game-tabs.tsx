@@ -4,13 +4,14 @@ import { useCallback } from "react";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-import { Award, BarChart3, Gamepad2, Trophy } from "lucide-react";
+import { Activity, Award, BarChart3, Gamepad2, Trophy } from "lucide-react";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface GameTabsProps {
   defaultTab: string;
   children: {
+    overview: React.ReactNode;
     formats: React.ReactNode;
     leveling: React.ReactNode;
     badges: React.ReactNode;
@@ -40,6 +41,12 @@ export function GameTabs({ defaultTab, children }: GameTabsProps) {
     <Tabs defaultValue={defaultTab} onValueChange={handleTabChange} className="space-y-6">
       <TabsList className="bg-muted/30 h-auto flex-wrap p-1">
         <TabsTrigger
+          value="overview"
+          className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground cursor-pointer gap-2">
+          <Activity className="h-4 w-4" />
+          Overview
+        </TabsTrigger>
+        <TabsTrigger
           value="formats"
           className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground cursor-pointer gap-2">
           <Gamepad2 className="h-4 w-4" />
@@ -65,6 +72,7 @@ export function GameTabs({ defaultTab, children }: GameTabsProps) {
         </TabsTrigger>
       </TabsList>
 
+      <TabsContent value="overview">{children.overview}</TabsContent>
       <TabsContent value="formats">{children.formats}</TabsContent>
       <TabsContent value="leveling">{children.leveling}</TabsContent>
       <TabsContent value="badges">{children.badges}</TabsContent>

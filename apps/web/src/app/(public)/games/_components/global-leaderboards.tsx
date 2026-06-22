@@ -4,12 +4,24 @@ import { useCallback } from "react";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-import { Calendar, Crown, ExternalLink, Gamepad2, Medal, Star, Trophy, Users } from "lucide-react";
+import {
+  Activity,
+  AlertTriangle,
+  Crown,
+  ExternalLink,
+  Gamepad2,
+  Medal,
+  Star,
+  Trophy,
+  TrendingDown,
+  TrendingUp,
+  Users,
+} from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -37,7 +49,19 @@ export interface GameInstance {
   format: "Predict" | "Streak" | "Contest";
   dateCreated: string;
   totalPlayers: number;
+  /** Competition health — drives which boards need admin intervention. */
+  health: "healthy" | "at-risk" | "stagnant";
+  /** Participation change vs previous period (%). */
+  trend: number;
+  /** Share of activity held by the top 3 players (%). High = concentrated/stale. */
+  topConcentration: number;
 }
+
+const HEALTH_META: Record<GameInstance["health"], { label: string; cls: string }> = {
+  healthy: { label: "Healthy", cls: "text-success bg-success/10" },
+  "at-risk": { label: "At risk", cls: "text-warning bg-warning/10" },
+  stagnant: { label: "Stagnant", cls: "text-destructive bg-destructive/10" },
+};
 
 export interface TopPlayer {
   rank: number;
@@ -58,6 +82,9 @@ const mockInstances: GameInstance[] = [
     format: "Predict",
     dateCreated: "2024-01-15",
     totalPlayers: 4523,
+    health: "healthy",
+    trend: 8,
+    topConcentration: 12,
   },
   {
     id: "2",
@@ -66,6 +93,9 @@ const mockInstances: GameInstance[] = [
     format: "Streak",
     dateCreated: "2024-01-14",
     totalPlayers: 3245,
+    health: "at-risk",
+    trend: -3,
+    topConcentration: 28,
   },
   {
     id: "3",
@@ -74,6 +104,9 @@ const mockInstances: GameInstance[] = [
     format: "Streak",
     dateCreated: "2024-01-12",
     totalPlayers: 2890,
+    health: "healthy",
+    trend: 2,
+    topConcentration: 15,
   },
   {
     id: "4",
@@ -82,6 +115,9 @@ const mockInstances: GameInstance[] = [
     format: "Predict",
     dateCreated: "2024-01-10",
     totalPlayers: 1987,
+    health: "at-risk",
+    trend: -6,
+    topConcentration: 22,
   },
   {
     id: "5",
@@ -90,6 +126,9 @@ const mockInstances: GameInstance[] = [
     format: "Contest",
     dateCreated: "2024-01-08",
     totalPlayers: 5672,
+    health: "stagnant",
+    trend: 1,
+    topConcentration: 61,
   },
 ];
 
@@ -180,6 +219,8 @@ function RankIcon({ rank }: { rank: number }) {
 }
 
 function InstanceRow({ instance }: { instance: GameInstance }) {
+  const health = HEALTH_META[instance.health];
+  const needsAction = instance.health !== "healthy";
   return (
     <TableRow className="border-border/30 hover:bg-muted/20 cursor-pointer">
       <TableCell>
@@ -190,19 +231,33 @@ function InstanceRow({ instance }: { instance: GameInstance }) {
           <span className="text-foreground font-medium">{instance.gameName}</span>
         </div>
       </TableCell>
-      <TableCell className="text-foreground-secondary max-w-[200px] truncate">
-        {instance.videoTitle}
+      <TableCell>
+        <span className={`rounded px-2 py-0.5 text-xs font-medium ${health.cls}`}>
+          {health.label}
+        </span>
+      </TableCell>
+      <TableCell>
+        <div
+          className={`flex items-center gap-1 text-sm ${instance.trend >= 0 ? "text-success" : "text-destructive"}`}>
+          {instance.trend >= 0 ? (
+            <TrendingUp className="h-3 w-3" />
+          ) : (
+            <TrendingDown className="h-3 w-3" />
+          )}
+          {instance.trend >= 0 ? "+" : ""}
+          {instance.trend}%
+        </div>
+      </TableCell>
+      <TableCell>
+        <span
+          className={`font-mono text-sm ${instance.topConcentration >= 40 ? "text-destructive" : "text-muted-foreground"}`}>
+          {instance.topConcentration}%
+        </span>
       </TableCell>
       <TableCell>
         <Badge variant="outline" className="text-xs">
           {instance.format}
         </Badge>
-      </TableCell>
-      <TableCell>
-        <div className="text-muted-foreground flex items-center gap-2 text-sm">
-          <Calendar className="h-3 w-3" />
-          {instance.dateCreated}
-        </div>
       </TableCell>
       <TableCell className="text-right">
         <div className="flex items-center justify-end gap-2">
@@ -213,10 +268,17 @@ function InstanceRow({ instance }: { instance: GameInstance }) {
         </div>
       </TableCell>
       <TableCell>
-        <Button variant="ghost" size="sm" className="gap-2">
-          <ExternalLink className="h-4 w-4" />
-          View
-        </Button>
+        {needsAction ? (
+          <Button variant="outline" size="sm" className="gap-2">
+            <AlertTriangle className="text-warning h-4 w-4" />
+            Intervene
+          </Button>
+        ) : (
+          <Button variant="ghost" size="sm" className="gap-2">
+            <ExternalLink className="h-4 w-4" />
+            View
+          </Button>
+        )}
       </TableCell>
     </TableRow>
   );
@@ -290,10 +352,57 @@ export function GlobalLeaderboards() {
         </TabsList>
 
         <TabsContent value="instances" className="space-y-4">
+          {/* Competition health summary — find boards needing intervention first */}
+          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+            {(() => {
+              const total = mockInstances.length;
+              const needIntervention = mockInstances.filter((i) => i.health !== "healthy").length;
+              const concentrated = mockInstances.filter((i) => i.topConcentration >= 40).length;
+              const declining = mockInstances.filter((i) => i.trend < 0).length;
+              const cards = [
+                { label: "Active boards", value: String(total), cls: "text-accent", icon: Activity },
+                {
+                  label: "Need intervention",
+                  value: String(needIntervention),
+                  cls: "text-warning",
+                  icon: AlertTriangle,
+                },
+                {
+                  label: "Over-concentrated",
+                  value: String(concentrated),
+                  cls: "text-destructive",
+                  icon: Crown,
+                },
+                {
+                  label: "Declining participation",
+                  value: String(declining),
+                  cls: "text-warning",
+                  icon: TrendingDown,
+                },
+              ];
+              return cards.map((c) => {
+                const Icon = c.icon;
+                return (
+                  <Card key={c.label}>
+                    <CardContent className="py-4">
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground text-xs">{c.label}</span>
+                        <Icon className={`h-4 w-4 ${c.cls}`} />
+                      </div>
+                      <p className="text-foreground mt-2 text-2xl font-bold">{c.value}</p>
+                    </CardContent>
+                  </Card>
+                );
+              });
+            })()}
+          </div>
+
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-foreground text-lg font-semibold">Game Instances</h3>
-              <p className="text-muted-foreground text-sm">All active games attached to videos</p>
+              <h3 className="text-foreground text-lg font-semibold">Leaderboard Health</h3>
+              <p className="text-muted-foreground text-sm">
+                Per-board competition health — concentration & participation trend
+              </p>
             </div>
             <Select value={formatFilter} onValueChange={(v) => updateQuery("format", v)}>
               <SelectTrigger className="w-[180px]">
@@ -315,11 +424,12 @@ export function GlobalLeaderboards() {
                   <TableHeader>
                     <TableRow className="border-border/50 hover:bg-transparent">
                       <TableHead className="text-muted-foreground">Game Name</TableHead>
-                      <TableHead className="text-muted-foreground">Linked Video</TableHead>
+                      <TableHead className="text-muted-foreground">Health</TableHead>
+                      <TableHead className="text-muted-foreground">Participation</TableHead>
+                      <TableHead className="text-muted-foreground">Top-3 Share</TableHead>
                       <TableHead className="text-muted-foreground">Format</TableHead>
-                      <TableHead className="text-muted-foreground">Created</TableHead>
                       <TableHead className="text-muted-foreground text-right">Players</TableHead>
-                      <TableHead className="text-muted-foreground w-[100px]"></TableHead>
+                      <TableHead className="text-muted-foreground w-[120px]"></TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>

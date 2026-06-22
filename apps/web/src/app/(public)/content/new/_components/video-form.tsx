@@ -5,7 +5,7 @@ import { useState } from "react";
 import type { Route } from "next";
 import { useRouter } from "next/navigation";
 
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ChevronDown, ChevronUp, SlidersHorizontal } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -56,6 +56,9 @@ export function VideoForm({ initialData, sidebar }: VideoFormProps) {
   // --- Modal States ---
   const [boostModalOpen, setBoostModalOpen] = useState(false);
   const [scheduleModalOpen, setScheduleModalOpen] = useState(false);
+
+  // Advanced sections (licensing, games, sponsorship) are optional for the common case — collapsed by default.
+  const [showAdvanced, setShowAdvanced] = useState(!isNew);
 
   // --- Actions ---
   const addCast = () => {
@@ -140,24 +143,46 @@ export function VideoForm({ initialData, sidebar }: VideoFormProps) {
             onRemoveCast={removeCast}
           />
 
-          <ContentClassificationCard />
-
-          <LicensingCard />
-
+          {/* Essentials first: media + classification (the common path to publish) */}
           <MediaUploadCard />
 
-          <GameAssociationCard
-            gameInstances={gameInstances}
-            onSetGameInstances={setGameInstances}
-            selectedFormat={selectedFormat}
-            onSetSelectedFormat={setSelectedFormat}
-            onAddGameInstance={addGameInstance}
-            onRemoveGameInstance={(id) =>
-              setGameInstances(gameInstances.filter((g) => g.id !== id))
-            }
-          />
+          <ContentClassificationCard />
 
-          <SponsorshipCard />
+          {/* Advanced / optional — collapsed by default so a simple upload isn't overwhelming */}
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full justify-between"
+            onClick={() => setShowAdvanced((v) => !v)}>
+            <span className="flex items-center gap-2">
+              <SlidersHorizontal className="h-4 w-4" />
+              Advanced settings — licensing, games & sponsorship
+            </span>
+            {showAdvanced ? (
+              <ChevronUp className="h-4 w-4" />
+            ) : (
+              <ChevronDown className="h-4 w-4" />
+            )}
+          </Button>
+
+          {showAdvanced && (
+            <>
+              <LicensingCard />
+
+              <GameAssociationCard
+                gameInstances={gameInstances}
+                onSetGameInstances={setGameInstances}
+                selectedFormat={selectedFormat}
+                onSetSelectedFormat={setSelectedFormat}
+                onAddGameInstance={addGameInstance}
+                onRemoveGameInstance={(id) =>
+                  setGameInstances(gameInstances.filter((g) => g.id !== id))
+                }
+              />
+
+              <SponsorshipCard />
+            </>
+          )}
         </div>
 
         {/* Sidebar Area */}
