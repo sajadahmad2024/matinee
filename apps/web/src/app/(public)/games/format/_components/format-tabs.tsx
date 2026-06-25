@@ -2,6 +2,7 @@
 
 import { useCallback } from "react";
 
+import type { Route } from "next";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { BarChart3, Settings, Sparkles } from "lucide-react";
@@ -32,7 +33,7 @@ export function FormatTabs({ defaultTab, children }: FormatTabsProps) {
   );
 
   const handleTabChange = (value: string) => {
-    router.push(`${pathname}?${createQueryString("tab", value)}`, { scroll: false });
+    router.push(`${pathname}?${createQueryString("tab", value)}` as Route, { scroll: false });
   };
 
   return (

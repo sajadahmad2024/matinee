@@ -16,9 +16,8 @@ import {
   MOCK_VIDEOS,
   PENDING_VIDEOS,
   REJECTED_VIDEOS,
-  TabValue,
-  VideoItem,
 } from "../constants";
+import type { TabValue, VideoItem } from "../constants";
 import { LeaderboardModal } from "./leaderboard-modal";
 import { VideoListItem } from "./video-list-item";
 
@@ -130,13 +129,13 @@ export function VideoList({ tab, searchQuery, page, pageSize }: VideoListProps) 
         onPageChange={(p) => {
           const params = new URLSearchParams(window.location.search);
           params.set("page", p.toString());
-          router.push(`${window.location.pathname}?${params.toString()}`, { scroll: false });
+          router.push(`${window.location.pathname}?${params.toString()}` as Route, { scroll: false });
         }}
         onPageSizeChange={(s) => {
           const params = new URLSearchParams(window.location.search);
           params.set("pageSize", s.toString());
           params.set("page", "1");
-          router.push(`${window.location.pathname}?${params.toString()}`, { scroll: false });
+          router.push(`${window.location.pathname}?${params.toString()}` as Route, { scroll: false });
         }}
       />
 

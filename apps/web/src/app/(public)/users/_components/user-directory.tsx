@@ -27,7 +27,7 @@ interface UserDirectoryProps {
   pageSize: number;
 }
 
-export function UserDirectory({ searchQuery, page, pageSize }: UserDirectoryProps) {
+export function UserDirectory({ searchQuery, page: _page, pageSize: _pageSize }: UserDirectoryProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -132,11 +132,6 @@ export function UserDirectory({ searchQuery, page, pageSize }: UserDirectoryProp
       </div>
 
       <UserListTable
-        searchQuery={searchQuery}
-        statusFilter={statusFilter}
-        subscriptionFilter={subscriptionFilter}
-        page={page}
-        pageSize={pageSize}
         onViewUser={handleViewUser}
         onSendNotification={handleSendNotification}
       />

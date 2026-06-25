@@ -2,6 +2,7 @@
 
 import { useCallback } from "react";
 
+import type { Route } from "next";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { Activity, Award, BarChart3, Gamepad2, Trophy } from "lucide-react";
@@ -34,7 +35,7 @@ export function GameTabs({ defaultTab, children }: GameTabsProps) {
   );
 
   const handleTabChange = (value: string) => {
-    router.push(`${pathname}?${createQueryString("tab", value)}`, { scroll: false });
+    router.push(`${pathname}?${createQueryString("tab", value)}` as Route, { scroll: false });
   };
 
   // URL-controlled so in-app links (e.g. "View leaderboard") actually switch the tab.
