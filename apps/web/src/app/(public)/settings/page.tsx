@@ -1,9 +1,31 @@
 "use client";
 
-import { Bell, Coins, Flag, Lock, Shield, Smartphone, TrendingUp, Users } from "lucide-react";
+import {
+  Bell,
+  Coins,
+  Flag,
+  Gamepad2,
+  Gift,
+  Lock,
+  Shield,
+  ShieldCheck,
+  Smartphone,
+  TrendingUp,
+  Users,
+} from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+import { AdminHealthSummary, type HealthStat } from "@/components/custom/admin-health-summary";
+
+// Configuration overview — summarises active reward/security systems before editing details.
+const CONFIG_OVERVIEW: HealthStat[] = [
+  { label: "Referral Program", value: "Active", insight: "500 XP · max 10/mo", tone: "good", icon: Gift },
+  { label: "Daily Login Bonus", value: "Active", insight: "10 pts + 5 XP / day", tone: "good", icon: Coins },
+  { label: "Game Centre", value: "Enabled", insight: "5 formats live", tone: "good", icon: Gamepad2 },
+  { label: "Admin 2FA", value: "Required", insight: "enforced for all admins", tone: "good", icon: ShieldCheck },
+];
 
 import { useTabParam } from "@/app/_libs/use-tab-param";
 
@@ -35,6 +57,12 @@ export default function SettingsPage() {
           </p>
         </div>
       </div>
+
+      {/* Configuration Overview — active systems summarised before editing individual settings */}
+      <section className="space-y-3">
+        <h2 className="text-foreground text-lg font-semibold">Configuration Overview</h2>
+        <AdminHealthSummary stats={CONFIG_OVERVIEW} />
+      </section>
 
       {/* Tabs Navigation */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">

@@ -6,14 +6,19 @@ import { useSearchParams } from "next/navigation";
 
 import {
   Activity,
+  AlertTriangle,
   Coins,
   DollarSign,
+  Eye,
   Gamepad2,
+  Gauge,
   Globe,
+  Heart,
   LayoutDashboard,
   LineChart,
   MessagesSquare,
   Repeat,
+  Target,
   Timer,
   TrendingUp,
   Users,
@@ -21,8 +26,31 @@ import {
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
+import { AdminHealthSummary, type HealthStat } from "@/components/custom/admin-health-summary";
 import { RegionFilter } from "@/components/custom/region-filter";
 import { TimeRangeSelector } from "@/components/custom/time-range-selector";
+
+// Primary, "improving/declining at a glance" KPIs per sub-tab — consistent with the rest of the admin.
+const ENGAGEMENT_PRIMARY: HealthStat[] = [
+  { label: "Watch Rate", value: "82%", insight: "+1.4% vs last period", trend: "up", tone: "good", icon: Eye },
+  { label: "Completion Rate", value: "54%", insight: "+2.3% — content resonating", trend: "up", tone: "good", icon: Target },
+  { label: "Avg Session Length", value: "24:38", insight: "+0.5 min", trend: "up", tone: "good", icon: Timer },
+  { label: "Re-watch / Loops", value: "2.1×", insight: "steady", tone: "neutral", icon: Repeat },
+];
+
+const ECONOMY_STATUS: HealthStat[] = [
+  { label: "Economy Status", value: "Healthy", insight: "balanced mint vs redeem", tone: "good", icon: Gauge },
+  { label: "Redemption Rate", value: "49%", insight: "+3% — above 40% target", trend: "up", tone: "good", icon: Coins },
+  { label: "Points Outstanding", value: "8.4M", insight: "hoarding within range", tone: "neutral", icon: Coins },
+  { label: "Inflation Risk", value: "Low", insight: "mint tracking redemption", tone: "good", icon: AlertTriangle },
+];
+
+const COMMUNITY_PRIMARY: HealthStat[] = [
+  { label: "Active Participants", value: "1.8", insight: "comments / user / week", tone: "neutral", icon: Users },
+  { label: "Reply Rate", value: "42%", insight: "+3% — healthy conversation", trend: "up", tone: "good", icon: MessagesSquare },
+  { label: "Sentiment P/N/Neg", value: "68/22/10", insight: "net positive", tone: "good", icon: Heart },
+  { label: "Earned Media Value", value: "$182K", insight: "+12%", trend: "up", tone: "good", icon: DollarSign },
+];
 
 import { useTabParam } from "@/app/_libs/use-tab-param";
 
@@ -192,22 +220,35 @@ export default function DashboardPage() {
           </DashboardCard>
         </TabsContent>
 
-        {/* ENGAGEMENT — content quality + session quality */}
+        {/* ENGAGEMENT — lead with primary KPIs, detailed analytics below */}
         <TabsContent value="engagement" className="mt-0 space-y-6">
-          <SectionTitle icon={Timer} color="text-primary">User Analytics</SectionTitle>
+          <section className="space-y-4">
+            <SectionTitle icon={Activity} color="text-accent">Engagement Health</SectionTitle>
+            <AdminHealthSummary stats={ENGAGEMENT_PRIMARY} />
+          </section>
+          <SectionTitle icon={Timer} color="text-primary">Detailed User Analytics</SectionTitle>
           <UserAnalyticsSection />
           <SectionTitle icon={Activity} color="text-accent">Screen Time & Session Quality</SectionTitle>
           <SessionQualitySection />
         </TabsContent>
 
-        {/* GAMIFICATION */}
+        {/* GAMIFICATION — Economy Status + risks first, trends promoted, breakdown grouped */}
         <TabsContent value="gamification" className="mt-0 space-y-6">
-          <SectionTitle icon={Coins} color="text-warning">Points Economy</SectionTitle>
-          <PointsEconomySection />
+          <section className="space-y-4">
+            <SectionTitle icon={Gauge} color="text-warning">Economy Status</SectionTitle>
+            <AdminHealthSummary stats={ECONOMY_STATUS} />
+            <div className="bg-warning/10 border-warning/20 flex items-start gap-2 rounded-lg border p-3">
+              <AlertTriangle className="text-warning mt-0.5 h-4 w-4 shrink-0" />
+              <p className="text-muted-foreground text-sm">
+                <span className="text-warning font-medium">Watch for:</span> redemption below 40%
+                signals hoarding; mint growth outpacing redemption signals inflation. Both currently
+                within a healthy range.
+              </p>
+            </div>
+          </section>
+
+          {/* Ecosystem-health trends promoted higher */}
           <div className="grid gap-4 lg:grid-cols-2">
-            <DashboardCard title="Gameplay Velocity (DAP)" icon={Gamepad2} iconColor="text-accent">
-              <GameplayVelocityChart />
-            </DashboardCard>
             <DashboardCard title="Points Economy Trend" icon={Coins} iconColor="text-featured">
               <PointsEconomyChart />
             </DashboardCard>
@@ -215,6 +256,14 @@ export default function DashboardPage() {
               <RedemptionRateTrend />
             </DashboardCard>
           </div>
+
+          {/* Points Economy Breakdown — sources, distribution & leaderboard grouped together */}
+          <SectionTitle icon={Coins} color="text-warning">Points Economy Breakdown</SectionTitle>
+          <PointsEconomySection />
+
+          <DashboardCard title="Gameplay Velocity (DAP)" icon={Gamepad2} iconColor="text-accent">
+            <GameplayVelocityChart />
+          </DashboardCard>
         </TabsContent>
 
         {/* MONETIZATION */}
@@ -234,8 +283,12 @@ export default function DashboardPage() {
           </div>
         </TabsContent>
 
-        {/* COMMUNITY */}
+        {/* COMMUNITY — primary health first, then detailed analytics */}
         <TabsContent value="community" className="mt-0 space-y-6">
+          <section className="space-y-4">
+            <SectionTitle icon={MessagesSquare} color="text-featured">Community Health</SectionTitle>
+            <AdminHealthSummary stats={COMMUNITY_PRIMARY} />
+          </section>
           <SectionTitle icon={MessagesSquare} color="text-featured">Community Analytics</SectionTitle>
           <CommunitySection />
         </TabsContent>

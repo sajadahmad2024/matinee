@@ -1,8 +1,22 @@
 import { Suspense } from "react";
 
+import { ShieldAlert, TrendingUp, UserX } from "lucide-react";
+
+import {
+  RecommendedActions,
+  type RecommendedAction,
+} from "@/components/custom/recommended-actions";
+
 import { ModerationAnalytics } from "./_components/moderation-analytics";
 import { ModerationDashboardClient } from "./_components/moderation-dashboard-client";
 import { TimeRangeSelector } from "./_components/time-range-selector";
+
+// Actionable moderation insights (not passive stats).
+const MOD_ACTIONS: RecommendedAction[] = [
+  { title: "Backlog elevated (67 open)", detail: "Queue trending upward — assign reviewers to keep resolution time under SLA", severity: "high", cta: "Assign", icon: ShieldAlert },
+  { title: "Spam reports trending up", detail: "Spam category +18% in 24h — review automated filters", severity: "medium", cta: "Review filters", icon: TrendingUp },
+  { title: "Repeat offenders detected", detail: "3 users with multiple high-severity reports — consider escalation", severity: "high", cta: "Escalate", icon: UserX },
+];
 
 export type ModerationSearchParams = {
   timeRange?: string;
@@ -48,13 +62,20 @@ export default async function ModerationQueuePage({ searchParams }: PageProps) {
         </div>
       </div>
 
-      {/* Analytics Section */}
-      <Suspense
-        fallback={<div className="bg-muted/20 h-[300px] w-full animate-pulse rounded-xl" />}>
-        <ModerationAnalytics pendingCount={pendingCount} />
-      </Suspense>
+      {/* Insight → action */}
+      <RecommendedActions actions={MOD_ACTIONS} />
 
-      {/* Ticket List and Client State */}
+      {/* Moderation Intelligence — report volume, violations & safety trends,
+          grouped separately from ticket management below */}
+      <section className="space-y-4">
+        <h2 className="text-foreground text-lg font-semibold">Moderation Intelligence</h2>
+        <Suspense
+          fallback={<div className="bg-muted/20 h-[300px] w-full animate-pulse rounded-xl" />}>
+          <ModerationAnalytics pendingCount={pendingCount} />
+        </Suspense>
+      </section>
+
+      {/* Ticket management — separate from the intelligence section above */}
       <Suspense
         fallback={<div className="bg-muted/10 h-[600px] w-full animate-pulse rounded-xl" />}>
         <ModerationDashboardClient

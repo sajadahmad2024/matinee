@@ -3,9 +3,14 @@ import { Suspense } from "react";
 import type { Route } from "next";
 import Link from "next/link";
 
-import { Library, Plus } from "lucide-react";
+import { Clock, FileText, Library, Plus, XCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+
+import {
+  RecommendedActions,
+  type RecommendedAction,
+} from "@/components/custom/recommended-actions";
 
 import { ContentAnalytics } from "./_components/content-analytics";
 import { ContentFilters } from "./_components/content-filters";
@@ -28,6 +33,13 @@ export type ContentSearchParams = {
 interface PageProps {
   searchParams: Promise<ContentSearchParams>;
 }
+
+// Highest-priority content tasks — move admins from insight to action.
+const CONTENT_ACTIONS: RecommendedAction[] = [
+  { title: "8 videos awaiting review", detail: "In-review queue building up — assign a reviewer to keep the pipeline moving", severity: "high", cta: "Review queue", icon: FileText },
+  { title: "7 licenses expiring ≤30 days", detail: "Renew or archive to avoid content going dark", severity: "medium", cta: "View licenses", icon: Clock },
+  { title: "2 rejected videos need follow-up", detail: "Notify creators or re-submit with fixes", severity: "low", cta: "Open rejected", icon: XCircle },
+];
 
 export default async function ContentManagementPage({ searchParams }: PageProps) {
   const { view = "library", tab = "all", q = "", page = "1", pageSize = "10" } = await searchParams;
@@ -65,6 +77,9 @@ export default async function ContentManagementPage({ searchParams }: PageProps)
         <>
           {/* Inventory snapshot */}
           <ContentInventory />
+
+          {/* Recommended Actions — highest-priority content tasks */}
+          <RecommendedActions actions={CONTENT_ACTIONS} />
 
           {/* Video library — the primary working surface */}
           <div className="space-y-4">
