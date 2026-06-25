@@ -1,5 +1,8 @@
 "use client";
 
+import type { Route } from "next";
+import Link from "next/link";
+
 import {
   AlertTriangle,
   Coins,
@@ -140,11 +143,11 @@ export function GameAnalytics({ timeRange = "7d" }: GameAnalyticsProps) {
               </div>
             </div>
             <div className="flex shrink-0 items-center gap-2 sm:pl-4">
-              <Button size="sm" variant="outline" className="cursor-pointer">
-                View leaderboard
+              <Button asChild size="sm" variant="outline" className="cursor-pointer">
+                <Link href={"/games?tab=leaderboards" as Route}>View leaderboard</Link>
               </Button>
-              <Button size="sm" className="cursor-pointer">
-                Rebalance rewards
+              <Button asChild size="sm" className="cursor-pointer">
+                <Link href={"/games?tab=formats" as Route}>Rebalance rewards</Link>
               </Button>
             </div>
           </div>

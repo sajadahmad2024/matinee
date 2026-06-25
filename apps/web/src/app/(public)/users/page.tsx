@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import { useSearchParams } from "next/navigation";
 
-import { Activity, MapPin, ShieldAlert, UserMinus, Users } from "lucide-react";
+import { Activity, ShieldAlert, UserMinus, Users } from "lucide-react";
 
 import { AdminHealthSummary, type HealthStat } from "@/components/custom/admin-health-summary";
 import {
@@ -28,9 +28,9 @@ const USER_HEALTH: HealthStat[] = [
 ];
 
 const USER_ACTIONS: RecommendedAction[] = [
-  { title: "High-value users at risk", detail: "1.2K subscribers inactive 14+ days — trigger a win-back campaign", severity: "high", cta: "Review", icon: ShieldAlert },
-  { title: "Regions with declining retention", detail: "APAC D30 retention down 4 pts vs last cohort", severity: "medium", cta: "Inspect", icon: MapPin },
-  { title: "Dormant reactivation", detail: "50.5K dormant users eligible for a re-engagement push", severity: "low", cta: "Notify", icon: UserMinus },
+  { title: "High-value users at risk", detail: "1.2K subscribers inactive 14+ days — trigger a win-back campaign", severity: "high", cta: "Review in directory", href: "/users#user-directory" },
+  { title: "Regions with declining retention", detail: "APAC D30 retention down 4 pts vs last cohort", severity: "medium", cta: "Inspect regions", href: "/users#per-region" },
+  { title: "Dormant reactivation", detail: "50.5K dormant users eligible for a re-engagement push", severity: "low", cta: "Open directory", href: "/users#user-directory" },
 ];
 
 export default function UserManagementPage() {
@@ -68,7 +68,7 @@ export default function UserManagementPage() {
       <RecommendedActions actions={USER_ACTIONS} />
 
       {/* User Directory — promoted above deep analytics (more frequent task) */}
-      <div className="space-y-4">
+      <div id="user-directory" className="scroll-mt-24 space-y-4">
         <h2 className="text-foreground text-lg font-semibold">User Directory</h2>
         <UserListTable onViewUser={handleViewUser} onSendNotification={handleSendNotification} />
       </div>
@@ -76,7 +76,7 @@ export default function UserManagementPage() {
       {/* Deeper analytics — cohorts & regional breakdown lower on the page */}
       <UserAnalytics />
 
-      <div className="space-y-4">
+      <div id="per-region" className="scroll-mt-24 space-y-4">
         <h2 className="text-foreground text-lg font-semibold">Per-Region User Data</h2>
         <UserRegionalAnalytics />
       </div>

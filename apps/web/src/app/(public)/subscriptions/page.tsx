@@ -41,9 +41,9 @@ const SUB_HEALTH: HealthStat[] = [
 ];
 
 const SUB_ACTIONS: RecommendedAction[] = [
-  { title: "Churn rising in a key region", detail: "Day-28 cancellations spike — launch a trial-period retention campaign", severity: "high", cta: "Plan campaign", icon: TrendingDown },
-  { title: "Annual plan underpriced vs LTV", detail: "LTV $186 well above annual price — test a pricing adjustment", severity: "medium", cta: "Review pricing", icon: DollarSign },
-  { title: "High-intent users not converting", detail: "Users with 10+ watch hours not subscribed — target with an offer", severity: "low", cta: "Target", icon: Users },
+  { title: "Churn rising in a key region", detail: "Day-28 cancellations spike — launch a trial-period retention campaign", severity: "high", cta: "View by region", href: "/subscriptions?tab=regional" },
+  { title: "Annual plan underpriced vs LTV", detail: "LTV $186 well above annual price — test a pricing adjustment", severity: "medium", cta: "Review pricing", href: "/subscriptions?tab=plans" },
+  { title: "High-intent users not converting", detail: "Users with 10+ watch hours not subscribed — target with an offer", severity: "low", cta: "View subscribers", href: "/subscriptions?tab=subscribers" },
 ];
 
 export default async function SubscriptionsPage({ searchParams }: PageProps) {

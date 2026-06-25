@@ -2,6 +2,8 @@
 
 import { useCallback } from "react";
 
+import type { Route } from "next";
+import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import {
@@ -269,14 +271,18 @@ function InstanceRow({ instance }: { instance: GameInstance }) {
       </TableCell>
       <TableCell>
         {needsAction ? (
-          <Button variant="outline" size="sm" className="gap-2">
-            <AlertTriangle className="text-warning h-4 w-4" />
-            Intervene
+          <Button asChild variant="outline" size="sm" className="gap-2">
+            <Link href={"/games?tab=formats" as Route}>
+              <AlertTriangle className="text-warning h-4 w-4" />
+              Intervene
+            </Link>
           </Button>
         ) : (
-          <Button variant="ghost" size="sm" className="gap-2">
-            <ExternalLink className="h-4 w-4" />
-            View
+          <Button asChild variant="ghost" size="sm" className="gap-2">
+            <Link href={"/games?tab=leaderboards&subtab=hall-of-fame" as Route}>
+              <ExternalLink className="h-4 w-4" />
+              View
+            </Link>
           </Button>
         )}
       </TableCell>

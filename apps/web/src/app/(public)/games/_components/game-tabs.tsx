@@ -37,8 +37,11 @@ export function GameTabs({ defaultTab, children }: GameTabsProps) {
     router.push(`${pathname}?${createQueryString("tab", value)}`, { scroll: false });
   };
 
+  // URL-controlled so in-app links (e.g. "View leaderboard") actually switch the tab.
+  const current = searchParams.get("tab") ?? defaultTab;
+
   return (
-    <Tabs defaultValue={defaultTab} onValueChange={handleTabChange} className="space-y-6">
+    <Tabs value={current} onValueChange={handleTabChange} className="space-y-6">
       <TabsList className="bg-muted/30 h-auto flex-wrap p-1">
         <TabsTrigger
           value="overview"

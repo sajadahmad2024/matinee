@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import type { Route } from "next";
 import Link from "next/link";
 
-import { Clock, FileText, Library, Plus, XCircle } from "lucide-react";
+import { Library, Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
@@ -36,9 +36,9 @@ interface PageProps {
 
 // Highest-priority content tasks — move admins from insight to action.
 const CONTENT_ACTIONS: RecommendedAction[] = [
-  { title: "8 videos awaiting review", detail: "In-review queue building up — assign a reviewer to keep the pipeline moving", severity: "high", cta: "Review queue", icon: FileText },
-  { title: "7 licenses expiring ≤30 days", detail: "Renew or archive to avoid content going dark", severity: "medium", cta: "View licenses", icon: Clock },
-  { title: "2 rejected videos need follow-up", detail: "Notify creators or re-submit with fixes", severity: "low", cta: "Open rejected", icon: XCircle },
+  { title: "8 videos awaiting review", detail: "In-review queue building up — assign a reviewer to keep the pipeline moving", severity: "high", cta: "Review queue", href: "/content?view=library&tab=requests" },
+  { title: "7 licenses expiring ≤30 days", detail: "Renew or archive to avoid content going dark", severity: "medium", cta: "View licenses", href: "/content?view=analytics" },
+  { title: "2 rejected videos need follow-up", detail: "Notify creators or re-submit with fixes", severity: "low", cta: "Open rejected", href: "/content?view=library&tab=rejected" },
 ];
 
 export default async function ContentManagementPage({ searchParams }: PageProps) {

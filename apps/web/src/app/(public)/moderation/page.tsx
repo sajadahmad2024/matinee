@@ -1,7 +1,5 @@
 import { Suspense } from "react";
 
-import { ShieldAlert, TrendingUp, UserX } from "lucide-react";
-
 import {
   RecommendedActions,
   type RecommendedAction,
@@ -11,11 +9,11 @@ import { ModerationAnalytics } from "./_components/moderation-analytics";
 import { ModerationDashboardClient } from "./_components/moderation-dashboard-client";
 import { TimeRangeSelector } from "./_components/time-range-selector";
 
-// Actionable moderation insights (not passive stats).
+// Actionable moderation insights (not passive stats) — each routes to the filtered ticket queue.
 const MOD_ACTIONS: RecommendedAction[] = [
-  { title: "Backlog elevated (67 open)", detail: "Queue trending upward — assign reviewers to keep resolution time under SLA", severity: "high", cta: "Assign", icon: ShieldAlert },
-  { title: "Spam reports trending up", detail: "Spam category +18% in 24h — review automated filters", severity: "medium", cta: "Review filters", icon: TrendingUp },
-  { title: "Repeat offenders detected", detail: "3 users with multiple high-severity reports — consider escalation", severity: "high", cta: "Escalate", icon: UserX },
+  { title: "Backlog elevated (67 open)", detail: "Queue trending upward — assign reviewers to keep resolution time under SLA", severity: "high", cta: "Open high-severity", href: "/moderation?severity=high" },
+  { title: "Spam reports trending up", detail: "Spam category +18% in 24h — review automated filters", severity: "medium", cta: "Filter spam", href: "/moderation?category=spam" },
+  { title: "Repeat offenders detected", detail: "3 users with multiple high-severity reports — consider escalation", severity: "high", cta: "Review users", href: "/moderation?type=user" },
 ];
 
 export type ModerationSearchParams = {
