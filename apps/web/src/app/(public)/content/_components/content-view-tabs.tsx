@@ -2,6 +2,7 @@
 
 import { useCallback } from "react";
 
+import type { Route } from "next";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { BarChart3, Library } from "lucide-react";
@@ -22,7 +23,7 @@ export function ContentViewTabs({ activeView }: { activeView: string }) {
     (value: string) => {
       const params = new URLSearchParams(searchParams.toString());
       params.set("view", value);
-      router.push(`${pathname}?${params.toString()}`, { scroll: false });
+      router.push(`${pathname}?${params.toString()}` as Route, { scroll: false });
     },
     [pathname, router, searchParams],
   );
