@@ -9,7 +9,7 @@ export default function LoginPage() {
             <span className="text-primary-foreground font-sans text-2xl font-bold">A</span>
           </div>
           <h1 className="text-foreground font-sans text-3xl font-bold tracking-wide">
-            Asiaplex<span className="text-primary">.io</span>
+            Maintinee<span className="text-primary">.io</span>
           </h1>
         </div>
         <p className="text-foreground-secondary text-sm">Admin Portal</p>

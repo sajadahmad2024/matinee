@@ -77,7 +77,7 @@ export function AppSidebar() {
                 sideOffset={12}
                 className="bg-card/95 text-card-foreground border-border/50 rounded-lg border shadow-xl backdrop-blur-xl">
                 <span className="font-sans font-bold">
-                  Asiaplex<span className="text-primary">.io</span>
+                  Maintinee<span className="text-primary">.io</span>
                 </span>
               </TooltipContent>
             )}
@@ -89,7 +89,7 @@ export function AppSidebar() {
               isCollapsed ? "ml-0 max-w-0" : "ml-3 max-w-48",
             )}>
             <span className="text-foreground font-sans font-bold whitespace-nowrap">
-              Asiaplex<span className="text-primary">.io</span>
+              Maintinee<span className="text-primary">.io</span>
             </span>
             <button
               onClick={toggleSidebar}
