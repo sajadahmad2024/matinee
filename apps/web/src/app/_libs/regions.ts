@@ -56,6 +56,28 @@ const COUNTRY_TO_REGION: Record<string, MacroRegion> = {
   UAE: "MEA", AE: "MEA", "South Africa": "MEA", ZA: "MEA", Nigeria: "MEA", NG: "MEA", Egypt: "MEA", EG: "MEA",
 };
 
+// Normalize a country (display name or ISO) to its ISO alpha-2 code, so the ?country= filter
+// (ISO codes) can match data that stores informal names like "USA"/"UK".
+const COUNTRY_NAME_TO_ISO: Record<string, string> = {
+  USA: "US", "United States": "US", US: "US",
+  UK: "GB", "United Kingdom": "GB", GB: "GB",
+  Canada: "CA", CA: "CA",
+  Germany: "DE", DE: "DE", France: "FR", FR: "FR", Spain: "ES", ES: "ES", Italy: "IT", IT: "IT",
+  India: "IN", IN: "IN", Japan: "JP", JP: "JP", Australia: "AU", AU: "AU",
+  "South Korea": "KR", KR: "KR", Singapore: "SG", SG: "SG", Indonesia: "ID", ID: "ID",
+  Brazil: "BR", BR: "BR", Mexico: "MX", MX: "MX", Argentina: "AR", AR: "AR",
+  UAE: "AE", AE: "AE", "South Africa": "ZA", ZA: "ZA", Nigeria: "NG", NG: "NG", Egypt: "EG", EG: "EG",
+};
+
+export function isoForCountry(country?: string | null): string | null {
+  if (!country) return null;
+  return (
+    COUNTRY_NAME_TO_ISO[country] ??
+    COUNTRY_NAME_TO_ISO[country.toUpperCase()] ??
+    (country.length === 2 ? country.toUpperCase() : null)
+  );
+}
+
 /** Map a country (name or ISO) to its macro-region; defaults to APAC for unknowns. */
 export function regionForCountry(country?: string | null): MacroRegion {
   if (!country) return "APAC";

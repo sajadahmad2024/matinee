@@ -24,13 +24,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 /** A badge is "underperforming" when few users have earned it, or it's inactive. */
 const LOW_ADOPTION_THRESHOLD = 600;
 const isUnderperforming = (b: BadgeItem) => !b.isActive || b.usersEarned < LOW_ADOPTION_THRESHOLD;
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -175,7 +169,7 @@ const mockBadges: BadgeItem[] = [
 
 // --- Sub-components ---
 
-function BadgeCard({ badge }: { badge: BadgeItem }) {
+function BadgeCard({ badge, onEdit }: { badge: BadgeItem; onEdit: (b: BadgeItem) => void }) {
   const triggerLabel = TRIGGER_OPTIONS.find((t) => t.value === badge.trigger)?.label;
   const operatorLabel = OPERATOR_OPTIONS.find((o) => o.value === badge.operator)?.label;
   const lowAdoption = badge.isActive && badge.usersEarned < LOW_ADOPTION_THRESHOLD;
@@ -214,7 +208,12 @@ function BadgeCard({ badge }: { badge: BadgeItem }) {
               <p className="text-muted-foreground mt-1 text-xs">{badge.description}</p>
             </div>
           </div>
-          <Button variant="ghost" size="icon" className="h-8 w-8">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8"
+            aria-label={`Edit ${badge.name}`}
+            onClick={() => onEdit(badge)}>
             <Settings className="h-4 w-4" />
           </Button>
         </div>
@@ -246,30 +245,31 @@ function BadgeCard({ badge }: { badge: BadgeItem }) {
 function CreateBadgeDialog({
   open,
   onOpenChange,
+  editing,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  editing?: BadgeItem | null;
 }) {
+  const isEdit = !!editing;
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogTrigger asChild>
-        <Button className="gap-2">
-          <Plus className="h-4 w-4" />
-          Create Badge
-        </Button>
-      </DialogTrigger>
       <DialogContent className="border-border bg-card max-w-2xl!">
         <DialogHeader>
-          <DialogTitle>Create New Badge</DialogTitle>
+          <DialogTitle>{isEdit ? `Edit Badge — ${editing!.name}` : "Create New Badge"}</DialogTitle>
         </DialogHeader>
-        <div className="max-h-[80vh] space-y-4 overflow-y-auto py-4">
+        <div key={editing?.id ?? "new"} className="max-h-[80vh] space-y-4 overflow-y-auto py-4">
           <div className="space-y-2">
             <Label>Badge Name</Label>
-            <Input placeholder="e.g., Quiz Master" />
+            <Input placeholder="e.g., Quiz Master" defaultValue={editing?.name} />
           </div>
           <div className="space-y-2">
             <Label>Description</Label>
-            <Textarea placeholder="Describe how to earn this badge..." rows={2} />
+            <Textarea
+              placeholder="Describe how to earn this badge..."
+              rows={2}
+              defaultValue={editing?.description}
+            />
           </div>
           <div className="space-y-2">
             <Label>Icon (Active & Inactive States)</Label>
@@ -327,20 +327,22 @@ function CreateBadgeDialog({
                 </div>
                 <div className="space-y-2">
                   <Label className="text-xs">Value</Label>
-                  <Input type="number" placeholder="50" />
+                  <Input type="number" placeholder="50" defaultValue={editing?.value} />
                 </div>
               </div>
             </div>
           </div>
           <div className="space-y-2">
             <Label>Bonus Points (Optional)</Label>
-            <Input type="number" placeholder="500" />
+            <Input type="number" placeholder="500" defaultValue={editing?.bonusPoints} />
           </div>
           <div className="flex justify-end gap-3 pt-4">
             <Button variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button onClick={() => onOpenChange(false)}>Create Badge</Button>
+            <Button onClick={() => onOpenChange(false)}>
+              {isEdit ? "Save changes" : "Create Badge"}
+            </Button>
           </div>
         </div>
       </DialogContent>
@@ -352,6 +354,15 @@ function CreateBadgeDialog({
 
 export function BadgeManagement() {
   const [isAddOpen, setIsAddOpen] = useState(false);
+  const [editing, setEditing] = useState<BadgeItem | null>(null);
+  const openCreate = () => {
+    setEditing(null);
+    setIsAddOpen(true);
+  };
+  const openEdit = (b: BadgeItem) => {
+    setEditing(b);
+    setIsAddOpen(true);
+  };
 
   // Performance summary + most-adopted first so admins see impact before scrolling.
   const activeCount = mockBadges.filter((b) => b.isActive).length;
@@ -383,8 +394,20 @@ export function BadgeManagement() {
           <h3 className="text-foreground text-lg font-semibold">Badge Management</h3>
           <p className="text-muted-foreground text-sm">Create static milestones users can earn</p>
         </div>
-        <CreateBadgeDialog open={isAddOpen} onOpenChange={setIsAddOpen} />
+        <Button className="gap-2" onClick={openCreate}>
+          <Plus className="h-4 w-4" />
+          Create Badge
+        </Button>
       </div>
+
+      <CreateBadgeDialog
+        open={isAddOpen}
+        onOpenChange={(o) => {
+          setIsAddOpen(o);
+          if (!o) setEditing(null);
+        }}
+        editing={editing}
+      />
 
       {/* Performance summary — identify underperformers without opening each card */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
@@ -414,7 +437,7 @@ export function BadgeManagement() {
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {sortedBadges.map((badge) => (
-          <BadgeCard key={badge.id} badge={badge} />
+          <BadgeCard key={badge.id} badge={badge} onEdit={openEdit} />
         ))}
       </div>
     </div>

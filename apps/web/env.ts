@@ -18,13 +18,13 @@ export const env = createEnv({
   },
   client: {
     NEXT_PUBLIC_APP_ENV: z.enum(["development", "staging", "production"]).default("development"),
-    NEXT_PUBLIC_APP_TITLE: z.string().min(1, "App title is required").default("Create Next CoE"),
-    NEXT_PUBLIC_APP_NAME: z.string().min(1, "App name is required").default("Create Next CoE"),
+    NEXT_PUBLIC_APP_TITLE: z.string().min(1, "App title is required").default("Maintinee Admin"),
+    NEXT_PUBLIC_APP_NAME: z.string().min(1, "App name is required").default("Maintinee"),
     NEXT_PUBLIC_APP_URL: z.url("App URL is required").default("http://localhost:3000"),
     NEXT_PUBLIC_APP_DESCRIPTION: z
       .string()
       .min(1, "App description is required")
-      .default("Production-ready Next.js starter"),
+      .default("Maintinee admin panel — content, gamification, users & revenue"),
     NEXT_PUBLIC_APP_CATEGORY: z.string().min(1, "App category is required").default("app"),
     NEXT_PUBLIC_APP_KEYWORDS: z
       .string()

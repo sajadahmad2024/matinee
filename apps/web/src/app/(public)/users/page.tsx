@@ -75,7 +75,11 @@ export default function UserManagementPage() {
       {/* User Directory — promoted above deep analytics (more frequent task) */}
       <div id="user-directory" className="scroll-mt-24 space-y-4">
         <h2 className="text-foreground text-lg font-semibold">User Directory</h2>
-        <UserListTable onViewUser={handleViewUser} onSendNotification={handleSendNotification} />
+        <UserListTable
+          onViewUser={handleViewUser}
+          onSendNotification={handleSendNotification}
+          country={country}
+        />
       </div>
 
       {/* Deeper analytics — cohorts & regional breakdown lower on the page */}
