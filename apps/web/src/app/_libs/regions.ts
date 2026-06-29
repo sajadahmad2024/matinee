@@ -16,6 +16,30 @@ const REGION_LABEL: Record<MacroRegion, string> = MACRO_REGIONS.reduce(
   {} as Record<MacroRegion, string>,
 );
 
+// Country drill-down for the app-wide ?country= filter (ISO alpha-2 → display name).
+export const COUNTRIES: { code: string; label: string }[] = [
+  { code: "US", label: "United States" },
+  { code: "CA", label: "Canada" },
+  { code: "GB", label: "United Kingdom" },
+  { code: "DE", label: "Germany" },
+  { code: "FR", label: "France" },
+  { code: "ES", label: "Spain" },
+  { code: "IT", label: "Italy" },
+  { code: "IN", label: "India" },
+  { code: "JP", label: "Japan" },
+  { code: "AU", label: "Australia" },
+  { code: "KR", label: "South Korea" },
+  { code: "SG", label: "Singapore" },
+  { code: "ID", label: "Indonesia" },
+  { code: "BR", label: "Brazil" },
+  { code: "MX", label: "Mexico" },
+  { code: "AR", label: "Argentina" },
+  { code: "AE", label: "United Arab Emirates" },
+  { code: "ZA", label: "South Africa" },
+  { code: "NG", label: "Nigeria" },
+  { code: "EG", label: "Egypt" },
+];
+
 // country (display name OR ISO alpha-2) → macro-region
 const COUNTRY_TO_REGION: Record<string, MacroRegion> = {
   // North America

@@ -9,6 +9,7 @@ import {
   AlertTriangle,
   Coins,
   DollarSign,
+  Download,
   Eye,
   Gamepad2,
   Gauge,
@@ -24,9 +25,11 @@ import {
   Users,
 } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { AdminHealthSummary, type HealthStat } from "@/components/custom/admin-health-summary";
+import { CountryFilter } from "@/components/custom/country-filter";
 import { RegionFilter } from "@/components/custom/region-filter";
 import { TimeRangeSelector } from "@/components/custom/time-range-selector";
 
@@ -87,10 +90,14 @@ export default function DashboardPage() {
     return () => clearInterval(interval);
   }, []);
 
+  // Platform total (incl. guests) is distinct from Signed Up.
+  const totalUsers = 312000;
+
   const [tab, setTab] = useTabParam("overview");
   const searchParams = useSearchParams();
   const timeRange = searchParams.get("timeRange") ?? "30d";
   const region = searchParams.get("region") ?? "global";
+  const country = searchParams.get("country") ?? "all";
   const tabTrigger =
     "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground gap-2";
 
@@ -100,6 +107,28 @@ export default function DashboardPage() {
     (
       { "7d": "Last 7 days", "30d": "Last 30 days", "90d": "Last 90 days" } as Record<string, string>
     )[timeRange] ?? timeRange;
+
+  // Export all dashboard statistics (header-level so it clearly covers the whole dashboard).
+  const exportDashboard = () => {
+    const rows: [string, string][] = [
+      ["Metric", "Value"],
+      ["Total Users", String(totalUsers)],
+      ["Signed Up", String(signedUpUsers)],
+      ["Subscribed", String(subscribedUsers)],
+      ["Online Now", String(liveUsers)],
+      ["Playing Games", String(liveGameSessions)],
+      ["Region", regionLabel],
+      ["Country", country === "all" ? "All" : country],
+      ["Period", timeRangeLabel],
+    ];
+    const csv = rows.map((r) => r.join(",")).join("\n");
+    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "dashboard-statistics.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <div className="animate-fade-in space-y-6">
@@ -113,14 +142,25 @@ export default function DashboardPage() {
             <span className="bg-primary/10 text-primary rounded px-2 py-0.5 font-medium">
               {regionLabel}
             </span>
+            {country !== "all" && (
+              <span className="bg-accent/10 text-accent rounded px-2 py-0.5 font-medium">
+                {country}
+              </span>
+            )}
             <span className="bg-muted/50 text-foreground-secondary rounded px-2 py-0.5 font-medium">
               {timeRangeLabel}
             </span>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        {/* Filters + a single Export that applies to ALL dashboard statistics */}
+        <div className="flex flex-wrap items-center gap-2">
           <RegionFilter defaultValue={region} />
+          <CountryFilter defaultValue={country} />
           <TimeRangeSelector defaultValue={timeRange} />
+          <Button variant="outline" className="gap-2" onClick={exportDashboard}>
+            <Download className="h-4 w-4" />
+            Export
+          </Button>
         </div>
       </div>
 
@@ -146,10 +186,11 @@ export default function DashboardPage() {
         {/* OVERVIEW — flow: live pulse → highlights → health → core business metrics → regional */}
         <TabsContent value="overview" className="mt-0 space-y-6">
           <RealTimePulse
+            totalUsers={totalUsers}
+            signedUpUsers={signedUpUsers}
+            subscribedUsers={subscribedUsers}
             liveUsers={liveUsers}
             liveGameSessions={liveGameSessions}
-            subscribedUsers={subscribedUsers}
-            signedUpUsers={signedUpUsers}
           />
 
           {/* Highlights — key trends summarised so admins don't have to read every chart */}

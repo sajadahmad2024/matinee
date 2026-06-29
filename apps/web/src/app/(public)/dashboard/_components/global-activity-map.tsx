@@ -2,9 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-import { Camera, Download } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
+import { Camera } from "lucide-react";
 
 import { cn } from "@/app/_libs/utils/cn";
 import { MACRO_REGIONS, type MacroRegion, regionForCountry } from "@/app/_libs/regions";
@@ -107,18 +105,6 @@ export function GlobalActivityMap() {
     return `hsla(${hue}, 91%, 60%, ${0.3 + intensity * 0.7})`;
   };
 
-  const exportCsv = () => {
-    const header = `${level === "master" ? "country" : "region"},${metric}\n`;
-    const rows = cells.map((c) => `${c.name},${c.value}`).join("\n");
-    const blob = new Blob([header + rows], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `global-activity-${level}-${metric}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
   return (
     <div className="space-y-3">
       {/* Controls — Master/Regional, metric mode, snapshot, export */}
@@ -155,9 +141,6 @@ export function GlobalActivityMap() {
           <span className="text-muted-foreground flex items-center gap-1 text-[11px]">
             <Camera className="h-3 w-3" /> Snapshot · {snapshotAt}
           </span>
-          <Button variant="outline" size="sm" className="h-8 gap-1.5" onClick={exportCsv}>
-            <Download className="h-3.5 w-3.5" /> Export
-          </Button>
         </div>
       </div>
 

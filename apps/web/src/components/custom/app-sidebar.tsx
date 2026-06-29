@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 
 import {
   LuChevronLeft,
+  LuClipboardList,
   LuCreditCard,
   LuFilm,
   LuGamepad2,
@@ -34,6 +35,7 @@ const navItems: NavItem[] = [
   { title: "User Management", href: "/users", icon: LuUsers },
   { title: "Subscriptions", href: "/subscriptions", icon: LuCreditCard },
   { title: "Moderation Queue", href: "/moderation", icon: LuShieldAlert },
+  { title: "Report Management", href: "/reports", icon: LuClipboardList },
   { title: "Settings", href: "/settings", icon: LuSettings },
 ];
 
