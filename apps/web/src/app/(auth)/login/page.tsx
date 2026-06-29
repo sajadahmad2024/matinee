@@ -6,7 +6,7 @@ export default function LoginPage() {
       <div className="mb-8 text-center">
         <div className="mb-3 flex items-center justify-center gap-3">
           <div className="from-primary to-accent shadow-glow flex h-12 w-12 items-center justify-center rounded-xl bg-linear-to-br">
-            <span className="text-primary-foreground font-sans text-2xl font-bold">A</span>
+            <span className="text-primary-foreground font-sans text-2xl font-bold">M</span>
           </div>
           <h1 className="text-foreground font-sans text-3xl font-bold tracking-wide">
             Maintinee<span className="text-primary">.io</span>

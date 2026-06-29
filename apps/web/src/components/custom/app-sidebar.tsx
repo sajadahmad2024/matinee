@@ -68,7 +68,7 @@ export function AppSidebar() {
               <div
                 onClick={toggleSidebar}
                 className="from-primary to-accent shadow-glow-sm flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-lg bg-linear-to-br">
-                <span className="text-primary-foreground font-sans text-lg font-bold">A</span>
+                <span className="text-primary-foreground font-sans text-lg font-bold">M</span>
               </div>
             </TooltipTrigger>
             {isCollapsed && (
