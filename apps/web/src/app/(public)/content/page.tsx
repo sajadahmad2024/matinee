@@ -7,6 +7,7 @@ import { Library, Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
+import { CountryFilter } from "@/components/custom/country-filter";
 import {
   RecommendedActions,
   type RecommendedAction,
@@ -25,6 +26,7 @@ import type { TabValue } from "./constants";
 export type ContentSearchParams = {
   view?: string;
   tab?: TabValue;
+  country?: string;
   q?: string;
   page?: string;
   pageSize?: string;
@@ -42,7 +44,14 @@ const CONTENT_ACTIONS: RecommendedAction[] = [
 ];
 
 export default async function ContentManagementPage({ searchParams }: PageProps) {
-  const { view = "library", tab = "all", q = "", page = "1", pageSize = "10" } = await searchParams;
+  const {
+    view = "library",
+    tab = "all",
+    country = "all",
+    q = "",
+    page = "1",
+    pageSize = "10",
+  } = await searchParams;
 
   return (
     <div className="animate-fade-in space-y-6">
@@ -54,7 +63,8 @@ export default async function ContentManagementPage({ searchParams }: PageProps)
             Manage your video library, games, and content performance
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <CountryFilter defaultValue={country} />
           <Button asChild variant="outline" className="gap-2">
             <Link href={"/content/taxonomy" as Route}>
               <Library className="h-4 w-4" />

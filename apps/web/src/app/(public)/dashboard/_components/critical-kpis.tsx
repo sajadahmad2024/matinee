@@ -98,27 +98,19 @@ export function CriticalKPIs({
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-      {/* Community Health (Moderation) */}
-      <KPICard
-        title="Community Health"
-        icon={ShieldAlert}
-        iconColor="bg-destructive/20 text-destructive"
-        onClick={() => router.push("/moderation?sort=oldest" as Route)}>
-        <div className="flex items-baseline gap-2">
-          <span className="font-gaming text-foreground text-3xl font-bold">{pendingReports}</span>
-          <span
-            className={cn(
-              "rounded-full px-2 py-0.5 text-xs font-medium",
-              healthColors[healthStatus],
-            )}>
-            {healthStatus === "green"
-              ? "Healthy"
-              : healthStatus === "yellow"
-                ? "Moderate"
-                : "Critical"}
-          </span>
+      {/* Average User Session Time (swapped to first position per feedback) */}
+      <KPICard title="Avg. User Session Time" icon={Clock} iconColor="bg-primary/20 text-primary">
+        <div className="space-y-2">
+          <div>
+            <span className="font-gaming text-foreground text-2xl font-bold">
+              {avgSessionDuration}
+            </span>
+            <span className="text-foreground-secondary ml-2 text-sm">avg session</span>
+          </div>
+          <div className="text-foreground-secondary text-sm">
+            <span className="text-primary font-medium">{avgDailySessions}</span> sessions/user/day
+          </div>
         </div>
-        <p className="text-foreground-secondary mt-1 text-sm">Pending Reports</p>
       </KPICard>
 
       {/* Churn Rate */}
@@ -170,19 +162,27 @@ export function CriticalKPIs({
         <p className="text-foreground-secondary mt-1 text-sm">MRR: ${(mrr / 1000).toFixed(1)}K</p>
       </KPICard>
 
-      {/* Average User Session Time */}
-      <KPICard title="Avg. User Session Time" icon={Clock} iconColor="bg-primary/20 text-primary">
-        <div className="space-y-2">
-          <div>
-            <span className="font-gaming text-foreground text-2xl font-bold">
-              {avgSessionDuration}
-            </span>
-            <span className="text-foreground-secondary ml-2 text-sm">avg session</span>
-          </div>
-          <div className="text-foreground-secondary text-sm">
-            <span className="text-primary font-medium">{avgDailySessions}</span> sessions/user/day
-          </div>
+      {/* Community Health (Moderation) — swapped to last position per feedback */}
+      <KPICard
+        title="Community Health"
+        icon={ShieldAlert}
+        iconColor="bg-destructive/20 text-destructive"
+        onClick={() => router.push("/moderation?sort=oldest" as Route)}>
+        <div className="flex items-baseline gap-2">
+          <span className="font-gaming text-foreground text-3xl font-bold">{pendingReports}</span>
+          <span
+            className={cn(
+              "rounded-full px-2 py-0.5 text-xs font-medium",
+              healthColors[healthStatus],
+            )}>
+            {healthStatus === "green"
+              ? "Healthy"
+              : healthStatus === "yellow"
+                ? "Moderate"
+                : "Critical"}
+          </span>
         </div>
+        <p className="text-foreground-secondary mt-1 text-sm">Pending Reports</p>
       </KPICard>
     </div>
   );

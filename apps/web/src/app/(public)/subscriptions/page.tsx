@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 import { AdminHealthSummary, type HealthStat } from "@/components/custom/admin-health-summary";
+import { CountryFilter } from "@/components/custom/country-filter";
 import {
   RecommendedActions,
   type RecommendedAction,
@@ -22,6 +23,7 @@ import { TransactionLedger } from "./_components/transaction-ledger";
 export type SubscriptionSearchParams = {
   tab?: "analytics" | "regional" | "subscribers" | "transactions" | "plans";
   timeRange?: string;
+  country?: string;
   q?: string;
   status?: string;
   page?: string;
@@ -50,6 +52,7 @@ export default async function SubscriptionsPage({ searchParams }: PageProps) {
   const {
     tab = "analytics",
     timeRange = "30d",
+    country = "all",
     q = "",
     status = "all",
     page = "1",
@@ -75,6 +78,7 @@ export default async function SubscriptionsPage({ searchParams }: PageProps) {
           </p>
         </div>
         <div className="flex items-center gap-3">
+          <CountryFilter defaultValue={country} />
           <Suspense
             fallback={<div className="bg-muted/20 h-10 w-[140px] animate-pulse rounded-md" />}>
             <TimeRangeSelector defaultValue={timeRange} />

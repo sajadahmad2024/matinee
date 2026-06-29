@@ -32,7 +32,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { regionForCountry, regionLabel } from "@/app/_libs/regions";
+import { isoForCountry, regionForCountry, regionLabel } from "@/app/_libs/regions";
 import { ConfirmationDialog } from "@/components/custom/confirmation-dialog";
 import { type Column, DataTable } from "@/components/custom/data-table";
 import { TablePagination } from "@/components/custom/table-pagination";
@@ -54,6 +54,8 @@ export interface User {
 interface UserListTableProps {
   onViewUser: (user: User) => void;
   onSendNotification: (users: User[]) => void;
+  /** App-wide country scope (?country=); "all" = no filter. */
+  country?: string;
 }
 
 const mockUsers: User[] = [
@@ -160,7 +162,11 @@ const mockUsers: User[] = [
   },
 ];
 
-export function UserListTable({ onViewUser, onSendNotification }: UserListTableProps) {
+export function UserListTable({
+  onViewUser,
+  onSendNotification,
+  country = "all",
+}: UserListTableProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [subscriptionFilter, setSubscriptionFilter] = useState<string>("all");
@@ -183,8 +189,9 @@ export function UserListTable({ onViewUser, onSendNotification }: UserListTableP
       subscriptionFilter === "all" ||
       (subscriptionFilter === "subscribed" && user.subscribed) ||
       (subscriptionFilter === "free" && !user.subscribed);
+    const matchesCountry = country === "all" || isoForCountry(user.country) === country;
 
-    return matchesSearch && matchesStatus && matchesSubscription;
+    return matchesSearch && matchesStatus && matchesSubscription && matchesCountry;
   });
 
   const totalPages = Math.ceil(filteredUsers.length / pageSize);

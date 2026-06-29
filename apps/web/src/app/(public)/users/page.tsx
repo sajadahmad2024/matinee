@@ -11,6 +11,7 @@ import {
   RecommendedActions,
   type RecommendedAction,
 } from "@/components/custom/recommended-actions";
+import { CountryFilter } from "@/components/custom/country-filter";
 import { TimeRangeSelector } from "@/components/custom/time-range-selector";
 
 import { PushNotificationModal } from "./_components/push-notification-modal";
@@ -36,6 +37,7 @@ const USER_ACTIONS: RecommendedAction[] = [
 export default function UserManagementPage() {
   const searchParams = useSearchParams();
   const timeRange = searchParams.get("timeRange") ?? "7d";
+  const country = searchParams.get("country") ?? "all";
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [notificationUsers, setNotificationUsers] = useState<User[]>([]);
@@ -58,7 +60,10 @@ export default function UserManagementPage() {
           <h1 className="font-gaming text-foreground text-3xl font-bold">User Management</h1>
           <p className="text-foreground-secondary mt-1">CRM & 360° user profiles with analytics.</p>
         </div>
-        <TimeRangeSelector defaultValue={timeRange} />
+        <div className="flex flex-wrap items-center gap-2">
+          <CountryFilter defaultValue={country} />
+          <TimeRangeSelector defaultValue={timeRange} />
+        </div>
       </div>
 
       {/* User Health Summary — before diving into cohort/segmentation analytics */}
@@ -70,7 +75,11 @@ export default function UserManagementPage() {
       {/* User Directory — promoted above deep analytics (more frequent task) */}
       <div id="user-directory" className="scroll-mt-24 space-y-4">
         <h2 className="text-foreground text-lg font-semibold">User Directory</h2>
-        <UserListTable onViewUser={handleViewUser} onSendNotification={handleSendNotification} />
+        <UserListTable
+          onViewUser={handleViewUser}
+          onSendNotification={handleSendNotification}
+          country={country}
+        />
       </div>
 
       {/* Deeper analytics — cohorts & regional breakdown lower on the page */}

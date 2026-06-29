@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 
+import { CountryFilter } from "@/components/custom/country-filter";
 import {
   RecommendedActions,
   type RecommendedAction,
@@ -18,6 +19,7 @@ const MOD_ACTIONS: RecommendedAction[] = [
 
 export type ModerationSearchParams = {
   timeRange?: string;
+  country?: string;
   q?: string;
   type?: string;
   severity?: string;
@@ -33,6 +35,7 @@ interface PageProps {
 export default async function ModerationQueuePage({ searchParams }: PageProps) {
   const {
     timeRange = "24h",
+    country = "all",
     q = "",
     type = "all",
     severity = "all",
@@ -53,7 +56,8 @@ export default async function ModerationQueuePage({ searchParams }: PageProps) {
             Review and manage flagged content, users, and community reports.
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          <CountryFilter defaultValue={country} />
           <Suspense fallback={<div className="bg-muted h-10 w-[140px] animate-pulse rounded-md" />}>
             <TimeRangeSelector defaultValue={timeRange} />
           </Suspense>

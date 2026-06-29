@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 
 import {
   LuChevronLeft,
+  LuClipboardList,
   LuCreditCard,
   LuFilm,
   LuGamepad2,
@@ -34,6 +35,7 @@ const navItems: NavItem[] = [
   { title: "User Management", href: "/users", icon: LuUsers },
   { title: "Subscriptions", href: "/subscriptions", icon: LuCreditCard },
   { title: "Moderation Queue", href: "/moderation", icon: LuShieldAlert },
+  { title: "Report Management", href: "/reports", icon: LuClipboardList },
   { title: "Settings", href: "/settings", icon: LuSettings },
 ];
 
@@ -66,7 +68,7 @@ export function AppSidebar() {
               <div
                 onClick={toggleSidebar}
                 className="from-primary to-accent shadow-glow-sm flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-lg bg-linear-to-br">
-                <span className="text-primary-foreground font-sans text-lg font-bold">A</span>
+                <span className="text-primary-foreground font-sans text-lg font-bold">M</span>
               </div>
             </TooltipTrigger>
             {isCollapsed && (
@@ -75,7 +77,7 @@ export function AppSidebar() {
                 sideOffset={12}
                 className="bg-card/95 text-card-foreground border-border/50 rounded-lg border shadow-xl backdrop-blur-xl">
                 <span className="font-sans font-bold">
-                  Asiaplex<span className="text-primary">.io</span>
+                  Maintinee<span className="text-primary">.io</span>
                 </span>
               </TooltipContent>
             )}
@@ -87,7 +89,7 @@ export function AppSidebar() {
               isCollapsed ? "ml-0 max-w-0" : "ml-3 max-w-48",
             )}>
             <span className="text-foreground font-sans font-bold whitespace-nowrap">
-              Asiaplex<span className="text-primary">.io</span>
+              Maintinee<span className="text-primary">.io</span>
             </span>
             <button
               onClick={toggleSidebar}
