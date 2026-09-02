@@ -94,7 +94,7 @@ export function VideoListItem({ video, variant = "default", onEdit, onAnalytics 
                 <div
                   className={cn(
                     "absolute inset-0 bg-linear-to-br",
-                    video.status === "boosted"
+                    video.boosted
                       ? "from-featured/40 to-accent/30"
                       : video.isLive
                         ? "from-destructive/40 to-warning/30"
@@ -141,7 +141,7 @@ export function VideoListItem({ video, variant = "default", onEdit, onAnalytics 
                     </div>
                   </div>
                 )}
-                {video.status === "boosted" && !video.isLive && !video.isFeatured && (
+                {video.boosted && !video.isLive && !video.isFeatured && (
                   <div className="absolute top-2 left-2 z-10">
                     <div className="from-featured to-accent flex items-center gap-1 rounded-full bg-linear-to-r px-2 py-0.5 text-[10px] font-bold text-white">
                       <Rocket className="h-3 w-3" />
@@ -172,6 +172,7 @@ export function VideoListItem({ video, variant = "default", onEdit, onAnalytics 
                           : ""}
                     </Badge>
                   )}
+                  {video.boosted && <StatusBadge status="boosted" />}
                   <StatusBadge status={video.status} />
                 </div>
 
@@ -274,7 +275,7 @@ export function VideoListItem({ video, variant = "default", onEdit, onAnalytics 
               </Collapsible>
             ) : null}
 
-            {(video.status === "boosted" || video.isLive) && (
+            {(video.boosted || video.isLive) && (
               <div
                 className={cn(
                   "absolute right-0 bottom-0 left-0 h-0.5",

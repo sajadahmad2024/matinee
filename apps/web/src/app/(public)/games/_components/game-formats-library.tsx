@@ -1,7 +1,7 @@
 import type { Route } from "next";
 import Link from "next/link";
 
-import { ChevronRight, Gamepad2, Play, Plus, Sparkles } from "lucide-react";
+import { ChevronRight, Gamepad2, Play, Sparkles } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 
@@ -35,13 +35,17 @@ export function GameFormatsLibrary() {
           <GameTypeRow key={type.slug} type={type} />
         ))}
 
-        {/* Client: "if you want to add a new analytic/game we'll ask and you add it as another row" */}
+        {/* Hidden for now (client: don't surface adding formats yet). The /games/format/new
+            page still exists — restore this row when they ask for it back.
+            Client rationale: "if you want to add a new analytic/game we'll ask and you add
+            it as another row".
         <Link href={"/games/format/new" as Route} className="group block">
           <div className="border-border/60 hover:border-accent/40 text-muted-foreground hover:text-foreground flex items-center justify-center gap-2 rounded-xl border border-dashed p-4 text-sm transition-colors">
             <Plus className="h-4 w-4" />
             New game format
           </div>
         </Link>
+        */}
       </div>
     </div>
   );

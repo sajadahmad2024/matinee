@@ -12,7 +12,8 @@ import { cn } from "@/app/_libs/utils/cn";
 import { GlassCard } from "../../games/_components/glass-card";
 import { CONTENT_INVENTORY, LICENSING_SUMMARY, PERFORMANCE_SUMMARY } from "../constants";
 
-export type SummarySection = "inventory" | "licensing" | "performance";
+/** "none" = every card collapsed. Inventory is the default when ?section= is absent. */
+export type SummarySection = "inventory" | "licensing" | "performance" | "none";
 
 interface SummaryCardConfig {
   section: SummarySection;
@@ -58,8 +59,9 @@ interface ContentSummaryCardsProps {
 }
 
 /**
- * Three clickable summary cards — detail data appears only on click (?section=),
- * clicking the active card again collapses. The video timeline below never disappears.
+ * Three clickable summary cards — the active card's detail renders beneath them.
+ * Content Inventory is active by default and owns the Recommended Actions + video
+ * timeline; clicking the active card again collapses to the cards alone.
  */
 export function ContentSummaryCards({ activeSection }: ContentSummaryCardsProps) {
   const router = useRouter();
@@ -69,11 +71,7 @@ export function ContentSummaryCards({ activeSection }: ContentSummaryCardsProps)
   const toggleSection = useCallback(
     (section: SummarySection) => {
       const params = new URLSearchParams(searchParams.toString());
-      if (activeSection === section) {
-        params.delete("section");
-      } else {
-        params.set("section", section);
-      }
+      params.set("section", activeSection === section ? "none" : section);
       router.push(`${pathname}?${params.toString()}` as Route, { scroll: false });
     },
     [activeSection, pathname, router, searchParams],

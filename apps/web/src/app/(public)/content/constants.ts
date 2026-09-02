@@ -29,6 +29,9 @@ export interface VideoItem {
   likes: number;
   isLive?: boolean;
   isFeatured?: boolean;
+  /** Boost is an overlay on the lifecycle status, not a status of its own — a boosted
+   *  video is still published or scheduled at the same time. */
+  boosted?: boolean;
   scheduledAt?: string;
   // live availability window (every live video has dates associated — calendar view)
   liveFrom?: string; // ISO date
@@ -188,6 +191,7 @@ export const MOCK_VIDEOS: VideoItem[] = [
     studioName: "Food Network Asia",
     duration: "55:00",
     status: "scheduled",
+    boosted: true,
     linkedGames: 2,
     views: 0,
     likes: 0,
@@ -205,7 +209,8 @@ export const MOCK_VIDEOS: VideoItem[] = [
     thumbnail: "",
     studioName: "Wanderlust Media",
     duration: "38:45",
-    status: "boosted",
+    status: "published",
+    boosted: true,
     linkedGames: 1,
     views: 245000,
     likes: 18900,
@@ -341,7 +346,7 @@ export const parseMockDate = (s?: string): Date | null => {
 
 /** Master tab = everything live OR scheduled, in one scrolling list. */
 export const isMasterVideo = (v: VideoItem) =>
-  v.status === "published" || v.status === "boosted" || v.isLive === true || v.status === "scheduled";
+  v.status === "published" || v.isLive === true || v.status === "scheduled";
 
 const MASTER_COUNT = MOCK_VIDEOS.filter(isMasterVideo).length;
 const SCHEDULED_COUNT = MOCK_VIDEOS.filter((v) => v.status === "scheduled").length;

@@ -50,7 +50,7 @@ const CONTENT_ACTIONS: RecommendedAction[] = [
 
 export default async function ContentManagementPage({ searchParams }: PageProps) {
   const {
-    section,
+    section = "inventory",
     tab = "master",
     country = "all",
     q = "",
@@ -96,9 +96,49 @@ export default async function ContentManagementPage({ searchParams }: PageProps)
       </Suspense>
 
       {/* Expanded section area — belongs to the active card */}
-      {section && (
+      {section !== "none" && (
         <div className="border-primary/30 animate-fade-in space-y-6 border-l-2 pl-4">
-          {section === "inventory" && <ContentInventory />}
+          {section === "inventory" && (
+            <>
+              <ContentInventory />
+
+              {/* Recommended Actions — highest-priority content tasks (client: keep) */}
+              <RecommendedActions actions={CONTENT_ACTIONS} />
+
+              {/* Video timeline — the primary working surface, owned by Content Inventory */}
+              <div className="space-y-4">
+                <div className="flex flex-wrap items-center justify-between gap-4">
+                  <ContentTabs activeTab={tab} />
+                  <div className="flex flex-wrap items-center gap-2">
+                    <ContentFilters searchQuery={q} sort={sort} range={range} />
+                    {tab === "master" && (
+                      <Suspense fallback={null}>
+                        <ViewModeToggle viewMode={viewMode} />
+                      </Suspense>
+                    )}
+                  </div>
+                </div>
+
+                {showCalendar ? (
+                  <ContentCalendar />
+                ) : (
+                  <Suspense
+                    fallback={
+                      <div className="bg-muted/10 h-[400px] w-full animate-pulse rounded-xl" />
+                    }>
+                    <VideoList
+                      tab={tab}
+                      searchQuery={q}
+                      sort={sort}
+                      range={range}
+                      page={Number(page)}
+                      pageSize={Number(pageSize)}
+                    />
+                  </Suspense>
+                )}
+              </div>
+            </>
+          )}
           {section === "licensing" && <LicensingRights />}
           {section === "performance" && (
             <>
@@ -111,40 +151,6 @@ export default async function ContentManagementPage({ searchParams }: PageProps)
           )}
         </div>
       )}
-
-      {/* Recommended Actions — highest-priority content tasks (client: keep) */}
-      <RecommendedActions actions={CONTENT_ACTIONS} />
-
-      {/* Video timeline — always visible, the primary working surface */}
-      <div className="space-y-4">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <ContentTabs activeTab={tab} />
-          <div className="flex flex-wrap items-center gap-2">
-            <ContentFilters searchQuery={q} sort={sort} range={range} />
-            {tab === "master" && (
-              <Suspense fallback={null}>
-                <ViewModeToggle viewMode={viewMode} />
-              </Suspense>
-            )}
-          </div>
-        </div>
-
-        {showCalendar ? (
-          <ContentCalendar />
-        ) : (
-          <Suspense
-            fallback={<div className="bg-muted/10 h-[400px] w-full animate-pulse rounded-xl" />}>
-            <VideoList
-              tab={tab}
-              searchQuery={q}
-              sort={sort}
-              range={range}
-              page={Number(page)}
-              pageSize={Number(pageSize)}
-            />
-          </Suspense>
-        )}
-      </div>
     </div>
   );
 }

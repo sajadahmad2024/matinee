@@ -1,5 +1,7 @@
 import { cn } from "@/app/_libs/utils/cn";
 
+/** Lifecycle states, plus "boosted" — an overlay pill shown *alongside* the lifecycle
+ *  status (a boosted video is still published or scheduled at the same time). */
 export type ContentStatus =
   | "draft"
   | "ready"
