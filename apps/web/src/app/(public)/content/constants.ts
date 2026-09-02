@@ -2,10 +2,8 @@ import {
   Archive,
   Calendar,
   CalendarRange,
-  FileText,
   Film,
   Inbox,
-  Rocket,
   XCircle,
   type LucideIcon,
 } from "lucide-react";
@@ -328,9 +326,7 @@ export const REJECTED_VIDEOS: VideoItem[] = [
 export type TabValue =
   | "requests"
   | "master"
-  | "drafts"
   | "scheduled"
-  | "boosted"
   | "all"
   | "rejected"
   | "archived";
@@ -350,7 +346,7 @@ export const isMasterVideo = (v: VideoItem) =>
 const MASTER_COUNT = MOCK_VIDEOS.filter(isMasterVideo).length;
 const SCHEDULED_COUNT = MOCK_VIDEOS.filter((v) => v.status === "scheduled").length;
 
-// Client flow: Requests → Master → Scheduled → Live → Rejected → Archive (+ Drafts & Priority kept)
+// Client flow, exactly: Requests → Master → Scheduled → Live → Rejected → Archive.
 export const CONTENT_TABS_CONFIG: {
   value: TabValue;
   label: string;
@@ -359,9 +355,7 @@ export const CONTENT_TABS_CONFIG: {
 }[] = [
   { value: "requests", label: "Requests", icon: Inbox, count: 1 },
   { value: "master", label: "Master", icon: CalendarRange, count: MASTER_COUNT },
-  { value: "drafts", label: "Drafts", icon: FileText, count: 2 },
   { value: "scheduled", label: "Scheduled", icon: Calendar, count: SCHEDULED_COUNT },
-  { value: "boosted", label: "Priority", icon: Rocket, count: 1 },
   { value: "all", label: "Live", icon: Film },
   { value: "rejected", label: "Rejected", icon: XCircle, count: 1 },
   { value: "archived", label: "Archive", icon: Archive, count: 1 },

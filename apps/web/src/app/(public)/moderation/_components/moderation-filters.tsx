@@ -31,16 +31,6 @@ export function ModerationFilters({ searchQuery }: ModerationFiltersProps) {
   const severityFilter = searchParams.get("severity") || "all";
   const categoryFilter = searchParams.get("category") || "all";
 
-  // Debounce search update to URL
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (localSearch !== searchQuery) {
-        updateQuery("q", localSearch);
-      }
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [localSearch, searchQuery]);
-
   const updateQuery = useCallback(
     (name: string, value: string) => {
       const params = new URLSearchParams(searchParams.toString());
@@ -54,6 +44,16 @@ export function ModerationFilters({ searchQuery }: ModerationFiltersProps) {
     },
     [searchParams, pathname, router],
   );
+
+  // Debounce search update to URL
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (localSearch !== searchQuery) {
+        updateQuery("q", localSearch);
+      }
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [localSearch, searchQuery, updateQuery]);
 
   return (
     // <GlassCard className="p-4">

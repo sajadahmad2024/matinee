@@ -65,7 +65,7 @@ export function ContentFilters({ searchQuery, sort, range }: ContentFiltersProps
       }
     }, 500);
     return () => clearTimeout(timer);
-  }, [localSearch]);
+  }, [localSearch, searchQuery, updateQuery]);
 
   return (
     <div className="flex items-center gap-2">

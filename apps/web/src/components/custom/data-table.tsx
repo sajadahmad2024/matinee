@@ -36,7 +36,7 @@ interface DataTableProps<T> {
   emptyState?: React.ReactNode;
 }
 
-export function DataTable<T extends { [key: string]: any }>({
+export function DataTable<T>({
   columns,
   data,
   rowIdKey,

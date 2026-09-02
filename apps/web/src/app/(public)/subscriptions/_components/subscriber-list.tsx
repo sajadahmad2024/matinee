@@ -70,21 +70,6 @@ export function SubscriberList({
   const [cancelModal, setCancelModal] = useState<Subscriber | null>(null);
   const [refundModal, setRefundModal] = useState<Subscriber | null>(null);
 
-  // Debounce search update to URL
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (localSearch !== searchQuery) {
-        updateQuery("q", localSearch);
-      }
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [localSearch, searchQuery]);
-
-  // Sync local search state with search parameter changes (e.g. tab changes)
-  useEffect(() => {
-    setLocalSearch(searchQuery);
-  }, [searchQuery]);
-
   const updateQuery = useCallback(
     (name: string, value: string) => {
       const params = new URLSearchParams(searchParams.toString());
@@ -98,6 +83,21 @@ export function SubscriberList({
     },
     [searchParams, pathname, router],
   );
+
+  // Debounce search update to URL
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (localSearch !== searchQuery) {
+        updateQuery("q", localSearch);
+      }
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [localSearch, searchQuery, updateQuery]);
+
+  // Sync local search state with search parameter changes (e.g. tab changes)
+  useEffect(() => {
+    setLocalSearch(searchQuery);
+  }, [searchQuery]);
 
   const filteredSubscribers = useMemo(() => {
     return mockSubscribers.filter((sub) => {

@@ -44,16 +44,6 @@ export function UserDirectory({ searchQuery }: UserDirectoryProps) {
   const statusFilter = searchParams.get("status") || "all";
   const subscriptionFilter = searchParams.get("subscription") || "all";
 
-  // Debounce search update to URL
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (localSearch !== searchQuery) {
-        updateQuery("q", localSearch);
-      }
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [localSearch, searchQuery]);
-
   const updateQuery = useCallback(
     (name: string, value: string) => {
       const params = new URLSearchParams(searchParams.toString());
@@ -67,6 +57,16 @@ export function UserDirectory({ searchQuery }: UserDirectoryProps) {
     },
     [searchParams, pathname, router],
   );
+
+  // Debounce search update to URL
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (localSearch !== searchQuery) {
+        updateQuery("q", localSearch);
+      }
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [localSearch, searchQuery, updateQuery]);
 
   const handleViewUser = (user: User) => {
     setSelectedUser(user);

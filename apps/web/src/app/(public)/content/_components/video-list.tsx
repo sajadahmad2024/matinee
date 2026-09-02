@@ -48,14 +48,8 @@ export function VideoList({ tab, searchQuery, sort, range, page, pageSize }: Vid
         // live OR scheduled — one scrolling list
         videos = MOCK_VIDEOS.filter(isMasterVideo);
         break;
-      case "drafts":
-        videos = MOCK_VIDEOS.filter((v) => v.status === "draft");
-        break;
       case "scheduled":
         videos = MOCK_VIDEOS.filter((v) => v.status === "scheduled");
-        break;
-      case "boosted":
-        videos = MOCK_VIDEOS.filter((v) => v.status === "boosted");
         break;
       case "rejected":
         videos = REJECTED_VIDEOS;

@@ -32,7 +32,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   { title: "Dashboard", href: "/dashboard", icon: LuLayoutDashboard },
   { title: "Content Management", href: "/content", icon: LuFilm },
-  { title: "Game Center", href: "/games", icon: LuGamepad2 },
+  { title: "Game Management", href: "/games", icon: LuGamepad2 },
   { title: "Rewards", href: "/rewards", icon: LuGift },
   { title: "User Management", href: "/users", icon: LuUsers },
   { title: "Subscriptions", href: "/subscriptions", icon: LuCreditCard },
