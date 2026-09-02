@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { Clapperboard, Film, Globe, Link2, Lock, Video } from "lucide-react";
+import { Clapperboard, Film, Globe, Link2, Lock, Plus, Video, X } from "lucide-react";
 
 import { CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -17,7 +17,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 
 import { cn } from "@/app/_libs/utils/cn";
-import { MACRO_REGIONS } from "@/app/_libs/regions";
+import { MACRO_REGIONS, type MacroRegion } from "@/app/_libs/regions";
 
 import { GlassCard } from "../../../games/_components/glass-card";
 import { MOCK_VIDEOS } from "../../constants";
@@ -29,6 +29,13 @@ const CONTENT_TYPES = [
 ] as const;
 
 type ContentType = (typeof CONTENT_TYPES)[number]["value"];
+
+/** A region selected for publish; `live` is distinct from selection — a region can be
+ *  selected but paused (Off) without unselecting it. */
+interface PublishRegion {
+  code: MacroRegion;
+  live: boolean;
+}
 
 /**
  * Content classification: every type (trailer / BTS / clip) is first-class content.
@@ -43,14 +50,25 @@ export function ContentClassificationCard() {
   const [language, setLanguage] = useState("en");
   const [rightsRegion, setRightsRegion] = useState("global");
   const [recommendation, setRecommendation] = useState("normal");
-  // Publish/availability regions (multi) — distinct from rights region. Default: everywhere.
-  const [publishRegions, setPublishRegions] = useState<string[]>(MACRO_REGIONS.map((r) => r.code));
+  // Publish/availability regions (multi) — distinct from rights region. Default: everywhere, live.
+  const [publishRegions, setPublishRegions] = useState<PublishRegion[]>(
+    MACRO_REGIONS.map((r) => ({ code: r.code, live: true })),
+  );
 
   const allRegions = publishRegions.length === MACRO_REGIONS.length;
-  const toggleRegion = (code: string) =>
-    setPublishRegions((prev) => (prev.includes(code) ? prev.filter((c) => c !== code) : [...prev, code]));
+  const addRegion = (code: MacroRegion) =>
+    setPublishRegions((prev) => [...prev, { code, live: true }]);
+  const removeRegion = (code: MacroRegion) =>
+    setPublishRegions((prev) => prev.filter((r) => r.code !== code));
+  const setRegionLive = (code: MacroRegion, live: boolean) =>
+    setPublishRegions((prev) => prev.map((r) => (r.code === code ? { ...r, live } : r)));
   const toggleAll = () =>
-    setPublishRegions(allRegions ? [] : MACRO_REGIONS.map((r) => r.code));
+    setPublishRegions(allRegions ? [] : MACRO_REGIONS.map((r) => ({ code: r.code, live: true })));
+
+  const unselectedRegions = MACRO_REGIONS.filter(
+    (r) => !publishRegions.some((p) => p.code === r.code),
+  );
+  const liveCount = publishRegions.filter((r) => r.live).length;
 
   const canHaveParent = contentType === "bts" || contentType === "clip";
   // Candidate primary titles (a BTS/clip belongs to a trailer/primary title, not another extra)
@@ -150,31 +168,72 @@ export function ContentClassificationCard() {
               {allRegions ? "Clear all" : "Select all"}
             </button>
           </div>
-          <div className="flex flex-wrap gap-2">
-            {MACRO_REGIONS.map((r) => {
-              const on = publishRegions.includes(r.code);
+          {/* Vertical region list — live/off is distinct from selection: launch in 5,
+              later pause 2 without unselecting them. */}
+          <div className="space-y-1.5">
+            {publishRegions.map((pr) => {
+              const region = MACRO_REGIONS.find((r) => r.code === pr.code);
+              if (!region) return null;
               return (
+                <div
+                  key={pr.code}
+                  className="border-border/50 bg-card/40 flex items-center justify-between gap-3 rounded-lg border px-3 py-2">
+                  <span className="text-foreground text-sm font-medium">{region.label}</span>
+                  <div className="flex items-center gap-3">
+                    <span className="flex items-center gap-1.5 text-xs">
+                      <span
+                        className={cn(
+                          "h-2 w-2 rounded-full",
+                          pr.live ? "bg-success" : "bg-destructive",
+                        )}
+                      />
+                      <span className={pr.live ? "text-success" : "text-destructive"}>
+                        {pr.live ? "Live" : "Off"}
+                      </span>
+                    </span>
+                    <Switch
+                      checked={pr.live}
+                      onCheckedChange={(checked) => setRegionLive(pr.code, checked)}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeRegion(pr.code)}
+                      aria-label={`Remove ${region.label}`}
+                      className="text-muted-foreground hover:text-destructive transition-colors">
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+            {publishRegions.length === 0 && (
+              <p className="text-destructive text-xs">
+                No regions selected — content won&apos;t be visible to anyone.
+              </p>
+            )}
+          </div>
+
+          {/* Unselected regions — quick add */}
+          {unselectedRegions.length > 0 && (
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-muted-foreground text-xs">Add region:</span>
+              {unselectedRegions.map((r) => (
                 <button
                   key={r.code}
                   type="button"
-                  onClick={() => toggleRegion(r.code)}
-                  className={cn(
-                    "rounded-full border px-3 py-1 text-xs transition-colors",
-                    on
-                      ? "border-primary bg-primary/15 text-primary"
-                      : "border-border text-muted-foreground hover:border-primary/40",
-                  )}>
+                  onClick={() => addRegion(r.code)}
+                  className="border-border text-muted-foreground hover:border-primary/40 hover:text-primary flex items-center gap-1 rounded-full border px-3 py-1 text-xs transition-colors">
+                  <Plus className="h-3 w-3" />
                   {r.label}
                 </button>
-              );
-            })}
-          </div>
+              ))}
+            </div>
+          )}
+
           <p className="text-muted-foreground text-xs">
-            {allRegions
-              ? "Available everywhere (all regions)."
-              : publishRegions.length === 0
-                ? "No regions selected — content won't be visible to anyone."
-                : `Available in ${publishRegions.length} region${publishRegions.length > 1 ? "s" : ""}.`}{" "}
+            {publishRegions.length === 0
+              ? "No regions selected."
+              : `Live in ${liveCount} of ${publishRegions.length} selected region${publishRegions.length > 1 ? "s" : ""}.`}{" "}
             Distinct from Rights region (above), which is the licensing focus.
           </p>
         </div>

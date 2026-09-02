@@ -8,6 +8,7 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/
 
 import { AnalyticsHeader } from "../../../_components/analytics-header";
 import { GlassCard } from "../../../_components/glass-card";
+import { scaleCount, type RegionKey } from "./region-scale";
 
 const timeOfDayData = [
   { hour: "6am", plays: 120 },
@@ -19,7 +20,12 @@ const timeOfDayData = [
   { hour: "12am", plays: 680 },
 ];
 
-export function PeakHoursChart() {
+interface PeakHoursChartProps {
+  region?: RegionKey;
+}
+
+export function PeakHoursChart({ region = "all" }: PeakHoursChartProps) {
+  const data = timeOfDayData.map((d) => ({ ...d, plays: scaleCount(d.plays, region) }));
   return (
     <GlassCard>
       <AnalyticsHeader title="Peak Activity Hours" icon={Clock} iconColor="text-primary" />
@@ -30,7 +36,7 @@ export function PeakHoursChart() {
           }}
           className="h-[180px] w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={timeOfDayData}>
+            <BarChart data={data}>
               <XAxis
                 dataKey="hour"
                 stroke="hsl(var(--muted-foreground))"

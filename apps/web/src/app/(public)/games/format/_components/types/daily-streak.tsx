@@ -8,6 +8,14 @@ import { Badge } from "@/components/ui/badge";
 import { CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 
 import { GlassCard } from "../../../_components/glass-card";
 import { AppWidgetCard } from "../shared/app-widget-card";
@@ -24,6 +32,7 @@ const INITIAL_BEHAVIORS: BehaviorReward[] = [
   { id: "b5", label: "Finish a series / playlist", points: 20, xp: 10 },
 ];
 
+/** Settings tab — includes the former Gamification content (merged per client decision). */
 export function DailyStreakSettings() {
   // Maps 1:1 to reward_rules['daily_streak'].config
   const [minWatchSeconds, setMinWatchSeconds] = useState(300);
@@ -32,6 +41,9 @@ export function DailyStreakSettings() {
     { id: "m1", threshold: 7, bonus: 50 },
     { id: "m2", threshold: 30, bonus: 300 },
   ]);
+  // Customer-app behaviours (admin-side mock config; wired in the app/API phase).
+  const [eligibilityNotification, setEligibilityNotification] = useState(true);
+  const [progressDisplay, setProgressDisplay] = useState("popup");
 
   return (
     <div className="space-y-6">
@@ -59,6 +71,40 @@ export function DailyStreakSettings() {
               value={minWatchSeconds}
               onChange={(e) => setMinWatchSeconds(Number(e.target.value))}
             />
+            <p className="text-muted-foreground text-xs">
+              ≈ {Math.round(minWatchSeconds / 60)} min per day — time on app, not per video; need
+              not be continuous.
+            </p>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label>Eligibility notification</Label>
+              <p className="text-muted-foreground text-xs">
+                Notify the user in-app when they&apos;ve hit the threshold and their streak day
+                counts.
+              </p>
+            </div>
+            <Switch
+              checked={eligibilityNotification}
+              onCheckedChange={setEligibilityNotification}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Progress display</Label>
+            <Select value={progressDisplay} onValueChange={setProgressDisplay}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="popup">Popup on icon tap</SelectItem>
+                <SelectItem value="persistent-bar">Persistent bar</SelectItem>
+              </SelectContent>
+            </Select>
+            <p className="text-muted-foreground text-xs">
+              How the app shows streak progress to the user.
+            </p>
           </div>
 
           <div className="space-y-2">
@@ -77,25 +123,22 @@ export function DailyStreakSettings() {
           </div>
 
           <p className="text-muted-foreground text-xs">
-            Saved as <code>reward_rules['daily_streak']</code>: <code>min_watch_seconds</code>,{" "}
+            Saved as <code>reward_rules[&apos;daily_streak&apos;]</code>: <code>min_watch_seconds</code>,{" "}
             <code>behaviors[]</code> (each fixed points + xp), <code>bonus_thresholds</code>.
           </p>
         </CardContent>
       </GlassCard>
 
       <AppWidgetCard gameTypeName="Daily Streak" defaultCta="Keep your streak" />
-    </div>
-  );
-}
 
-export function DailyStreakGamification() {
-  return (
-    <GamificationExtras
-      badges={[
-        { name: "Streak Champion", requirement: "30-day watch streak" },
-        { name: "Daily Devotee", requirement: "7-day streak" },
-      ]}
-      initialLocked={[{ id: "l1", name: "Bonus daily quest", threshold: 1000 }]}
-    />
+      {/* Former Gamification tab content — merged into Settings */}
+      <GamificationExtras
+        badges={[
+          { name: "Streak Champion", requirement: "30-day watch streak" },
+          { name: "Daily Devotee", requirement: "7-day streak" },
+        ]}
+        initialLocked={[{ id: "l1", name: "Bonus daily quest", threshold: 1000 }]}
+      />
+    </div>
   );
 }

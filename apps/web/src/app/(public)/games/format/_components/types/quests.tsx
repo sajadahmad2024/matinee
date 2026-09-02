@@ -34,8 +34,8 @@ const MOCK_QUESTS: GameInstance[] = [
 ];
 
 /**
- * Settings = global DEFAULTS & POLICY only. Each quest's actual rule (videos, schedule,
- * reward, unlock threshold) is set per-quest in the Create Quest form.
+ * Settings tab — global defaults & policy, the quest list (create/schedule/resolve), and the
+ * former Gamification content, merged onto one scrolling tab (client decision).
  */
 export function QuestsSettings() {
   const [enabled, setEnabled] = useState(true);
@@ -44,80 +44,75 @@ export function QuestsSettings() {
   const [defaultPoints, setDefaultPoints] = useState(100);
   const [defaultXp, setDefaultXp] = useState(50);
 
-  return (
-    <div className="grid gap-6 lg:grid-cols-2">
-      <GlassCard>
-        <CardHeader>
-          <CardTitle className="text-base">Policy</CardTitle>
-          <CardDescription>
-            Defaults for new quests. The rule for each quest is set when you create it.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <ToggleRow
-            label="Enabled"
-            hint="Turn weekly quests on/off across the app."
-            checked={enabled}
-            onChange={setEnabled}
-          />
-          <ToggleRow
-            label="Require all videos by default"
-            hint="New quests complete only when every selected video is watched."
-            checked={requireAll}
-            onChange={setRequireAll}
-          />
-          <div className="space-y-2">
-            <Label>Default window</Label>
-            <Select value={defaultWeeks} onValueChange={setDefaultWeeks}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {["1", "2", "3", "4"].map((w) => (
-                  <SelectItem key={w} value={w}>
-                    {w} Week{w === "1" ? "" : "s"}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="text-muted-foreground flex items-center gap-2 text-xs">
-            <CalendarClock className="h-3.5 w-3.5" />
-            Stage quests ahead (draft → scheduled); they go live on their start date.
-          </div>
-        </CardContent>
-      </GlassCard>
-
-      <GlassCard>
-        <CardHeader>
-          <CardTitle className="text-base">Default rewards</CardTitle>
-          <CardDescription>Pre-fills the Create Quest form (editable per quest).</CardDescription>
-        </CardHeader>
-        <CardContent className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label>Reward points</Label>
-            <Input type="number" value={defaultPoints} onChange={(e) => setDefaultPoints(Number(e.target.value))} />
-          </div>
-          <div className="space-y-2">
-            <Label>Reward XP</Label>
-            <Input type="number" value={defaultXp} onChange={(e) => setDefaultXp(Number(e.target.value))} />
-          </div>
-        </CardContent>
-      </GlassCard>
-
-      <div className="lg:col-span-2">
-        <AppWidgetCard gameTypeName="Weekly Quests" defaultCta="Start a quest" />
-      </div>
-    </div>
-  );
-}
-
-export function QuestsGamification() {
   const [createOpen, setCreateOpen] = useState(false);
   const [result, setResult] = useState<GameInstance | null>(null);
 
   return (
     <div className="space-y-6">
+      <div className="grid gap-6 lg:grid-cols-2">
+        <GlassCard>
+          <CardHeader>
+            <CardTitle className="text-base">Policy</CardTitle>
+            <CardDescription>
+              Defaults for new quests. The rule for each quest is set when you create it.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <ToggleRow
+              label="Enabled"
+              hint="Turn weekly quests on/off across the app."
+              checked={enabled}
+              onChange={setEnabled}
+            />
+            <ToggleRow
+              label="Require all videos by default"
+              hint="New quests complete only when every selected video is watched."
+              checked={requireAll}
+              onChange={setRequireAll}
+            />
+            <div className="space-y-2">
+              <Label>Default window</Label>
+              <Select value={defaultWeeks} onValueChange={setDefaultWeeks}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {["1", "2", "3", "4"].map((w) => (
+                    <SelectItem key={w} value={w}>
+                      {w} Week{w === "1" ? "" : "s"}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="text-muted-foreground flex items-center gap-2 text-xs">
+              <CalendarClock className="h-3.5 w-3.5" />
+              Stage quests ahead (draft → scheduled); they go live on their start date.
+            </div>
+          </CardContent>
+        </GlassCard>
+
+        <GlassCard>
+          <CardHeader>
+            <CardTitle className="text-base">Default rewards</CardTitle>
+            <CardDescription>Pre-fills the Create Quest form (editable per quest).</CardDescription>
+          </CardHeader>
+          <CardContent className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Reward points</Label>
+              <Input type="number" value={defaultPoints} onChange={(e) => setDefaultPoints(Number(e.target.value))} />
+            </div>
+            <div className="space-y-2">
+              <Label>Reward XP</Label>
+              <Input type="number" value={defaultXp} onChange={(e) => setDefaultXp(Number(e.target.value))} />
+            </div>
+          </CardContent>
+        </GlassCard>
+      </div>
+
+      <AppWidgetCard gameTypeName="Weekly Quests" defaultCta="Start a quest" />
+
+      {/* Former Gamification tab content — merged into Settings */}
       <GlassCard>
         <CardHeader>
           <div className="flex items-center justify-between">

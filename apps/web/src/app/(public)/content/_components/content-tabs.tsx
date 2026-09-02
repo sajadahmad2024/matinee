@@ -2,6 +2,7 @@
 
 import { useCallback } from "react";
 
+import type { Route } from "next";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -29,7 +30,7 @@ export function ContentTabs({ activeTab }: ContentTabsProps) {
   );
 
   const handleTabChange = (value: string) => {
-    router.push(`${pathname}?${createQueryString("tab", value)}`, { scroll: false });
+    router.push(`${pathname}?${createQueryString("tab", value)}` as Route, { scroll: false });
   };
 
   return (

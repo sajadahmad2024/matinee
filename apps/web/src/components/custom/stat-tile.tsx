@@ -4,7 +4,7 @@ import { ArrowDownRight, ArrowRight, ArrowUpRight, MousePointerClick } from "luc
 
 import { cn } from "@/app/_libs/utils/cn";
 
-import { GlassCard } from "../../games/_components/glass-card";
+import { GlassCard } from "@/app/(public)/games/_components/glass-card";
 
 type Accent = "default" | "primary" | "success" | "warning" | "danger" | "accent";
 

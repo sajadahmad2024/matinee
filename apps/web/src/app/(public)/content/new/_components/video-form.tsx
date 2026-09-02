@@ -22,20 +22,19 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-// Step-based workflow (PDF): Details → Rights → Media → Distribution → Monetisation.
+// Step-based workflow: Details → Rights → Media → Distribution → Ad Sales.
 const STEPS: { key: string; label: string; icon: LucideIcon }[] = [
   { key: "details", label: "Details", icon: FileText },
   { key: "rights", label: "Rights", icon: Gavel },
   { key: "media", label: "Media", icon: Film },
   { key: "distribution", label: "Distribution", icon: Globe },
-  { key: "monetisation", label: "Monetisation", icon: DollarSign },
+  { key: "ad-sales", label: "Ad Sales", icon: DollarSign },
 ];
 const SUGGESTED_GENRES = ["Action", "Drama", "Thriller", "Sci-Fi"];
 const SUGGESTED_TAGS = ["trailer", "exclusive", "behind-the-scenes", "2024"];
 
 import { BoostModal } from "./boost-modal";
 import { ContentClassificationCard } from "./content-classification-card";
-import { GameAssociationCard, type GameInstance } from "./game-association-card";
 import { LicensingCard } from "./licensing-card";
 import { MediaUploadCard } from "./media-upload-card";
 import { ScheduleModal } from "./schedule-modal";
@@ -52,7 +51,6 @@ interface VideoFormProps {
     tags?: string;
     cast?: string[];
     isPublished?: boolean;
-    gameInstances?: GameInstance[];
   };
   sidebar?: React.ReactNode; // Optional extra content for the right column
 }
@@ -69,11 +67,6 @@ export function VideoForm({ initialData, sidebar }: VideoFormProps) {
   const [tags, setTags] = useState(initialData?.tags || "");
   const [cast, setCast] = useState<string[]>(initialData?.cast || []);
   const [newCast, setNewCast] = useState("");
-
-  const [gameInstances, setGameInstances] = useState<GameInstance[]>(
-    initialData?.gameInstances || [],
-  );
-  const [selectedFormat, setSelectedFormat] = useState("");
 
   // --- Modal States ---
   const [boostModalOpen, setBoostModalOpen] = useState(false);
@@ -92,30 +85,6 @@ export function VideoForm({ initialData, sidebar }: VideoFormProps) {
 
   const removeCast = (index: number) => {
     setCast(cast.filter((_, i) => i !== index));
-  };
-
-  const addGameInstance = () => {
-    if (!selectedFormat) return;
-    const gameFormats = [
-      { id: "watch_streak", name: "Watch Streak", icon: "🔥", requiresVideo: false },
-      { id: "predict_outcome", name: "Predict Outcome", icon: "🎯", requiresVideo: true },
-      { id: "weekly_quest", name: "Weekly Contest", icon: "📅", requiresVideo: false },
-    ];
-    const format = gameFormats.find((f) => f.id === selectedFormat);
-    if (!format) return;
-
-    setGameInstances([
-      ...gameInstances,
-      {
-        id: crypto.randomUUID(),
-        formatId: format.id,
-        name: format.name,
-        description: "",
-        rewardPoints: 0,
-        experiencePoints: 0,
-      },
-    ]);
-    setSelectedFormat("");
   };
 
   const handleSave = () => {
@@ -240,19 +209,8 @@ export function VideoForm({ initialData, sidebar }: VideoFormProps) {
 
         {step === 3 && <ContentClassificationCard />}
 
-        {step === 4 && (
-          <>
-            <GameAssociationCard
-              gameInstances={gameInstances}
-              onSetGameInstances={setGameInstances}
-              selectedFormat={selectedFormat}
-              onSetSelectedFormat={setSelectedFormat}
-              onAddGameInstance={addGameInstance}
-              onRemoveGameInstance={(id) => setGameInstances(gameInstances.filter((g) => g.id !== id))}
-            />
-            <SponsorshipCard />
-          </>
-        )}
+        {/* Games are configured in the Game Management module — no game association here. */}
+        {step === 4 && <SponsorshipCard />}
 
         {sidebar}
       </div>

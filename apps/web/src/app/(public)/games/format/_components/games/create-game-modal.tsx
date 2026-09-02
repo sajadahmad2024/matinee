@@ -121,6 +121,10 @@ export function CreateGameModal({
                 <Input type="number" value={xp} onChange={(e) => setXp(Number(e.target.value))} />
               </div>
             </div>
+            <p className="text-muted-foreground text-[11px]">
+              Points are spent on rewards &amp; bidding; XP is permanent progression that levels
+              users up.
+            </p>
           </div>
 
           {/* Format Specific Logic */}

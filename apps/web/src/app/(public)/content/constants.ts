@@ -1,4 +1,14 @@
-import { Archive, Calendar, FileText, Film, Inbox, Rocket, XCircle } from "lucide-react";
+import {
+  Archive,
+  Calendar,
+  CalendarRange,
+  FileText,
+  Film,
+  Inbox,
+  Rocket,
+  XCircle,
+  type LucideIcon,
+} from "lucide-react";
 
 import type { ContentStatus } from "./_components/status-badge";
 
@@ -22,6 +32,9 @@ export interface VideoItem {
   isLive?: boolean;
   isFeatured?: boolean;
   scheduledAt?: string;
+  // live availability window (every live video has dates associated — calendar view)
+  liveFrom?: string; // ISO date
+  liveUntil?: string; // ISO date
   // licensing
   licenseStatus?: "licensed" | "original" | "expiring" | "expired";
   licenseExpiresInDays?: number;
@@ -44,7 +57,9 @@ export interface VideoItem {
   // ad sales / sponsorship
   sponsored?: boolean;
   sponsor?: string;
-  adDurationSecs?: number;
+  adPlacement?: "pre-roll" | "icon-overlay";
+  adDurationSecs?: number; // pre-roll only
+  adOverlayDays?: number; // icon-overlay only — length of the sponsorship deal
   // workflow history (newest first)
   workflow?: WorkflowEvent[];
 }
@@ -61,6 +76,8 @@ export const MOCK_VIDEOS: VideoItem[] = [
     views: 124500,
     likes: 8920,
     isLive: true,
+    liveFrom: "2026-08-10",
+    liveUntil: "2026-11-10",
     licenseStatus: "expiring",
     licenseExpiresInDays: 45,
     licensorName: "Seoul Studios",
@@ -101,6 +118,8 @@ export const MOCK_VIDEOS: VideoItem[] = [
     views: 89200,
     likes: 6540,
     isFeatured: true,
+    liveFrom: "2026-07-20",
+    liveUntil: "2026-10-05",
     licenseStatus: "licensed",
     licenseExpiresInDays: 120,
     licensorName: "Global Rights Co",
@@ -118,6 +137,7 @@ export const MOCK_VIDEOS: VideoItem[] = [
     uploadDate: "2026-04-28",
     sponsored: true,
     sponsor: "Nike",
+    adPlacement: "pre-roll",
     adDurationSecs: 15,
   },
   {
@@ -131,6 +151,8 @@ export const MOCK_VIDEOS: VideoItem[] = [
     views: 156800,
     likes: 12400,
     isLive: true,
+    liveFrom: "2026-08-25",
+    liveUntil: "2026-12-01",
     licenseStatus: "original",
     viewsTrend: "up",
     completionRate: 72,
@@ -171,7 +193,7 @@ export const MOCK_VIDEOS: VideoItem[] = [
     linkedGames: 2,
     views: 0,
     likes: 0,
-    scheduledAt: "2026-01-25 20:00 UTC",
+    scheduledAt: "2026-09-25 20:00 UTC",
     licenseStatus: "licensed",
     licenseExpiresInDays: 90,
     licensorName: "Food Network Asia",
@@ -189,6 +211,8 @@ export const MOCK_VIDEOS: VideoItem[] = [
     linkedGames: 1,
     views: 245000,
     likes: 18900,
+    liveFrom: "2026-09-01",
+    liveUntil: "2026-10-15",
     licenseStatus: "expiring",
     licenseExpiresInDays: 20,
     licensorName: "Wanderlust Media",
@@ -204,7 +228,8 @@ export const MOCK_VIDEOS: VideoItem[] = [
     uploadDate: "2026-04-15",
     sponsored: true,
     sponsor: "Japan Tourism Board",
-    adDurationSecs: 20,
+    adPlacement: "icon-overlay",
+    adOverlayDays: 30,
   },
   {
     id: "7",
@@ -228,6 +253,40 @@ export const MOCK_VIDEOS: VideoItem[] = [
       { date: "Apr 2", label: "Archived (license expired)", by: "System" },
       { date: "Nov 1 '25", label: "Published", by: "Mark T." },
     ],
+  },
+  {
+    id: "8",
+    title: "Street Food Diaries: Bangkok",
+    thumbnail: "",
+    studioName: "Food Network Asia",
+    duration: "32:10",
+    status: "scheduled",
+    linkedGames: 1,
+    views: 0,
+    likes: 0,
+    scheduledAt: "2026-10-08 18:00 UTC",
+    licenseStatus: "licensed",
+    licenseExpiresInDays: 180,
+    licensorName: "Food Network Asia",
+    genres: ["Food", "Travel"],
+    language: "English",
+    region: "TH",
+  },
+  {
+    id: "9",
+    title: "Winter Anthology: First Frost",
+    thumbnail: "",
+    studioName: "Aurora Pictures",
+    duration: "51:45",
+    status: "scheduled",
+    linkedGames: 0,
+    views: 0,
+    likes: 0,
+    scheduledAt: "2026-11-14 17:30 UTC",
+    licenseStatus: "original",
+    genres: ["Drama", "Anthology"],
+    language: "English",
+    region: "CA",
   },
 ];
 
@@ -268,6 +327,7 @@ export const REJECTED_VIDEOS: VideoItem[] = [
 
 export type TabValue =
   | "requests"
+  | "master"
   | "drafts"
   | "scheduled"
   | "boosted"
@@ -275,12 +335,34 @@ export type TabValue =
   | "rejected"
   | "archived";
 
-export const CONTENT_TABS_CONFIG: { value: TabValue; label: string; icon: any; count?: number }[] = [
+/** Parse mock dates — ISO ("2026-08-10") or "2026-09-25 20:00 UTC" display format. */
+export const parseMockDate = (s?: string): Date | null => {
+  if (!s) return null;
+  const iso = s.includes(" UTC") ? `${s.replace(" ", "T").replace(" UTC", "")}:00Z` : s;
+  const d = new Date(iso);
+  return isNaN(d.getTime()) ? null : d;
+};
+
+/** Master tab = everything live OR scheduled, in one scrolling list. */
+export const isMasterVideo = (v: VideoItem) =>
+  v.status === "published" || v.status === "boosted" || v.isLive === true || v.status === "scheduled";
+
+const MASTER_COUNT = MOCK_VIDEOS.filter(isMasterVideo).length;
+const SCHEDULED_COUNT = MOCK_VIDEOS.filter((v) => v.status === "scheduled").length;
+
+// Client flow: Requests → Master → Scheduled → Live → Rejected → Archive (+ Drafts & Priority kept)
+export const CONTENT_TABS_CONFIG: {
+  value: TabValue;
+  label: string;
+  icon: LucideIcon;
+  count?: number;
+}[] = [
   { value: "requests", label: "Requests", icon: Inbox, count: 1 },
+  { value: "master", label: "Master", icon: CalendarRange, count: MASTER_COUNT },
   { value: "drafts", label: "Drafts", icon: FileText, count: 2 },
-  { value: "scheduled", label: "Scheduled", icon: Calendar, count: 1 },
+  { value: "scheduled", label: "Scheduled", icon: Calendar, count: SCHEDULED_COUNT },
   { value: "boosted", label: "Priority", icon: Rocket, count: 1 },
-  { value: "all", label: "Live Videos", icon: Film },
+  { value: "all", label: "Live", icon: Film },
   { value: "rejected", label: "Rejected", icon: XCircle, count: 1 },
   { value: "archived", label: "Archive", icon: Archive, count: 1 },
 ];

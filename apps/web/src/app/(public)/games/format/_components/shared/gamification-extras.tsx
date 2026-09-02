@@ -69,7 +69,7 @@ export function GamificationExtras({ badges, initialLocked = [] }: GamificationE
             </div>
           ))}
           <Button asChild variant="outline" size="sm" className="w-full">
-            <Link href={"/games?tab=badges" as Route}>Manage in Badges</Link>
+            <Link href={"/games/badges" as Route}>Manage in Badges</Link>
           </Button>
         </CardContent>
       </GlassCard>

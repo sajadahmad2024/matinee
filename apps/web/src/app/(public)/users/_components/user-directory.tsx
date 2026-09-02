@@ -27,7 +27,7 @@ interface UserDirectoryProps {
   pageSize: number;
 }
 
-export function UserDirectory({ searchQuery, page, pageSize }: UserDirectoryProps) {
+export function UserDirectory({ searchQuery }: UserDirectoryProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -131,15 +131,7 @@ export function UserDirectory({ searchQuery, page, pageSize }: UserDirectoryProp
         </div>
       </div>
 
-      <UserListTable
-        searchQuery={searchQuery}
-        statusFilter={statusFilter}
-        subscriptionFilter={subscriptionFilter}
-        page={page}
-        pageSize={pageSize}
-        onViewUser={handleViewUser}
-        onSendNotification={handleSendNotification}
-      />
+      <UserListTable onViewUser={handleViewUser} onSendNotification={handleSendNotification} />
 
       <UserDetailModal user={selectedUser} open={isDetailOpen} onOpenChange={setIsDetailOpen} />
 

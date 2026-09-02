@@ -4,10 +4,12 @@ import { DollarSign, TrendingUp, Users, Wallet } from "lucide-react";
 
 import { RegionalBreakdown, type RegionRow } from "@/components/custom/regional-breakdown";
 
+import { REGION_ANALYTICS, type MonetizationData } from "../constants";
 import { ConversionFunnelChart } from "./conversion-funnel-chart";
 import { MetricTile } from "./metric-tile";
 
-// Trial-to-paid conversion by region (viewers vs subscribers).
+// Cross-region comparison stays as a "vs other regions" footnote — it helps the operator
+// rank the region they're looking at.
 const REGION_ROWS: RegionRow[] = [
   { code: "NA", label: "North America", values: { trialToPaid: 38, arpu: 14.8 } },
   { code: "EU", label: "Europe", values: { trialToPaid: 34, arpu: 15.0 } },
@@ -16,37 +18,40 @@ const REGION_ROWS: RegionRow[] = [
   { code: "MEA", label: "Middle East & Africa", values: { trialToPaid: 14, arpu: 4.8 } },
 ];
 
-// LTV by acquisition channel vs CAC.
-const channels = [
-  { channel: "Organic / viral", ltv: 84, cac: 6 },
-  { channel: "Paid social", ltv: 61, cac: 22 },
-  { channel: "Referral", ltv: 78, cac: 9 },
-  { channel: "Influencer", ltv: 69, cac: 18 },
-];
-
 const pct = (n: number) => `${n}%`;
 const money = (n: number) => `$${n.toFixed(2)}`;
 
-export function MonetizationSection() {
+// Monetization & funnel — ARPU/ARPDAU, trial-to-paid, LTV:CAC by channel, and the
+// signup → first session → engaged → subscriber funnel with drop-offs.
+// Region-scoped via the `data` prop; defaults to the global baseline.
+interface MonetizationSectionProps {
+  data?: MonetizationData;
+}
+
+export function MonetizationSection({
+  data = REGION_ANALYTICS["global"]!.monetization,
+}: MonetizationSectionProps) {
+  const channels = data.channels;
+  const maxLtv = Math.max(...channels.map((c) => c.ltv)) * 1.1;
   return (
     <div className="space-y-4">
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <MetricTile label="ARPU" value="$11.04" sub="MRR ÷ subscribers" icon={DollarSign} accent="text-success" trend={{ direction: "up", label: "+4%" }} />
-        <MetricTile label="ARPDAU" value="$0.34" sub="per daily active user" icon={DollarSign} accent="text-accent" pending="needs sessions" />
-        <MetricTile label="Trial → paid" value="31%" sub="blended across regions" icon={TrendingUp} accent="text-primary" trend={{ direction: "up", label: "+2%" }} />
-        <MetricTile label="LTV : CAC" value="4.6×" sub="blended (healthy > 3×)" icon={Wallet} accent="text-success" pending="needs CAC" />
+        <MetricTile label="ARPU" value={`$${data.arpu.toFixed(2)}`} sub="MRR ÷ subscribers" icon={DollarSign} accent="text-success" trend={{ direction: "up", label: "+4%" }} />
+        <MetricTile label="ARPDAU" value={`$${data.arpdau.toFixed(2)}`} sub="per daily active user" icon={DollarSign} accent="text-accent" pending="needs sessions" />
+        <MetricTile label="Trial → paid" value={`${data.trialToPaidPct}%`} sub="viewers vs subscribers" icon={TrendingUp} accent="text-primary" trend={{ direction: "up", label: "+2%" }} />
+        <MetricTile label="LTV : CAC" value={`${data.ltvCacRatio}×`} sub="blended (healthy > 3×)" icon={Wallet} accent="text-success" pending="needs CAC" />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        {/* Funnel */}
+        {/* Funnel with drop-off at each step */}
         <div className="border-border bg-card/50 rounded-lg border p-4">
           <p className="text-foreground mb-3 flex items-center gap-1.5 text-sm font-medium">
             <Users className="text-primary h-4 w-4" /> Signup → first session → engaged → subscribed
           </p>
-          <ConversionFunnelChart />
+          <ConversionFunnelChart funnel={data.funnel} />
         </div>
 
-        {/* LTV by channel + trial-to-paid by region */}
+        {/* LTV by acquisition channel (vs CAC) + cross-region footnote */}
         <div className="space-y-4">
           <div className="border-border bg-card/50 rounded-lg border p-4">
             <p className="text-foreground mb-2 text-sm font-medium">
@@ -58,17 +63,19 @@ export function MonetizationSection() {
                 <div key={c.channel} className="flex items-center gap-2 text-xs">
                   <span className="text-muted-foreground w-28 shrink-0">{c.channel}</span>
                   <div className="bg-muted/30 h-2.5 flex-1 overflow-hidden rounded-full">
-                    <div className="bg-success h-full rounded-full" style={{ width: `${(c.ltv / 90) * 100}%` }} />
+                    <div className="bg-success h-full rounded-full" style={{ width: `${(c.ltv / maxLtv) * 100}%` }} />
                   </div>
-                  <span className="text-foreground w-20 shrink-0 text-right tabular-nums">
-                    ${c.ltv} / ${c.cac}
+                  <span className="text-foreground w-24 shrink-0 text-right tabular-nums">
+                    ${c.ltv} / ${c.cac} · {(c.ltv / c.cac).toFixed(1)}×
                   </span>
                 </div>
               ))}
             </div>
           </div>
           <div className="border-border bg-card/50 rounded-lg border p-4">
-            <p className="text-foreground mb-2 text-sm font-medium">Trial → paid by region</p>
+            <p className="text-foreground mb-2 text-sm font-medium">
+              Trial → paid vs other regions
+            </p>
             <RegionalBreakdown
               shareKey="trialToPaid"
               columns={[

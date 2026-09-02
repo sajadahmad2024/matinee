@@ -2,17 +2,15 @@
 
 import { Bar, BarChart, CartesianGrid, Cell, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
-// Viral coefficient: invites sent × conversion. >1 = organic growth, <1 = paid-dependent.
-const data = [
-  { month: "Jan", k: 0.62 },
-  { month: "Feb", k: 0.71 },
-  { month: "Mar", k: 0.78 },
-  { month: "Apr", k: 0.85 },
-  { month: "May", k: 0.94 },
-  { month: "Jun", k: 1.06 },
-];
+import { REGION_ANALYTICS, type GraphsData } from "../constants";
 
-export function KFactorChart() {
+// Viral coefficient: invites sent × conversion. >1 = organic growth, <1 = paid-dependent.
+// Region-scoped via the `data` prop; defaults to the global baseline.
+interface KFactorChartProps {
+  data?: GraphsData["kFactor"];
+}
+
+export function KFactorChart({ data = REGION_ANALYTICS["global"]!.graphs.kFactor }: KFactorChartProps) {
   const latest = data[data.length - 1]!.k;
   return (
     <div>

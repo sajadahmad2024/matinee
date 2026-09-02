@@ -4,20 +4,32 @@ import { Users } from "lucide-react";
 
 import { cn } from "@/app/_libs/utils/cn";
 
-// Signup → first session → engaged → subscribed (all-time, whole base): ties to total users
-// 248,500, active 198,000, and total subscribers 8,923 shown elsewhere on the dashboard.
-const steps = [
-  { label: "Signups", value: 248500, color: "from-primary to-primary" },
-  { label: "First session", value: 198000, color: "from-primary to-accent" },
-  { label: "Engaged user", value: 120000, color: "from-accent to-accent" },
-  { label: "Subscribed", value: 8923, color: "from-success to-success" },
+import { REGION_ANALYTICS, type MonetizationData } from "../constants";
+
+// Signup → first session → engaged → subscribed, with drop-off at each step. Region-scoped
+// via the `funnel` prop; defaults to the global baseline (ties to total users 248,500,
+// active 198,000, and total subscribers 8,923 shown elsewhere on the dashboard).
+const STEP_COLORS = [
+  "from-primary to-primary",
+  "from-primary to-accent",
+  "from-accent to-accent",
+  "from-success to-success",
 ];
 
-// Referral-driven acquisition shown inside the funnel (a slice of signups), so admins
-// see how much of the top of the funnel comes from referrals.
-const REFERRED = 62125; // referral-attributed signups
+interface ConversionFunnelChartProps {
+  funnel?: MonetizationData["funnel"];
+}
 
-export function ConversionFunnelChart() {
+export function ConversionFunnelChart({
+  funnel = REGION_ANALYTICS["global"]!.monetization.funnel,
+}: ConversionFunnelChartProps) {
+  const steps = [
+    { label: "Signups", value: funnel.signups, color: STEP_COLORS[0]! },
+    { label: "First session", value: funnel.firstSession, color: STEP_COLORS[1]! },
+    { label: "Engaged user", value: funnel.engaged, color: STEP_COLORS[2]! },
+    { label: "Subscribed", value: funnel.subscribed, color: STEP_COLORS[3]! },
+  ];
+  const REFERRED = funnel.referred; // referral-attributed signups (slice of the funnel top)
   const top = steps[0]!.value;
   const referredPct = Math.round((REFERRED / top) * 100);
   return (

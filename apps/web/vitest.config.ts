@@ -1,9 +1,10 @@
 import react from "@vitejs/plugin-react";
 import path from "path";
-import { defineConfig } from "vitest/config";
+import { defineConfig, type UserConfig } from "vitest/config";
 
 export default defineConfig({
-  plugins: [react()],
+  // Cast: @vitejs/plugin-react targets vite 8 while vitest bundles vite 7 types; runtime-compatible.
+  plugins: [react()] as UserConfig["plugins"],
   test: {
     environment: "jsdom",
     setupFiles: ["./src/test/setup.ts"],

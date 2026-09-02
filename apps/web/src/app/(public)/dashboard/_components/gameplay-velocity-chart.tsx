@@ -2,17 +2,16 @@
 
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
-const data = [
-  { day: "Mon", players: 42500 },
-  { day: "Tue", players: 38200 },
-  { day: "Wed", players: 45800 },
-  { day: "Thu", players: 41200 },
-  { day: "Fri", players: 52400 },
-  { day: "Sat", players: 68500 },
-  { day: "Sun", players: 72100 },
-];
+import { REGION_ANALYTICS, type GraphsData } from "../constants";
 
-export function GameplayVelocityChart() {
+// Daily active players — region-scoped via the `data` prop; defaults to the global baseline.
+interface GameplayVelocityChartProps {
+  data?: GraphsData["velocity"];
+}
+
+export function GameplayVelocityChart({
+  data = REGION_ANALYTICS["global"]!.graphs.velocity,
+}: GameplayVelocityChartProps) {
   return (
     <div className="h-[280px]">
       <ResponsiveContainer width="100%" height="100%">

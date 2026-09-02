@@ -3,8 +3,8 @@
 import { CalendarClock, GitPullRequestArrow, Library, Sparkles } from "lucide-react";
 
 import { CONTENT_INVENTORY as INV } from "../constants";
-import { SectionHeading } from "./section-heading";
-import { StatTile } from "./stat-tile";
+import { SectionHeading } from "@/components/custom/section-heading";
+import { StatTile } from "@/components/custom/stat-tile";
 
 export function ContentInventory() {
   const freshnessHealthy = INV.freshnessPct > INV.freshnessHealthyAbove;

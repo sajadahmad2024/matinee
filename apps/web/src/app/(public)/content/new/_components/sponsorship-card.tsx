@@ -18,34 +18,39 @@ import {
 import { GlassCard } from "../../../games/_components/glass-card";
 import { BannerUpload } from "../../../games/format/_components/shared/banner-upload";
 
-type AdFormat = "organic" | "sponsored" | "commercial";
+// Platform-level commercials (feed-inserted Ad-Sales spots) were removed from the
+// per-video form — they belong to the platform-level Ad Sales home (future
+// Dashboard/Monetization phase), not to a single video's monetization.
+type AdFormat = "organic" | "sponsored";
+
+type AdPlacement = "pre-roll" | "icon-overlay";
 
 /**
  * Ad-Sales format for a piece of content:
- *  - organic:     no sponsor.
- *  - sponsored:   normal content carrying a sponsor logo + a sponsor ad (pre/mid/post-roll).
- *  - commercial:  the content IS an Ad-Sales commercial inserted into the swipe feed.
+ *  - organic:    no sponsor.
+ *  - sponsored:  content carrying a sponsor logo + a sponsor ad (pre-roll or icon overlay).
  */
 export function SponsorshipCard() {
   const [format, setFormat] = useState<AdFormat>("organic");
   const [advertiser, setAdvertiser] = useState("");
   const [banner, setBanner] = useState<string | null>(null);
-  const [adDuration, setAdDuration] = useState("15");
-  const [placement, setPlacement] = useState("pre-roll");
-  const [feedFrequency, setFeedFrequency] = useState("8"); // insert every N videos in the feed
+  const [placement, setPlacement] = useState<AdPlacement>("pre-roll");
+  // Pre-roll runs for seconds per play; icon overlay runs for the days of the deal.
+  const [adDurationSecs, setAdDurationSecs] = useState("15");
+  const [overlayDays, setOverlayDays] = useState("30");
 
-  const showFields = format !== "organic";
-  const isCommercial = format === "commercial";
+  const showFields = format === "sponsored";
+  const isOverlay = placement === "icon-overlay";
 
   return (
     <GlassCard>
       <CardHeader>
         <CardTitle className="text-foreground flex items-center gap-2 text-base">
-          <Megaphone className="text-featured h-4 w-4" /> Ad-Sales &amp; Sponsorship
+          <Megaphone className="text-featured h-4 w-4" /> Ad Sales &amp; Sponsorship
         </CardTitle>
         <CardDescription>
-          Mark content as sponsored (shows a “Sponsored by” logo) or as an Ad-Sales commercial
-          inserted into the swipe feed.
+          Mark content as sponsored — a &ldquo;Sponsored by&rdquo; logo plus a pre-roll ad or an
+          icon overlay on the video.
         </CardDescription>
       </CardHeader>
 
@@ -59,7 +64,6 @@ export function SponsorshipCard() {
             <SelectContent className="border-border bg-card z-50">
               <SelectItem value="organic">Organic — no sponsor</SelectItem>
               <SelectItem value="sponsored">Sponsored — sponsor logo + ad</SelectItem>
-              <SelectItem value="commercial">Ad-Sales commercial — inserted in feed</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -67,7 +71,7 @@ export function SponsorshipCard() {
         {showFields && (
           <>
             <div className="space-y-2">
-              <Label htmlFor="advertiser">{isCommercial ? "Advertiser / Brand" : "Sponsor / Brand"}</Label>
+              <Label htmlFor="advertiser">Sponsor / Brand</Label>
               <Input
                 id="advertiser"
                 value={advertiser}
@@ -77,7 +81,7 @@ export function SponsorshipCard() {
             </div>
 
             <div className="space-y-2">
-              <Label>{isCommercial ? "Commercial banner / logo" : "Sponsor banner / logo"}</Label>
+              <Label>Sponsor banner / logo</Label>
               <BannerUpload
                 value={banner}
                 onChange={setBanner}
@@ -88,54 +92,57 @@ export function SponsorshipCard() {
 
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="ad-duration" className="flex items-center gap-1.5">
-                  <Timer className="h-3.5 w-3.5" />
-                  {isCommercial ? "Commercial length (s)" : "Ad duration (s)"}
-                </Label>
-                <Input
-                  id="ad-duration"
-                  type="number"
-                  min={0}
-                  value={adDuration}
-                  onChange={(e) => setAdDuration(e.target.value)}
-                  placeholder="15"
-                />
+                <Label>Placement</Label>
+                <Select value={placement} onValueChange={(v) => setPlacement(v as AdPlacement)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="border-border bg-card z-50">
+                    <SelectItem value="pre-roll">Pre-roll (before video)</SelectItem>
+                    <SelectItem value="icon-overlay">Icon Overlay (on video)</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
-              {isCommercial ? (
+              {isOverlay ? (
                 <div className="space-y-2">
-                  <Label htmlFor="feed-frequency">Insert every N videos</Label>
+                  <Label htmlFor="overlay-days" className="flex items-center gap-1.5">
+                    <Timer className="h-3.5 w-3.5" />
+                    Overlay duration (days)
+                  </Label>
                   <Input
-                    id="feed-frequency"
+                    id="overlay-days"
                     type="number"
                     min={1}
-                    value={feedFrequency}
-                    onChange={(e) => setFeedFrequency(e.target.value)}
-                    placeholder="8"
+                    value={overlayDays}
+                    onChange={(e) => setOverlayDays(e.target.value)}
+                    placeholder="30"
                   />
+                  <p className="text-muted-foreground text-xs">
+                    Length of the sponsorship deal — the overlay stays on the video for this
+                    many days.
+                  </p>
                 </div>
               ) : (
                 <div className="space-y-2">
-                  <Label>Placement</Label>
-                  <Select value={placement} onValueChange={setPlacement}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="border-border bg-card z-50">
-                      <SelectItem value="pre-roll">Pre-roll (before video)</SelectItem>
-                      <SelectItem value="mid-roll">Mid-roll (during)</SelectItem>
-                      <SelectItem value="post-roll">Post-roll (after)</SelectItem>
-                      <SelectItem value="overlay">Banner overlay</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Label htmlFor="ad-duration" className="flex items-center gap-1.5">
+                    <Timer className="h-3.5 w-3.5" />
+                    Ad duration (seconds)
+                  </Label>
+                  <Input
+                    id="ad-duration"
+                    type="number"
+                    min={0}
+                    value={adDurationSecs}
+                    onChange={(e) => setAdDurationSecs(e.target.value)}
+                    placeholder="15"
+                  />
                 </div>
               )}
             </div>
 
             <p className="text-muted-foreground text-xs">
-              {isCommercial
-                ? "Commercials are inserted into the swipe feed at the chosen frequency with a countdown timer. Revenue is settled by the Ad-Sales ledger."
-                : "Revenue tracking and billing are settled by the Ad-Sales ledger."}
+              Revenue tracking and billing are settled by the Ad-Sales ledger.
             </p>
           </>
         )}

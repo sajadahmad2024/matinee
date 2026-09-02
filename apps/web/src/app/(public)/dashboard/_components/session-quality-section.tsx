@@ -1,67 +1,112 @@
 "use client";
 
-import { Activity, Clock, Eye, LogIn, Moon, Smartphone } from "lucide-react";
+import { Activity, BarChart3, Eye, Gamepad2, LogIn, Smartphone } from "lucide-react";
 
-import { RegionalBreakdown, type RegionRow } from "@/components/custom/regional-breakdown";
-
+import { fmtCount, fmtDuration, REGION_ANALYTICS, type ScreenTimeData } from "../constants";
 import { MetricTile } from "./metric-tile";
 
-// Passive viewership vs viewership WITH active gamification — whole + per region.
-const REGION_ROWS: RegionRow[] = [
-  { code: "NA", label: "North America", values: { viewers: 18400, gamified: 11200 } },
-  { code: "EU", label: "Europe", values: { viewers: 12100, gamified: 6900 } },
-  { code: "APAC", label: "Asia-Pacific", values: { viewers: 22900, gamified: 15800 } },
-  { code: "LATAM", label: "Latin America", values: { viewers: 6300, gamified: 3400 } },
-  { code: "MEA", label: "Middle East & Africa", values: { viewers: 3100, gamified: 1500 } },
-];
+const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-// Time-of-day usage heatmap (relative intensity 0-1 per 3h block).
-const hours = ["00", "03", "06", "09", "12", "15", "18", "21"];
-const heat = [0.2, 0.1, 0.15, 0.4, 0.55, 0.6, 0.85, 1.0];
+// Screen time & session quality for one region: viewers vs gamified split, session length
+// distribution, 24h × 7d usage heatmap, and login/logout drop-out proxies.
+// Region-scoped via the `data` prop; defaults to the global baseline.
+interface SessionQualitySectionProps {
+  data?: ScreenTimeData;
+}
 
-export function SessionQualitySection() {
+export function SessionQualitySection({
+  data = REGION_ANALYTICS["global"]!.screenTime,
+}: SessionQualitySectionProps) {
+  const gamifiedRate = Math.round((data.gamified / data.viewers) * 100);
+  const maxBucket = Math.max(...data.sessionBuckets.map((b) => b.pct));
   return (
     <div className="space-y-4">
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <MetricTile label="Session length (avg)" value="24:38" sub="median 18:10 per user" icon={Clock} accent="text-primary" pending="needs sessions" />
-        <MetricTile label="Doomscroll depth (p90)" value="32" sub="deepest 10% of sessions" icon={Smartphone} accent="text-accent" pending="needs sessions" />
-        <MetricTile label="BG ↔ FG transitions" value="3.1" sub="avg app switches / session" icon={LogIn} accent="text-warning" pending="needs sessions" />
-        <MetricTile label="Peak usage" value="9 PM" sub="local time, all regions" icon={Moon} accent="text-featured" />
+        <MetricTile
+          label="Viewership (not active)"
+          value={fmtCount(data.viewers)}
+          sub="passive viewers in this region"
+          icon={Eye}
+          accent="text-primary"
+        />
+        <MetricTile
+          label="Viewers with gamification"
+          value={fmtCount(data.gamified)}
+          sub={`${gamifiedRate}% of viewers actively gamify`}
+          icon={Gamepad2}
+          accent="text-accent"
+        />
+        <MetricTile
+          label="BG ↔ FG transitions"
+          value={String(data.bgFgPerSession)}
+          sub="re-entries / session / day — login/drop-out proxy"
+          icon={LogIn}
+          accent="text-warning"
+          pending="needs sessions"
+        />
+        <MetricTile
+          label="Doomscroll depth"
+          value={`${data.doomscrollVideos} videos`}
+          sub={`· ${data.doomscrollMinutes} min per user / session`}
+          icon={Smartphone}
+          accent="text-featured"
+          pending="needs sessions"
+        />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        {/* Viewership: passive vs gamified, whole + region */}
+        {/* Session length distribution histogram */}
         <div className="border-border bg-card/50 rounded-lg border p-4">
-          <p className="text-foreground mb-2 flex items-center gap-1.5 text-sm font-medium">
-            <Eye className="text-primary h-4 w-4" /> Viewership vs active gamification (by region)
+          <p className="text-foreground mb-1 flex items-center gap-1.5 text-sm font-medium">
+            <BarChart3 className="text-primary h-4 w-4" /> Session length distribution
           </p>
-          <RegionalBreakdown
-            shareKey="viewers"
-            columns={[
-              { key: "viewers", label: "Viewers" },
-              { key: "gamified", label: "Gamified" },
-            ]}
-            rows={REGION_ROWS}
-          />
-        </div>
-
-        {/* Time-of-day heatmap */}
-        <div className="border-border bg-card/50 rounded-lg border p-4">
-          <p className="text-foreground mb-3 flex items-center gap-1.5 text-sm font-medium">
-            <Activity className="text-accent h-4 w-4" /> Time-of-day usage
+          <p className="text-muted-foreground mb-3 text-[11px]">
+            avg {fmtDuration(data.sessionAvgSecs)} · median {fmtDuration(data.sessionMedianSecs)}
           </p>
-          <div className="flex items-end gap-1.5">
-            {hours.map((h, i) => (
-              <div key={h} className="flex flex-1 flex-col items-center gap-1">
+          <div className="flex items-end gap-2" style={{ height: 120 }}>
+            {data.sessionBuckets.map((b) => (
+              <div key={b.bucket} className="flex h-full flex-1 flex-col items-center justify-end gap-1">
+                <span className="text-muted-foreground text-[10px] tabular-nums">{b.pct}%</span>
                 <div
-                  className="w-full rounded-sm"
-                  style={{ height: `${20 + heat[i]! * 90}px`, backgroundColor: `hsla(217, 91%, 60%, ${0.3 + heat[i]! * 0.7})` }}
+                  className="from-primary to-accent w-full rounded-t-sm bg-gradient-to-t"
+                  style={{ height: `${(b.pct / maxBucket) * 80}%` }}
                 />
-                <span className="text-muted-foreground text-[10px]">{h}</span>
+                <span className="text-muted-foreground text-[10px]">{b.bucket}</span>
               </div>
             ))}
           </div>
-          <p className="text-muted-foreground mt-2 text-[11px]">Evenings (6–9 PM) drive most sessions.</p>
+        </div>
+
+        {/* Time-of-day heatmap — 24h × 7d usage intensity */}
+        <div className="border-border bg-card/50 rounded-lg border p-4">
+          <p className="text-foreground mb-3 flex items-center gap-1.5 text-sm font-medium">
+            <Activity className="text-accent h-4 w-4" /> Time-of-day usage (24h × 7d)
+          </p>
+          <div className="space-y-1">
+            {data.heatmap.map((row, d) => (
+              <div key={DAYS[d]} className="flex items-center gap-1">
+                <span className="text-muted-foreground w-7 shrink-0 text-[10px]">{DAYS[d]}</span>
+                <div className="grid flex-1 grid-cols-[repeat(24,minmax(0,1fr))] gap-px">
+                  {row.map((v, h) => (
+                    <div
+                      key={h}
+                      title={`${DAYS[d]} ${String(h).padStart(2, "0")}:00 — ${Math.round(v * 100)}%`}
+                      className="aspect-square rounded-[2px]"
+                      style={{ backgroundColor: `hsla(217, 91%, 60%, ${0.08 + v * 0.85})` }}
+                    />
+                  ))}
+                </div>
+              </div>
+            ))}
+            <div className="flex items-center gap-1 pl-8">
+              {[0, 6, 12, 18, 23].map((h) => (
+                <span key={h} className="text-muted-foreground flex-1 text-[9px]">
+                  {String(h).padStart(2, "0")}h
+                </span>
+              ))}
+            </div>
+          </div>
+          <p className="text-muted-foreground mt-2 text-[11px]">Evenings (6–10 PM) drive most sessions; weekends run heavier.</p>
         </div>
       </div>
     </div>

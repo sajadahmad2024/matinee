@@ -309,13 +309,19 @@ export function CreateInstanceModal({ open, onOpenChange, kind }: CreateInstance
 
           {/* Rewards (quest/prediction) */}
           {kind !== "auction" && (
-            <div className="grid grid-cols-2 gap-4">
-              <Field label="Reward points">
-                <Input type="number" value={rewardPoints} onChange={(e) => setRewardPoints(Number(e.target.value))} />
-              </Field>
-              <Field label="Reward XP">
-                <Input type="number" value={rewardXp} onChange={(e) => setRewardXp(Number(e.target.value))} />
-              </Field>
+            <div className="space-y-2">
+              <div className="grid grid-cols-2 gap-4">
+                <Field label="Reward points">
+                  <Input type="number" value={rewardPoints} onChange={(e) => setRewardPoints(Number(e.target.value))} />
+                </Field>
+                <Field label="Reward XP">
+                  <Input type="number" value={rewardXp} onChange={(e) => setRewardXp(Number(e.target.value))} />
+                </Field>
+              </div>
+              <p className="text-muted-foreground text-[11px]">
+                Points are spent on rewards &amp; bidding; XP is permanent progression that levels
+                users up.
+              </p>
             </div>
           )}
         </div>

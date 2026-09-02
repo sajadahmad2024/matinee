@@ -60,8 +60,7 @@ interface UserAnalyticsProps {
 }
 
 export function UserAnalytics({ timeRange = "7d" }: UserAnalyticsProps) {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const _timeRange = timeRange; // Intentionally kept for future data fetching
+  void timeRange; // Intentionally kept for future data fetching
 
   const dauMauRatio = (
     (engagementData[engagementData.length - 1].dau /

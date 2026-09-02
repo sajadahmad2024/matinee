@@ -1,7 +1,7 @@
-import { Flame, Gavel, Share2, Target, Trophy, type LucideIcon } from "lucide-react";
+import { Flame, Share2, Target, Trophy, type LucideIcon } from "lucide-react";
 
 /** Fixed game types (backed by our DB). Types are fixed; their RULES are dynamic. */
-export type GameTypeSlug = "daily-streak" | "quests" | "shared-content" | "predictive" | "bidding";
+export type GameTypeSlug = "daily-streak" | "quests" | "shared-content" | "predictive";
 
 export interface GameTypeDef {
   slug: GameTypeSlug;
@@ -70,18 +70,7 @@ export const GAME_TYPES: GameTypeDef[] = [
     activeInstances: 5,
     totalPlays: 89200,
   },
-  {
-    slug: "bidding",
-    name: "Bidding",
-    description: "Spend earned points to bid for exclusive prizes & experiences.",
-    tagline: "Bid points to win",
-    icon: Gavel,
-    autonomous: false,
-    dbMapping: "auctions · bids",
-    instanceNoun: "Auction",
-    activeInstances: 2,
-    totalPlays: 12300,
-  },
+  // Bidding lives in the Rewards module (see spec-03), not in games.
 ];
 
 export function getGameType(slug: string): GameTypeDef | undefined {

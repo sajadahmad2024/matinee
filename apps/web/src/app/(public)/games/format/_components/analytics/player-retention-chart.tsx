@@ -8,6 +8,7 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/
 
 import { AnalyticsHeader } from "../../../_components/analytics-header";
 import { GlassCard } from "../../../_components/glass-card";
+import { shiftRate, type RegionKey } from "./region-scale";
 
 const retentionData = [
   { day: "Day 1", rate: 100 },
@@ -17,7 +18,16 @@ const retentionData = [
   { day: "Day 30", rate: 28 },
 ];
 
-export function PlayerRetentionChart() {
+interface PlayerRetentionChartProps {
+  region?: RegionKey;
+}
+
+export function PlayerRetentionChart({ region = "all" }: PlayerRetentionChartProps) {
+  const data = retentionData.map((d, i) => ({
+    ...d,
+    // Day 1 is always 100%; later cohorts drift by region.
+    rate: i === 0 ? d.rate : shiftRate(d.rate, region),
+  }));
   return (
     <GlassCard>
       <AnalyticsHeader title="Player Retention" icon={Users} iconColor="text-success" />
@@ -28,7 +38,7 @@ export function PlayerRetentionChart() {
           }}
           className="h-[250px] w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={retentionData}>
+            <BarChart data={data}>
               <XAxis
                 dataKey="day"
                 stroke="hsl(var(--muted-foreground))"

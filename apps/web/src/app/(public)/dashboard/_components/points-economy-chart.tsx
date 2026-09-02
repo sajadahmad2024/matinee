@@ -11,12 +11,7 @@ import {
   YAxis,
 } from "recharts";
 
-const data = [
-  { period: "Week 1", distributed: 125000, redeemed: 42000 },
-  { period: "Week 2", distributed: 148000, redeemed: 55000 },
-  { period: "Week 3", distributed: 132000, redeemed: 48000 },
-  { period: "Week 4", distributed: 165000, redeemed: 62000 },
-];
+import { REGION_ANALYTICS, type GamificationData } from "../constants";
 
 const distributionBreakdown = [
   { type: "Game Rewards", value: 45, color: "hsl(217, 91%, 60%)" },
@@ -29,7 +24,14 @@ const redemptionBreakdown = [
   { type: "Auction Bids", value: 45, color: "hsl(199, 89%, 48%)" },
 ];
 
-export function PointsEconomyChart() {
+// Mint vs redeem per week — region-scoped via the `data` prop; defaults to the global baseline.
+interface PointsEconomyChartProps {
+  data?: GamificationData["economyTrend"];
+}
+
+export function PointsEconomyChart({
+  data = REGION_ANALYTICS["global"]!.gamification.economyTrend,
+}: PointsEconomyChartProps) {
   return (
     <div className="flex h-[280px] flex-col gap-6 md:flex-row">
       {/* Main Chart */}

@@ -19,7 +19,6 @@ import {
   ScrollText,
   ThumbsUp,
   Trash2,
-  Trophy,
   XCircle,
   Zap,
 } from "lucide-react";
@@ -49,12 +48,13 @@ import { WorkflowHistory } from "./workflow-history";
 
 interface VideoListItemProps {
   video: VideoItem;
+  /** "master" adds a status left-border accent (live = success, scheduled = primary) */
+  variant?: "default" | "master";
   onEdit: (id: string) => void;
   onAnalytics: (id: string) => void;
-  onLeaderboards: (id: string) => void;
 }
 
-export function VideoListItem({ video, onEdit, onAnalytics, onLeaderboards }: VideoListItemProps) {
+export function VideoListItem({ video, variant = "default", onEdit, onAnalytics }: VideoListItemProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
@@ -81,6 +81,10 @@ export function VideoListItem({ video, onEdit, onAnalytics, onLeaderboards }: Vi
             className={cn(
               "hover:border-primary/50 group overflow-hidden transition-all duration-300",
               isHovered && "shadow-glow-sm shadow-primary/10",
+              variant === "master" &&
+                (video.status === "scheduled"
+                  ? "border-l-primary border-l-2"
+                  : "border-l-success border-l-2"),
             )}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}>
@@ -160,7 +164,12 @@ export function VideoListItem({ video, onEdit, onAnalytics, onLeaderboards }: Vi
                   {video.sponsored && (
                     <Badge variant="outline" className="border-featured/40 text-featured gap-1 text-[10px]">
                       <Megaphone className="h-3 w-3" />
-                      Sponsored{video.adDurationSecs ? ` · ${video.adDurationSecs}s ad` : ""}
+                      Sponsored
+                      {video.adPlacement === "icon-overlay" && video.adOverlayDays
+                        ? ` · ${video.adOverlayDays}d overlay`
+                        : video.adDurationSecs
+                          ? ` · ${video.adDurationSecs}s ad`
+                          : ""}
                     </Badge>
                   )}
                   <StatusBadge status={video.status} />
@@ -242,16 +251,6 @@ export function VideoListItem({ video, onEdit, onAnalytics, onLeaderboards }: Vi
                   </TooltipTrigger>
                   <TooltipContent>View Analytics</TooltipContent>
                 </Tooltip>
-                {video.linkedGames > 0 && (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button variant="ghost" size="icon" onClick={() => onLeaderboards(video.id)} className="hover:bg-warning/20 hover:text-warning h-9 w-9 rounded-lg">
-                        <Trophy className="h-4 w-4" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>Game Leaderboards</TooltipContent>
-                  </Tooltip>
-                )}
               </div>
             </div>
 

@@ -8,8 +8,8 @@ import { Button } from "@/components/ui/button";
 
 import { LICENSING_SUMMARY as LIC } from "../constants";
 import { LicensingTableModal } from "./licensing-table-modal";
-import { SectionHeading } from "./section-heading";
-import { StatTile } from "./stat-tile";
+import { SectionHeading } from "@/components/custom/section-heading";
+import { StatTile } from "@/components/custom/stat-tile";
 
 export function LicensingRights() {
   const [tableOpen, setTableOpen] = useState(false);

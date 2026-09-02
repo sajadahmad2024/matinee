@@ -38,10 +38,14 @@ export function BehaviorRewardsEditor({
     <div className="space-y-2">
       <div className="text-muted-foreground grid grid-cols-12 gap-2 px-1 text-[11px]">
         <span className="col-span-7">Behaviour → fixed reward</span>
-        <span className="col-span-2 text-center">Points</span>
-        <span className="col-span-2 text-center">XP</span>
+        <span className="col-span-2 text-center">Points (spendable)</span>
+        <span className="col-span-2 text-center">XP (progression)</span>
         <span className="col-span-1" />
       </div>
+      <p className="text-muted-foreground px-1 text-[11px]">
+        Points are spent on rewards &amp; bidding; XP is permanent progression that levels users
+        up.
+      </p>
 
       {behaviors.map((b) => (
         <div

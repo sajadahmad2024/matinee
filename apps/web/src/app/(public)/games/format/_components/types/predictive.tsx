@@ -33,14 +33,20 @@ const MOCK_PREDICTIONS: GameInstance[] = [
 ];
 
 /**
- * Settings = global DEFAULTS & POLICY only. Each prediction's rule (question, options,
- * entry cost, multiplier, schedule, unlock threshold) is set in the Create Prediction form.
+ * Settings tab — global defaults & policy, the prediction list (create/schedule/resolve), and
+ * the former Gamification content, merged onto one scrolling tab (client decision). Each
+ * prediction's rule (question, options, entry cost, multiplier, schedule, unlock threshold) is
+ * set in the Create Prediction form.
  */
 export function PredictiveSettings() {
   const [enabled, setEnabled] = useState(true);
   const [defaultEntryCost, setDefaultEntryCost] = useState(50);
   const [defaultMultiplier, setDefaultMultiplier] = useState("5");
   const [defaultCadence, setDefaultCadence] = useState("monthly");
+
+  const [createOpen, setCreateOpen] = useState(false);
+  const [result, setResult] = useState<GameInstance | null>(null);
+  const [resolve, setResolve] = useState<GameInstance | null>(null);
 
   return (
     <div className="grid gap-6 lg:grid-cols-2">
@@ -111,18 +117,10 @@ export function PredictiveSettings() {
       <div className="lg:col-span-2">
         <AppWidgetCard gameTypeName="Predictive" defaultCta="Predict &amp; win" />
       </div>
-    </div>
-  );
-}
 
-export function PredictiveGamification() {
-  const [createOpen, setCreateOpen] = useState(false);
-  const [result, setResult] = useState<GameInstance | null>(null);
-  const [resolve, setResolve] = useState<GameInstance | null>(null);
-
-  return (
-    <div className="space-y-6">
-      <GlassCard>
+      {/* Former Gamification tab content — merged into Settings */}
+      <div className="space-y-6 lg:col-span-2">
+        <GlassCard>
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
@@ -161,12 +159,13 @@ export function PredictiveGamification() {
         instance={result}
         kind="prediction"
       />
-      <InstanceResolveModal
-        open={!!resolve}
-        onOpenChange={(o) => !o && setResolve(null)}
-        instance={resolve}
-        kind="prediction"
-      />
+        <InstanceResolveModal
+          open={!!resolve}
+          onOpenChange={(o) => !o && setResolve(null)}
+          instance={resolve}
+          kind="prediction"
+        />
+      </div>
     </div>
   );
 }
