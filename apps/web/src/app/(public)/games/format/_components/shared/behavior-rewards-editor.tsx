@@ -9,7 +9,6 @@ export interface BehaviorReward {
   id: string;
   label: string; // behaviour name (editable — admins can add/automate more)
   points: number; // fixed points payout
-  xp: number; // fixed xp payout
 }
 
 interface BehaviorRewardsEditorProps {
@@ -19,8 +18,10 @@ interface BehaviorRewardsEditorProps {
 }
 
 /**
- * Predictable multi-behaviour rewards: a fixed list where each behaviour pays a fixed
- * points + xp. NO operators/conditions — every occurrence pays the listed amount.
+ * Predictable multi-behaviour rewards: a fixed list where each behaviour pays fixed
+ * points. NO operators/conditions — every occurrence pays the listed amount.
+ * Points are the only currency in the panel (spec-05 §2.2); lifetime-earned points are
+ * a backend badge trigger, never shown here.
  * (Daily Streak: time-on-app + engagement behaviours; Shared Content: internal/external/referral.)
  */
 export function BehaviorRewardsEditor({
@@ -32,20 +33,15 @@ export function BehaviorRewardsEditor({
     onChange(behaviors.map((b) => (b.id === id ? { ...b, ...patch } : b)));
   const remove = (id: string) => onChange(behaviors.filter((b) => b.id !== id));
   const add = () =>
-    onChange([...behaviors, { id: `b_${Date.now()}`, label: "New behaviour", points: 10, xp: 5 }]);
+    onChange([...behaviors, { id: `b_${Date.now()}`, label: "New behaviour", points: 10 }]);
 
   return (
     <div className="space-y-2">
       <div className="text-muted-foreground grid grid-cols-12 gap-2 px-1 text-[11px]">
-        <span className="col-span-7">Behaviour → fixed reward</span>
-        <span className="col-span-2 text-center">Points (spendable)</span>
-        <span className="col-span-2 text-center">XP (progression)</span>
+        <span className="col-span-9">Behaviour → fixed reward</span>
+        <span className="col-span-2 text-center">Points</span>
         <span className="col-span-1" />
       </div>
-      <p className="text-muted-foreground px-1 text-[11px]">
-        Points are spent on rewards &amp; bidding; XP is permanent progression that levels users
-        up.
-      </p>
 
       {behaviors.map((b) => (
         <div
@@ -54,20 +50,13 @@ export function BehaviorRewardsEditor({
           <Input
             value={b.label}
             onChange={(e) => update(b.id, { label: e.target.value })}
-            className="col-span-7 h-9"
+            className="col-span-9 h-9"
           />
           <Input
             type="number"
             min={0}
             value={b.points}
             onChange={(e) => update(b.id, { points: Number(e.target.value) })}
-            className="col-span-2 h-9 text-center"
-          />
-          <Input
-            type="number"
-            min={0}
-            value={b.xp}
-            onChange={(e) => update(b.id, { xp: Number(e.target.value) })}
             className="col-span-2 h-9 text-center"
           />
           <Button

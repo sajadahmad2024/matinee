@@ -8,6 +8,11 @@ import { Badge } from "@/components/ui/badge";
 import { SectionHeading } from "@/components/custom/section-heading";
 
 import { GAME_TYPES, type GameTypeDef, type GameTypeSlug } from "../_config/game-types";
+import {
+  type RegionKey,
+  formatCompact,
+  scaleCount,
+} from "../format/_components/analytics/region-scale";
 import { GlassCard } from "./glass-card";
 
 // Client's stated row order: Daily Streak, Weekly Quests, Shared Content, Predictive.
@@ -18,7 +23,7 @@ const ROW_ORDER: GameTypeSlug[] = ["daily-streak", "quests", "shared-content", "
  * configured per format via Settings / Analytics. Formats render as full-width rows
  * (content-management-style), one per format, in the client's order.
  */
-export function GameFormatsLibrary() {
+export function GameFormatsLibrary({ region = "all" }: { region?: RegionKey }) {
   const orderedTypes = ROW_ORDER.map((slug) => GAME_TYPES.find((t) => t.slug === slug)).filter(
     (t): t is GameTypeDef => Boolean(t),
   );
@@ -32,7 +37,7 @@ export function GameFormatsLibrary() {
 
       <div className="space-y-3">
         {orderedTypes.map((type) => (
-          <GameTypeRow key={type.slug} type={type} />
+          <GameTypeRow key={type.slug} type={type} region={region} />
         ))}
 
         {/* Hidden for now (client: don't surface adding formats yet). The /games/format/new
@@ -51,7 +56,9 @@ export function GameFormatsLibrary() {
   );
 }
 
-function GameTypeRow({ type }: { type: GameTypeDef }) {
+// Instance config is global (a format is enabled once, for everyone); only activity —
+// plays — is regional, so the region lens scales plays alone (spec-05 §2.1).
+function GameTypeRow({ type, region }: { type: GameTypeDef; region: RegionKey }) {
   const Icon = type.icon;
   return (
     <Link href={`/games/format/${type.slug}` as Route} className="group block">
@@ -92,7 +99,7 @@ function GameTypeRow({ type }: { type: GameTypeDef }) {
             <div className="flex items-center gap-2">
               <Play className="text-muted-foreground h-4 w-4" />
               <span className="text-foreground-secondary">
-                {(type.totalPlays / 1000).toFixed(1)}K plays
+                {formatCompact(scaleCount(type.totalPlays, region))} plays
               </span>
             </div>
           </div>

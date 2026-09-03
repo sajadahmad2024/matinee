@@ -71,8 +71,7 @@ export interface TopPlayer {
   name: string;
   avatar?: string;
   totalWins: number;
-  totalXP: number;
-  /** Spendable points balance earned — shown beside XP so operators see both currencies. */
+  /** Current spendable points balance — the ranking basis (spending drops you). */
   totalPoints: number;
   gamesPlayed: number;
 }
@@ -142,7 +141,6 @@ const mockTopPlayers: TopPlayer[] = [
     userId: "USR_001",
     name: "GameMaster_Pro",
     totalWins: 156,
-    totalXP: 45200,
     totalPoints: 28000,
     gamesPlayed: 342,
   },
@@ -151,7 +149,6 @@ const mockTopPlayers: TopPlayer[] = [
     userId: "USR_002",
     name: "QuizChampion",
     totalWins: 143,
-    totalXP: 41800,
     totalPoints: 25900,
     gamesPlayed: 298,
   },
@@ -160,7 +157,6 @@ const mockTopPlayers: TopPlayer[] = [
     userId: "USR_003",
     name: "StreakKing",
     totalWins: 128,
-    totalXP: 38500,
     totalPoints: 23800,
     gamesPlayed: 276,
   },
@@ -169,7 +165,6 @@ const mockTopPlayers: TopPlayer[] = [
     userId: "USR_004",
     name: "MovieBuff2024",
     totalWins: 115,
-    totalXP: 35200,
     totalPoints: 21800,
     gamesPlayed: 254,
   },
@@ -178,7 +173,6 @@ const mockTopPlayers: TopPlayer[] = [
     userId: "USR_005",
     name: "PredictorElite",
     totalWins: 102,
-    totalXP: 32100,
     totalPoints: 19900,
     gamesPlayed: 231,
   },
@@ -187,7 +181,6 @@ const mockTopPlayers: TopPlayer[] = [
     userId: "USR_006",
     name: "TrailerHunter",
     totalWins: 98,
-    totalXP: 29800,
     totalPoints: 18400,
     gamesPlayed: 218,
   },
@@ -196,7 +189,6 @@ const mockTopPlayers: TopPlayer[] = [
     userId: "USR_007",
     name: "CinemaGuru",
     totalWins: 89,
-    totalXP: 27400,
     totalPoints: 16900,
     gamesPlayed: 195,
   },
@@ -205,7 +197,6 @@ const mockTopPlayers: TopPlayer[] = [
     userId: "USR_008",
     name: "SpeedWatcher",
     totalWins: 82,
-    totalXP: 25100,
     totalPoints: 15500,
     gamesPlayed: 187,
   },
@@ -323,10 +314,10 @@ function PodiumCard({ player, isWinner }: { player: TopPlayer; isWinner: boolean
             <p className="text-muted-foreground text-xs">Wins</p>
           </div>
           <div>
-            <p className="text-success font-gaming text-lg font-bold">
-              {(player.totalXP / 1000).toFixed(1)}K
+            <p className="text-warning font-gaming text-lg font-bold">
+              {(player.totalPoints / 1000).toFixed(1)}K
             </p>
-            <p className="text-muted-foreground text-xs">XP</p>
+            <p className="text-muted-foreground text-xs">Points</p>
           </div>
         </div>
       </CardContent>
@@ -490,6 +481,9 @@ export function GlobalLeaderboards() {
                 <Star className="text-warning h-4 w-4" />
                 Complete Rankings
               </CardTitle>
+              <p className="text-muted-foreground text-xs">
+                Ranked by current points balance — spending points moves you down.
+              </p>
             </CardHeader>
             <CardContent className="p-0">
               <div className="overflow-x-auto">
@@ -499,7 +493,6 @@ export function GlobalLeaderboards() {
                       <TableHead className="text-muted-foreground w-[80px]">Rank</TableHead>
                       <TableHead className="text-muted-foreground">User</TableHead>
                       <TableHead className="text-muted-foreground text-right">Total Wins</TableHead>
-                      <TableHead className="text-muted-foreground text-right">Total XP</TableHead>
                       <TableHead className="text-muted-foreground text-right">Points</TableHead>
                       <TableHead className="text-muted-foreground text-right">
                         Games Played
@@ -532,9 +525,6 @@ export function GlobalLeaderboards() {
                         </TableCell>
                         <TableCell className="text-foreground text-right font-mono">
                           {player.totalWins}
-                        </TableCell>
-                        <TableCell className="text-success text-right font-mono">
-                          {player.totalXP.toLocaleString()}
                         </TableCell>
                         <TableCell className="text-warning text-right font-mono">
                           {player.totalPoints.toLocaleString()}

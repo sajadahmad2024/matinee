@@ -120,7 +120,8 @@ export function VideoUploadZone({
             Drag & drop video file or <span className="text-primary">browse</span>
           </p>
           <p className="text-foreground-muted mt-1 text-xs">
-            MP4, MOV, AVI · vertical 9:16 · up to {maxSize}
+            MP4, MOV, AVI · 16:9 horizontal (launch standard); vertical supported later · up to{" "}
+            {maxSize}
           </p>
         </div>
       )}

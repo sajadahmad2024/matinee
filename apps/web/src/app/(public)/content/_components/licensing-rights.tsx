@@ -2,10 +2,11 @@
 
 import { AlertTriangle, Coins, FileText, Scale } from "lucide-react";
 
-import { LICENSING_SUMMARY as LIC } from "../constants";
-import { LicensingTable } from "./licensing-table";
 import { SectionHeading } from "@/components/custom/section-heading";
 import { StatTile } from "@/components/custom/stat-tile";
+
+import { LICENSING_SUMMARY as LIC } from "../constants";
+import { LicensingTable } from "./licensing-table";
 
 export function LicensingRights() {
   const totalRights = LIC.licensed + LIC.original;
@@ -26,7 +27,11 @@ export function LicensingRights() {
           icon={FileText}
           accent="primary"
           subStats={[
-            { label: "Licensed", value: `${LIC.licensed.toLocaleString()} (${licensedPct}%)`, accent: "primary" },
+            {
+              label: "Licensed",
+              value: `${LIC.licensed.toLocaleString()} (${licensedPct}%)`,
+              accent: "primary",
+            },
             { label: "Original / owned", value: LIC.original.toLocaleString(), accent: "accent" },
           ]}
         />
@@ -62,11 +67,13 @@ export function LicensingRights() {
           value={LIC.expiring30}
           icon={AlertTriangle}
           accent={expiringAlert ? "danger" : "warning"}
-          trend={
-            expiringAlert ? { direction: "up", label: "Alert", good: false } : undefined
-          }
+          trend={expiringAlert ? { direction: "up", label: "Alert", good: false } : undefined}
           subStats={[
-            { label: "In 30 days", value: `${LIC.expiring30}`, accent: expiringAlert ? "danger" : "warning" },
+            {
+              label: "In 30 days",
+              value: `${LIC.expiring30}`,
+              accent: expiringAlert ? "danger" : "warning",
+            },
             { label: "In 60 days", value: `${LIC.expiring60}` },
             { label: "In 90 days", value: `${LIC.expiring90}` },
           ]}

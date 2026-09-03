@@ -57,7 +57,14 @@ interface TaxonomyManagerProps {
   imageLabel?: string;
 }
 
-export function TaxonomyManager({ title, noun, initialItems, metaLabel, showCount = true, imageLabel }: TaxonomyManagerProps) {
+export function TaxonomyManager({
+  title,
+  noun,
+  initialItems,
+  metaLabel,
+  showCount = true,
+  imageLabel,
+}: TaxonomyManagerProps) {
   const [items, setItems] = useState<TaxonomyItem[]>(initialItems);
   const [editing, setEditing] = useState<TaxonomyItem | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
@@ -72,7 +79,9 @@ export function TaxonomyManager({ title, noun, initialItems, metaLabel, showCoun
   const [sort, setSort] = useState<"most" | "least" | "name">("most");
   const q = query.trim().toLowerCase();
   const visible = items
-    .filter((i) => !q || i.name.toLowerCase().includes(q) || (i.meta ?? "").toLowerCase().includes(q))
+    .filter(
+      (i) => !q || i.name.toLowerCase().includes(q) || (i.meta ?? "").toLowerCase().includes(q),
+    )
     .sort((a, b) => {
       if (sort === "name") return a.name.localeCompare(b.name);
       const ac = a.count ?? 0;
@@ -85,7 +94,13 @@ export function TaxonomyManager({ title, noun, initialItems, metaLabel, showCoun
   );
   const unusedCount = items.filter((i) => (i.count ?? 0) === 0).length;
 
-  const initials = (n: string) => n.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
+  const initials = (n: string) =>
+    n
+      .split(" ")
+      .map((w) => w[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase();
 
   const openCreate = () => {
     setEditing(null);
@@ -113,7 +128,10 @@ export function TaxonomyManager({ title, noun, initialItems, metaLabel, showCoun
       setItems((prev) => prev.map((i) => (i.id === editing.id ? { ...i, ...patch } : i)));
       toast.success(`${noun} updated`);
     } else {
-      setItems((prev) => [{ id: `${noun.toLowerCase()}_${Date.now()}`, count: 0, ...patch }, ...prev]);
+      setItems((prev) => [
+        { id: `${noun.toLowerCase()}_${Date.now()}`, count: 0, ...patch },
+        ...prev,
+      ]);
       toast.success(`${noun} created`);
     }
     setModalOpen(false);
@@ -131,7 +149,9 @@ export function TaxonomyManager({ title, noun, initialItems, metaLabel, showCoun
       <div className="flex items-center justify-between p-4">
         <div>
           <h3 className="text-foreground text-base font-semibold">{title}</h3>
-          <p className="text-muted-foreground text-xs">{items.length} {title.toLowerCase()}</p>
+          <p className="text-muted-foreground text-xs">
+            {items.length} {title.toLowerCase()}
+          </p>
         </div>
         <Button size="sm" className="gap-2" onClick={openCreate}>
           <Plus className="h-4 w-4" /> Add {noun}
@@ -193,7 +213,11 @@ export function TaxonomyManager({ title, noun, initialItems, metaLabel, showCoun
                     </TableCell>
                   )}
                   <TableCell className="text-foreground font-medium">{item.name}</TableCell>
-                  {metaLabel && <TableCell className="text-muted-foreground text-sm">{item.meta ?? "—"}</TableCell>}
+                  {metaLabel && (
+                    <TableCell className="text-muted-foreground text-sm">
+                      {item.meta ?? "—"}
+                    </TableCell>
+                  )}
                   {showCount && (
                     <TableCell className="text-muted-foreground text-right text-sm tabular-nums">
                       {(item.count ?? 0).toLocaleString()}
@@ -201,7 +225,11 @@ export function TaxonomyManager({ title, noun, initialItems, metaLabel, showCoun
                   )}
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-1">
-                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(item)}>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => openEdit(item)}>
                         <Pencil className="h-4 w-4" />
                       </Button>
                       <Button
@@ -263,11 +291,20 @@ export function TaxonomyManager({ title, noun, initialItems, metaLabel, showCoun
                     className="hidden"
                     onChange={(e) => pickImage(e.target.files?.[0] ?? undefined)}
                   />
-                  <Button type="button" variant="outline" size="sm" onClick={() => fileRef.current?.click()}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => fileRef.current?.click()}>
                     Upload
                   </Button>
                   {image && (
-                    <Button type="button" variant="ghost" size="sm" className="text-muted-foreground gap-1" onClick={() => setImage(null)}>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="text-muted-foreground gap-1"
+                      onClick={() => setImage(null)}>
                       <X className="h-4 w-4" /> Remove
                     </Button>
                   )}
@@ -276,18 +313,31 @@ export function TaxonomyManager({ title, noun, initialItems, metaLabel, showCoun
             )}
             <div className="space-y-2">
               <Label>{noun} name</Label>
-              <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={`${noun} name`} autoFocus />
+              <Input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder={`${noun} name`}
+                autoFocus
+              />
             </div>
             {metaLabel && (
               <div className="space-y-2">
                 <Label>{metaLabel}</Label>
-                <Input value={meta} onChange={(e) => setMeta(e.target.value)} placeholder={metaLabel} />
+                <Input
+                  value={meta}
+                  onChange={(e) => setMeta(e.target.value)}
+                  placeholder={metaLabel}
+                />
               </div>
             )}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setModalOpen(false)}>Cancel</Button>
-            <Button onClick={save} disabled={!name.trim()}>{editing ? "Save changes" : `Create ${noun}`}</Button>
+            <Button variant="outline" onClick={() => setModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={save} disabled={!name.trim()}>
+              {editing ? "Save changes" : `Create ${noun}`}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

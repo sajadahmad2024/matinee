@@ -5,7 +5,7 @@ import { useCallback } from "react";
 import type { Route } from "next";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-import { BarChart3, ChevronDown, Film, ScrollText, type LucideIcon } from "lucide-react";
+import { BarChart3, ChevronDown, Film, type LucideIcon, ScrollText } from "lucide-react";
 
 import { cn } from "@/app/_libs/utils/cn";
 

@@ -34,7 +34,9 @@ export function ApprovalModal({ open, onOpenChange, mode, title }: ApprovalModal
   const confirm = () => {
     if (mode === "approve") {
       toast.success(
-        when === "now" ? `Approved & published "${title}"` : `Approved — scheduled "${title}" for ${scheduleDate}`,
+        when === "now"
+          ? `Approved & published "${title}"`
+          : `Approved — scheduled "${title}" for ${scheduleDate}`,
       );
     } else {
       toast.success(`Rejected "${title}"`);
@@ -78,7 +80,11 @@ export function ApprovalModal({ open, onOpenChange, mode, title }: ApprovalModal
             {when === "schedule" && (
               <div className="space-y-2">
                 <Label>Go-live date</Label>
-                <Input type="date" value={scheduleDate} onChange={(e) => setScheduleDate(e.target.value)} />
+                <Input
+                  type="date"
+                  value={scheduleDate}
+                  onChange={(e) => setScheduleDate(e.target.value)}
+                />
               </div>
             )}
             <p className="text-muted-foreground text-xs">
@@ -98,7 +104,9 @@ export function ApprovalModal({ open, onOpenChange, mode, title }: ApprovalModal
         )}
 
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Cancel
+          </Button>
           <Button
             onClick={confirm}
             disabled={mode === "reject" && !reason.trim()}

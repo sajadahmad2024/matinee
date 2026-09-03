@@ -13,7 +13,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { cn } from "@/app/_libs/utils/cn";
 
 import { GlassCard } from "../../games/_components/glass-card";
-import { MOCK_VIDEOS, parseMockDate, type VideoItem } from "../constants";
+import { MOCK_VIDEOS, type VideoItem, parseMockDate } from "../constants";
 
 interface DayEntry {
   video: VideoItem;
@@ -184,7 +184,11 @@ export function ContentCalendar() {
                             })}
                           </p>
                           {entries.map((entry) => (
-                            <EntryPill key={`${entry.video.id}-${entry.kind}-full`} entry={entry} full />
+                            <EntryPill
+                              key={`${entry.video.id}-${entry.kind}-full`}
+                              entry={entry}
+                              full
+                            />
                           ))}
                         </PopoverContent>
                       </Popover>

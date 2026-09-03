@@ -40,6 +40,7 @@ import { GlassCard } from "./glass-card";
 
 // --- Types ---
 export type BadgeTrigger =
+  | "points_earned_lifetime"
   | "total_games_played"
   | "total_watch_time"
   | "watch_streak"
@@ -75,6 +76,9 @@ const ICON_MAP = {
 };
 
 const TRIGGER_OPTIONS: { value: BadgeTrigger; label: string }[] = [
+  // Lifetime-earned points are the badge threshold currency (spec-05 §2.2). Distinct from
+  // the spendable balance leaderboards rank by — earning is cumulative and never decreases.
+  { value: "points_earned_lifetime", label: "Points Earned (lifetime)" },
   { value: "total_games_played", label: "Total Games Played" },
   { value: "total_watch_time", label: "Total Watch Time (mins)" },
   { value: "watch_streak", label: "Watch Streak (days)" },
@@ -291,7 +295,8 @@ function CreateBadgeDialog({
           <div className="border-border border-t pt-4">
             <Label className="text-sm font-semibold">Criteria Engine</Label>
             <p className="text-muted-foreground mb-4 text-xs">
-              Define the logic to unlock this badge
+              Define the logic to unlock this badge. Point thresholds use points earned
+              (lifetime) — once earned, a badge is kept forever and is unaffected by spending.
             </p>
             <div className="bg-muted/30 space-y-4 rounded-lg p-4">
               <div className="space-y-2">

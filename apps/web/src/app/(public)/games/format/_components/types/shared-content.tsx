@@ -13,9 +13,9 @@ import { GamificationExtras } from "../shared/gamification-extras";
 
 // Share behaviours pay differently (internal vs external vs referral).
 const INITIAL_BEHAVIORS: BehaviorReward[] = [
-  { id: "b1", label: "Internal share (to another user)", points: 3, xp: 1 },
-  { id: "b2", label: "External share (off-app)", points: 15, xp: 5 },
-  { id: "b3", label: "Referral completed first game", points: 100, xp: 25 },
+  { id: "b1", label: "Internal share (to another user)", points: 3 },
+  { id: "b2", label: "External share (off-app)", points: 15 },
+  { id: "b3", label: "Referral completed first game", points: 100 },
 ];
 
 /** Settings tab — includes the former Gamification content (merged per client decision). */
@@ -59,7 +59,7 @@ export function SharedContentSettings() {
 
           <p className="text-muted-foreground text-xs">
             Saved as <code>reward_rules[&apos;shared_content&apos;]</code>: <code>behaviors[]</code> (each
-            fixed points + xp), <code>daily_share_cap</code>.
+            fixed points), <code>daily_share_cap</code>.
           </p>
         </CardContent>
       </GlassCard>

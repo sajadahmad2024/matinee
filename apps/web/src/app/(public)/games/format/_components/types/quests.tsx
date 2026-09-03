@@ -26,10 +26,10 @@ import { InstanceResultModal } from "../shared/instance-result-modal";
 import { type GameInstance, InstancesList } from "../shared/instances-list";
 
 const MOCK_QUESTS: GameInstance[] = [
-  { id: "q1", name: "Marvel Marathon Week", status: "active", schedule: "May 12 – May 19", participants: 8421, reward: "100 pts · 50 XP", completions: 5210, pointsDistributed: 521000 },
-  { id: "q2", name: "K-Drama Binge", status: "scheduled", schedule: "May 19 – May 26", participants: 0, reward: "120 pts · 60 XP" },
-  { id: "q3", name: "Hidden Gems", status: "draft", schedule: "Unscheduled", participants: 0, reward: "80 pts · 40 XP" },
-  { id: "q4", name: "Oscar Week", status: "ended", schedule: "May 1 – May 8", participants: 15230, reward: "100 pts · 50 XP", completions: 9840, pointsDistributed: 984000 },
+  { id: "q1", name: "Marvel Marathon Week", status: "active", schedule: "May 12 – May 19", participants: 8421, reward: "100 pts", completions: 5210, pointsDistributed: 521000 },
+  { id: "q2", name: "K-Drama Binge", status: "scheduled", schedule: "May 19 – May 26", participants: 0, reward: "120 pts" },
+  { id: "q3", name: "Hidden Gems", status: "draft", schedule: "Unscheduled", participants: 0, reward: "80 pts" },
+  { id: "q4", name: "Oscar Week", status: "ended", schedule: "May 1 – May 8", participants: 15230, reward: "100 pts", completions: 9840, pointsDistributed: 984000 },
   { id: "q5", name: "Spring Premieres", status: "archived", schedule: "Apr 20 – Apr 27", participants: 11200, reward: "90 pts", completions: 7100, pointsDistributed: 639000 },
 ];
 
@@ -42,7 +42,6 @@ export function QuestsSettings() {
   const [requireAll, setRequireAll] = useState(true);
   const [defaultWeeks, setDefaultWeeks] = useState("1");
   const [defaultPoints, setDefaultPoints] = useState(100);
-  const [defaultXp, setDefaultXp] = useState(50);
 
   const [createOpen, setCreateOpen] = useState(false);
   const [result, setResult] = useState<GameInstance | null>(null);
@@ -97,14 +96,10 @@ export function QuestsSettings() {
             <CardTitle className="text-base">Default rewards</CardTitle>
             <CardDescription>Pre-fills the Create Quest form (editable per quest).</CardDescription>
           </CardHeader>
-          <CardContent className="grid grid-cols-2 gap-4">
+          <CardContent>
             <div className="space-y-2">
               <Label>Reward points</Label>
               <Input type="number" value={defaultPoints} onChange={(e) => setDefaultPoints(Number(e.target.value))} />
-            </div>
-            <div className="space-y-2">
-              <Label>Reward XP</Label>
-              <Input type="number" value={defaultXp} onChange={(e) => setDefaultXp(Number(e.target.value))} />
             </div>
           </CardContent>
         </GlassCard>

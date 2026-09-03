@@ -119,8 +119,8 @@ export function SponsorshipCard() {
                     placeholder="30"
                   />
                   <p className="text-muted-foreground text-xs">
-                    Length of the sponsorship deal — the overlay stays on the video for this
-                    many days.
+                    Length of the sponsorship deal — the overlay stays on the video for this many
+                    days.
                   </p>
                 </div>
               ) : (

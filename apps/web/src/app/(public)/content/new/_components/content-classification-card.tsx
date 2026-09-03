@@ -16,16 +16,26 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 
-import { cn } from "@/app/_libs/utils/cn";
 import { MACRO_REGIONS, type MacroRegion } from "@/app/_libs/regions";
+import { cn } from "@/app/_libs/utils/cn";
 
 import { GlassCard } from "../../../games/_components/glass-card";
 import { MOCK_VIDEOS } from "../../constants";
 
 const CONTENT_TYPES = [
   { value: "trailer", label: "Trailer", icon: Clapperboard, hint: "Primary promotional video" },
-  { value: "bts", label: "Behind the Scenes (BTS)", icon: Video, hint: "A standalone extra — may optionally belong to a title" },
-  { value: "clip", label: "Clip", icon: Film, hint: "Short clip — may optionally belong to a title" },
+  {
+    value: "bts",
+    label: "Behind the Scenes (BTS)",
+    icon: Video,
+    hint: "A standalone extra — may optionally belong to a title",
+  },
+  {
+    value: "clip",
+    label: "Clip",
+    icon: Film,
+    hint: "Short clip — may optionally belong to a title",
+  },
 ] as const;
 
 type ContentType = (typeof CONTENT_TYPES)[number]["value"];
@@ -258,8 +268,8 @@ export function ContentClassificationCard() {
               </SelectContent>
             </Select>
             <p className="text-muted-foreground text-xs">
-              Optional. Link this {contentType === "bts" ? "BTS" : "clip"} to a title, or leave
-              it standalone.
+              Optional. Link this {contentType === "bts" ? "BTS" : "clip"} to a title, or leave it
+              standalone.
             </p>
           </div>
         )}

@@ -239,21 +239,16 @@ export function GameTrends({ timeRange = "7d" }: GameTrendsProps) {
           <CardContent>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground text-sm">Points Minted (spendable)</span>
+                <span className="text-muted-foreground text-sm">Points Minted</span>
                 <span className="text-success font-gaming text-2xl font-bold">890K</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground text-sm">Points Spent</span>
                 <span className="text-warning font-gaming text-2xl font-bold">512K</span>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground text-sm">Total XP (progression)</span>
-                <span className="text-accent font-gaming text-2xl font-bold">1.2M</span>
-              </div>
               <div className="border-border/30 border-t pt-2">
                 <p className="text-muted-foreground text-[11px]">
-                  Points are spent on rewards &amp; bidding; XP is permanent progression that
-                  levels users up.
+                  Points are the platform&apos;s only currency — spent on rewards and bidding.
                 </p>
               </div>
             </div>

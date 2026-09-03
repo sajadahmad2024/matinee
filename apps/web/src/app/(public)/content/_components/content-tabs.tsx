@@ -7,13 +7,15 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-import { CONTENT_TABS_CONFIG, type TabValue } from "../constants";
+import { type ContentRegionKey, type TabValue, contentTabsForRegion } from "../constants";
 
 interface ContentTabsProps {
   activeTab: TabValue;
+  region: ContentRegionKey;
 }
 
-export function ContentTabs({ activeTab }: ContentTabsProps) {
+export function ContentTabs({ activeTab, region }: ContentTabsProps) {
+  const tabs = contentTabsForRegion(region);
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -36,7 +38,7 @@ export function ContentTabs({ activeTab }: ContentTabsProps) {
   return (
     <Tabs value={activeTab} onValueChange={handleTabChange}>
       <TabsList className="bg-background-secondary h-auto flex-wrap p-1">
-        {CONTENT_TABS_CONFIG.map((tab) => (
+        {tabs.map((tab) => (
           <TabsTrigger key={tab.value} value={tab.value} className="cursor-pointer gap-2">
             <tab.icon className="h-4 w-4" />
             {tab.label}

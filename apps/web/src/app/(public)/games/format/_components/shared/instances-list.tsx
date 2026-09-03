@@ -24,7 +24,7 @@ export interface GameInstance {
   /** e.g. "May 12 – May 19" or "Q3 2026" */
   schedule: string;
   participants: number;
-  /** short reward summary, e.g. "100 pts · 50 XP" */
+  /** short reward summary, e.g. "100 pts" */
   reward: string;
   // ── result fields (populated once ended/archived) ──
   winner?: string;

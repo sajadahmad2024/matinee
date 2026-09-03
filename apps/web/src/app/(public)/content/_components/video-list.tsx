@@ -11,13 +11,15 @@ import { TablePagination } from "@/components/custom/table-pagination";
 
 import {
   CONTENT_TABS_CONFIG,
-  isMasterVideo,
+  type ContentRegionKey,
   MOCK_VIDEOS,
-  parseMockDate,
   PENDING_VIDEOS,
   REJECTED_VIDEOS,
   type TabValue,
   type VideoItem,
+  isMasterVideo,
+  macroRegionForVideo,
+  parseMockDate,
 } from "../constants";
 import type { DateRangeValue, SortValue } from "./content-filters";
 import { VideoListItem } from "./video-list-item";
@@ -30,11 +32,21 @@ interface VideoListProps {
   searchQuery: string;
   sort: SortValue;
   range: DateRangeValue;
+  /** Macro-region lens from the master-page grid (spec-05 §1.2). */
+  region: ContentRegionKey;
   page: number;
   pageSize: number;
 }
 
-export function VideoList({ tab, searchQuery, sort, range, page, pageSize }: VideoListProps) {
+export function VideoList({
+  tab,
+  searchQuery,
+  sort,
+  range,
+  region,
+  page,
+  pageSize,
+}: VideoListProps) {
   const router = useRouter();
 
   const getFilteredVideos = (): VideoItem[] => {
@@ -62,6 +74,11 @@ export function VideoList({ tab, searchQuery, sort, range, page, pageSize }: Vid
         videos = MOCK_VIDEOS.filter(
           (v) => v.status !== "draft" && v.status !== "scheduled" && v.status !== "archived",
         );
+    }
+
+    // Region lens — videos carry the territory they were published for.
+    if (region !== "all") {
+      videos = videos.filter((v) => macroRegionForVideo(v) === region);
     }
 
     if (searchQuery) {
@@ -135,13 +152,17 @@ export function VideoList({ tab, searchQuery, sort, range, page, pageSize }: Vid
         onPageChange={(p) => {
           const params = new URLSearchParams(window.location.search);
           params.set("page", p.toString());
-          router.push(`${window.location.pathname}?${params.toString()}` as Route, { scroll: false });
+          router.push(`${window.location.pathname}?${params.toString()}` as Route, {
+            scroll: false,
+          });
         }}
         onPageSizeChange={(s) => {
           const params = new URLSearchParams(window.location.search);
           params.set("pageSize", s.toString());
           params.set("page", "1");
-          router.push(`${window.location.pathname}?${params.toString()}` as Route, { scroll: false });
+          router.push(`${window.location.pathname}?${params.toString()}` as Route, {
+            scroll: false,
+          });
         }}
       />
     </div>

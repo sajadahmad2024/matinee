@@ -61,7 +61,6 @@ export function CreateInstanceModal({ open, onOpenChange, kind }: CreateInstance
   const [description, setDescription] = useState("");
   const [startDate, setStartDate] = useState("");
   const [rewardPoints, setRewardPoints] = useState(100);
-  const [rewardXp, setRewardXp] = useState(50);
 
   // quest
   const [videoSearch, setVideoSearch] = useState("");
@@ -309,20 +308,9 @@ export function CreateInstanceModal({ open, onOpenChange, kind }: CreateInstance
 
           {/* Rewards (quest/prediction) */}
           {kind !== "auction" && (
-            <div className="space-y-2">
-              <div className="grid grid-cols-2 gap-4">
-                <Field label="Reward points">
-                  <Input type="number" value={rewardPoints} onChange={(e) => setRewardPoints(Number(e.target.value))} />
-                </Field>
-                <Field label="Reward XP">
-                  <Input type="number" value={rewardXp} onChange={(e) => setRewardXp(Number(e.target.value))} />
-                </Field>
-              </div>
-              <p className="text-muted-foreground text-[11px]">
-                Points are spent on rewards &amp; bidding; XP is permanent progression that levels
-                users up.
-              </p>
-            </div>
+            <Field label="Reward points">
+              <Input type="number" value={rewardPoints} onChange={(e) => setRewardPoints(Number(e.target.value))} />
+            </Field>
           )}
         </div>
 

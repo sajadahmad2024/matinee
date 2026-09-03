@@ -14,13 +14,21 @@ import {
   Film,
   Gavel,
   Globe,
-  Sparkles,
   type LucideIcon,
+  Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
+import { BoostModal } from "./boost-modal";
+import { ContentClassificationCard } from "./content-classification-card";
+import { LicensingCard } from "./licensing-card";
+import { MediaUploadCard } from "./media-upload-card";
+import { ScheduleModal } from "./schedule-modal";
+import { SponsorshipCard } from "./sponsorship-card";
+import { VideoDetailsCard } from "./video-details-card";
 
 // Step-based workflow: Details → Rights → Media → Distribution → Ad Sales.
 const STEPS: { key: string; label: string; icon: LucideIcon }[] = [
@@ -32,14 +40,6 @@ const STEPS: { key: string; label: string; icon: LucideIcon }[] = [
 ];
 const SUGGESTED_GENRES = ["Action", "Drama", "Thriller", "Sci-Fi"];
 const SUGGESTED_TAGS = ["trailer", "exclusive", "behind-the-scenes", "2024"];
-
-import { BoostModal } from "./boost-modal";
-import { ContentClassificationCard } from "./content-classification-card";
-import { LicensingCard } from "./licensing-card";
-import { MediaUploadCard } from "./media-upload-card";
-import { ScheduleModal } from "./schedule-modal";
-import { SponsorshipCard } from "./sponsorship-card";
-import { VideoDetailsCard } from "./video-details-card";
 
 interface VideoFormProps {
   initialData?: {
@@ -130,7 +130,11 @@ export function VideoForm({ initialData, sidebar }: VideoFormProps) {
                     ? "border-success/40 text-success"
                     : "border-border/50 text-muted-foreground hover:text-foreground"
               }`}>
-              {state === "done" ? <Check className="h-3.5 w-3.5" /> : <Icon className="h-3.5 w-3.5" />}
+              {state === "done" ? (
+                <Check className="h-3.5 w-3.5" />
+              ) : (
+                <Icon className="h-3.5 w-3.5" />
+              )}
               <span className="hidden sm:inline">
                 {i + 1}. {s.label}
               </span>
@@ -241,7 +245,10 @@ export function VideoForm({ initialData, sidebar }: VideoFormProps) {
           <Button variant="ghost" size="sm" onClick={handleSave}>
             Save Draft
           </Button>
-          <Button variant="outline" size="sm" onClick={() => toast.success("Approval request sent")}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => toast.success("Approval request sent")}>
             Request Approval
           </Button>
           <Button variant="outline" size="sm" onClick={() => setScheduleModalOpen(true)}>

@@ -1,19 +1,28 @@
 "use client";
 
-import { CalendarClock, GitPullRequestArrow, Library, Sparkles } from "lucide-react";
+import { CalendarClock, CalendarX2, GitPullRequestArrow, Library } from "lucide-react";
 
-import { CONTENT_INVENTORY as INV } from "../constants";
 import { SectionHeading } from "@/components/custom/section-heading";
 import { StatTile } from "@/components/custom/stat-tile";
 
-export function ContentInventory() {
-  const freshnessHealthy = INV.freshnessPct > INV.freshnessHealthyAbove;
+import { type ContentRegionKey, contentInventoryForRegion } from "../constants";
+
+interface ContentInventoryProps {
+  region: ContentRegionKey;
+  /** Region display name, appended to the heading when scoped. */
+  regionLabel?: string;
+}
+
+export function ContentInventory({ region, regionLabel }: ContentInventoryProps) {
+  const INV = contentInventoryForRegion(region);
+  // Net-shrinking library (more coming off than going up) is the danger signal.
+  const netShrinking = INV.expiringThisMonth > INV.addedThisMonth;
   const pipelineTotal = INV.pipeline.draft + INV.pipeline.inReview + INV.pipeline.scheduled;
 
   return (
     <section className="space-y-3">
       <SectionHeading
-        title="Content Inventory"
+        title={regionLabel ? `Content Inventory — ${regionLabel}` : "Content Inventory"}
         subtitle="The current state of your library"
         icon={Library}
       />
@@ -44,6 +53,29 @@ export function ContentInventory() {
         />
 
         <StatTile
+          label="Expiring This Month"
+          value={INV.expiringThisMonth}
+          icon={CalendarX2}
+          accent={netShrinking ? "danger" : "warning"}
+          trend={{
+            direction: netShrinking ? "down" : "up",
+            label: netShrinking ? "Net shrinking" : "Covered by uploads",
+            good: !netShrinking,
+          }}
+          subStats={[
+            {
+              label: "Next month",
+              value: `${INV.expiringNextMonth}`,
+              accent: "warning",
+            },
+            {
+              label: `of ${INV.activeLibrary.toLocaleString()} live`,
+              value: `${((INV.expiringThisMonth / INV.activeLibrary) * 100).toFixed(1)}%`,
+            },
+          ]}
+        />
+
+        <StatTile
           label="Pipeline"
           value={pipelineTotal}
           icon={GitPullRequestArrow}
@@ -53,26 +85,6 @@ export function ContentInventory() {
             { label: "In review", value: `${INV.pipeline.inReview}`, accent: "warning" },
             { label: "Scheduled", value: `${INV.pipeline.scheduled}`, accent: "primary" },
             { label: "Avg time to publish", value: `${INV.avgTimeToPublishDays} days` },
-          ]}
-        />
-
-        <StatTile
-          label="Freshness"
-          value={`${INV.freshnessPct}%`}
-          icon={Sparkles}
-          accent={freshnessHealthy ? "success" : "danger"}
-          trend={{
-            direction: freshnessHealthy ? "up" : "down",
-            label: freshnessHealthy ? "Healthy" : "Low",
-            good: freshnessHealthy,
-          }}
-          subStats={[
-            { label: "Views on < 30-day content", value: `${INV.freshnessPct}%` },
-            {
-              label: `Healthy > ${INV.freshnessHealthyAbove}%`,
-              value: freshnessHealthy ? "On track" : "Needs fresh content",
-              accent: freshnessHealthy ? "success" : "danger",
-            },
           ]}
         />
       </div>

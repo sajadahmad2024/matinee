@@ -25,11 +25,11 @@ import { type Milestone, MilestoneBonusEditor } from "../shared/milestone-bonus-
 
 // 5 starter behaviours (admins can add/automate more across the system).
 const INITIAL_BEHAVIORS: BehaviorReward[] = [
-  { id: "b1", label: "Watch 5+ min today", points: 10, xp: 5 },
-  { id: "b2", label: "Complete 3 videos", points: 15, xp: 8 },
-  { id: "b3", label: "Engagement actions (like / comment / share)", points: 5, xp: 2 },
-  { id: "b4", label: "Daily app-open", points: 10, xp: 5 },
-  { id: "b5", label: "Finish a series / playlist", points: 20, xp: 10 },
+  { id: "b1", label: "Watch 5+ min today", points: 10 },
+  { id: "b2", label: "Complete 3 videos", points: 15 },
+  { id: "b3", label: "Engagement actions (like / comment / share)", points: 5 },
+  { id: "b4", label: "Daily app-open", points: 10 },
+  { id: "b5", label: "Finish a series / playlist", points: 20 },
 ];
 
 /** Settings tab — includes the former Gamification content (merged per client decision). */
@@ -124,7 +124,7 @@ export function DailyStreakSettings() {
 
           <p className="text-muted-foreground text-xs">
             Saved as <code>reward_rules[&apos;daily_streak&apos;]</code>: <code>min_watch_seconds</code>,{" "}
-            <code>behaviors[]</code> (each fixed points + xp), <code>bonus_thresholds</code>.
+            <code>behaviors[]</code> (each fixed points), <code>bonus_thresholds</code>.
           </p>
         </CardContent>
       </GlassCard>

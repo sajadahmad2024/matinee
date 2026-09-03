@@ -33,7 +33,8 @@ interface GamificationExtrasProps {
 }
 
 /**
- * Shared Gamification-tab cards: milestone badges + "locked until X points" progression.
+ * Shared Gamification-tab cards: milestone badges + "locked until X points earned" progression.
+ * Thresholds are lifetime-earned points, not the spendable balance (spec-05 §2.2).
  * (Client note: "show other quests locked unless user reaches X points".)
  */
 export function GamificationExtras({ badges, initialLocked = [] }: GamificationExtrasProps) {
@@ -79,7 +80,10 @@ export function GamificationExtras({ badges, initialLocked = [] }: GamificationE
           <CardTitle className="flex items-center gap-2 text-base">
             <Lock className="text-accent h-4 w-4" /> Locked Progression
           </CardTitle>
-          <CardDescription>Items that stay locked until the user reaches X points.</CardDescription>
+          <CardDescription>
+            Items that stay locked until the user reaches X points earned (lifetime) — spending
+            points never re-locks them.
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           {locked.length === 0 && (
@@ -102,7 +106,7 @@ export function GamificationExtras({ badges, initialLocked = [] }: GamificationE
                   onChange={(e) => updateLocked(it.id, { threshold: Number(e.target.value) })}
                   className="h-9 w-24"
                 />
-                <span className="text-muted-foreground text-xs">pts</span>
+                <span className="text-muted-foreground text-xs">pts earned</span>
               </div>
               <Button
                 variant="ghost"
