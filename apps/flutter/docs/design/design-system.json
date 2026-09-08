@@ -1,0 +1,5594 @@
+{
+ "$meta": {
+  "project": "Matinee / TTLE consumer app",
+  "source": "Figma vVGHTFgrIRYQBTZaRZCYe0 · page Visuals (3:1066) only · 71 frames",
+  "generated": "2026-09-03",
+  "units": "Flutter logical px; colours #RRGGBB, alpha as @NN% of a primitive",
+  "tokenSyntax": "{primitive} or {primitive@NN%}; gradient.<name>; role names map to Flutter ThemeData/ColorScheme/TextTheme"
+ },
+ "color": {
+  "primitives": {
+   "surface": {
+    "value": "#0C0F16",
+    "meaning": "Screen background; also ink on gold (onPrimary)",
+    "evidence": "HomeScreen#25:2953, RewardsSubscribedScreen#414:12372"
+   },
+   "surfaceCard": {
+    "value": "#13171F",
+    "meaning": "Cards, sheets, modals, stat tiles",
+    "evidence": "Container#429:23379, Container#36:4942, Container#382:6800"
+   },
+   "surfaceRaised": {
+    "value": "#1A1F2B",
+    "meaning": "Raised rows, inactive chips, genre tags, app inputs, tracks",
+    "evidence": "Container#429:23395, Button#429:23705, Text#118:8"
+   },
+   "outline": {
+    "value": "#1F2535",
+    "meaning": "All 1px borders, dividers, progress tracks",
+    "evidence": "Container#376:3337, Container#376:3315"
+   },
+   "navBar": {
+    "value": "#0D1C25",
+    "meaning": "Bottom-nav background (client-approved library Nav Bar)",
+    "evidence": "Nav Bar#376:3608"
+   },
+   "navBarOutline": {
+    "value": "#112532",
+    "meaning": "Bottom-nav top hairline",
+    "evidence": "Nav Bar#376:3608 stroke"
+   },
+   "navInactive": {
+    "value": "#67899E",
+    "meaning": "Bottom-nav inactive icon + label",
+    "evidence": "P2P#I376:3608;11699:378"
+   },
+   "pointsPillBg": {
+    "value": "#0F2D44",
+    "meaning": "Points-pill background (used @70%) and bidder avatar bg",
+    "evidence": "Background+Border#25:3071"
+   },
+   "authSurface": {
+    "value": "#0D0B08",
+    "meaning": "Auth/onboarding screen background",
+    "evidence": "Container#97:5253, OnboardingScreen#85:1664"
+   },
+   "authContainer": {
+    "value": "#141008",
+    "meaning": "Auth inputs, social buttons, back-button disc",
+    "evidence": "Phone Input#97:5277, Button#97:5287, Button#418:18055"
+   },
+   "authOutline": {
+    "value": "#2A2018",
+    "meaning": "Auth borders and dividers",
+    "evidence": "Button#97:5287 stroke, Container#97:5282"
+   },
+   "white": {
+    "value": "#FFFFFF",
+    "meaning": "Primary text, primary icons",
+    "evidence": "Neon Noir#118:4"
+   },
+   "textSecondary": {
+    "value": "#8FA0B3",
+    "meaning": "Secondary text (body meta, chip labels, inactive filter)",
+    "evidence": "Apex Films#118:7"
+   },
+   "textMuted": {
+    "value": "#7A93AB",
+    "meaning": "Captions, eyebrows, sheet handle, row chevrons",
+    "evidence": "Rank#376:3282, Vector#429:23408"
+   },
+   "textDisabled": {
+    "value": "#4A5568",
+    "meaning": "Disabled / locked text and icons",
+    "evidence": "Cinematic Loyalist#414:12561"
+   },
+   "authTextSecondary": {
+    "value": "#A8998A",
+    "meaning": "Auth/onboarding secondary text and field labels",
+    "evidence": "Phone Number#97:5269"
+   },
+   "authTextMuted": {
+    "value": "#7A6A58",
+    "meaning": "Onboarding stat captions, 'or continue with'",
+    "evidence": "earnable per day#85:1760"
+   },
+   "gold": {
+    "value": "#C9A24B",
+    "meaning": "Brand gold: icons, links, labels, active chip fill, tints (primary role)",
+    "evidence": "Icon#25:3073, Button#429:23703"
+   },
+   "goldCta": {
+    "value": "#FFDC78",
+    "meaning": "CTA fill, small button fill, nav indicator",
+    "evidence": "Button#85:1708, Button#429:23401"
+   },
+   "goldLight": {
+    "value": "#E6CB86",
+    "meaning": "Numerals / points, tag text over images",
+    "evidence": "2,691#486:1773, QUEST#376:3346"
+   },
+   "goldDeep": {
+    "value": "#B99C48",
+    "meaning": "Bottom-nav active icon + label (client-approved)",
+    "evidence": "HOME#I376:3608;11699:305"
+   },
+   "goldLevel1": {
+    "value": "#A8874A",
+    "meaning": "Level-1 streak tint (calendar, LV1 badge)",
+    "evidence": "LV 1#416:15833"
+   },
+   "yellow": {
+    "value": "#FFD700",
+    "meaning": "Streak/level accent, warning, YES vote",
+    "evidence": "2/7#397:9127, LV 2#416:15663"
+   },
+   "success": {
+    "value": "#2ECC71",
+    "meaning": "Done / claimed / won / correct",
+    "evidence": "+12 wk#376:3290, CLAIMED#429:23264"
+   },
+   "error": {
+    "value": "#EB5757",
+    "meaning": "Destructive (logout), incorrect, NO, LIVE",
+    "evidence": "Logout#429:23433, INCORRECT#429:22624"
+   },
+   "black": {
+    "value": "#000000",
+    "meaning": "Shadow base only",
+    "evidence": "Container#35:4628 shadow"
+   }
+  },
+  "brandConstants": {
+   "whatsapp": "#25D366",
+   "telegram": "#0088CC",
+   "instagram": "#E1306C",
+   "messages": "#34B7F1",
+   "twitter": "#1DA1F2",
+   "googleBlue": "#4285F4",
+   "googleGreen": "#34A853",
+   "googleYellow": "#FBBC05",
+   "googleRed": "#EA4335"
+  },
+  "alphaScale": {
+   "note": "Opacity is applied to primitives, never new hexes. Design alphas were snapped to the nearest 10%.",
+   "levels": [
+    10,
+    20,
+    30,
+    40,
+    50,
+    60,
+    70,
+    80,
+    90
+   ],
+   "conventions": {
+    "tint fill": "10% (subtle) / 20% (over images)",
+    "tint border": "30% / 40% (over images)",
+    "disabled fill": "30%",
+    "disabled label": "50%",
+    "glow": "40% CTA / 20% focus / 50% nav indicator",
+    "scrim": "80%",
+    "placeholder text": "50%",
+    "text on image": "60%",
+    "hairline on image": "10%"
+   }
+  },
+  "colorScheme": {
+   "brightness": "dark",
+   "seedColor": "{gold}",
+   "note": "Dark-only. Roles not listed here (surfaceDim/Bright, inverse*, info, fixed/dim variants) come from ColorScheme.fromSeed(seedColor: gold, brightness: dark) and get overridden as the product matures. Auth/onboarding uses a scoped warm palette (auth.*), not a second ColorScheme.",
+   "primary": "{goldCta}",
+   "onPrimary": "{surface}",
+   "primaryContainer": "{gold@10%}",
+   "onPrimaryContainer": "{gold}",
+   "secondary": "{gold}",
+   "onSecondary": "{surface}",
+   "secondaryContainer": "{surfaceRaised}",
+   "onSecondaryContainer": "{textSecondary}",
+   "tertiary": "{yellow}",
+   "onTertiary": "{surface}",
+   "tertiaryContainer": "{yellow@10%}",
+   "onTertiaryContainer": "{yellow}",
+   "error": "{error}",
+   "onError": "{white}",
+   "errorContainer": "{error@10%}",
+   "onErrorContainer": "{error}",
+   "surface": "{surface}",
+   "onSurface": "{white}",
+   "onSurfaceVariant": "{textSecondary}",
+   "surfaceContainerLow": "{surface}",
+   "surfaceContainer": "{surfaceCard}",
+   "surfaceContainerHigh": "{surfaceRaised}",
+   "surfaceContainerHighest": "{surfaceRaised}",
+   "outline": "{outline}",
+   "outlineVariant": "{outline}",
+   "scrim": "{surface@80%}",
+   "shadow": "{black}",
+   "surfaceTint": "{gold}"
+  },
+  "roles": {
+   "text.primary": "{white}",
+   "text.secondary": "{textSecondary}",
+   "text.muted": "{textMuted}",
+   "text.disabled": "{textDisabled}",
+   "text.inverse": "{surface}",
+   "text.link": "{gold}",
+   "text.numeral": "{goldLight}",
+   "text.onImageSubtitle": "{white@60%}",
+   "text.success": "{success}",
+   "text.warning": "{yellow}",
+   "text.error": "{error}",
+   "icon.primary": "{white}",
+   "icon.secondary": "{textSecondary}",
+   "icon.muted": "{textMuted}",
+   "icon.accent": "{gold}",
+   "icon.disabled": "{textDisabled}",
+   "appBar.background": "{surface}",
+   "appBar.title": "{white}",
+   "appBar.backButton.background": "{authContainer}",
+   "appBar.backButton.border": "{authOutline}",
+   "appBar.backButton.icon": "{gold}",
+   "bottomNav.background": "{navBar}",
+   "bottomNav.border": "{navBarOutline}",
+   "bottomNav.active": "{goldDeep}",
+   "bottomNav.inactive": "{navInactive}",
+   "bottomNav.indicator": "{goldCta}",
+   "bottomNav.indicatorGlow": "{goldCta@50%}",
+   "card.background": "{surfaceCard}",
+   "card.border": "{outline}",
+   "card.border.highlight": "{gold@30%}",
+   "card.border.success": "{success@30%}",
+   "card.background.raised": "{surfaceRaised}",
+   "card.background.goldTint": "{gold@10%}",
+   "card.imageHairline": "{white@10%}",
+   "button.primary.background": "{goldCta}",
+   "button.primary.label": "{surface}",
+   "button.primary.glow": "{gold@40%}",
+   "button.primary.disabled.background": "{gold@30%}",
+   "button.primary.disabled.label": "{gold@50%}",
+   "button.secondary.background": "{surfaceRaised}",
+   "button.secondary.border": "{outline}",
+   "button.secondary.label": "{textSecondary}",
+   "button.tonal.background": "{surfaceRaised}",
+   "button.tonal.border": "{gold@10%}",
+   "button.tonal.label": "{gold}",
+   "button.outline.border": "{gold@30%}",
+   "button.outline.label": "{goldLight}",
+   "button.outlineGold.background": "{gold@10%}",
+   "button.outlineGold.border": "{gold}",
+   "button.outlineGold.label": "{gold}",
+   "button.social.background": "{authContainer}",
+   "button.social.border": "{authOutline}",
+   "button.social.label": "{white}",
+   "button.text.label": "{gold}",
+   "button.destructive.label": "{error}",
+   "chip.filter.active.background": "{gold}",
+   "chip.filter.active.label": "{surface}",
+   "chip.filter.inactive.background": "{surfaceRaised}",
+   "chip.filter.inactive.label": "{textSecondary}",
+   "tag.genre.background": "{surfaceRaised}",
+   "tag.genre.border": "{outline}",
+   "tag.genre.label": "{textSecondary}",
+   "tag.gold.background": "{gold@20%}",
+   "tag.gold.border": "{gold@40%}",
+   "tag.gold.label": "{goldLight}",
+   "tag.goldSubtle.background": "{gold@10%}",
+   "tag.goldSubtle.border": "{gold@30%}",
+   "tag.goldSubtle.label": "{gold}",
+   "badge.success.background": "{success@10%}",
+   "badge.success.border": "{success@30%}",
+   "badge.success.label": "{success}",
+   "badge.error.background": "{error@10%}",
+   "badge.error.border": "{error@30%}",
+   "badge.error.label": "{error}",
+   "badge.level2.background": "{yellow@10%}",
+   "badge.level2.border": "{yellow@30%}",
+   "badge.level2.label": "{yellow}",
+   "badge.level1.background": "{goldLevel1@10%}",
+   "badge.level1.border": "{goldLevel1@30%}",
+   "badge.level1.label": "{goldLevel1}",
+   "badge.neutral.background": "{white@10%}",
+   "badge.neutral.border": "{white@10%}",
+   "badge.neutral.label": "{white@60%}",
+   "badge.live.background": "{error}",
+   "badge.live.label": "{white}",
+   "pill.points.background": "{pointsPillBg@70%}",
+   "pill.points.border": "gradient.pointsPillStroke",
+   "pill.points.icon": "{gold}",
+   "pill.points.value": "{white}",
+   "pill.overImage.background": "{surface@70%}",
+   "pill.overImage.border": "{gold@40%}",
+   "pill.overImage.label": "{goldLight}",
+   "segmented.track.background": "{surface}",
+   "segmented.track.border": "{outline}",
+   "segmented.active.background": "gradient.goldSegment",
+   "segmented.active.label": "{surface}",
+   "segmented.inactive.label": "{textMuted}",
+   "tab.active.border": "{gold}",
+   "tab.active.label": "{gold}",
+   "tab.inactive.background": "{surfaceCard}",
+   "tab.inactive.border": "{outline}",
+   "tab.inactive.label": "{textMuted}",
+   "input.background": "{surfaceRaised}",
+   "input.border": "transparent",
+   "input.text": "{white}",
+   "input.placeholder": "{white@50%}",
+   "input.label": "{textSecondary}",
+   "input.focus.border": "{gold@30%}",
+   "input.focus.glow": "{gold@20%}",
+   "input.error.border": "{error}",
+   "input.error.glow": "{error@20%}",
+   "auth.surface": "{authSurface}",
+   "auth.surfaceContainer": "{authContainer}",
+   "auth.outline": "{authOutline}",
+   "auth.onSurface": "{white}",
+   "auth.onSurfaceVariant": "{authTextSecondary}",
+   "auth.onSurfaceMuted": "{authTextMuted}",
+   "auth.input.background": "{authContainer}",
+   "auth.input.border": "{authOutline}",
+   "auth.input.placeholder": "{white@50%}",
+   "auth.input.label": "{authTextSecondary}",
+   "auth.otp.digit": "{goldLight}",
+   "onboarding.statTile.background": "{white@10%}",
+   "onboarding.statTile.border": "{white@10%}",
+   "onboarding.statTile.label": "{white@80%}",
+   "onboarding.statPill.background": "{gold@10%}",
+   "onboarding.statPill.value": "{goldLight}",
+   "onboarding.statPill.caption": "{authTextMuted}",
+   "progress.track": "{outline}",
+   "progress.fill": "gradient.progressGold",
+   "progress.fill.success": "{success}",
+   "progress.fill.warning": "{yellow}",
+   "divider": "{outline}",
+   "divider.auth": "{authOutline}",
+   "avatar.ring": "{gold@30%}",
+   "avatar.ring.emphasis": "{gold}",
+   "avatar.background": "{pointsPillBg}",
+   "sheet.background": "{surfaceCard}",
+   "sheet.border": "{outline}",
+   "sheet.handle": "{textMuted}",
+   "sheet.shadow": "{black@60%}",
+   "sheet.scrim": "{surface@80%}",
+   "overlay.hero": "gradient.heroScrim",
+   "overlay.topBar": "gradient.topBarScrim",
+   "overlay.gameCard": "gradient.gameCardScrim",
+   "overlay.onboarding": "gradient.onboardingScrim",
+   "overlay.imageDim": "opacity 0.30 (onboarding bg) / 0.50 (streak intro bg)",
+   "status.success": "{success}",
+   "status.warning": "{yellow}",
+   "status.error": "{error}",
+   "status.live": "{error}",
+   "status.liveDot": "{success}",
+   "status.info": "seed-derived (not used in design)",
+   "voteBar.yes": "{success}",
+   "voteBar.no": "{error}",
+   "calendar.day.level1": "{goldLevel1}",
+   "calendar.day.level2": "gradient.progressGold",
+   "calendar.day.future": "transparent",
+   "calendar.day.today": "{gold@10%} + border {gold@40%}"
+  },
+  "gradients": {
+   "heroScrim": {
+    "type": "linear",
+    "angle": "top→bottom",
+    "stops": [
+     [
+      "{goldCta@10%}",
+      0
+     ],
+     [
+      "{surface@30%}",
+      0.2
+     ],
+     [
+      "{surface@0%}",
+      0.4
+     ],
+     [
+      "{surface@40%}",
+      0.6
+     ],
+     [
+      "{surface@85%}",
+      0.85
+     ],
+     [
+      "{surface}",
+      1
+     ]
+    ],
+    "use": "over full-bleed video/poster on Home",
+    "evidence": "Container#25:2956"
+   },
+   "topBarScrim": {
+    "type": "linear",
+    "angle": "top→bottom",
+    "stops": [
+     [
+      "{surface}",
+      0
+     ],
+     [
+      "{surface@50%}",
+      0.52
+     ],
+     [
+      "{surface@0%}",
+      1
+     ]
+    ],
+    "use": "behind the over-video top bar (95dp)",
+    "evidence": "Container#25:2957"
+   },
+   "gameCardScrim": {
+    "type": "linear (two layers)",
+    "stops": [
+     [
+      "{surface@90%}",
+      0.3
+     ],
+     [
+      "{surface@25%}",
+      1
+     ]
+    ],
+    "layer2": [
+     [
+      "{surface@60%}",
+      0
+     ],
+     [
+      "{surface@0%}",
+      0.5
+     ]
+    ],
+    "use": "over game/reward card images",
+    "evidence": "Container#376:3339 + #376:3340"
+   },
+   "onboardingScrim": {
+    "type": "linear + radial vignette",
+    "stops": [
+     [
+      "{authSurface@30%}",
+      0
+     ],
+     [
+      "{authSurface@50%}",
+      0.33
+     ],
+     [
+      "{authSurface}",
+      0.56
+     ]
+    ],
+    "radial": [
+     [
+      "{authSurface@0%}",
+      0.4
+     ],
+     [
+      "{authSurface@70%}",
+      1
+     ]
+    ],
+    "use": "onboarding background",
+    "evidence": "Container#85:1667, #85:1668"
+   },
+   "progressGold": {
+    "type": "linear",
+    "angle": "left→right",
+    "stops": [
+     [
+      "{gold}",
+      0
+     ],
+     [
+      "{yellow}",
+      1
+     ]
+    ],
+    "use": "progress fills, level-2 calendar tiles, nav indicator variant",
+    "evidence": "Container#165:1959"
+   },
+   "goldSegment": {
+    "type": "linear",
+    "stops": [
+     [
+      "{goldLight}",
+      0
+     ],
+     [
+      "{gold}",
+      1
+     ]
+    ],
+    "use": "segmented-control active item, badge discs, gradient CTA variant",
+    "evidence": "Button#414:12380"
+   },
+   "pointsPillStroke": {
+    "type": "linear",
+    "angle": "top→bottom",
+    "stops": [
+     [
+      "{goldCta}",
+      0
+     ],
+     [
+      "{goldLevel1}",
+      1
+     ]
+    ],
+    "use": "1px stroke of the points pill (design: #FFD067→#635025; approximated to kept tokens)",
+    "evidence": "Background+Border#25:3071"
+   },
+   "goldNumeral": {
+    "type": "linear",
+    "stops": [
+     [
+      "{yellow}",
+      0
+     ],
+     [
+      "{gold}",
+      1
+     ]
+    ],
+    "use": "hero total-points numeral text fill",
+    "evidence": "7,082#429:20868"
+   },
+   "headerFade": {
+    "type": "linear",
+    "angle": "top→bottom",
+    "stops": [
+     [
+      "{surfaceCard}",
+      0
+     ],
+     [
+      "{surface}",
+      1
+     ]
+    ],
+    "use": "P2P/Rewards/Badges header block background",
+    "evidence": "Container#414:12373 (#376:3275 used a warm start #131008 → normalised)"
+   }
+  },
+  "mappingFromDesign": {
+   "#0C0F16": "surface",
+   "#0C0E16": "surface",
+   "#0A1119": "surface",
+   "#0A0E14": "surface",
+   "#131008": "surface",
+   "#0D0E10": "surface",
+   "#080B10": "surface",
+   "#101419": "surface",
+   "#241A00": "surface",
+   "#162D29": "surface",
+   "#0E141E": "surface",
+   "#0F1419": "surface",
+   "#0F1117": "surfaceCard",
+   "#101923": "surfaceCard",
+   "#13171F": "surfaceCard",
+   "#13161E": "surfaceCard",
+   "#111B27": "surfaceCard",
+   "#0F1820": "surfaceCard",
+   "#111A24": "surfaceCard",
+   "#14171F": "surfaceCard",
+   "#1A1F2B": "surfaceRaised",
+   "#292828": "surfaceRaised",
+   "#161920": "surfaceRaised",
+   "#181C21": "surfaceRaised",
+   "#3C3E3A": "surfaceRaised",
+   "#423F36": "surfaceRaised",
+   "#1E252B": "surfaceRaised",
+   "#282D2E": "surfaceRaised",
+   "#313432": "surfaceRaised",
+   "#1F2535": "outline",
+   "#232938": "outline",
+   "#2A3040": "outline",
+   "#1C2A38": "outline",
+   "#31353B": "outline",
+   "#4D4634": "outline",
+   "#3D3D3D": "outline",
+   "#3A4050": "textDisabled",
+   "#4A5568": "textDisabled",
+   "#0F2D44": "pointsPillBg",
+   "#0D1C25": "navBar",
+   "#112532": "navBarOutline",
+   "#67899E": "navInactive",
+   "#FFFFFF": "white",
+   "#FEFEFF": "white",
+   "#C8D4E0": "white",
+   "#FFF5E1": "white",
+   "#8FA0B3": "textSecondary",
+   "#B0BEC8": "textSecondary",
+   "#A3B1C1": "textSecondary",
+   "#8A9AB0": "textSecondary",
+   "#D0C6AE": "textSecondary",
+   "#C6C6C9": "textSecondary",
+   "#CACACA": "textSecondary",
+   "#7A93AB": "textMuted",
+   "#848F99": "textMuted",
+   "#9B8D6D": "textMuted",
+   "#0D0B08": "authSurface",
+   "#141008": "authContainer",
+   "#1D170C": "authContainer",
+   "#3F392C": "authContainer",
+   "#2A2018": "authOutline",
+   "#5D5032": "authOutline",
+   "#514730": "gold@30",
+   "#4C3B16": "gold",
+   "#A8998A": "authTextSecondary",
+   "#9A8878": "authTextSecondary",
+   "#A0907E": "authTextSecondary",
+   "#7A6A58": "authTextMuted",
+   "#867159": "authTextMuted",
+   "#C9A24B": "gold",
+   "#D2AE5D": "gold",
+   "#BF9A49": "gold",
+   "#997D3D": "gold",
+   "#957B30": "gold",
+   "#D8B76A": "gold",
+   "#DAB96D": "gold",
+   "#564D33": "gold",
+   "#7B6C41": "gold",
+   "#95824B": "gold",
+   "#B69E58": "gold",
+   "#D6B964": "gold",
+   "#F6D471": "goldLight",
+   "#99823D": "goldDeep",
+   "#B99C48": "goldDeep",
+   "#FFDC78": "goldCta",
+   "#FFD966": "goldCta",
+   "#FFD067": "goldCta",
+   "#E6CB86": "goldLight",
+   "#FFD700": "yellow",
+   "#FFD54F": "yellow",
+   "#F2CA14": "yellow",
+   "#A8874A": "goldLevel1",
+   "#8B6914": "goldLevel1",
+   "#635025": "goldLevel1",
+   "#2ECC71": "success",
+   "#6FCF97": "success",
+   "#3D8C5F": "success",
+   "#1B4D38": "success@30",
+   "#FF4444": "error",
+   "#EB5757": "error",
+   "#E05252": "error",
+   "#FF3333": "error",
+   "#7A3030": "error",
+   "#000000": "black",
+   "#25D366": "brand.whatsapp",
+   "#0088CC": "brand.telegram",
+   "#E1306C": "brand.instagram",
+   "#34B7F1": "brand.messages",
+   "#1DA1F2": "brand.twitter",
+   "#4285F4": "brand.googleBlue",
+   "#34A853": "brand.googleGreen",
+   "#FBBC05": "brand.googleYellow",
+   "#EA4335": "brand.googleRed"
+  },
+  "dropped": {
+   "#0D1019": "canvas labels",
+   "#0A0A0A": "emoji glyph fill",
+   "#444444": "hidden frame remnants",
+   "library variables not painted on Visuals": "61 of 67 (only 6 were bound; their rendered values are covered by navBar/navBarOutline/goldDeep/navInactive/gold)",
+   "Success-state & Auction one-off hexes": "mapped to nearest kept token (concept screens)"
+  }
+ },
+ "typography": {
+  "families": {
+   "DM Sans": {
+    "weights": [
+     400,
+     600,
+     700,
+     800,
+     900
+    ],
+    "role": "UI text — titles, body, labels, tags, nav"
+   },
+   "Poppins": {
+    "weights": [
+     600,
+     700
+    ],
+    "role": "Display voice — display, headlines, CTA label"
+   },
+   "Inter": {
+    "weights": [
+     400,
+     500,
+     700
+    ],
+    "role": "Small print — captions, overlines"
+   },
+   "Oswald": {
+    "weights": [
+     500,
+     600,
+     700
+    ],
+    "role": "Numerals — points, ranks, timers, OTP"
+   }
+  },
+  "droppedFamilies": {
+   "Sora": "only the 3-letter 'PTS' unit on the points pill (26 nodes) → labelSmall",
+   "Golos Text": "3 nodes on the Auction concept screen → DM Sans equivalents",
+   "Plus Jakarta Sans": "1 node on the Success-state concept screen → headlineSmall",
+   "DM Sans '9pt Regular' optical variant": "ship one DM Sans Regular"
+  },
+  "textTheme": [
+   {
+    "role": "displayLarge",
+    "fontFamily": "Poppins",
+    "fontWeight": 700,
+    "fontSize": 34,
+    "lineHeightPx": 40.8,
+    "height": 1.2,
+    "letterSpacingPx": 0,
+    "textCase": null,
+    "use": "Onboarding headline",
+    "absorbs": "DM Sans Black 36 'The Daily Ritual' (36→34)"
+   },
+   {
+    "role": "displaySmall",
+    "fontFamily": "DM Sans",
+    "fontWeight": 800,
+    "fontSize": 30,
+    "lineHeightPx": 36,
+    "height": 1.2,
+    "letterSpacingPx": 0,
+    "textCase": null,
+    "use": "Prediction-game hero title, paywall title",
+    "absorbs": "(library Text-extrabold/3xl; auto line height fixed at 1.2)"
+   },
+   {
+    "role": "headlineLarge",
+    "fontFamily": "Poppins",
+    "fontWeight": 700,
+    "fontSize": 26,
+    "lineHeightPx": 39,
+    "height": 1.5,
+    "letterSpacingPx": 0,
+    "textCase": null,
+    "use": "Home video title",
+    "absorbs": "Poppins 26/39 ×21; DM Sans Bold 26/28.6 auction title"
+   },
+   {
+    "role": "headlineMedium",
+    "fontFamily": "DM Sans",
+    "fontWeight": 700,
+    "fontSize": 24,
+    "lineHeightPx": 31.2,
+    "height": 1.3,
+    "letterSpacingPx": 0,
+    "textCase": null,
+    "use": "Auth headings, modal 'Congratulations', 'Track Progress'",
+    "absorbs": "DM Sans Bold 26/120% auth headings (26→24 — Sign In (Filled) already uses 24); Poppins Bold 24"
+   },
+   {
+    "role": "headlineSmall",
+    "fontFamily": "Poppins",
+    "fontWeight": 700,
+    "fontSize": 22,
+    "lineHeightPx": 33,
+    "height": 1.5,
+    "letterSpacingPx": 0,
+    "textCase": null,
+    "use": "Sheet titles, section heroes, big streak numbers",
+    "absorbs": "DM Sans Bold 22/33 'BTS Video'; Poppins 22/30.8, 22/26.4"
+   },
+   {
+    "role": "titleLarge",
+    "fontFamily": "DM Sans",
+    "fontWeight": 700,
+    "fontSize": 20,
+    "lineHeightPx": 30,
+    "height": 1.5,
+    "letterSpacingPx": 0,
+    "textCase": null,
+    "use": "Profile name, share-app letters",
+    "absorbs": "Poppins Bold 20 numerals → numeralMd"
+   },
+   {
+    "role": "titleMedium",
+    "fontFamily": "DM Sans",
+    "fontWeight": 600,
+    "fontSize": 18,
+    "lineHeightPx": 24,
+    "height": 1.3333,
+    "letterSpacingPx": 0,
+    "textCase": null,
+    "use": "App-bar title, sheet titles, auth screen headers",
+    "absorbs": "Poppins SemiBold 16/24 auth headers (16→18); DM Sans Bold 16/24 sheet titles; DM Sans Bold 18/27; Poppins Bold 18/27"
+   },
+   {
+    "role": "cardTitle",
+    "fontFamily": "DM Sans",
+    "fontWeight": 900,
+    "fontSize": 18,
+    "lineHeightPx": 24,
+    "height": 1.3333,
+    "letterSpacingPx": 0,
+    "textCase": null,
+    "use": "Game / reward card titles over images",
+    "absorbs": "library Text-black/lg"
+   },
+   {
+    "role": "titleSmall",
+    "fontFamily": "DM Sans",
+    "fontWeight": 600,
+    "fontSize": 14,
+    "lineHeightPx": 21,
+    "height": 1.5,
+    "letterSpacingPx": 0,
+    "textCase": null,
+    "use": "Card row titles, badge names, comment handles, dates",
+    "absorbs": "Poppins SemiBold 14/21 ×26; DM Sans SemiBold 13 ×13; Poppins Bold 13 ×18; Inter SemiBold 13 ×19; Poppins SemiBold 13; DM Sans Bold 13"
+   },
+   {
+    "role": "bodyLarge",
+    "fontFamily": "DM Sans",
+    "fontWeight": 400,
+    "fontSize": 15,
+    "lineHeightPx": 22.5,
+    "height": 1.5,
+    "letterSpacingPx": 0,
+    "textCase": null,
+    "use": "Input values",
+    "absorbs": "Inter Regular 15; Oswald Regular 15 phone input"
+   },
+   {
+    "role": "bodyMedium",
+    "fontFamily": "DM Sans",
+    "fontWeight": 400,
+    "fontSize": 14,
+    "lineHeightPx": 21,
+    "height": 1.5,
+    "letterSpacingPx": 0,
+    "textCase": null,
+    "use": "Body copy, menu-row labels (Medium weight variant allowed)",
+    "absorbs": "DM Sans Regular 14/23.1, 14/22.4; Inter Regular 14/23.8; DM Sans Medium 14/21 ×51; Inter Medium 14"
+   },
+   {
+    "role": "bodySmall",
+    "fontFamily": "DM Sans",
+    "fontWeight": 400,
+    "fontSize": 13,
+    "lineHeightPx": 19.5,
+    "height": 1.5,
+    "letterSpacingPx": 0,
+    "textCase": null,
+    "use": "Comments, paragraphs, questions",
+    "absorbs": "Inter Regular 13 (all leadings); DM Sans 13/20.15, 13/21.45, 13/138%"
+   },
+   {
+    "role": "labelLarge",
+    "fontFamily": "Poppins",
+    "fontWeight": 600,
+    "fontSize": 15,
+    "lineHeightPx": 22.5,
+    "height": 1.5,
+    "letterSpacingPx": 0.6,
+    "textCase": null,
+    "use": "CTA / button labels",
+    "absorbs": "DM Sans SemiBold 15 GoldButton; Poppins 15 +0.9/+1; Poppins SemiBold 14 Share Achievement"
+   },
+   {
+    "role": "labelMedium",
+    "fontFamily": "DM Sans",
+    "fontWeight": 700,
+    "fontSize": 12,
+    "lineHeightPx": 18,
+    "height": 1.5,
+    "letterSpacingPx": 0,
+    "textCase": null,
+    "use": "Small buttons, filter chips, 'Copy Code', form labels (UPPER +0.7)",
+    "absorbs": "Inter Bold 11 Watch/Start Quest (11→12); DM Sans SemiBold 12; DM Sans Medium 12"
+   },
+   {
+    "role": "labelSmall",
+    "fontFamily": "DM Sans",
+    "fontWeight": 700,
+    "fontSize": 10,
+    "lineHeightPx": 15,
+    "height": 1.5,
+    "letterSpacingPx": 1.0,
+    "textCase": "UPPER",
+    "use": "Tags, badges, chips (genre, category, status, level, eyebrow tag)",
+    "absorbs": "DM Sans Bold 10 +0.6/+0.8/+1.2/+1.6; DM Sans Bold 9 +0.9 category tags (9→10); DM Sans Bold 8 badges (8→10); Inter Bold 9 badges (9→10); DM Sans Medium 10; Sora Bold 10 'PTS'"
+   },
+   {
+    "role": "caption",
+    "fontFamily": "Inter",
+    "fontWeight": 400,
+    "fontSize": 11,
+    "lineHeightPx": 16.5,
+    "height": 1.5,
+    "letterSpacingPx": 0,
+    "textCase": null,
+    "use": "Captions, meta, timestamps, 'pts' units, subtitles on images",
+    "absorbs": "Inter Regular 11 ×71; Inter Regular 10 ×58 (10→11); Inter Regular 9 (9→11); Inter Medium 10/11/12; Inter Regular 12; DM Sans Regular 11/12 meta; Inter SemiBold 10 (Medium weight allowed for emphasis)"
+   },
+   {
+    "role": "overline",
+    "fontFamily": "Inter",
+    "fontWeight": 700,
+    "fontSize": 10,
+    "lineHeightPx": 15,
+    "height": 1.5,
+    "letterSpacingPx": 1.2,
+    "textCase": "UPPER",
+    "use": "Section eyebrows (ALL WEEKLY QUESTS, YOUR ACTIONS, RANK…)",
+    "absorbs": "Inter Bold 10 +1.2/+1.4; Inter Bold 9 +1.08/+0.9 (9→10); Inter SemiBold 10/11 UPPER; DM Sans Bold 11 +1.1 UPPER 'Profile'/'GAMES' (11→10); DM Sans SemiBold 11 +1.1 auth labels"
+   },
+   {
+    "role": "navLabel",
+    "fontFamily": "DM Sans",
+    "fontWeight": 700,
+    "fontSize": 10,
+    "lineHeightPx": 13.5,
+    "height": 1.35,
+    "letterSpacingPx": 0.7,
+    "textCase": "UPPER",
+    "use": "Bottom-nav labels (Bold active, SemiBold inactive)",
+    "absorbs": "library Nav Bar Selected / Nav bar (9→10 for accessibility)"
+   }
+  ],
+  "numerals": [
+   {
+    "role": "numeralDisplay",
+    "fontFamily": "Oswald",
+    "fontWeight": 600,
+    "fontSize": 38,
+    "lineHeightPx": 38,
+    "height": 1.0,
+    "letterSpacingPx": 0,
+    "textCase": null,
+    "use": "Hero total points",
+    "absorbs": "—"
+   },
+   {
+    "role": "numeralXl",
+    "fontFamily": "Oswald",
+    "fontWeight": 600,
+    "fontSize": 34,
+    "lineHeightPx": 34,
+    "height": 1.0,
+    "letterSpacingPx": 0,
+    "textCase": null,
+    "use": "Section totals (1,190 pts earned)",
+    "absorbs": "Oswald SemiBold 34; Poppins Bold 34"
+   },
+   {
+    "role": "numeralLg",
+    "fontFamily": "Oswald",
+    "fontWeight": 600,
+    "fontSize": 26,
+    "lineHeightPx": 39,
+    "height": 1.5,
+    "letterSpacingPx": 0,
+    "textCase": null,
+    "use": "OTP digits, referral code, bid values",
+    "absorbs": "Oswald Medium 26; Oswald Bold 26 +3.9 (tracking dropped)"
+   },
+   {
+    "role": "numeralMd",
+    "fontFamily": "Oswald",
+    "fontWeight": 600,
+    "fontSize": 20,
+    "lineHeightPx": 30,
+    "height": 1.5,
+    "letterSpacingPx": 0,
+    "textCase": null,
+    "use": "Stat cards (#260, 2,500), +500 awarded, prediction accuracy",
+    "absorbs": "Oswald SemiBold 20/20; Oswald Bold 19/22, 18/22 rank; Poppins Bold 20/20 stats; Oswald SemiBold 17/33; Oswald Bold 24/28"
+   },
+   {
+    "role": "numeralSm",
+    "fontFamily": "Oswald",
+    "fontWeight": 600,
+    "fontSize": 18,
+    "lineHeightPx": 18,
+    "height": 1.0,
+    "letterSpacingPx": 0,
+    "textCase": null,
+    "use": "Row values (2,691), +200 awarded, +120 activity pts",
+    "absorbs": "Oswald SemiBold 16/16 (16→18); Oswald Light 16/24 bid input"
+   },
+   {
+    "role": "numeralPill",
+    "fontFamily": "Oswald",
+    "fontWeight": 700,
+    "fontSize": 14,
+    "lineHeightPx": 14,
+    "height": 1.0,
+    "letterSpacingPx": 0,
+    "textCase": null,
+    "use": "Points pill value, chip counters (2/3), pts over images, bid history",
+    "absorbs": "Oswald SemiBold 13/19.5 (13→14); Oswald SemiBold 12 (12→14); Oswald Medium 15 (15→14); Oswald Light 13 bid increments"
+   },
+   {
+    "role": "numeralAction",
+    "fontFamily": "Oswald",
+    "fontWeight": 500,
+    "fontSize": 11,
+    "lineHeightPx": 16.5,
+    "height": 1.5,
+    "letterSpacingPx": 0,
+    "textCase": null,
+    "use": "Video action-rail counts (12.4K, 847), progress fractions (4 / 10, 363 / 1000)",
+    "absorbs": "Oswald SemiBold 11/12"
+   }
+  ],
+  "accessibility": "Minimum 10sp for labels/overlines/nav, 11sp for captions, 13sp for body. Design's 8px and 9px text is raised accordingly.",
+  "rawToRole": [
+   {
+    "design": "Oswald Medium 11/16.5",
+    "count": 84,
+    "role": "numeralAction"
+   },
+   {
+    "design": "DM Sans Bold 9/13.5 +0.72",
+    "count": 80,
+    "role": "navLabel"
+   },
+   {
+    "design": "Inter Regular 11/16.5",
+    "count": 71,
+    "role": "caption"
+   },
+   {
+    "design": "Inter Regular 10/15.0",
+    "count": 58,
+    "role": "caption"
+   },
+   {
+    "design": "DM Sans SemiBold 9/auto UPPER",
+    "count": 54,
+    "role": "navLabel"
+   },
+   {
+    "design": "DM Sans Medium 14/21.0",
+    "count": 51,
+    "role": "bodyMedium"
+   },
+   {
+    "design": "Inter Semi Bold 11/16.5",
+    "count": 45,
+    "role": "caption"
+   },
+   {
+    "design": "DM Sans Bold 10/15.0 +0.6 UPPER",
+    "count": 44,
+    "role": "labelSmall"
+   },
+   {
+    "design": "DM Sans 9pt Regular 10/15.0",
+    "count": 33,
+    "role": "caption"
+   },
+   {
+    "design": "Inter Bold 9/13.5 +0.72",
+    "count": 31,
+    "role": "labelSmall"
+   },
+   {
+    "design": "Oswald Bold 14/14.0",
+    "count": 26,
+    "role": "numeralPill"
+   },
+   {
+    "design": "Sora Bold 10/10.0",
+    "count": 26,
+    "role": "labelSmall"
+   },
+   {
+    "design": "DM Sans 9pt Regular 12/18.0",
+    "count": 26,
+    "role": "caption"
+   },
+   {
+    "design": "Poppins SemiBold 14/21.0",
+    "count": 26,
+    "role": "titleSmall"
+   },
+   {
+    "design": "DM Sans 9pt Regular 11/16.5",
+    "count": 25,
+    "role": "caption"
+   },
+   {
+    "design": "Oswald SemiBold 20/30.0",
+    "count": 24,
+    "role": "numeralMd"
+   },
+   {
+    "design": "Inter Regular 9/13.5",
+    "count": 23,
+    "role": "caption"
+   },
+   {
+    "design": "Oswald SemiBold 18/18.0",
+    "count": 23,
+    "role": "numeralMd"
+   },
+   {
+    "design": "Inter Bold 10/15.0 +1.2 UPPER",
+    "count": 22,
+    "role": "overline"
+   },
+   {
+    "design": "Poppins Bold 26/39.0",
+    "count": 21,
+    "role": "headlineLarge"
+   },
+   {
+    "design": "Inter Bold 9/13.5 +1.08 UPPER",
+    "count": 21,
+    "role": "overline"
+   },
+   {
+    "design": "DM Sans Bold 11/16.5 +1.1 UPPER",
+    "count": 20,
+    "role": "overline"
+   },
+   {
+    "design": "Inter Semi Bold 13/19.5",
+    "count": 19,
+    "role": "titleSmall"
+   },
+   {
+    "design": "Inter Medium 12/18.0",
+    "count": 19,
+    "role": "caption"
+   },
+   {
+    "design": "DM Sans Bold 9/auto UPPER",
+    "count": 18,
+    "role": "navLabel"
+   },
+   {
+    "design": "DM Sans Bold 9/13.5 +0.9",
+    "count": 18,
+    "role": "labelSmall"
+   },
+   {
+    "design": "DM Sans Black 18/auto",
+    "count": 18,
+    "role": "cardTitle"
+   },
+   {
+    "design": "Inter Regular 12/18.0",
+    "count": 17,
+    "role": "caption"
+   },
+   {
+    "design": "DM Sans Bold 12/18.0",
+    "count": 17,
+    "role": "labelMedium"
+   },
+   {
+    "design": "Oswald SemiBold 13/19.5",
+    "count": 16,
+    "role": "numeralPill"
+   },
+   {
+    "design": "Inter Medium 11/16.5",
+    "count": 16,
+    "role": "caption"
+   },
+   {
+    "design": "Inter Medium 10/15.0",
+    "count": 16,
+    "role": "caption"
+   },
+   {
+    "design": "DM Sans SemiBold 18/24.0",
+    "count": 15,
+    "role": "titleMedium"
+   },
+   {
+    "design": "Inter Semi Bold 10/15.0",
+    "count": 15,
+    "role": "labelSmall"
+   },
+   {
+    "design": "Oswald SemiBold 16/16.0",
+    "count": 15,
+    "role": "numeralSm"
+   },
+   {
+    "design": "Poppins SemiBold 15/22.5 +0.6",
+    "count": 13,
+    "role": "labelLarge"
+   },
+   {
+    "design": "DM Sans Bold 20/30.0",
+    "count": 13,
+    "role": "titleLarge"
+   },
+   {
+    "design": "DM Sans SemiBold 13/19.5",
+    "count": 13,
+    "role": "titleSmall"
+   },
+   {
+    "design": "Inter Bold 9/13.5 +0.9 UPPER",
+    "count": 12,
+    "role": "overline"
+   },
+   {
+    "design": "Inter Bold 11/16.5 TITLE",
+    "count": 12,
+    "role": "labelMedium"
+   },
+   {
+    "design": "Poppins Bold 13/19.5",
+    "count": 11,
+    "role": "titleSmall"
+   },
+   {
+    "design": "DM Sans Bold 10/15.0 +1.2 UPPER",
+    "count": 11,
+    "role": "labelSmall"
+   },
+   {
+    "design": "DM Sans Bold 13/19.5",
+    "count": 10,
+    "role": "titleSmall"
+   },
+   {
+    "design": "Inter Regular 12/16.8",
+    "count": 10,
+    "role": "caption"
+   },
+   {
+    "design": "Inter Bold 10/15.0 +1.4 UPPER",
+    "count": 10,
+    "role": "overline"
+   },
+   {
+    "design": "Poppins SemiBold 12/15.6",
+    "count": 10,
+    "role": "labelMedium"
+   },
+   {
+    "design": "Inter Semi Bold 11/16.5 +0.22",
+    "count": 9,
+    "role": "caption"
+   },
+   {
+    "design": "Inter Regular 13/19.5",
+    "count": 9,
+    "role": "bodySmall"
+   },
+   {
+    "design": "Poppins Bold 10/11.0",
+    "count": 9,
+    "role": "labelSmall"
+   },
+   {
+    "design": "DM Sans Regular 11/17.6",
+    "count": 8,
+    "role": "caption"
+   },
+   {
+    "design": "Inter Bold 10/15.0",
+    "count": 8,
+    "role": "labelSmall"
+   },
+   {
+    "design": "DM Sans Medium 13/19.5",
+    "count": 8,
+    "role": "bodySmall"
+   },
+   {
+    "design": "Inter Regular 13/21.45",
+    "count": 7,
+    "role": "bodySmall"
+   },
+   {
+    "design": "Poppins Bold 22/33.0",
+    "count": 7,
+    "role": "headlineSmall"
+   },
+   {
+    "design": "DM Sans Bold 18/27.0",
+    "count": 7,
+    "role": "titleMedium"
+   },
+   {
+    "design": "Poppins Bold 20/20.0",
+    "count": 7,
+    "role": "numeralMd"
+   },
+   {
+    "design": "Poppins Bold 13/16.9",
+    "count": 7,
+    "role": "titleSmall"
+   },
+   {
+    "design": "Poppins SemiBold 16/24.0",
+    "count": 6,
+    "role": "titleMedium"
+   },
+   {
+    "design": "DM Sans Regular 11/16.5",
+    "count": 6,
+    "role": "caption"
+   },
+   {
+    "design": "DM Sans Bold 8/12.0 +0.48",
+    "count": 6,
+    "role": "labelSmall"
+   },
+   {
+    "design": "Poppins Bold 11/11.0",
+    "count": 6,
+    "role": "labelMedium"
+   },
+   {
+    "design": "DM Sans Bold 26/31.2",
+    "count": 5,
+    "role": "headlineMedium"
+   },
+   {
+    "design": "Poppins Bold 12/18.0",
+    "count": 5,
+    "role": "labelMedium"
+   },
+   {
+    "design": "Oswald SemiBold 38/38.0",
+    "count": 5,
+    "role": "numeralDisplay"
+   },
+   {
+    "design": "Poppins Bold 14/18.2",
+    "count": 5,
+    "role": "titleSmall"
+   },
+   {
+    "design": "Oswald SemiBold 20/20.0",
+    "count": 5,
+    "role": "numeralMd"
+   },
+   {
+    "design": "DM Sans 9pt Regular 13/20.15",
+    "count": 5,
+    "role": "bodySmall"
+   },
+   {
+    "design": "Poppins Bold 15/22.5",
+    "count": 4,
+    "role": "labelLarge"
+   },
+   {
+    "design": "Oswald Medium 26/39.0",
+    "count": 4,
+    "role": "numeralLg"
+   },
+   {
+    "design": "Inter Semi Bold 11/16.5 +1.1 UPPER",
+    "count": 4,
+    "role": "overline"
+   },
+   {
+    "design": "Inter Regular 15/auto",
+    "count": 4,
+    "role": "bodyLarge"
+   },
+   {
+    "design": "Inter Bold 11/16.5 +0.33",
+    "count": 4,
+    "role": "labelMedium"
+   },
+   {
+    "design": "Oswald Bold 19/22.0",
+    "count": 4,
+    "role": "numeralMd"
+   },
+   {
+    "design": "Inter Semi Bold 9/13.5",
+    "count": 4,
+    "role": "caption"
+   },
+   {
+    "design": "Oswald Bold 18/22.0",
+    "count": 4,
+    "role": "numeralMd"
+   },
+   {
+    "design": "DM Sans SemiBold 12/18.0",
+    "count": 4,
+    "role": "labelMedium"
+   },
+   {
+    "design": "Oswald SemiBold 12/18.0",
+    "count": 4,
+    "role": "numeralPill"
+   },
+   {
+    "design": "Inter Bold 11/16.5",
+    "count": 4,
+    "role": "labelMedium"
+   },
+   {
+    "design": "Poppins Bold 18/27.0",
+    "count": 4,
+    "role": "titleMedium"
+   },
+   {
+    "design": "Poppins SemiBold 13/19.5",
+    "count": 4,
+    "role": "titleSmall"
+   },
+   {
+    "design": "Oswald Light 13/18.0",
+    "count": 4,
+    "role": "numeralPill"
+   },
+   {
+    "design": "DM Sans Bold 22/33.0",
+    "count": 4,
+    "role": "headlineSmall"
+   },
+   {
+    "design": "Oswald SemiBold 34/34.0",
+    "count": 4,
+    "role": "numeralXl"
+   },
+   {
+    "design": "DM Sans Bold 10/15.0 +1.6",
+    "count": 3,
+    "role": "labelSmall"
+   },
+   {
+    "design": "Inter Regular 14/23.8",
+    "count": 3,
+    "role": "bodyMedium"
+   },
+   {
+    "design": "Inter Medium 14/19.5 UPPER",
+    "count": 3,
+    "role": "bodyMedium"
+   },
+   {
+    "design": "DM Sans SemiBold 15/22.5 +1.0",
+    "count": 3,
+    "role": "labelLarge"
+   },
+   {
+    "design": "DM Sans 9pt Regular 13/19.5",
+    "count": 3,
+    "role": "bodySmall"
+   },
+   {
+    "design": "DM Sans Bold 10/15.0",
+    "count": 3,
+    "role": "labelSmall"
+   },
+   {
+    "design": "Inter Semi Bold 12/18.0",
+    "count": 3,
+    "role": "labelMedium"
+   },
+   {
+    "design": "DM Sans Bold 10/15.0 +0.6",
+    "count": 3,
+    "role": "labelSmall"
+   },
+   {
+    "design": "Oswald SemiBold 12/19.5",
+    "count": 3,
+    "role": "numeralPill"
+   },
+   {
+    "design": "Poppins Bold 15/18.0",
+    "count": 3,
+    "role": "labelLarge"
+   },
+   {
+    "design": "Oswald Medium 15/22.5",
+    "count": 3,
+    "role": "numeralPill"
+   },
+   {
+    "design": "DM Sans SemiBold 12/18.0 +0.72 UPPER",
+    "count": 3,
+    "role": "labelMedium"
+   },
+   {
+    "design": "DM Sans 9pt Regular 15/22.5",
+    "count": 3,
+    "role": "bodyLarge"
+   },
+   {
+    "design": "DM Sans SemiBold 14/21.0",
+    "count": 3,
+    "role": "titleSmall"
+   },
+   {
+    "design": "DM Sans Bold 10/15.0 +0.8",
+    "count": 3,
+    "role": "labelSmall"
+   },
+   {
+    "design": "Poppins Bold 34/40.8",
+    "count": 2,
+    "role": "displayLarge"
+   },
+   {
+    "design": "DM Sans Regular 13/21.45",
+    "count": 2,
+    "role": "bodySmall"
+   },
+   {
+    "design": "DM Sans SemiBold 11/16.5 +1.1 UPPER",
+    "count": 2,
+    "role": "overline"
+   },
+   {
+    "design": "Oswald Regular 14/21.0 +1.0",
+    "count": 2,
+    "role": "numeralPill"
+   },
+   {
+    "design": "Oswald Regular 15/auto +1.0",
+    "count": 2,
+    "role": "numeralPill"
+   },
+   {
+    "design": "DM Sans Regular 12/18.0",
+    "count": 2,
+    "role": "caption"
+   },
+   {
+    "design": "Inter Medium 14/21.0",
+    "count": 2,
+    "role": "bodyMedium"
+   },
+   {
+    "design": "DM Sans Bold 24/auto",
+    "count": 2,
+    "role": "headlineMedium"
+   },
+   {
+    "design": "Poppins SemiBold 15/22.5 +0.9",
+    "count": 2,
+    "role": "labelLarge"
+   },
+   {
+    "design": "Poppins SemiBold 15/22.5 +1.0",
+    "count": 2,
+    "role": "labelLarge"
+   },
+   {
+    "design": "Inter Regular 11/16.5 LOWER",
+    "count": 2,
+    "role": "caption"
+   },
+   {
+    "design": "DM Sans Bold 16/24.0",
+    "count": 2,
+    "role": "titleMedium"
+   },
+   {
+    "design": "DM Sans Regular 13/17.94",
+    "count": 2,
+    "role": "bodySmall"
+   },
+   {
+    "design": "Oswald SemiBold 11/16.5",
+    "count": 2,
+    "role": "numeralAction"
+   },
+   {
+    "design": "DM Sans Medium 10/14.0 +1.0",
+    "count": 2,
+    "role": "caption"
+   },
+   {
+    "design": "Poppins SemiBold 15/22.5",
+    "count": 2,
+    "role": "labelLarge"
+   },
+   {
+    "design": "Poppins SemiBold 12/18.0",
+    "count": 2,
+    "role": "labelMedium"
+   },
+   {
+    "design": "Poppins SemiBold 13/19.5 +0.26",
+    "count": 2,
+    "role": "titleSmall"
+   },
+   {
+    "design": "DM Sans ExtraBold 30/auto",
+    "count": 2,
+    "role": "displaySmall"
+   },
+   {
+    "design": "Inter Regular 12/19.2",
+    "count": 2,
+    "role": "caption"
+   },
+   {
+    "design": "Poppins Bold 16/24.0 +0.64",
+    "count": 2,
+    "role": "titleMedium"
+   },
+   {
+    "design": "DM Sans Medium 10/15.0 +1.0 UPPER",
+    "count": 2,
+    "role": "caption"
+   },
+   {
+    "design": "Oswald SemiBold 26/39.0",
+    "count": 2,
+    "role": "numeralLg"
+   },
+   {
+    "design": "Oswald Bold 20/30.0",
+    "count": 2,
+    "role": "numeralMd"
+   },
+   {
+    "design": "Oswald Bold 20/30.0 UPPER",
+    "count": 2,
+    "role": "numeralMd"
+   },
+   {
+    "design": "DM Sans Regular 13/21.45 +0.5",
+    "count": 2,
+    "role": "bodySmall"
+   },
+   {
+    "design": "DM Sans 9pt Regular 14/22.4",
+    "count": 2,
+    "role": "bodyMedium"
+   },
+   {
+    "design": "Oswald SemiBold 17/33.0",
+    "count": 2,
+    "role": "numeralMd"
+   },
+   {
+    "design": "Inter Bold 10/15.0 +0.6",
+    "count": 2,
+    "role": "labelSmall"
+   },
+   {
+    "design": "Inter Regular 10/15.0 +1.0",
+    "count": 2,
+    "role": "caption"
+   },
+   {
+    "design": "Inter Regular 13/22.1",
+    "count": 2,
+    "role": "bodySmall"
+   },
+   {
+    "design": "Poppins Bold 34/40.8",
+    "count": 1,
+    "role": "displayLarge"
+   },
+   {
+    "design": "DM Sans SemiBold 15/22.5",
+    "count": 1,
+    "role": "labelLarge"
+   },
+   {
+    "design": "DM Sans 9pt Regular 14/23.1",
+    "count": 1,
+    "role": "bodyMedium"
+   },
+   {
+    "design": "DM Sans 9pt Regular 13/auto",
+    "count": 1,
+    "role": "bodySmall"
+   },
+   {
+    "design": "DM Sans SemiBold 16/24.0",
+    "count": 1,
+    "role": "titleMedium"
+   },
+   {
+    "design": "Poppins Bold 16/24.0",
+    "count": 1,
+    "role": "titleMedium"
+   },
+   {
+    "design": "Inter Bold 9/13.5",
+    "count": 1,
+    "role": "labelSmall"
+   },
+   {
+    "design": "Poppins Bold 24/24.0",
+    "count": 1,
+    "role": "headlineMedium"
+   },
+   {
+    "design": "Inter Semi Bold 10/15.0 +1.2 UPPER",
+    "count": 1,
+    "role": "labelSmall"
+   },
+   {
+    "design": "Poppins ExtraBold 16/16.0",
+    "count": 1,
+    "role": "titleMedium"
+   },
+   {
+    "design": "Inter Regular 9/13.5 +0.72",
+    "count": 1,
+    "role": "caption"
+   },
+   {
+    "design": "Oswald SemiBold 22/33.0 +1.32",
+    "count": 1,
+    "role": "numeralMd"
+   },
+   {
+    "design": "Poppins Bold 22/30.8",
+    "count": 1,
+    "role": "headlineSmall"
+   },
+   {
+    "design": "Golos Text Bold 10/15.0 +1.2 UPPER",
+    "count": 1,
+    "role": "labelSmall"
+   },
+   {
+    "design": "DM Sans Bold 26/28.6 +-1.0",
+    "count": 1,
+    "role": "headlineMedium"
+   },
+   {
+    "design": "DM Sans Regular 13/17.16",
+    "count": 1,
+    "role": "bodySmall"
+   },
+   {
+    "design": "Golos Text Bold 12/18.0",
+    "count": 1,
+    "role": "labelMedium"
+   },
+   {
+    "design": "Golos Text SemiBold 13/19.5",
+    "count": 1,
+    "role": "titleSmall"
+   },
+   {
+    "design": "Oswald Light 16/24.0",
+    "count": 1,
+    "role": "numeralSm"
+   },
+   {
+    "design": "DM Sans SemiBold 13/22.5 +1.5",
+    "count": 1,
+    "role": "titleSmall"
+   },
+   {
+    "design": "Oswald Bold 26/39.0 +3.9",
+    "count": 1,
+    "role": "numeralLg"
+   },
+   {
+    "design": "DM Sans Bold 10/15.0 +1.0 UPPER",
+    "count": 1,
+    "role": "labelSmall"
+   },
+   {
+    "design": "DM Sans Bold 13/19.5 +1.3 UPPER",
+    "count": 1,
+    "role": "titleSmall"
+   },
+   {
+    "design": "DM Sans Black 36/auto",
+    "count": 1,
+    "role": "displayLarge"
+   },
+   {
+    "design": "Plus Jakarta Sans SemiBold 20/28.0 +0.5",
+    "count": 1,
+    "role": "titleLarge"
+   },
+   {
+    "design": "Inter Regular 14/22.75",
+    "count": 1,
+    "role": "bodyMedium"
+   },
+   {
+    "design": "Oswald SemiBold 16/24.0",
+    "count": 1,
+    "role": "numeralSm"
+   },
+   {
+    "design": "Inter Regular 10/18.0",
+    "count": 1,
+    "role": "caption"
+   },
+   {
+    "design": "DM Sans Medium 12/auto",
+    "count": 1,
+    "role": "caption"
+   },
+   {
+    "design": "Inter Semi Bold 12/16.0 +1.2",
+    "count": 1,
+    "role": "labelMedium"
+   },
+   {
+    "design": "Inter Medium 13/19.5",
+    "count": 1,
+    "role": "bodySmall"
+   },
+   {
+    "design": "Poppins Bold 24/28.8",
+    "count": 1,
+    "role": "headlineMedium"
+   },
+   {
+    "design": "Poppins Bold 11/16.5",
+    "count": 1,
+    "role": "labelMedium"
+   },
+   {
+    "design": "Inter Medium 13/22.1",
+    "count": 1,
+    "role": "bodySmall"
+   },
+   {
+    "design": "Oswald Bold 24/28.0",
+    "count": 1,
+    "role": "numeralLg"
+   },
+   {
+    "design": "DM Sans SemiBold 12/auto",
+    "count": 1,
+    "role": "labelMedium"
+   },
+   {
+    "design": "DM Sans Bold 10/15.0 +1.0",
+    "count": 1,
+    "role": "labelSmall"
+   },
+   {
+    "design": "Poppins Bold 22/26.4",
+    "count": 1,
+    "role": "headlineSmall"
+   },
+   {
+    "design": "Inter Regular 13/20.8",
+    "count": 1,
+    "role": "bodySmall"
+   }
+  ],
+  "note": "Line heights are fixed multipliers (TextStyle.height): 1.5 for body/labels, 1.2 display, 1.333 app-bar title, solid (1.0) for large numerals. 'absorbs' lists which design combinations collapse into each role."
+ },
+ "layout": {
+  "base": {
+   "width": 375,
+   "height": 812,
+   "statusInset": 48,
+   "bottomNavHeight": 64,
+   "note": "373-wide frames are treated as 375 with 16 side padding. Add device safe-area insets in Flutter; the design draws none."
+  },
+  "screenPadding": {
+   "main": 16,
+   "auth": 24,
+   "onboarding": 20,
+   "sheet": 20,
+   "modal": 24
+  },
+  "spacing": {
+   "scale": {
+    "xxs": 2,
+    "xs": 4,
+    "sm": 8,
+    "md": 12,
+    "lg": 16,
+    "xl": 20,
+    "xxl": 24,
+    "xxxl": 32
+   },
+   "snap": "3→4, 5→4, 6→8, 9/10→12, 14→16, 18→20, 28→32",
+   "semantic": {
+    "sectionGap": 16,
+    "cardGap": 12,
+    "listGap": 8,
+    "chipGap": 8,
+    "inlineGap": 8,
+    "labelToField": 8,
+    "cardPadding": "16 sides / 14 top-bottom",
+    "statCardPadding": 12,
+    "sheetContent": "0/20/32/20",
+    "modalContent": "8/24/40/24"
+   }
+  },
+  "radius": {
+   "scale": {
+    "xs": 4,
+    "sm": 8,
+    "md": 12,
+    "lg": 16,
+    "pill": 20,
+    "sheet": 24,
+    "full": 9999
+   },
+   "snap": "2/3→4 (except progress = height/2), 6/7→8, 10→12, 14→16, 20→pill, 24→sheet, 999→full",
+   "roles": {
+    "CTA / input / card row": 12,
+    "card": 16,
+    "small & mini button / OTP box / calendar day": 8,
+    "OTP box": 12,
+    "chip h32 / segment item": 16,
+    "tag / badge / pill": "pill (20)",
+    "tab pill / points pill / avatar": "full",
+    "bottom sheet & modal": "24/24/0/0",
+    "progress bar": "height/2"
+   }
+  },
+  "border": {
+   "hairline": 1,
+   "focus": 1.5,
+   "emphasis": 2,
+   "snap": "0.55/0.59 → 1, 1.66 → 1.5, 3 → 2"
+  },
+  "iconSize": {
+   "scale": {
+    "xs": 12,
+    "sm": 16,
+    "md": 20,
+    "lg": 24,
+    "xl": 32
+   },
+   "roles": {
+    "chip leading / check glyph": 12,
+    "row chevron / small disc icon": 16,
+    "back chevron frame / close / badge-tile icon": 20,
+    "action rail / nav / badge disc": 24,
+    "modal / hero badge": 32
+   },
+   "snap": "9–11→12, 14→16, 18→20, 22→24, 26→24, 34→32"
+  },
+  "avatar": {
+   "profile": 80,
+   "cast": 52,
+   "comment": 36,
+   "ring": "1 (profile) / 2 (emphasis)",
+   "badgeDisc": {
+    "sm": 40,
+    "md": 48,
+    "lg": 56,
+    "xl": 64
+   }
+  },
+  "controlHeight": {
+   "cta": 52,
+   "button": 32,
+   "buttonMini": 28,
+   "input": 52,
+   "otpBox": 64,
+   "chip": 32,
+   "tag": 20,
+   "badge": 20,
+   "pill": 28,
+   "appBarContent": 56,
+   "appBarWithStatus": 104,
+   "bottomNav": 64,
+   "listRow": 54,
+   "statCard": 72,
+   "gameCard": 144,
+   "progressBar": 4,
+   "progressBarThick": 6,
+   "sheetHandle": "40×4",
+   "navIndicator": "16×2"
+  },
+  "elevation": {
+   "glow.cta": {
+    "offset": [
+     0,
+     6
+    ],
+    "blur": 24,
+    "color": "{gold@40%}"
+   },
+   "glow.focus": {
+    "offset": [
+     0,
+     0
+    ],
+    "blur": 16,
+    "color": "{gold@20%}"
+   },
+   "glow.navIndicator": {
+    "offset": [
+     0,
+     1
+    ],
+    "blur": 6,
+    "color": "{goldCta@50%}"
+   },
+   "glow.card": {
+    "offset": [
+     0,
+     4
+    ],
+    "blur": 24,
+    "color": "{gold@10%}"
+   },
+   "glow.smallButton": {
+    "offset": [
+     0,
+     2
+    ],
+    "blur": 8,
+    "color": "{gold@10%}"
+   },
+   "sheet": {
+    "offset": [
+     0,
+     -18
+    ],
+    "blur": 28,
+    "color": "{black@60%}"
+   },
+   "backdropBlur": 4,
+   "note": "Modal shadow (0,-8,32 @50%) merged into sheet; success-state blurs dropped with the concept screen."
+  },
+  "bottomSheet": {
+   "radius": "24/24/0/0",
+   "handle": "40×4 pill {textMuted}, 12 top / 8 bottom",
+   "content": "0/20/32/20",
+   "border": "top 1 {outline}",
+   "shadow": "elevation.sheet",
+   "scrim": "{surface@80%}"
+  },
+  "grids": {
+   "badgeTiles": "2 columns, gap 12",
+   "exclusiveLibrary": "3 columns 119×179, gap 4, r12",
+   "shareApps": "5 × 52 discs",
+   "calendar": "7 × 41×30, gap 4"
+  }
+ },
+ "states": {
+  "principle": "Every interactive component derives its states from its own primary colour (fill for filled controls, border/label colour for outlined/text controls). No extra hexes.",
+  "rules": {
+   "enabled": "as tokenised",
+   "hover (web/desktop only)": "state layer 8% of the on-colour over the fill",
+   "pressed": "state layer 12% of the on-colour over the fill (Material 3); text/outline buttons: 12% of the label colour as background",
+   "focused": "pressed layer + glow.focus in the component's primary colour at 20% (matches the design's focused input glow)",
+   "disabled": "fill at 30%, label/icon at 50% — taken from the design's disabled GoldButton (#40C9A24B fill / #80C9A24B label); outlined/text: label at 50%",
+   "selected / active": "filled with primary colour, label = surface (filter chip active, segmented active)",
+   "loading": "disabled visual + indicator in the label colour",
+   "error (inputs)": "border {error} 1.5, glow {error@20%}, helper text {error} caption",
+   "success (inputs)": "border {success@30%}, no glow"
+  },
+  "examples": {
+   "button.primary": {
+    "enabled": "{goldCta} / {surface} / glow.cta",
+    "pressed": "{goldCta} + 12% {surface} overlay",
+    "disabled": "{gold@30%} / {gold@50%}, no glow"
+   },
+   "chip.filter": {
+    "inactive": "{surfaceRaised} / {textSecondary}",
+    "active": "{gold} / {surface}",
+    "pressed": "+12% label overlay"
+   },
+   "bottomNav.item": {
+    "inactive": "{navInactive}",
+    "active": "{goldDeep} + indicator {goldCta}",
+    "pressed": "+12% {goldDeep} overlay"
+   }
+  },
+  "seedDerived": [
+   "light theme (none designed)",
+   "info colour",
+   "surfaceDim/Bright, surfaceContainerLowest/Highest, inverse*",
+   "toggle/checkbox/radio/switch (none designed)",
+   "snackbar/toast (none designed)",
+   "empty/loading/error screens (none designed)"
+  ]
+ },
+ "icons": {
+  "recommendation": "Icon font for the single-colour UI glyphs (~40), SVG only for multi-colour marks.",
+  "why": "The design's glyphs are 1,214 loose single-colour vectors (fill or 1.5 stroke) in 12–32 frames. Rendered as a font they are one small asset, cached by the text engine, tinted with `color:` at zero cost and scaled crisply — cheaper than flutter_svg's parse+raster per size. SVG is kept for the Google logo (4 colours), brand discs and any future illustration.",
+  "pipeline": "Export each glyph frame from Figma at 24×24 (normalise all to a 24 grid, strokes outlined) → fantasticon / FlutterIcon → `MatineeIcons` IconData class; fonts are variable-tint so no per-state assets.",
+  "sizes": {
+   "xs": 12,
+   "sm": 16,
+   "md": 20,
+   "lg": 24,
+   "xl": 32
+  },
+  "glyphInventory": [
+   "home",
+   "p2p (puzzle)",
+   "rewards (coins)",
+   "profile",
+   "chevron-left",
+   "chevron-right",
+   "chevron-down",
+   "close",
+   "settings",
+   "like/heart (outline + filled)",
+   "comment",
+   "info",
+   "share",
+   "send",
+   "ticket (points)",
+   "star/badge",
+   "lock",
+   "check",
+   "play",
+   "fire (streak)",
+   "trophy",
+   "calendar-prev/next",
+   "camera (edit avatar)",
+   "logout",
+   "copy",
+   "clock",
+   "target",
+   "external-link"
+  ],
+  "multiColourAsSvg": [
+   "Google G",
+   "brand discs (WhatsApp/Telegram/Instagram/Messages/X)",
+   "app logo"
+  ],
+  "note": "Emoji (🔥 🎖️ 🏆 🎬 🌍 ✨ 🧠 🔮 🎟️ 🤝 💎 🔗) are used as icons on onboarding tiles, streak stats and modals — render with the platform emoji font or replace with glyphs; do not ship them as images."
+ },
+ "components": {
+  "count": 81,
+  "reusable": 69,
+  "items": [
+   {
+    "id": "btn.primary",
+    "name": "Button / Primary (gold CTA)",
+    "category": "primitive",
+    "reusable": true,
+    "screens": [
+     "85:1662",
+     "85:1733",
+     "85:1803",
+     "128:70",
+     "129:179",
+     "130:410",
+     "165:1931",
+     "378:4290",
+     "432:24030",
+     "92:4525",
+     "432:24098",
+     "92:4615",
+     "432:24224",
+     "92:4740",
+     "418:18836",
+     "420:20093",
+     "433:1005",
+     "396:8686",
+     "382:6636",
+     "404:9787",
+     "379:4980377:3922"
+    ],
+    "screenCount": 21,
+    "instanceCount": 24,
+    "anatomy": [
+     "Container (auto-layout H, center/center, gap 8)",
+     "Label TEXT",
+     "optional trailing Icon 16×16 @0.7 opacity (chevron 5×8 {authSurface})"
+    ],
+    "tokens": {
+     "height": 52,
+     "width": "fill (333 onboarding / 325 auth+sheet / 341 quest)",
+     "radius": 12,
+     "fill": "{goldCta} primary500",
+     "label": "{labelLarge} {authSurface} (Visuals) — {labelLarge} (GoldButton)",
+     "shadow": "DS(0,6,24,0,{gold@40%})",
+     "padding": "0 (label centered) — GoldButton #130:574 uses 9/0/9/0"
+    },
+    "variants": {
+     "large": "h52 r12 glow — Continue/Unlock Now/Save Changes/Subscribe/Claim Reward (×13)",
+     "goldButton(auth)": "h54 r12 DS(0,6,24,{gold@30%}) {labelLarge} (×3: #128:95, #129:259, #130:574)",
+     "cardCTA": "h42 r12 no shadow {titleSmall} {surface} (Track Progress #165:1963 ×2)",
+     "small": "h34 r8 p8/14 fill {goldCta} {labelMedium} {surface} (Upgrade #429:23401 ×7)",
+     "mini": "h28 r8 p0/12 {labelMedium} {surface} (Watch #377:4008 ×2; gradient FFD700→C9A24B #382:6779 ×2)",
+     "gradient": "h50 r12 3-stop gold gradient, leading icon 16, {titleSmall} {surface} (Share Achievement #379:5077); h34 r8 gradient FFD966→E6CB86→C9A24B (#420:20131)",
+     "bid": "h39 r4 p0/15/0/18 {titleSmall} {surface} + icon (BID #418:18141) — odd radius"
+    },
+    "states": {
+     "enabled": "fill {goldCta}, label {authSurface}, glow",
+     "disabled": "fill {gold@20%} (gold 25%), label {gold@50%} (or {gold@60%}), NO shadow — GoldButton#129:169 Get OTP, #129:146, #132:679",
+     "pressed/hover": "not designed",
+     "loading": "not designed"
+    },
+    "evidence": [
+     "Button#85:1708",
+     "GoldButton#128:95",
+     "GoldButton#129:169 (disabled)",
+     "Button#432:24154",
+     "Button#379:5077"
+    ],
+    "notes": [
+     "Label family disagrees: Poppins (×13) vs DM Sans (×3).",
+     "Height disagrees: 52 (Home/onboarding) vs 54 (auth GoldButton). Recommend 52.",
+     "Glow alpha disagrees 0x66 / 0x4D / 0x59."
+    ]
+   },
+   {
+    "id": "btn.secondary",
+    "name": "Button / Secondary (neutral outline)",
+    "category": "primitive",
+    "reusable": true,
+    "screens": [
+     "165:1931",
+     "378:4290"
+    ],
+    "screenCount": 2,
+    "instanceCount": 4,
+    "anatomy": [
+     "Container H center",
+     "Label"
+    ],
+    "tokens": {
+     "height": 30,
+     "radius": 8,
+     "padding": "0/14",
+     "fill": "{surfaceRaised}",
+     "stroke": "{outline} 1",
+     "label": "{labelMedium} {textSecondary}"
+    },
+    "evidence": [
+     "Button#165:1987 Start Quest"
+    ],
+    "notes": [
+     "Only appears on Weekly Quest listing. Label grey {textSecondary} is a 4th secondary grey."
+    ]
+   },
+   {
+    "id": "btn.tonal",
+    "name": "Button / Tonal (dark with gold hairline)",
+    "category": "primitive",
+    "reusable": true,
+    "screens": [
+     "406:9862",
+     "408:10663"
+    ],
+    "screenCount": 2,
+    "instanceCount": 4,
+    "anatomy": [
+     "Container H center gap 8",
+     "Label",
+     "optional trailing chevron 14 ({gold})"
+    ],
+    "tokens": {
+     "fill": "{surfaceRaised}",
+     "stroke": "{gold@10%} 1",
+     "radius": 10,
+     "variants": "h40 label {titleSmall} {gold} (Cast Your Vote); h56 label {titleMedium} {white} (YES/NO 166 wide, gap 10)"
+    },
+    "evidence": [
+     "Button#406:9912",
+     "Button#408:10716",
+     "Button#408:10718"
+    ],
+    "notes": [
+     "{surfaceRaised} is a warm grey inside the navy app — off-palette; consider {surfaceRaised}."
+    ]
+   },
+   {
+    "id": "btn.outline",
+    "name": "Button / Outline gold",
+    "category": "primitive",
+    "reusable": true,
+    "screens": [
+     "418:18052",
+     "420:20093"
+    ],
+    "screenCount": 2,
+    "instanceCount": 5,
+    "anatomy": [
+     "Container center",
+     "Label"
+    ],
+    "tokens": {
+     "variants": {
+      "bidIncrement": "h32 r6 p7/18 stroke {gold@30%} 1, no fill, {numeralPill} {goldLight}, DS(0,2,8,{gold@10%}) (×4 #418:18146)",
+      "copyCode": "h32 r8 p6/14 fill {gold@10%} stroke {gold} 1 {labelMedium} {gold} (#420:20186)"
+     }
+    },
+    "evidence": [
+     "Button#418:18146",
+     "Button#420:20186"
+    ]
+   },
+   {
+    "id": "btn.social",
+    "name": "Button / Social sign-in",
+    "category": "primitive",
+    "reusable": true,
+    "screens": [
+     "97:5251",
+     "128:70"
+    ],
+    "screenCount": 2,
+    "instanceCount": 4,
+    "anatomy": [
+     "Container H center gap 10",
+     "Icon 18×18 (Google 4-color vectors / Apple white)",
+     "Label"
+    ],
+    "tokens": {
+     "height": 50,
+     "width": 325,
+     "radius": 12,
+     "fill": "{authContainer}",
+     "stroke": "{authOutline} 1",
+     "label": "{bodyMedium} {white} (Google) — {bodyMedium} (Apple) — mismatch",
+     "gap": 10
+    },
+    "evidence": [
+     "Button#97:5287",
+     "Button#97:5295"
+    ]
+   },
+   {
+    "id": "btn.text",
+    "name": "Button / Text",
+    "category": "primitive",
+    "reusable": true,
+    "screens": [
+     "85:1662",
+     "85:1733",
+     "85:1803",
+     "429:23362",
+     "427:20440",
+     "429:21182",
+     "429:22118",
+     "429:22828",
+     "429:21072",
+     "433:781",
+     "418:18052",
+     "35:4491",
+     "30:3890",
+     "129:125",
+     "129:179",
+     "382:6636",
+     "404:9787"
+    ],
+    "screenCount": 17,
+    "instanceCount": 20,
+    "anatomy": [
+     "Optional padding container",
+     "Label"
+    ],
+    "tokens": {
+     "variants": {
+      "skip": "{bodyMedium} {gold}, p6/4 (Intro #85:1715)",
+      "editProfile": "{bodySmall} {gold} (#429:23377)",
+      "viewMore": "{labelMedium} underline {gold} (#418:18077)",
+      "reply": "{caption} {textMuted} (#35:4301)",
+      "resend": "{bodySmall} {white} + gold timer span (#129:145 MIX2)",
+      "backWithLabel": "icon 20 + {bodySmall} {textMuted} gap 8 (#382:6638)",
+      "dismiss": "{labelMedium} {textSecondary@70%} p8 (CONTINUE WATCHING #404:9840)"
+     }
+    }
+   },
+   {
+    "id": "btn.icon.back",
+    "name": "IconButton / Back (disc)",
+    "category": "primitive",
+    "reusable": true,
+    "screens": [
+     "85:1662",
+     "85:1733",
+     "85:1803",
+     "97:5251",
+     "128:70",
+     "129:125",
+     "129:179",
+     "132:651",
+     "130:410",
+     "165:1931",
+     "378:4290",
+     "377:3922",
+     "406:9862",
+     "429:23676",
+     "432:23967",
+     "418:18836",
+     "486:1739",
+     "429:21290",
+     "486:1868",
+     "486:1997",
+     "416:15593",
+     "429:21790",
+     "429:22526",
+     "429:23212",
+     "397:9099",
+     "408:10663",
+     "379:4980",
+     "418:18052",
+     "376:3272",
+     "384:7013",
+     "407:10456",
+     "378:4464",
+     "429:20692",
+     "429:23472",
+     "432:23866"
+    ],
+    "screenCount": 35,
+    "instanceCount": 41,
+    "anatomy": [
+     "Outer 36×36 hug wrapper (Button)",
+     "Disc 36×36 (Button)",
+     "Icon frame 18×18",
+     "Vector chevron 6×9 at (6,5)"
+    ],
+    "tokens": {
+     "size": 36,
+     "radius": 10,
+     "fill": "{authContainer} (warm.800)",
+     "stroke": "{authOutline} 1",
+     "icon": "{gold} 6×9 in 18 frame"
+    },
+    "variants": {
+     "disc(default)": "×25 #219:961 + copies; used as trailing chevron on P2P/Rewards game cards too (#376:3444 ×9)",
+     "auction": "fill {authContainer} (#418:18055)",
+     "plain24": "24×24 no disc, chevron 7×12 {gold} (Daily Streaks header #397:9103)",
+     "calendarNav": "24×24 p4 icon 16 chevron 5×8 {textMuted} (#397:9220/9223)"
+    },
+    "evidence": [
+     "Button#219:960",
+     "Button#376:3444",
+     "Button#397:9103"
+    ],
+    "notes": [
+     "Warm-palette disc ({authContainer}/{authOutline}) is used on navy screens — the one deliberate cross-palette element; keep as 'iconButton.surface'."
+    ]
+   },
+   {
+    "id": "btn.icon.close",
+    "name": "IconButton / Close",
+    "category": "primitive",
+    "reusable": true,
+    "screens": [
+     "35:4491",
+     "30:3890",
+     "420:20093"
+    ],
+    "screenCount": 3,
+    "instanceCount": 3,
+    "anatomy": [
+     "Frame 20×20",
+     "Icon 20 with 12×12 X vector"
+    ],
+    "tokens": {
+     "size": 20,
+     "icon": "{textSecondary} 12×12"
+    },
+    "evidence": [
+     "Button#35:4644",
+     "Button#35:4280",
+     "Button#420:20177"
+    ]
+   },
+   {
+    "id": "btn.icon.settings",
+    "name": "IconButton / Settings (profile header)",
+    "category": "primitive",
+    "reusable": true,
+    "screens": [
+     "429:23362",
+     "427:20440",
+     "429:21182",
+     "429:22118",
+     "429:22828",
+     "429:21072",
+     "433:781",
+     "420:20093"
+    ],
+    "screenCount": 8,
+    "instanceCount": 8,
+    "anatomy": [
+     "Frame 24×24",
+     "Vector 16×20"
+    ],
+    "tokens": {
+     "size": 24,
+     "icon": "{textSecondary}"
+    },
+    "evidence": [
+     "Button#429:23368"
+    ]
+   },
+   {
+    "id": "btn.icon.actionRail",
+    "name": "ActionRail Button (like/comment/info/share)",
+    "category": "composite",
+    "reusable": true,
+    "screens": [
+     "25:2950",
+     "26:3104",
+     "28:3202",
+     "29:3649",
+     "30:3803",
+     "376:2650",
+     "384:6948",
+     "407:10391",
+     "388:8310",
+     "381:5991",
+     "378:4399",
+     "92:4859",
+     "432:24030",
+     "92:4525",
+     "432:24098",
+     "92:4615",
+     "432:24224",
+     "92:4740",
+     "36:4835",
+     "35:4491",
+     "30:3890"
+    ],
+    "screenCount": 21,
+    "instanceCount": 96,
+    "anatomy": [
+     "ActionBtn V center gap 3",
+     "Icon frame 24×24 (glyph 18–20 {white})",
+     "Text wrapper",
+     "Label {numeralAction} {textSecondary} centered"
+    ],
+    "tokens": {
+     "iconFrame": 24,
+     "gap": 3,
+     "label": "{numeralAction} {textSecondary}",
+     "railGap": 20,
+     "railPosition": "x=328 (right, 16 from edge + 29 wide), y=385"
+    },
+    "states": {
+     "liked": "heart vector gradient {goldCta}→{goldDeep} (Vector#26:3123)"
+    },
+    "evidence": [
+     "ActionBtn#25:2972",
+     "Container#25:2971 rail"
+    ]
+   },
+   {
+    "id": "input.text",
+    "name": "Input / Text (auth)",
+    "category": "primitive",
+    "reusable": true,
+    "screens": [
+     "132:651",
+     "130:410",
+     "97:5251",
+     "128:70"
+    ],
+    "screenCount": 4,
+    "instanceCount": 8,
+    "anatomy": [
+     "Label (optional) — Label wrapper with 8 bottom margin",
+     "Field container (auto-layout V, center)",
+     "Value/placeholder TEXT"
+    ],
+    "tokens": {
+     "height": 52,
+     "radius": 10,
+     "padding": "0/16",
+     "fill": "{authContainer}",
+     "stroke": "{authOutline} 1",
+     "label": "{overline} {authTextSecondary} (NAME) / {overline} {authTextSecondary} (Phone Number)",
+     "labelGap": 8,
+     "placeholder": "{bodyLarge} AUTO {white@50%}",
+     "value": "{bodyLarge} {white}",
+     "fieldGap": 18
+    },
+    "variants": {
+     "phone": "country box 76×52 (+91 {numeralPill} {white} + chevron 12 {authTextSecondary}, p0/16 gap 4) + input 241×52 gap 8; placeholder {numeralPill} {white@40%} (#97:5271)",
+     "app(EditProfile)": "fill {surfaceRaised}, stroke transparent, label {labelMedium} {textSecondary} gap 8, value {bodyLarge} {white}, width 333 (#418:18864)",
+     "comment": "bar 63 tall P12/16 top hairline {outline}@0.55; field 40 tall r7 fill {surface} p8/16 gap 10; placeholder {bodySmall} {white@30%}; send icon 18 {textSecondary} (#35:4338)",
+     "bid": "40 tall r8 fill {surfaceRaised} stroke {white@10%} p0/20; {numeralSm} {white} (#418:18133)"
+    },
+    "states": {
+     "default": "stroke {authOutline}",
+     "focused/filled": "stroke {gold@20%} 1 + DS(0,0,16,0,{gold@20%}), value {white} (#130:430)",
+     "error": "not designed",
+     "disabled": "not designed"
+    },
+    "evidence": [
+     "Text Input#132:671",
+     "Text Input#130:430",
+     "Phone Input#97:5277",
+     "Text Input#418:18864",
+     "Container#35:4339"
+    ]
+   },
+   {
+    "id": "input.otp",
+    "name": "Input / OTP box",
+    "category": "primitive",
+    "reusable": true,
+    "screens": [
+     "129:125",
+     "129:179"
+    ],
+    "screenCount": 2,
+    "instanceCount": 8,
+    "anatomy": [
+     "Box 64×64 (auto-layout V center)",
+     "Digit TEXT"
+    ],
+    "tokens": {
+     "size": 64,
+     "radius": 14,
+     "fill": "{authContainer}",
+     "stroke": "{authOutline} 1.5",
+     "gap": 12,
+     "digit": "{numeralLg} {goldLight}"
+    },
+    "states": {
+     "empty": "stroke {authOutline}",
+     "filled": "stroke {gold@20%} 1.5 + DS(0,0,16,0,{gold@20%})"
+    },
+    "evidence": [
+     "Text Input#129:140",
+     "Text Input#129:196"
+    ]
+   },
+   {
+    "id": "chip.filter",
+    "name": "Chip / Filter",
+    "category": "primitive",
+    "reusable": true,
+    "screens": [
+     "429:23676",
+     "432:23967"
+    ],
+    "screenCount": 2,
+    "instanceCount": 8,
+    "anatomy": [
+     "Container H center p0/16",
+     "Label {labelMedium}"
+    ],
+    "tokens": {
+     "height": 32,
+     "radius": 16,
+     "gap": 8
+    },
+    "states": {
+     "active": "fill {gold} label {surface}",
+     "inactive": "fill {surfaceRaised} label {textSecondary}"
+    },
+    "evidence": [
+     "Button#429:23703",
+     "Button#429:23705"
+    ]
+   },
+   {
+    "id": "tag.genre",
+    "name": "Tag / Genre (meta)",
+    "category": "primitive",
+    "reusable": true,
+    "screens": [
+     "25:2950",
+     "26:3104",
+     "28:3202",
+     "29:3649",
+     "30:3803",
+     "376:2650",
+     "384:6948",
+     "407:10391",
+     "388:8310",
+     "381:5991",
+     "378:4399",
+     "92:4859",
+     "432:24030",
+     "92:4525",
+     "432:24098",
+     "92:4615",
+     "432:24224",
+     "92:4740",
+     "36:4835",
+     "35:4491",
+     "30:3890"
+    ],
+    "screenCount": 21,
+    "instanceCount": 42,
+    "anatomy": [
+     "Text frame 70–76×21 (NOT auto-layout; label absolutely placed at 10,3)",
+     "Label"
+    ],
+    "tokens": {
+     "height": 21,
+     "radius": 12,
+     "fill": "{surfaceRaised}",
+     "stroke": "{outline} 1",
+     "padding": "~10/3 (absolute)",
+     "label": "{labelSmall} {textSecondary}"
+    },
+    "evidence": [
+     "Text#118:8",
+     "Text#118:10"
+    ]
+   },
+   {
+    "id": "tag.category",
+    "name": "Tag / Category over image",
+    "category": "primitive",
+    "reusable": true,
+    "screens": [
+     "376:3272",
+     "384:7013",
+     "407:10456",
+     "378:4464",
+     "429:20692",
+     "429:23472",
+     "432:23866"
+    ],
+    "screenCount": 7,
+    "instanceCount": 21,
+    "anatomy": [
+     "Container H p3/10",
+     "Text wrapper",
+     "Label"
+    ],
+    "tokens": {
+     "height": 22,
+     "radius": 20,
+     "padding": "3/10",
+     "fill": "{gold@20%}",
+     "stroke": "{gold@40%} 1",
+     "label": "{labelSmall} {goldLight} (QUEST/STREAK/PREDICT/AUCTION/BTS & TRAILERS)"
+    },
+    "evidence": [
+     "Container#376:3344",
+     "Container#429:20764"
+    ]
+   },
+   {
+    "id": "tag.eyebrow",
+    "name": "Tag / Eyebrow with dot (onboarding)",
+    "category": "primitive",
+    "reusable": true,
+    "screens": [
+     "85:1662",
+     "85:1733",
+     "85:1803"
+    ],
+    "screenCount": 3,
+    "instanceCount": 3,
+    "anatomy": [
+     "Container H center gap 6 p4/12",
+     "Dot 5×5 r2.5 {gold}",
+     "Label"
+    ],
+    "tokens": {
+     "height": 25,
+     "radius": 20,
+     "fill": "{gold@10%}",
+     "stroke": "{gold@30%} 1",
+     "label": "{labelSmall} {gold}"
+    },
+    "evidence": [
+     "Container#85:1674"
+    ]
+   },
+   {
+    "id": "tag.exclusive",
+    "name": "Tag / Exclusive content (icon + label)",
+    "category": "primitive",
+    "reusable": true,
+    "screens": [
+     "432:24030",
+     "92:4525",
+     "432:24098",
+     "92:4615",
+     "432:24224",
+     "92:4740"
+    ],
+    "screenCount": 6,
+    "instanceCount": 6,
+    "anatomy": [
+     "Container H center gap 6 p5/12",
+     "Icon 10 (7×9 {gold})",
+     "Label"
+    ],
+    "tokens": {
+     "height": "31–32",
+     "radius": 20,
+     "fill": "{gold@20%}",
+     "stroke": "{gold@50%} 1",
+     "label": "{labelSmall} {gold}"
+    },
+    "evidence": [
+     "Container#432:24038",
+     "Container#432:24119"
+    ]
+   },
+   {
+    "id": "badge.status",
+    "name": "Badge / Status",
+    "category": "primitive",
+    "reusable": true,
+    "screens": [
+     "165:1931",
+     "378:4290",
+     "377:3922",
+     "406:9862",
+     "429:21790",
+     "429:22526",
+     "429:23212",
+     "379:4980",
+     "418:18052",
+     "382:6636"
+    ],
+    "screenCount": 10,
+    "instanceCount": 36,
+    "anatomy": [
+     "Container H center gap 4–5 p3/10 (or 1/7, 2/8)",
+     "optional Icon 9–11",
+     "Label 8–10 Bold"
+    ],
+    "tokens": {
+     "height": "16–29",
+     "radius": 20,
+     "label": "{labelSmall} (WON/CORRECT/CLAIMED/INCORRECT/PARTIAL) — {labelSmall} (✓ DONE/REWARD CLAIMED/2 ACTIVE, h16 r10 no stroke) — {labelSmall} (LIVE/ACTIVE/RESULT IN)"
+    },
+    "variants": {
+     "success": "fill {success@10%} (or {success@10%}) stroke {success@30%} (or {success@20%}) label {success} — WON/CLAIMED use {success} text with {success@10%}/{success@20%}",
+     "successPlain": "fill {success@10%} no stroke h16 r10 — ✓ DONE, REWARD CLAIMED, 2 ACTIVE",
+     "gold": "fill {gold@10%} stroke {gold@20%} label {gold} — PARTIAL, High Roller",
+     "error": "fill {error@10%} stroke {error@20%} label {error} — INCORRECT",
+     "neutral": "fill {white@10%} stroke {white@10%} label {white@60%} {labelSmall} — MEMORABILIA/EXPERIENCE/TICKET/CONTENT (h20 p2/8)",
+     "live": "fill {error} solid, white dot 6, label white {labelSmall} (h21)",
+     "active": "fill {pointsPillBg@80%} r12 h16 label {caption} white (hero quest card)",
+     "resultIn": "fill {surface@70%} stroke {success@40%} label {success} (over image)",
+     "claimedLarge": "h29 p6/12 fill {success@20%} stroke {success@40%} icon 11 label {labelSmall} {success} (#379:4990)"
+    },
+    "evidence": [
+     "Container#429:21850 WON",
+     "Container#429:23260 CLAIMED",
+     "Container#429:22620 INCORRECT",
+     "Text#376:3916 REWARD CLAIMED",
+     "Container#418:18067 LIVE",
+     "Background+Border#165:1966 ACTIVE"
+    ],
+    "notes": [
+     "4 different success greens/tints for the same 'done' meaning ({success} vs {success}; 0x1F vs 0x14 fills)."
+    ]
+   },
+   {
+    "id": "badge.level",
+    "name": "Badge / Level (LV 1 / LV 2)",
+    "category": "primitive",
+    "reusable": true,
+    "screens": [
+     "416:15593"
+    ],
+    "screenCount": 1,
+    "instanceCount": 15,
+    "anatomy": [
+     "Container center p1/7",
+     "Label {labelSmall}"
+    ],
+    "tokens": {
+     "height": 18,
+     "radius": 20
+    },
+    "variants": {
+     "lv2": "fill {yellow@10%} stroke {yellow@20%} label {yellow}",
+     "lv1": "fill {goldLevel1@10%} stroke {goldLevel1@20%} label {goldLevel1}"
+    },
+    "evidence": [
+     "Container#416:15662",
+     "Container#416:15832"
+    ]
+   },
+   {
+    "id": "pill.points",
+    "name": "Pill / Points (header)",
+    "category": "composite",
+    "reusable": true,
+    "screens": [
+     "25:2950",
+     "26:3104",
+     "28:3202",
+     "29:3649",
+     "30:3803",
+     "376:2650",
+     "384:6948",
+     "407:10391",
+     "388:8310",
+     "381:5991",
+     "378:4399",
+     "92:4859",
+     "432:24030",
+     "92:4525",
+     "432:24098",
+     "92:4615",
+     "432:24224",
+     "92:4740",
+     "36:4835",
+     "35:4491",
+     "30:3890",
+     "418:18052"
+    ],
+    "screenCount": 22,
+    "instanceCount": 27,
+    "anatomy": [
+     "Background+Border H center gap 8 p6/16",
+     "Icon container 12×14 (gold ticket icon)",
+     "Paragraph (NOT auto-layout): '540 ' {numeralPill} + 'PTS' {labelSmall} at (28,5)"
+    ],
+    "tokens": {
+     "height": "29 (32 on P2P/Rewards Home copies)",
+     "radius": 9999,
+     "fill": "{pointsPillBg@80%}",
+     "stroke": "gradient {goldCta}→{goldLevel1} @0.99, 1px",
+     "padding": "6/16",
+     "gap": 8,
+     "value": "{numeralPill} {white}",
+     "unit": "{labelSmall} {white}"
+    },
+    "evidence": [
+     "Background+Border#25:3071",
+     "Background+Border#376:2660 (h32)"
+    ],
+    "notes": [
+     "Two heights for the same pill (29 vs 32) because the value/unit row is absolutely positioned.",
+     "Sora exists only for the 3-letter 'PTS'."
+    ]
+   },
+   {
+    "id": "pill.pointsOverImage",
+    "name": "Pill / Points reward over image",
+    "category": "primitive",
+    "reusable": true,
+    "screens": [
+     "165:1931",
+     "378:4290",
+     "406:9862"
+    ],
+    "screenCount": 3,
+    "instanceCount": 5,
+    "anatomy": [
+     "Container (absolute text)",
+     "Label"
+    ],
+    "tokens": {
+     "height": "23/29",
+     "radius": 20,
+     "fill": "{surface@80%}",
+     "stroke": "{gold@40%} 1",
+     "label": "{numeralPill}–13/19.5 {goldLight} (500 PTS / +300 PTS)"
+    },
+    "evidence": [
+     "Container#165:1969",
+     "Container#406:10039"
+    ]
+   },
+   {
+    "id": "pill.multiplier",
+    "name": "Pill / Multiplier over image",
+    "category": "primitive",
+    "reusable": true,
+    "screens": [
+     "406:9862"
+    ],
+    "screenCount": 1,
+    "instanceCount": 3,
+    "anatomy": [
+     "Text frame p3/10",
+     "Label"
+    ],
+    "tokens": {
+     "height": 23,
+     "radius": 20,
+     "fill": "{surface@70%}",
+     "stroke": "{white@20%} 1",
+     "label": "{labelSmall} {white} (3X MULTIPLIER)"
+    },
+    "evidence": [
+     "Text#406:9891"
+    ]
+   },
+   {
+    "id": "chip.counter",
+    "name": "Chip / Counter (2/3, 5/5)",
+    "category": "primitive",
+    "reusable": true,
+    "screens": [
+     "377:3922",
+     "382:6636"
+    ],
+    "screenCount": 2,
+    "instanceCount": 8,
+    "anatomy": [
+     "Container V center p4/10",
+     "Label {numeralPill}"
+    ],
+    "tokens": {
+     "height": 30,
+     "radius": 20,
+     "padding": "4/10"
+    },
+    "states": {
+     "inProgress": "fill {gold@10%} stroke {gold@20%} label {gold}",
+     "done": "fill {success@10%} stroke {success@30%} label {success}"
+    },
+    "evidence": [
+     "Container#377:3970",
+     "Container#377:4023"
+    ]
+   },
+   {
+    "id": "chip.badgeEarned",
+    "name": "Chip / Badge earned (icon + name)",
+    "category": "primitive",
+    "reusable": true,
+    "screens": [
+     "429:21790",
+     "429:22526",
+     "429:23212",
+     "397:9099"
+    ],
+    "screenCount": 4,
+    "instanceCount": 8,
+    "anatomy": [
+     "Container H center gap 5 p4/10",
+     "Icon 11 (9×9 {gold})",
+     "Label {labelSmall} {gold}"
+    ],
+    "tokens": {
+     "height": 25,
+     "radius": 20,
+     "fill": "{gold@10%}",
+     "stroke": "{gold@20%} 1"
+    },
+    "evidence": [
+     "Container#429:21867 High Roller",
+     "Container#397:9182 23 min left (h27 p5/12 Inter Bold 10)"
+    ]
+   },
+   {
+    "id": "chip.timeLeft",
+    "name": "Chip / Time left",
+    "category": "primitive",
+    "reusable": true,
+    "screens": [
+     "165:1931",
+     "378:4290",
+     "382:6636"
+    ],
+    "screenCount": 3,
+    "instanceCount": 3,
+    "anatomy": [
+     "Container H center gap 4–5 p3/10 or 6/12",
+     "Icon 10–11 {gold}",
+     "Label"
+    ],
+    "tokens": {
+     "variants": "h23 fill {goldLight@10%} stroke {gold@30%} {labelSmall} {gold} (#165:1950) — h31 fill {gold@10%} stroke {gold@40%} {labelMedium} {gold} (#382:6649)"
+    },
+    "evidence": [
+     "Container#165:1950",
+     "Container#382:6649"
+    ]
+   },
+   {
+    "id": "chip.legend",
+    "name": "Chip / Legend (dot + label)",
+    "category": "primitive",
+    "reusable": true,
+    "screens": [
+     "416:15593"
+    ],
+    "screenCount": 1,
+    "instanceCount": 3,
+    "anatomy": [
+     "Container H gap 5 p4/10",
+     "Dot 6×6 r3 ({goldLevel1}/{yellow}/{textDisabled})",
+     "Label {labelSmall} ({white} / {textDisabled} locked)"
+    ],
+    "tokens": {
+     "height": 25,
+     "radius": 20,
+     "fill": "{surfaceCard}",
+     "stroke": "{outline} 1"
+    },
+    "evidence": [
+     "Container#416:15634"
+    ]
+   },
+   {
+    "id": "segmented",
+    "name": "Segmented control (earns / badges)",
+    "category": "primitive",
+    "reusable": true,
+    "screens": [
+     "414:12370",
+     "414:12502",
+     "486:1739",
+     "429:21290",
+     "486:1868",
+     "486:1997"
+    ],
+    "screenCount": 6,
+    "instanceCount": 6,
+    "anatomy": [
+     "Track H p3 gap 0",
+     "Item V center p5/16 (h27 r16)",
+     "Item label {labelMedium}"
+    ],
+    "tokens": {
+     "trackHeight": 35,
+     "trackRadius": 20,
+     "trackFill": "{surface}",
+     "trackStroke": "{outline} 1",
+     "itemHeight": 27,
+     "itemRadius": 16
+    },
+    "states": {
+     "active": "fill gradient {goldLight}→{gold}, label {surface}",
+     "inactive": "no fill, label {textMuted}"
+    },
+    "evidence": [
+     "Container#414:12377",
+     "Button#414:12380"
+    ]
+   },
+   {
+    "id": "tab.pill",
+    "name": "Tab pill (Earned / Locked)",
+    "category": "primitive",
+    "reusable": true,
+    "screens": [
+     "414:12370",
+     "414:12502"
+    ],
+    "screenCount": 2,
+    "instanceCount": 4,
+    "anatomy": [
+     "Tabs row gap 8",
+     "Tab H center p6/12",
+     "Label {overline}"
+    ],
+    "tokens": {
+     "height": 27,
+     "radius": 999,
+     "padding": "6/12"
+    },
+    "states": {
+     "active": "no fill, stroke primary200 (renders DARK {gold}) 1, label {gold}",
+     "inactive": "fill {surfaceCard} stroke {outline}, label {textMuted}"
+    },
+    "evidence": [
+     "Tab - Earned (Active)#414:12419",
+     "Tab - Locked#414:12421"
+    ],
+    "notes": [
+     "Only Visuals nodes bound to a library variable that render its DARK value. Text case differs between the two screens (Earned vs EARNED)."
+    ]
+   },
+   {
+    "id": "avatar",
+    "name": "Avatar",
+    "category": "primitive",
+    "reusable": true,
+    "screens": [
+     "429:23362",
+     "427:20440",
+     "429:21182",
+     "429:22118",
+     "429:22828",
+     "429:21072",
+     "433:781",
+     "418:18836",
+     "420:20093",
+     "35:4491",
+     "30:3890",
+     "418:18052"
+    ],
+    "screenCount": 12,
+    "instanceCount": 19,
+    "anatomy": [
+     "Circle container (r = size/2)",
+     "Image fill child",
+     "optional stroke ring",
+     "optional edit badge 24 disc {gold} icon 10 {surface} at (60,56)"
+    ],
+    "tokens": {
+     "sizes": {
+      "profile": 80,
+      "cast": 52,
+      "comment": 36,
+      "bidder": 36
+     },
+     "rings": {
+      "profile": "{gold@30%} 1",
+      "refer": "{gold} 3",
+      "cast": "{outline} 1.66",
+      "bidder": "bg {pointsPillBg}, no ring"
+     }
+    },
+    "evidence": [
+     "Container#429:23373",
+     "Image#35:4655",
+     "Image#35:4285",
+     "Container#418:18100",
+     "Container#418:18852 edit badge"
+    ]
+   },
+   {
+    "id": "progress.linear",
+    "name": "Progress bar (linear)",
+    "category": "primitive",
+    "reusable": true,
+    "screens": [
+     "376:3272",
+     "384:7013",
+     "407:10456",
+     "378:4464",
+     "429:20692",
+     "429:23472",
+     "432:23866",
+     "414:12370",
+     "414:12502",
+     "486:1739",
+     "429:21290",
+     "486:1868",
+     "486:1997",
+     "165:1931",
+     "378:4290",
+     "377:3922",
+     "382:6636",
+     "397:9099",
+     "406:9862"
+    ],
+    "screenCount": 19,
+    "instanceCount": 39,
+    "anatomy": [
+     "Track (auto-layout V, fill child)",
+     "Fill (fixed width, same radius)"
+    ],
+    "tokens": {
+     "heights": {
+      "default": "4 (r2)",
+      "hero/P2P": "5 (r3)",
+      "rewardsHeader": "3 (r0)"
+     },
+     "track": "{outline} (My Earns rows: {surfaceRaised})",
+     "fill": "gradient {gold}→{yellow} (default) / {gold@60%}→{goldLight@90%} (My Earns) / {gold}→{goldLight} (badges to unlock) / {success} (complete) / {yellow} (vote share)"
+    },
+    "evidence": [
+     "Container#165:1958",
+     "Container#376:3326",
+     "Container#486:1777",
+     "Container#414:12411",
+     "Container#382:6739"
+    ],
+    "notes": [
+     "5 different fills for one component; radius = height/2 except rewards header (r0)."
+    ]
+   },
+   {
+    "id": "progress.steps",
+    "name": "Progress steps (7 bars)",
+    "category": "primitive",
+    "reusable": true,
+    "screens": [
+     "397:9099"
+    ],
+    "screenCount": 1,
+    "instanceCount": 1,
+    "anatomy": [
+     "Row H gap 4 padTop 14",
+     "7× bar 40×6 r3"
+    ],
+    "tokens": {
+     "done": "gradient {gold}→{yellow}",
+     "todo": "{outline}"
+    },
+    "evidence": [
+     "Container#397:9130"
+    ]
+   },
+   {
+    "id": "progress.ring",
+    "name": "Progress ring (58)",
+    "category": "primitive",
+    "reusable": true,
+    "screens": [
+     "377:3922",
+     "382:6636"
+    ],
+    "screenCount": 2,
+    "instanceCount": 2,
+    "anatomy": [
+     "Icon frame 58 with 2 arc vectors 46×46 stroke 5 ({outline} track, {gold} fill)",
+     "Center label {labelMedium} {goldLight}"
+    ],
+    "tokens": {
+     "size": 58,
+     "strokeWidth": 5
+    },
+    "evidence": [
+     "Container#377:3945"
+    ]
+   },
+   {
+    "id": "divider",
+    "name": "Divider",
+    "category": "primitive",
+    "reusable": true,
+    "screens": [
+     "376:3272",
+     "384:7013",
+     "407:10456",
+     "378:4464",
+     "429:20692",
+     "429:23472",
+     "432:23866",
+     "486:1739",
+     "429:21290",
+     "486:1868",
+     "486:1997",
+     "97:5251",
+     "128:70",
+     "129:125",
+     "129:179",
+     "132:651",
+     "130:410",
+     "377:3922",
+     "382:6636",
+     "432:24098",
+     "92:4615",
+     "429:21790",
+     "429:22526",
+     "429:23212"
+    ],
+    "screenCount": 24,
+    "instanceCount": 24,
+    "anatomy": [
+     "1px frame fill"
+    ],
+    "tokens": {
+     "color": "{outline} (main) / {authOutline} (auth) / {surfaceRaised} (modal)",
+     "vertical": "1×62 {outline} with 2 vertical margin (P2P stat columns)"
+    },
+    "variants": {
+     "withLabel": "auth 'or continue with': two 108×1 lines + {caption} {authTextSecondary}, gap 12 (#97:5281)"
+    },
+    "evidence": [
+     "Container#376:3315",
+     "Container#97:5282",
+     "Container#376:3292"
+    ]
+   },
+   {
+    "id": "checkDisc",
+    "name": "Check disc",
+    "category": "primitive",
+    "reusable": true,
+    "screens": [
+     "377:3922",
+     "382:6636",
+     "379:4980",
+     "433:1005"
+    ],
+    "screenCount": 4,
+    "instanceCount": 14,
+    "anatomy": [
+     "Disc",
+     "Icon"
+    ],
+    "tokens": {
+     "variants": {
+      "done16": "16 r8 fill {success} icon 9 (7×5 {surface}) — action title row",
+      "done22": "22 r11 fill {success@20%} stroke {success} 1 icon 11 (8×6 {success}) — completed actions list",
+      "feature18": "18 r9 fill {gold@20%} stroke {gold} 1 icon 10 (7×6 {gold}) — Why Subscribe bullets",
+      "levelDone32": "32 r16 fill {gold} icon 14 (10×8 {surface})"
+     }
+    },
+    "evidence": [
+     "Container#377:4018",
+     "Container#379:5045",
+     "Container#433:1044",
+     "Container#397:9146"
+    ]
+   },
+   {
+    "id": "sheetHandle",
+    "name": "Sheet handle",
+    "category": "primitive",
+    "reusable": true,
+    "screens": [
+     "36:4835",
+     "35:4491",
+     "30:3890",
+     "420:20093",
+     "382:6636",
+     "404:9787"
+    ],
+    "screenCount": 6,
+    "instanceCount": 6,
+    "anatomy": [
+     "Handle bar"
+    ],
+    "tokens": {
+     "size": "40×4",
+     "radius": 2,
+     "fill": "{textMuted}",
+     "padding": "12 top / 8 bottom"
+    },
+    "variants": {
+     "modal": "36×3 {outline} r2 pad 14",
+     "success": "40×4 {outline} r9999 pad 12/24",
+     "refer": "40×4 {textMuted} pad 12/4"
+    },
+    "evidence": [
+     "Container#36:4944",
+     "Container#382:6802",
+     "Background#404:9796"
+    ]
+   },
+   {
+    "id": "icon",
+    "name": "Icon (vector glyph in square frame)",
+    "category": "primitive",
+    "reusable": true,
+    "screens": [
+     "(all)"
+    ],
+    "screenCount": 1,
+    "instanceCount": 1214,
+    "anatomy": [
+     "Square frame",
+     "VECTOR / BOOLEAN_OPERATION children"
+    ],
+    "tokens": {
+     "frames": "24 (×193), 22 (×67), 18 (×59), 16 (×53), 20, 14, 12, 11, 10, 9",
+     "fillColors": "{white} (94 vec), {gold} (128), {textSecondary} (15), {textMuted} (91), {success} (16), {textDisabled} (6), {error} (8)",
+     "strokeIcons": "nav inactive 1.5 {navInactive} / {textMuted}; My Earns icons 1.5 {gold}; streak icons 1 {gold}"
+    },
+    "notes": [
+     "No icon library/component is used; every glyph is a loose vector. 1,214 vectors total."
+    ]
+   },
+   {
+    "id": "appBar.back",
+    "name": "AppBar / Back header",
+    "category": "composite",
+    "reusable": true,
+    "screens": [
+     "165:1931",
+     "378:4290",
+     "377:3922",
+     "406:9862",
+     "429:23676",
+     "432:23967",
+     "418:18836",
+     "486:1739",
+     "429:21290",
+     "486:1868",
+     "486:1997",
+     "416:15593",
+     "429:21790",
+     "429:22526",
+     "429:23212",
+     "397:9099"
+    ],
+    "screenCount": 16,
+    "instanceCount": 18,
+    "anatomy": [
+     "BackHeader H center gap 12 P48/16/16/16",
+     "btn.icon.back 36",
+     "Title TEXT (wrapper 115×24)"
+    ],
+    "tokens": {
+     "height": 113,
+     "fill": "{surface}",
+     "padding": "48/16/16/16",
+     "gap": 12,
+     "title": "{titleMedium} {white}"
+    },
+    "variants": {
+     "default": "373×113 (×10)",
+     "dailyStreaks": "88 tall, plain 24 chevron, {titleMedium} (#397:9102)",
+     "auction": "72 tall P0/16 after a separate 59 status block (#429:21812)",
+     "auth": "P48/20/8/20, 80/92 tall, {titleMedium}, back button on OTP only (#97:5254, #129:126)",
+     "createAccount": "44 tall P0/20/8/20 (status handled by root) (#132:653)"
+    },
+    "evidence": [
+     "BackHeader#377:4222",
+     "BackHeader#97:5254",
+     "BackHeader#397:9102"
+    ],
+    "notes": [
+     "Sign In has NO back button; Verify OTP and Create Account do — intentional?",
+     "5 header heights for the same role."
+    ]
+   },
+   {
+    "id": "appBar.profile",
+    "name": "AppBar / Profile header (label + settings)",
+    "category": "composite",
+    "reusable": true,
+    "screens": [
+     "429:23362",
+     "427:20440",
+     "429:21182",
+     "429:22118",
+     "429:22828",
+     "429:21072",
+     "433:781",
+     "420:20093"
+    ],
+    "screenCount": 8,
+    "instanceCount": 8,
+    "anatomy": [
+     "Container H SB center P48/16/16/16",
+     "'Profile' eyebrow {overline} {textSecondary}",
+     "btn.icon.settings 24"
+    ],
+    "tokens": {
+     "height": "102 (88 on Refer)"
+    },
+    "evidence": [
+     "Container#429:23365"
+    ]
+   },
+   {
+    "id": "appBar.overVideo",
+    "name": "AppBar / Over-video top bar",
+    "category": "composite",
+    "reusable": true,
+    "screens": [
+     "25:2950",
+     "26:3104",
+     "28:3202",
+     "29:3649",
+     "30:3803",
+     "376:2650",
+     "384:6948",
+     "407:10391",
+     "388:8310",
+     "381:5991",
+     "378:4399",
+     "92:4859",
+     "432:24030",
+     "92:4525",
+     "36:4835",
+     "35:4491",
+     "30:3890"
+    ],
+    "screenCount": 17,
+    "instanceCount": 22,
+    "anatomy": [
+     "Container 374×95 gradient topBarScrim, H SB center P48/16/0/16",
+     "Left: empty 28×20 container (logo slot)",
+     "(unlocked variant) tag.exclusive left",
+     "Right: pill.points"
+    ],
+    "tokens": {
+     "height": 95,
+     "fill": "gradient {surface}→{surface@50%}→{surface@10%}"
+    },
+    "evidence": [
+     "Container#25:2957",
+     "Container#432:24037"
+    ],
+    "notes": [
+     "Left 28×20 container is EMPTY on every Home — a missing logo/menu asset."
+    ]
+   },
+   {
+    "id": "bottomNav",
+    "name": "BottomNav (client-approved library Nav Bar colours)",
+    "category": "composite",
+    "reusable": true,
+    "screens": [
+     "25:2950",
+     "26:3104",
+     "28:3202",
+     "29:3649",
+     "30:3803",
+     "376:2650",
+     "376:3272",
+     "378:4399",
+     "378:4464",
+     "381:5991",
+     "384:6948",
+     "384:7013",
+     "388:8310",
+     "407:10391",
+     "407:10456",
+     "414:12370",
+     "414:12502",
+     "427:20440",
+     "429:20692",
+     "429:21072",
+     "429:21182",
+     "429:21290",
+     "429:22118",
+     "429:22828",
+     "429:23362",
+     "429:23472",
+     "432:23866",
+     "432:24030",
+     "432:24098",
+     "432:24224",
+     "433:781",
+     "486:1739",
+     "486:1868",
+     "486:1997",
+     "92:4525",
+     "92:4615",
+     "92:4740",
+     "92:4859"
+    ],
+    "screenCount": 38,
+    "instanceCount": 38,
+    "anatomy": [
+     "Nav Bar H P12/20/12/20 gap 48",
+     "4 items V center P0/12 (48×38; active 48×43)",
+     "Item: icon frame 24 + label wrapper (gap 2/3) + active indicator 16×2 r1 gold with glow"
+    ],
+    "tokens": {
+     "height": 64,
+     "fill": "{navBar}",
+     "border": "top 1 {navBarOutline}",
+     "active": "{goldDeep} icon + label navLabel Bold",
+     "inactive": "{navInactive} icon (stroke 1.5) + label navLabel SemiBold",
+     "indicator": "16×2 r1 {goldCta} + glow.navIndicator",
+     "itemPadding": "0/12",
+     "itemGap": "space-between across 375 with 20 side padding",
+     "iconFrame": 24
+    },
+    "variants": {
+     "Active=Home": "×14",
+     "Active=P2P": "×4",
+     "Active=Rewards": "×16 (design used hand-built nav B — restyle to these colours)",
+     "Active=Profile": "×7 (same)"
+    },
+    "notes": [
+     "Design had two navs (library instance on Home/P2P, hand-built on Rewards/Profile/Badges). Client keeps the library colours; the hand-built screens adopt them. Rewards/Profile active variants must be added to the library component."
+    ],
+    "evidence": [
+     "Nav Bar#376:3608",
+     "Nav Bar#376:3886",
+     "BottomNav#429:20882 (to be restyled)"
+    ]
+   },
+   {
+    "id": "videoOverlay",
+    "name": "Home / Video player overlay",
+    "category": "pattern",
+    "reusable": true,
+    "screens": [
+     "25:2950",
+     "26:3104",
+     "28:3202",
+     "29:3649",
+     "30:3803",
+     "376:2650",
+     "384:6948",
+     "407:10391",
+     "388:8310",
+     "381:5991",
+     "378:4399",
+     "92:4859",
+     "432:24030",
+     "92:4525",
+     "36:4835",
+     "35:4491",
+     "30:3890"
+    ],
+    "screenCount": 17,
+    "instanceCount": 22,
+    "anatomy": [
+     "HomeScreen 375×747 fill {surface}",
+     "Image (Neon Noir) full-bleed",
+     "Scrim heroVideoScrim",
+     "appBar.overVideo",
+     "Action rail (4× btn.icon.actionRail) at 328,385",
+     "Meta block P0/16/16/16 gap 8 at y=651: Heading 2 ({headlineLarge} {white}) + meta row P4/0/0/0 gap 8 (studio {caption} {textSecondary} + 2× tag.genre)"
+    ],
+    "tokens": {
+     "videoHeight": "747 (812 − 64 nav − 1)",
+     "title": "{headlineLarge} {white}",
+     "metaGap": 8
+    },
+    "evidence": [
+     "HomeScreen#25:2953",
+     "Container#118:2"
+    ]
+   },
+   {
+    "id": "sheet.bottom",
+    "name": "BottomSheet (container)",
+    "category": "composite",
+    "reusable": true,
+    "screens": [
+     "36:4835",
+     "35:4491",
+     "30:3890",
+     "420:20093"
+    ],
+    "screenCount": 4,
+    "instanceCount": 4,
+    "anatomy": [
+     "Backdrop (scrim)",
+     "Container fill {surfaceCard} r20/20/0/0 top hairline {outline} shadow",
+     "sheetHandle",
+     "Content P0/20/32/20"
+    ],
+    "tokens": {
+     "radius": "20/20/0/0",
+     "fill": "{surfaceCard} (comments: gradient {surfaceCard}→{surfaceCard})",
+     "stroke": "top 1 {outline}",
+     "shadow": "DS(0,-18,28,0,{black@60%}) / {black@50%}",
+     "backdrop": "{surface@80%} (share/details/comments) / {surface@80%} (refer)",
+     "handle": "40×4 r2 {textMuted}, pad 12/8",
+     "contentPadding": "0/20/32/20"
+    },
+    "variants": {
+     "share": "h180: title {titleMedium} + 5 app discs 52 r26 (brand colours) with {caption} labels gap 8, row margin 20/24 (#36:4942)",
+     "videoDetails": "h423: title {headlineSmall} + tag.genre row + btn.icon.close; paragraph {bodyMedium} {textSecondary} (pt16); 'Cast' eyebrow {overline} {textMuted} (pt20); cast row avatars 52 gap 16 + {caption} centered (#35:4628)",
+     "comments": "h484: header row P0/20/16/20 SB (Comments {titleMedium} + close); list P0/20 gap 20 of commentCard; input.comment bar (#35:4273)",
+     "refer": "h350 no hairline/shadow: see referSheet (#420:20170)"
+    },
+    "evidence": [
+     "Container#36:4942",
+     "Container#35:4628",
+     "Container#35:4273"
+    ]
+   },
+   {
+    "id": "commentCard",
+    "name": "Comment card",
+    "category": "composite",
+    "reusable": true,
+    "screens": [
+     "30:3890"
+    ],
+    "screenCount": 1,
+    "instanceCount": 3,
+    "anatomy": [
+     "Row H gap 12",
+     "avatar 36",
+     "Column: header H gap 8 (@handle {titleSmall} {white}, time {caption} {textMuted}) → body Paragraph pt4 {bodySmall} {textSecondary} → actions row pt8 gap 16 (like icon 14 + count {caption} {textSecondary} gap 4; Reply 11 {textMuted})"
+    ],
+    "tokens": {
+     "gap": 12,
+     "avatar": 36
+    },
+    "evidence": [
+     "Container#35:4284"
+    ]
+   },
+   {
+    "id": "onboardingSlide",
+    "name": "Onboarding slide",
+    "category": "pattern",
+    "reusable": true,
+    "screens": [
+     "85:1662",
+     "85:1733",
+     "85:1803"
+    ],
+    "screenCount": 3,
+    "instanceCount": 3,
+    "anatomy": [
+     "Root fill {authSurface}",
+     "Image @0.3 opacity",
+     "Scrim onboardingScrim + radial vignette",
+     "Top bar P48/20/0/20 SB: btn.icon.back + btn.text skip",
+     "Content group @ (20,326) w333 gap 28: [tag.eyebrow; Heading {displayLarge} {white}] pb12 → [Paragraph Inter 14/23.8 {authTextSecondary} pb14; stat pill h37 r8 {gold@10%} p7/12 gap 8 ({labelLarge} {goldLight} + Inter 12 {authTextMuted}/{authTextMuted})] pb28 → 3 stat tiles 106×76 r12 {white@10%} stroke {white@10%} p12/6/10/6 (emoji 22 pb6 + {caption} {white@80%}) gap 8",
+     "CTA btn.primary 333×52 @ (20,733) with chevron"
+    ],
+    "tokens": {
+     "contentWidth": 333,
+     "sidePadding": 20,
+     "ctaBottom": "812−733−52 = 27"
+    },
+    "evidence": [
+     "OnboardingScreen#85:1664",
+     "Frame#85:1670"
+    ]
+   },
+   {
+    "id": "authForm",
+    "name": "Auth form (Sign In / OTP / Create Account)",
+    "category": "pattern",
+    "reusable": true,
+    "screens": [
+     "97:5251",
+     "128:70",
+     "129:125",
+     "129:179",
+     "132:651",
+     "130:410"
+    ],
+    "screenCount": 6,
+    "instanceCount": 6,
+    "anatomy": [
+     "Root fill {authSurface}",
+     "appBar.back (auth variant)",
+     "Content P24/24/32/24 gap 28 (24 on Create Account)",
+     "Heading block: {headlineMedium} {white} + paragraph pt8 {bodySmall} {authTextSecondary} (Inter on OTP/Create)",
+     "Field group(s): label + input.text gap 8; fields gap 18",
+     "btn.primary goldButton 325×54 (disabled until valid)",
+     "divider.withLabel",
+     "2× btn.social gap 10",
+     "Legal paragraph {caption} centered {authTextSecondary} with gold link spans (auto-margin to bottom)"
+    ],
+    "tokens": {
+     "sidePadding": 24,
+     "contentWidth": 325,
+     "blockGap": 28
+    },
+    "variants": {
+     "otp": "4× input.otp gap 12 centered; resend text Inter 13/19.5 centered; CTA Continue",
+     "createAccount": "gap 24; 2 fields (NAME, Referral Code (optional) lowercase span) gap 18; CTA Create Account outside content block"
+    },
+    "evidence": [
+     "Container#97:5260",
+     "Container#129:132",
+     "Container#132:659"
+    ]
+   },
+   {
+    "id": "statCard",
+    "name": "Stat card (3-up)",
+    "category": "composite",
+    "reusable": true,
+    "screens": [
+     "429:23362",
+     "427:20440",
+     "429:21182",
+     "429:22118",
+     "429:22828",
+     "429:21072",
+     "433:781",
+     "420:20093"
+    ],
+    "screenCount": 8,
+    "instanceCount": 24,
+    "anatomy": [
+     "Container V P12 gap 0 (106×73)",
+     "Value {numeralMd} {goldLight} centered",
+     "Label pt2 {caption} {textSecondary} centered"
+    ],
+    "tokens": {
+     "size": "106×73",
+     "radius": 12,
+     "fill": "{surfaceCard}",
+     "stroke": "{outline} 1",
+     "padding": 12,
+     "rowGap": 12
+    },
+    "evidence": [
+     "Container#429:23379"
+    ]
+   },
+   {
+    "id": "statRowCard",
+    "name": "Stat row card (P2P header: Rank / Streak / Points + badge progress)",
+    "category": "composite",
+    "reusable": true,
+    "screens": [
+     "376:3272",
+     "384:7013",
+     "407:10456",
+     "378:4464"
+    ],
+    "screenCount": 4,
+    "instanceCount": 4,
+    "anatomy": [
+     "Card 341×165 r16 fill {surfaceCard} stroke {outline} P12/14",
+     "3 columns (99/111/99) separated by 1×62 dividers: eyebrow {overline} {textMuted}; value {numeralMd} (#294) / 18/22 (5,000) {gold} or pill.points; sub {caption} {success} (+12 wk with 9 icon) / {caption} {textMuted}",
+     "Divider pt14",
+     "Badge row pt12 gap 10: emoji 20 + column (name {labelMedium} + 363/1000 {numeralPill} {white@60%} SB; progress.linear h5 pt5; caption {caption} {textMuted} pt4)"
+    ],
+    "tokens": {
+     "radius": 16,
+     "padding": "12/14"
+    },
+    "evidence": [
+     "Container#376:3278"
+    ]
+   },
+   {
+    "id": "gameCard",
+    "name": "Game card (P2P / Rewards list)",
+    "category": "composite",
+    "reusable": true,
+    "screens": [
+     "376:3272",
+     "384:7013",
+     "407:10456",
+     "378:4464",
+     "429:20692",
+     "429:23472",
+     "432:23866"
+    ],
+    "screenCount": 7,
+    "instanceCount": 21,
+    "anatomy": [
+     "Button wrapper 341×145 (V, fill)",
+     "Container 341×145 stroke {outline} r14 (clip)",
+     "Image 339×143 @1,1",
+     "Scrim A ({surface@90%}@0.3→{surface@20%}) + Scrim B ({surface@60%}→transparent@0.5)",
+     "Content H center P0/16 gap 12: column (tag.category in 33-tall slot; title {cardTitle} {Text-black/lg} {white}; subtitle pt4 {caption} {white@60%}) + btn.icon.back disc 36 as chevron",
+     "Ghost 20×20 container at (306,110)"
+    ],
+    "tokens": {
+     "size": "341×145",
+     "radius": 14,
+     "stroke": "{outline} 1",
+     "listGap": 10
+    },
+    "evidence": [
+     "Button#376:3336",
+     "Button#429:20756"
+    ],
+    "notes": [
+     "Uses the BACK-button disc as a forward chevron (same asset, same glyph direction 6×9 — check the arrow points right)."
+    ]
+   },
+   {
+    "id": "heroQuestCard",
+    "name": "Hero quest card (featured)",
+    "category": "composite",
+    "reusable": true,
+    "screens": [
+     "165:1931",
+     "378:4290"
+    ],
+    "screenCount": 2,
+    "instanceCount": 2,
+    "anatomy": [
+     "Container 341×329 fill transparent stroke {gold@40%} 1 r16 DS(0,4,24,{gold@10%}) clip",
+     "Image 339×140 + scrim ({surface@20%}→{surface@80%})",
+     "badge.status ACTIVE @ (13,13); pill.pointsOverImage @ (263,13)",
+     "Body fill {surfaceCard} P14/16/16/16: title row SB ({titleMedium} {white} + chip.timeLeft); desc pt4 {bodySmall} {textSecondary}; progress row P12/0/14/0 gap 10 (progress.linear h5 + '4 / 10' {numeralAction} {gold}); btn.primary cardCTA h42 'Track Progress'"
+    ],
+    "tokens": {
+     "radius": 16,
+     "imageHeight": 140
+    },
+    "evidence": [
+     "Container#165:1943"
+    ]
+   },
+   {
+    "id": "questListCard",
+    "name": "Quest list card",
+    "category": "composite",
+    "reusable": true,
+    "screens": [
+     "165:1931",
+     "378:4290"
+    ],
+    "screenCount": 2,
+    "instanceCount": 6,
+    "anatomy": [
+     "Card 341×129 gradient {surfaceCard}→{surfaceCard} stroke {outline} r10 (P0/12/10/12 gap 10)",
+     "Image 88×126 left (bleed)",
+     "Content P12/14 SB: pts {numeralPill} {gold}; title pt4 {titleSmall} {white}; desc pt3 {caption} {textMuted}; btn.secondary 'Start Quest' (pt10) or badge.status REWARD CLAIMED"
+    ],
+    "tokens": {
+     "radius": 10,
+     "listGap": 12
+    },
+    "states": {
+     "available": "Start Quest button",
+     "claimed": "image @0.4 + overlay {success@10%} + check 20 {success}; title {textMuted}; REWARD CLAIMED badge"
+    },
+    "evidence": [
+     "Container#165:1974",
+     "Container#165:2004"
+    ],
+    "notes": [
+     "Middle card (#165:1989) is wrapped in a second {surfaceCard} r14 container — inconsistent nesting."
+    ]
+   },
+   {
+    "id": "actionCard",
+    "name": "Quest action card (with curated content)",
+    "category": "composite",
+    "reusable": true,
+    "screens": [
+     "377:3922",
+     "382:6636"
+    ],
+    "screenCount": 2,
+    "instanceCount": 8,
+    "anatomy": [
+     "Card 341 fill {surfaceCard} stroke {outline} (or {success@30%} done / {success@30%}) r16",
+     "Header H center P14/14/12/14 gap 12: thumb 42 r10 image; column (title row gap 6: {titleSmall} {white} (+checkDisc 16 when done) ; desc pt3 {caption} {textMuted}); chip.counter",
+     "progress.linear h4 (P0/14)",
+     "Curated section pt12 (top hairline {outline}, P12/14/14/14): eyebrow {overline} {textMuted}; rows pt10 gap 8, each 36 tall gap 10–12: thumb 56×36 r6 (+ done overlay {goldCta@30%} check 12 {goldCta} / play overlay {surface@40%} icon 14 white); title {caption} ({textMuted} done / {white} todo); badge.status ✓ DONE or btn.primary mini 'Watch'"
+    ],
+    "tokens": {
+     "radius": 16,
+     "headerPadding": "14/14/12/14",
+     "thumb": 42
+    },
+    "states": {
+     "inProgress": "stroke {outline}, counter gold",
+     "complete": "stroke {success@30%}, title {textMuted}, checkDisc 16, counter success, bar {success} full"
+    },
+    "evidence": [
+     "Container#377:3960",
+     "Container#377:4010",
+     "Container#382:6723"
+    ]
+   },
+   {
+    "id": "progressSummaryCard",
+    "name": "Progress summary card (ring + text)",
+    "category": "composite",
+    "reusable": true,
+    "screens": [
+     "377:3922",
+     "382:6636"
+    ],
+    "screenCount": 2,
+    "instanceCount": 2,
+    "anatomy": [
+     "Card 341×88 fill {surfaceCard} stroke {outline} r14 H center P14/16 gap 16",
+     "progress.ring 58",
+     "Column: {labelLarge} {white} + pt3 {caption} {textMuted} (MIX gold span)"
+    ],
+    "tokens": {
+     "radius": 14
+    },
+    "evidence": [
+     "Container#377:3944"
+    ]
+   },
+   {
+    "id": "streakLevelCard",
+    "name": "Streak current-level card",
+    "category": "composite",
+    "reusable": false,
+    "screens": [
+     "397:9099"
+    ],
+    "screenCount": 1,
+    "instanceCount": 1,
+    "anatomy": [
+     "Card gradient {gold@10%}→{gold@10%} stroke {gold@40%} r16 P16",
+     "Row SB: [eyebrow {overline} {textMuted}; row pt5 gap 10: level disc 36 r10 {gold@20%} stroke {gold@40%} ({titleMedium} {yellow}) + column ({titleMedium} {white}; {caption} {gold})] / right column right-aligned (Inter 9 {textMuted}; {headlineSmall} {yellow}; Inter 9)",
+     "progress.steps pt14",
+     "caption pt10 {caption} MIX3"
+    ],
+    "tokens": {
+     "radius": 16,
+     "padding": 16
+    },
+    "evidence": [
+     "Container#397:9109"
+    ]
+   },
+   {
+    "id": "levelTrack",
+    "name": "Level track (4 steps)",
+    "category": "composite",
+    "reusable": false,
+    "screens": [
+     "397:9099"
+    ],
+    "screenCount": 1,
+    "instanceCount": 1,
+    "anatomy": [
+     "Card {surfaceCard} stroke {outline} r14 P14/16",
+     "Eyebrow",
+     "Row pt14: 4 steps [disc 32 r16 + label Inter 9 gap 5] with 36×2 connectors ({gold} done / {outline})"
+    ],
+    "tokens": {
+     "disc": {
+      "done": "{gold} fill, icon 14 {surface}",
+      "current": "{gold@20%} fill stroke 2 {gold}, {labelMedium} {yellow}, label {labelSmall} {gold}",
+      "locked": "{surfaceRaised} fill stroke {outline}, {labelMedium} {textDisabled}, label {textDisabled}"
+     }
+    },
+    "evidence": [
+     "Container#397:9140"
+    ]
+   },
+   {
+    "id": "miniStatCard",
+    "name": "Mini stat card (Streak now / Best / Active days)",
+    "category": "composite",
+    "reusable": true,
+    "screens": [
+     "397:9099",
+     "379:4980"
+    ],
+    "screenCount": 2,
+    "instanceCount": 6,
+    "anatomy": [
+     "Card 107×90 (107×79 on claimed screen) {surfaceCard} stroke {outline} r12 P12/14 (18/10/12/10)",
+     "Eyebrow {overline} {textMuted}",
+     "Value row pt4: optional 🔥 emoji 16; {headlineSmall} ({yellow} highlight / {white}); unit {caption} {textMuted}"
+    ],
+    "tokens": {
+     "size": "107×90",
+     "radius": 12,
+     "rowGap": 10
+    },
+    "evidence": [
+     "Container#397:9193",
+     "Container#379:5011"
+    ]
+   },
+   {
+    "id": "sessionCard",
+    "name": "Today's session card",
+    "category": "composite",
+    "reusable": false,
+    "screens": [
+     "397:9099"
+    ],
+    "screenCount": 1,
+    "instanceCount": 1,
+    "anatomy": [
+     "Card {surfaceCard} stroke {outline} r14 P14/16",
+     "Row SB: [eyebrow; value 22 {headlineMedium} {white} + '/ 45 min' Inter 12 {textMuted}] + chip.badgeEarned '23 min left' (h27 p5/12 {labelSmall})",
+     "progress.linear h5 pt10",
+     "caption pt6 Inter 10 {textMuted}"
+    ],
+    "tokens": {
+     "radius": 14
+    },
+    "evidence": [
+     "Container#397:9173"
+    ]
+   },
+   {
+    "id": "streakCalendar",
+    "name": "Streak calendar",
+    "category": "composite",
+    "reusable": false,
+    "screens": [
+     "397:9099"
+    ],
+    "screenCount": 1,
+    "instanceCount": 1,
+    "anatomy": [
+     "Card {surfaceCard} stroke {outline} r16 P16",
+     "Header SB: month {titleSmall} {white} + 2× btn.icon.back calendarNav 24 gap 4",
+     "Weekday row pt14: 7× {labelSmall} {textMuted} centered",
+     "Grid pt6: 7 cols × 5 rows of day tiles 41×30 r7 (col step 44, row step 33): level1 gradient {goldLevel1}→{goldLevel1} / level2 gradient {yellow}→{goldLight} with {caption} {surface} + 4×4 dot ({black@40%} / {surface}) at (35,24); future: no fill, label {textMuted}",
+     "Legend pt12 (top hairline, P12/0/0/0 gap 10): 12×12 r3 swatch + Inter 9 {textMuted}"
+    ],
+    "tokens": {
+     "dayTile": "41×30 r7",
+     "gridGap": "3 / 3"
+    },
+    "evidence": [
+     "Container#397:9215"
+    ]
+   },
+   {
+    "id": "badgeTile",
+    "name": "Badge tile (2-col grid)",
+    "category": "composite",
+    "reusable": true,
+    "screens": [
+     "414:12370",
+     "414:12502",
+     "397:9099"
+    ],
+    "screenCount": 3,
+    "instanceCount": 15,
+    "anatomy": [
+     "Card 166 wide fill {surfaceCard} stroke {outline} r14 P14/12",
+     "Icon disc 40 r10 (fill {gold@20%} stroke {gold@30%}, icon 18 {gold})",
+     "Name pt10 {labelMedium} {white}",
+     "Desc pt2 {caption} {textMuted}"
+    ],
+    "tokens": {
+     "width": 166,
+     "radius": 14,
+     "padding": "14/12",
+     "gridGap": "10 / 10"
+    },
+    "variants": {
+     "streakCentered": "166×135 P14/12 center: disc 44 r12 fill {gold@10%} stroke {gold@20%} icon 24; name pt10 {labelMedium} {goldLight}; desc pt3 Inter 10 centered; card stroke {gold@20%} (#397:9362)"
+    },
+    "states": {
+     "earned": "h113 as above",
+     "locked": "h124; disc {surfaceRaised} stroke {outline} icon 16 {textDisabled}; name {textDisabled}",
+     "current": "fill {gold@10%} stroke {gold@30%}; disc {gold@10%}; name {goldLight} (Expert #427:20568)"
+    },
+    "evidence": [
+     "Container#414:12424",
+     "Container#414:12556",
+     "Container#427:20568",
+     "Container#397:9362"
+    ]
+   },
+   {
+    "id": "badgeUnlockRow",
+    "name": "Badge-to-unlock row",
+    "category": "composite",
+    "reusable": true,
+    "screens": [
+     "397:9099"
+    ],
+    "screenCount": 1,
+    "instanceCount": 3,
+    "anatomy": [
+     "Card 341×100 {surfaceCard} stroke {outline} r14 H center P14 gap 14",
+     "Locked disc 44 r12 {surfaceRaised} stroke {outline} (icon 22 {outline}/{textDisabled})",
+     "Column: row SB ({titleSmall} {white} + '5d to go' Inter 10 {textMuted}); desc pt3 Inter 11 {textMuted}; progress.linear h4 pt8 (fill {gold}→{goldLight}); caption pt4 Inter 9 {textMuted}"
+    ],
+    "tokens": {
+     "radius": 14,
+     "padding": 14,
+     "listGap": 10
+    },
+    "evidence": [
+     "Container#397:9388"
+    ]
+   },
+   {
+    "id": "currentBadgeCard",
+    "name": "Current badge card (Rewards header)",
+    "category": "composite",
+    "reusable": true,
+    "screens": [
+     "414:12370",
+     "414:12502"
+    ],
+    "screenCount": 2,
+    "instanceCount": 2,
+    "anatomy": [
+     "Card 341×105 gradient highlightCardBg stroke {gold@30%} r14 H center P14/16 gap 14",
+     "Disc 52 r14 gradient {gold}→{goldLight} icon 26 {surface}",
+     "Column: eyebrow {overline} {textMuted}; Expert pt3 {titleMedium} {goldLight}; progress.linear h4 pt6; caption pt5 Inter 10 {textMuted}"
+    ],
+    "tokens": {
+     "radius": 14
+    },
+    "evidence": [
+     "Container#414:12401"
+    ]
+   },
+   {
+    "id": "pointsHeader",
+    "name": "Points header (Rewards / Badges)",
+    "category": "composite",
+    "reusable": true,
+    "screens": [
+     "429:20692",
+     "429:23472",
+     "432:23866",
+     "414:12370",
+     "414:12502"
+    ],
+    "screenCount": 5,
+    "instanceCount": 5,
+    "anatomy": [
+     "Header block gradient {surfaceCard}→{surface} (Rewards: {surface}→{surface}) bottom hairline {outline}, P50/16/0/16 gap 18",
+     "Top row SB: eyebrow 'Rewards' {overline} {textMuted} + segmented (Badges) — Rewards has empty paragraph slot",
+     "Points row P14/0/16/0 SB max-align: [Total Points Inter 11 {textMuted}; 7,082 {numeralDisplay} gradient {yellow}→{gold} + 'pts' Inter 12 {textMuted}] / right-aligned [Badge Inter 10; Expert {titleSmall} {gold}; 918 pts to Loyalist Inter 10]",
+     "(Badges) progress.linear h3 r0 fill {gold}→{yellow} full width"
+    ],
+    "tokens": {
+     "topPadding": 50
+    },
+    "evidence": [
+     "Container#429:20695",
+     "Container#414:12373"
+    ]
+   },
+   {
+    "id": "earnRow",
+    "name": "Earn row (My Earns)",
+    "category": "composite",
+    "reusable": true,
+    "screens": [
+     "486:1739",
+     "429:21290",
+     "486:1868",
+     "486:1997"
+    ],
+    "screenCount": 4,
+    "instanceCount": 16,
+    "anatomy": [
+     "Button 341×82 {surfaceCard} stroke {outline} r14 V center P14/14/12/14",
+     "Row gap 10: icon 24 stroke 1.5 {gold}; column ({titleSmall} {white}; pt2 {caption} {textMuted}); right column right-aligned ({numeralMd} {goldLight}; pt2 {caption} {textMuted} 'pts · 38%')",
+     "progress.linear h4 pt10 track {surfaceRaised} fill {gold@60%}→{goldLight@90%}"
+    ],
+    "tokens": {
+     "radius": 14,
+     "listGap": 10
+    },
+    "evidence": [
+     "Button#486:1760"
+    ]
+   },
+   {
+    "id": "activityRow",
+    "name": "Activity row (Daily streaks rewards log)",
+    "category": "composite",
+    "reusable": true,
+    "screens": [
+     "416:15593"
+    ],
+    "screenCount": 1,
+    "instanceCount": 15,
+    "anatomy": [
+     "Card 341×68 (86 with badge line) {surfaceCard} stroke {outline} ({gold@30%} badge days) r14 V P12/14 gap 0",
+     "Row gap 10 center: tile 42 r10 ({yellow@10%} stroke {yellow@20%} icon stroke {gold} + '15d' {labelSmall} {yellow} | LV1: {goldLevel1@10%} stroke {goldLevel1@20%}, 🔥 emoji 14, {labelMedium} {goldLevel1}); column (row gap 6: {titleSmall} {white} date + badge.level; pt3 Inter 11 {textMuted}; optional pt5 row gap 4: icon 11 {gold} + {labelSmall} {gold}); right column ({numeralSm} {goldLight} + pt2 Inter 10 {textMuted})"
+    ],
+    "tokens": {
+     "radius": 14,
+     "listGap": 8
+    },
+    "evidence": [
+     "Container#416:15651",
+     "Container#416:15676",
+     "Container#416:15821"
+    ]
+   },
+   {
+    "id": "summaryHeader",
+    "name": "Summary header (rewards detail screens)",
+    "category": "composite",
+    "reusable": true,
+    "screens": [
+     "416:15593",
+     "429:21790",
+     "429:22526",
+     "429:23212"
+    ],
+    "screenCount": 4,
+    "instanceCount": 4,
+    "anatomy": [
+     "Block fill {surface} bottom hairline {outline}, P0–1/16/16–45/16",
+     "Row SB max-align: [eyebrow {overline} {textMuted}; value row {numeralXl} {goldLight} + 'pts earned' Inter 12 {textMuted}] / right [label Inter 10 {textMuted}; value {numeralMd} ({yellow}/{success}/{success}); optional sub Inter 10]",
+     "(Daily streaks) legend row pt12 gap 8: 3× chip.legend"
+    ],
+    "tokens": {},
+    "evidence": [
+     "Container#416:15619",
+     "Container#429:21819",
+     "Container#429:22552",
+     "Container#429:23238"
+    ]
+   },
+   {
+    "id": "winCard",
+    "name": "Auction win card",
+    "category": "composite",
+    "reusable": true,
+    "screens": [
+     "429:21790"
+    ],
+    "screenCount": 1,
+    "instanceCount": 4,
+    "anatomy": [
+     "Card 341×161/165 {surfaceCard} stroke {outline} ({gold@30%} when badge) r16 clip",
+     "Image 339×80 + scrim {surface@90%}@0.4→{surface@30%} + overlay row P12/14 SB: [badge.status neutral h20 + {titleSmall} {white} title] + badge.status WON",
+     "Body P10/14/12/14: row SB (Inter 11 {textMuted} date; 'Winning bid: 12,500 CP' Inter 11 MIX2); hairline pt8; row pt10 SB: (+200 {numeralMd} {goldLight} + 'pts awarded' Inter 11 {textMuted}) + optional chip.badgeEarned"
+    ],
+    "tokens": {
+     "radius": 16,
+     "listGap": 10
+    },
+    "evidence": [
+     "Container#429:21838"
+    ]
+   },
+   {
+    "id": "predictionHistoryCard",
+    "name": "Prediction history card",
+    "category": "composite",
+    "reusable": true,
+    "screens": [
+     "429:22526"
+    ],
+    "screenCount": 1,
+    "instanceCount": 3,
+    "anatomy": [
+     "Card 341×199/202 {surfaceCard} stroke {outline} ({gold@30%}) r14 V P13/14",
+     "Row SB: date Inter 11 {textMuted} + [2X {labelSmall} {goldLight} + badge.status CORRECT/INCORRECT]",
+     "Title pt8 {titleSmall} {white}; question pt2 Inter 11 {textMuted}",
+     "Row pt10 gap 8: 2× box 152×50 {surface} r8 P7/10 (eyebrow {overline} {textMuted}; pt2 {titleSmall} {white} / {success} / {error})",
+     "hairline pt12; footer pt10 SB: +250 {numeralMd} {goldLight} (— {textDisabled} when lost) + pts awarded + chip.badgeEarned"
+    ],
+    "tokens": {
+     "radius": 14,
+     "listGap": 8
+    },
+    "evidence": [
+     "Container#429:22575"
+    ]
+   },
+   {
+    "id": "questHistoryCard",
+    "name": "Quest history card",
+    "category": "composite",
+    "reusable": true,
+    "screens": [
+     "429:23212"
+    ],
+    "screenCount": 1,
+    "instanceCount": 5,
+    "anatomy": [
+     "Card 341×151/152 {surfaceCard} stroke {outline} ({gold@30%}) r16 V P14",
+     "Row SB: date range Inter 11 {textMuted} + badge.status CLAIMED / PARTIAL",
+     "Title pt10 {titleSmall} {white}; sub pt4 Inter 11 {textMuted}",
+     "hairline pt12; footer pt12 SB: +500 {numeralMd} {goldLight} + pts awarded Inter 11 + optional chip.badgeEarned"
+    ],
+    "tokens": {
+     "radius": 16,
+     "listGap": 10
+    },
+    "evidence": [
+     "Container#429:23256"
+    ]
+   },
+   {
+    "id": "predictionCard",
+    "name": "Prediction card (listing)",
+    "category": "composite",
+    "reusable": true,
+    "screens": [
+     "406:9862"
+    ],
+    "screenCount": 1,
+    "instanceCount": 3,
+    "anatomy": [
+     "Card 341×287 stroke {white@10%} ({outline} resolved) r16 clip",
+     "Image 339×130 + scrim {surface@40%}→{surface@90%}; top row @ (12,10) SB: pill.multiplier + pill.pointsOverImage; title @ (12,102) {labelLarge} {white}",
+     "Body {surfaceCard} P12/14/14/14: question Inter 13/19.5 {white}; pt12 block: YES/NO row {caption} ({yellow} / {error}; resolved {success}) SB; progress.linear h5 pt5 fill {yellow} ({success}); '80% of players voted' pt4 Inter 10 {textMuted}; btn.tonal 'Cast Your Vote' h40 pt12 or Reward Claimed banner h38 {success@10%} stroke {success@20%} r10 P9/14 gap 8 (icon 14 + {labelMedium} {success})"
+    ],
+    "tokens": {
+     "radius": 16,
+     "listGap": 12
+    },
+    "evidence": [
+     "Container#406:9886",
+     "Container#406:9946"
+    ]
+   },
+   {
+    "id": "predictionDetail",
+    "name": "Prediction detail screen",
+    "category": "pattern",
+    "reusable": false,
+    "screens": [
+     "408:10663"
+    ],
+    "screenCount": 1,
+    "instanceCount": 1,
+    "anatomy": [
+     "Hero 373×256: image 180 + scrim {surface@60%}→{surface}; btn.icon.back @ (16,52); title row @ (16,186) SB: [eyebrow {labelSmall} {textMuted}; 'Neon Noir' {displaySmall} {Text-extrabold/3xl}] + multiplier card 86×46 {goldLight@10%} stroke {goldLight@30%} r8 P6/12 (2X {titleMedium} {goldLight}; MULTIPLIER Inter 9 +0.72 {goldLight@60%})",
+     "Body P0/16/189/16 gap 59: countdown card {surfaceCard} stroke {outline} r12 P12/16 SB (live dot 7 r3.5 {success} glow + 'Voting closes in' {caption} {textSecondary}; 06:14:22 {numeralMd} {white}); question block (eyebrow {overline}; pt10 {headlineSmall} {white}); 'What others think' + '12.4K voted' Inter 11; split bar h6 r4 ({success} 211 / {error} 130) pt8; YES — 62% / NO — 38% {titleSmall} ({success}/{error}) pt8; paragraph pt10 Inter 12/19.2 {textMuted}; 'Cast your vote · +500 pts' eyebrow; 2× btn.tonal vote 166×56 gap 10 pt12"
+    ],
+    "tokens": {},
+    "evidence": [
+     "Prediction game#408:10663"
+    ]
+   },
+   {
+    "id": "profileScreen",
+    "name": "Profile screen",
+    "category": "pattern",
+    "reusable": true,
+    "screens": [
+     "429:23362",
+     "427:20440",
+     "429:21182",
+     "429:22118",
+     "429:22828",
+     "429:21072",
+     "433:781",
+     "420:20093"
+    ],
+    "screenCount": 8,
+    "instanceCount": 8,
+    "anatomy": [
+     "appBar.profile",
+     "Header block P16 center: avatar 80 (pb10) + name {titleLarge} {white} + btn.text 'Edit profile'",
+     "3× statCard row P0/16 gap 12",
+     "Upgrade row P16/16/0/16: {surfaceRaised} r12 P14/16 SB (Upgrade Subscription {titleSmall} + pt2 {caption} {textSecondary}; btn.primary small 'Upgrade')",
+     "Menu list P16/16/32/16: 5× menuRow + destructive Logout row",
+     "bottomNav Active=Profile"
+    ],
+    "tokens": {},
+    "evidence": [
+     "ProfileScreen#429:23364"
+    ]
+   },
+   {
+    "id": "menuRow",
+    "name": "Menu row",
+    "category": "primitive",
+    "reusable": true,
+    "screens": [
+     "429:23362",
+     "427:20440",
+     "429:21182",
+     "429:22118",
+     "429:22828",
+     "429:21072",
+     "433:781",
+     "420:20093"
+    ],
+    "screenCount": 8,
+    "instanceCount": 48,
+    "anatomy": [
+     "Button H SB center P16/0 h54, bottom hairline {outline}",
+     "Label {bodyMedium} {white}",
+     "Chevron icon 16 (5×8 {textMuted})"
+    ],
+    "tokens": {
+     "height": 54,
+     "divider": "bottom 1 {outline}"
+    },
+    "variants": {
+     "destructive": "h53, gap 8, leading icon 18 {error} + label {error}, no hairline (Logout #429:23429)"
+    },
+    "evidence": [
+     "Button#429:23404",
+     "Button#429:23429"
+    ]
+   },
+   {
+    "id": "editProfileForm",
+    "name": "Edit profile form",
+    "category": "pattern",
+    "reusable": false,
+    "screens": [
+     "418:18836"
+    ],
+    "screenCount": 1,
+    "instanceCount": 1,
+    "anatomy": [
+     "appBar.back",
+     "Content P0/20 gap 49: avatar block P16/0 center (avatar 80 ring {gold@30%} + camera badge; change-photo button slot 93×28 EMPTY)",
+     "'About You' eyebrow {overline} {textSecondary}; fields pt14 gap 16: input.text app variant ×3 (Full Name / Email ID / Phone No.)",
+     "btn.primary 325×52 'Save Changes' (SB-aligned label — centered visually) pb16"
+    ],
+    "tokens": {},
+    "evidence": [
+     "EditProfileScreen#418:18839"
+    ],
+    "notes": [
+     "Button#418:18855 (93×28) is an empty frame — missing 'Change photo' label."
+    ]
+   },
+   {
+    "id": "referSheet",
+    "name": "Refer-a-friend sheet",
+    "category": "pattern",
+    "reusable": false,
+    "screens": [
+     "420:20093"
+    ],
+    "screenCount": 1,
+    "instanceCount": 1,
+    "anatomy": [
+     "Scrim {surface@80%}",
+     "Sheet {surfaceCard} r20/20/0/0 h350; handle P12/4",
+     "Content P0/20/32/20: title row SB ({titleMedium} + btn.icon.close); code card pt16 {surfaceRaised} r12 P14/16 SB (Your Referral Code {caption} {textSecondary} pb4; CH8362 {numeralLg} {goldLight}; btn.outline copyCode); apps row P20/0/24/0: 4× disc 48 r24 ({brand.whatsapp} / {brand.telegram} / {brand.instagram} / {textMuted}) {titleMedium} white letter + {caption} {textSecondary} label gap 8; btn.primary 'Refer a friend'"
+    ],
+    "tokens": {},
+    "evidence": [
+     "Container#420:20170"
+    ]
+   },
+   {
+    "id": "subscribeScreen",
+    "name": "Subscribe (paywall) screen",
+    "category": "pattern",
+    "reusable": false,
+    "screens": [
+     "433:1005"
+    ],
+    "screenCount": 1,
+    "instanceCount": 1,
+    "anatomy": [
+     "Root {surface} (free-form absolute layout)",
+     "'PREMIUM ACCESS' {labelSmall} {gold} @ (16,61); title {displaySmall} {Text-extrabold/3xl} {white} 341 wide @ (16,88)",
+     "Feature rows @ (16,188) gap 12: 341×71 {surfaceCard} stroke {outline} r12 H SB P14/16 ({titleSmall} {white} + pt2 {caption} {textSecondary}; UNLOCK chip h25 r20 {gold@10%} stroke {gold} {labelSmall} {gold})",
+     "'Why Subscribe?' {titleSmall} {textSecondary} @ (16,457); bullets pt12 gap 12: checkDisc feature18 + {bodySmall} {textSecondary}",
+     "btn.primary 325×52 'Subscribe Now' @ (24,730)"
+    ],
+    "tokens": {},
+    "evidence": [
+     "P2PUnsubscribedScreen#433:1007"
+    ],
+    "notes": [
+     "No app bar / close affordance on the paywall.",
+     "CTA inset 24 while content inset 16."
+    ]
+   },
+   {
+    "id": "streakIntro",
+    "name": "Daily Streak intro",
+    "category": "pattern",
+    "reusable": false,
+    "screens": [
+     "396:8686"
+    ],
+    "screenCount": 1,
+    "instanceCount": 1,
+    "anatomy": [
+     "Root {surface}; image @0.5; 3 scrims (radial + 2 linear)",
+     "Content @ y452 P0/24/48/24 gap 19: [eyebrow {labelSmall} {textSecondary}; 'The Daily Ritual' {displayLarge} {Text-black/4xl}] gap 8; info card {surfaceCard} stroke {outline} r12 P14/16 gap 12 ({titleSmall} {primary300 → {goldDeep}} + pt4 Inter 12/19.2 {textMuted}); paragraph Inter 13/21.45 {textMuted}; btn.primary 'Start My Streak'"
+    ],
+    "tokens": {
+     "sidePadding": 24,
+     "bottomPadding": 48
+    },
+    "evidence": [
+     "DailyStreaksIntroScreen#396:8688"
+    ]
+   },
+   {
+    "id": "completionModal",
+    "name": "Weekly quest completion modal",
+    "category": "pattern",
+    "reusable": true,
+    "screens": [
+     "382:6636"
+    ],
+    "screenCount": 1,
+    "instanceCount": 1,
+    "anatomy": [
+     "Scrim {surface@90%} (bottom-aligned)",
+     "Sheet {surfaceCard} top hairline {outline} r24/24/0/0 P8/24/40/24 DS(0,-8,32,{black@50%}); handle 36×3 {outline} pt14",
+     "Icon row pt28 gap 16: box 64 r16 {surfaceCard} stroke {outline} icon 34 (trophy gold); column (dot 6 {success} + 'Quest Completed' {overline} {success}; 'Congratulations' {headlineMedium} {Text-bold/2xl})",
+     "Paragraph pt20 Inter 13/22.1 MIX3",
+     "Divider {surfaceRaised} pt20",
+     "Stat cards P20/0/24/0 gap 10: 158×78 {surfaceCard} stroke {outline} r12 P14 (eyebrow {overline}; +500 {numeralLg} {goldLight} + pts Inter 11 | Badge Unlocked / Cinematic Visionary {labelMedium} {Text-semibold/xs} {gold})",
+     "btn.primary 'Claim Reward'"
+    ],
+    "tokens": {
+     "radius": 24,
+     "padding": "8/24/40/24"
+    },
+    "evidence": [
+     "WeeklyCompletionModal#382:6799"
+    ]
+   },
+   {
+    "id": "successDrawer",
+    "name": "Success drawer (7-day ritual) — OFF-SYSTEM",
+    "category": "pattern",
+    "reusable": false,
+    "screens": [
+     "404:9787"
+    ],
+    "screenCount": 1,
+    "instanceCount": 1,
+    "anatomy": [
+     "Root 390×812 fill {white} + {surface}; bg image + {black@60%} blur 4",
+     "Backdrop {black@40%}; Drawer Shell 390×490 {surface@80%} bg-blur 32 top stroke {outline@30%} r24/24/0/0; handle 40×4 {outline} r9999 P12/24",
+     "Glowing badge @ (155,0): disc 80 {yellow} r9999 icon 32×36 {surface} + halo 80 {yellow@20%} layer-blur 64",
+     "Headline @ y104 {titleLarge} {white} DS(0,0,20,{yellow@40%}); body @ y140 {bodyMedium} {textSecondary@80%} centered",
+     "Bento row @ y210 gap 16: 2× 152×79 {surfaceRaised} stroke {outline@20%} r8 P8/0 center (REWARD Inter 10/15 +1 {textSecondary@70%}; +500 {numeralSm} {yellow} + Points Inter 10/18 {textSecondary@60%} | NEW STATUS; icon 15×14 {yellow} + Streak Master {caption} {Text-medium/xs} {white})",
+     "btn.primary 325×52 'Claim Reward' @ (33,313); btn.text dismiss 'CONTINUE WATCHING' @ y361"
+    ],
+    "tokens": {},
+    "evidence": [
+     "Successs state#404:9787"
+    ],
+    "notes": [
+     "Frame is 390 wide (not 375), uses 9 hexes that appear nowhere else ({surface}, {surfaceRaised}, {outline}, {outline}, {textSecondary}, {textSecondary}, {white}, {yellow}, {surface}) and a 7th font family. Treat as a concept, not a spec."
+    ]
+   },
+   {
+    "id": "unlockOverlay",
+    "name": "Exclusive-content unlock overlay (Home)",
+    "category": "pattern",
+    "reusable": true,
+    "screens": [
+     "432:24098",
+     "92:4615",
+     "432:24224",
+     "92:4740"
+    ],
+    "screenCount": 4,
+    "instanceCount": 4,
+    "anatomy": [
+     "Router: overlay Container 373×812 gradient unlockOverlay @0.81 over a Home copy (HomeScreen 375×747 + BottomNav B 375×64)",
+     "Header slot 373×83: tag.exclusive @ (16,56)",
+     "Center block 456 tall P0/0/8/0 center: lock disc 60 r30 {gold@10%} stroke 1.5 {gold@50%} icon 26 (17×23 {gold}) pb14; 'BTS Video' {headlineSmall} {white} pb6; gap 33; 'Unlocks for' Inter 12/18 {textSecondary} pb4 + '500 Points' {numeralMd} {goldLight} (MIX2)",
+     "Preview card P0/16/14/16: {surfaceCard} stroke {outline} r14 P14/16 (Preview eyebrow {labelSmall} {textMuted}; pt6 {bodySmall} {textSecondary}; divider pt12; Cast & Crew eyebrow pt10; pt5 {titleSmall} {gold})",
+     "btn.primary 333×52 'Unlock Now' @ (16,0) in 80-tall slot"
+    ],
+    "tokens": {},
+    "variants": {
+     "confirm": "replaces preview card with ExclusiveUnlockSheet P0/20/32/20: {headlineSmall} title; pt8 {bodyMedium} {textSecondary} paragraph; pt20 row {surfaceRaised} r12 P14/16 SB (Point Deduction {overline} {textSecondary}; 500 POINTS {numeralMd} {goldLight}); btn.primary 'Confirm & Unlock'"
+    },
+    "evidence": [
+     "Container#432:24117",
+     "ExclusiveUnlockSheet#432:24260"
+    ]
+   },
+   {
+    "id": "exclusiveLibrary",
+    "name": "Exclusive content library",
+    "category": "pattern",
+    "reusable": true,
+    "screens": [
+     "429:23676",
+     "432:23967"
+    ],
+    "screenCount": 2,
+    "instanceCount": 2,
+    "anatomy": [
+     "appBar.back 'Exclusive Content'",
+     "chip.filter row P0/16/16/16 gap 8 (Recommended active + Horror/Thriller/New)",
+     "Grid 373 wide: 3 cols × 3 rows of 119×179 r12 tiles (x 4/127/250, y 0/183/365 → gap 4): image tile or locked tile {outline} with lock icon 24 (16×21 {textMuted})"
+    ],
+    "tokens": {
+     "tile": "119×179 r12",
+     "gap": 4
+    },
+    "evidence": [
+     "ExclusiveLibraryScreen#429:23677"
+    ],
+    "notes": [
+     "Grid has 4px outer inset instead of the app's 16 — likely unfinished."
+    ]
+   },
+   {
+    "id": "auctionScreen",
+    "name": "Live auction screen — ONE-OFF concept",
+    "category": "pattern",
+    "reusable": false,
+    "screens": [
+     "418:18052"
+    ],
+    "screenCount": 1,
+    "instanceCount": 1,
+    "anatomy": [
+     "Root 375×812 gradient auctionBg (free-form, no auto-layout)",
+     "Hero image 375×229 + scrim auctionHeroScrim; btn.icon.back (fill {authContainer}) @ (16,36); pill.points @ (244,40)",
+     "LIVE badge + '1,204 watching' {caption} {textSecondary} @ (16,149); eyebrow {labelSmall} {textSecondary} @ y195; title {headlineMedium} -1 {white}; desc {bodySmall} {textSecondary}; 'View More' Golos Bold 12 underline {gold}",
+     "Bid cards @ y341 gap 12: 2× 166×88 gradient auctionBidCard stroke {gold@30%} r12 P14/16 DS(0,4,16,{gold@10%}) (label {caption} {textSecondary} pb4; value {numeralLg} gradient {goldCta}→{goldLight}→{gold})",
+     "Bid History eyebrow {overline} {textSecondary}; rows gap 8: 343×59 r10 P10/12 gap 10 (top: {goldCta@10%} stroke {goldLight@20%} DS(0,4,16,{goldLight@10%}); others gradient {surfaceCard}→{surfaceCard} stroke {outline}): avatar 36 bg {pointsPillBg} + name {titleSmall} ({gold} top) / Golos SemiBold 13 + time {caption} {textMuted} + amount {numeralPill} ({goldLight} / {textSecondary})",
+     "Bid sheet 375×132 @ y680 gradient auctionBidSheet top stroke {gold@30%} r16/16/0/0 DS(0,-3,30,{gold@20%}) P0/0/0/16: input.bid 325×40 + btn.primary bid 85×39 gap 142; increments row 4× btn.outline bidIncrement"
+    ],
+    "tokens": {},
+    "evidence": [
+     "OPTION 1 - Auction#418:18052"
+    ],
+    "notes": [
+     "Labelled 'OPTION 1' — exploratory. Mixed fonts (Golos), unique gradients, absolute positioning. Do not tokenize beyond what is shared (back button, points pill, LIVE badge)."
+    ]
+   },
+   {
+    "id": "splash",
+    "name": "Splash (placeholder only)",
+    "category": "pattern",
+    "reusable": false,
+    "screens": [
+     "36:5658"
+    ],
+    "screenCount": 1,
+    "instanceCount": 1,
+    "anatomy": [
+     "Frame 360×800 with gradient fill splashBg",
+     "Pasted screenshot 260×80 at (50,360) (logo)"
+    ],
+    "tokens": {
+     "background": "gradient splashBg (12 stops {surface} → {goldLight})"
+    },
+    "evidence": [
+     "OPTION 1 - Auction#36:5658",
+     "Screenshot#36:5659"
+    ],
+    "notes": [
+     "Not a real design — a screenshot import. Splash needs to be designed; only the background gradient is usable."
+    ]
+   }
+  ],
+  "usageMatrix": {
+   "85:1662": [
+    "btn.primary",
+    "btn.text",
+    "btn.icon.back",
+    "tag.eyebrow",
+    "onboardingSlide"
+   ],
+   "85:1733": [
+    "btn.primary",
+    "btn.text",
+    "btn.icon.back",
+    "tag.eyebrow",
+    "onboardingSlide"
+   ],
+   "85:1803": [
+    "btn.primary",
+    "btn.text",
+    "btn.icon.back",
+    "tag.eyebrow",
+    "onboardingSlide"
+   ],
+   "128:70": [
+    "btn.primary",
+    "btn.social",
+    "btn.icon.back",
+    "input.text",
+    "divider",
+    "authForm"
+   ],
+   "129:179": [
+    "btn.primary",
+    "btn.text",
+    "btn.icon.back",
+    "input.otp",
+    "divider",
+    "authForm"
+   ],
+   "130:410": [
+    "btn.primary",
+    "btn.icon.back",
+    "input.text",
+    "divider",
+    "authForm"
+   ],
+   "165:1931": [
+    "btn.primary",
+    "btn.secondary",
+    "btn.icon.back",
+    "badge.status",
+    "pill.pointsOverImage",
+    "chip.timeLeft",
+    "progress.linear",
+    "appBar.back",
+    "heroQuestCard",
+    "questListCard"
+   ],
+   "378:4290": [
+    "btn.primary",
+    "btn.secondary",
+    "btn.icon.back",
+    "badge.status",
+    "pill.pointsOverImage",
+    "chip.timeLeft",
+    "progress.linear",
+    "appBar.back",
+    "heroQuestCard",
+    "questListCard"
+   ],
+   "432:24030": [
+    "btn.primary",
+    "btn.icon.actionRail",
+    "tag.genre",
+    "tag.exclusive",
+    "pill.points",
+    "appBar.overVideo",
+    "bottomNav",
+    "videoOverlay"
+   ],
+   "92:4525": [
+    "btn.primary",
+    "btn.icon.actionRail",
+    "tag.genre",
+    "tag.exclusive",
+    "pill.points",
+    "appBar.overVideo",
+    "bottomNav",
+    "videoOverlay"
+   ],
+   "432:24098": [
+    "btn.primary",
+    "btn.icon.actionRail",
+    "tag.genre",
+    "tag.exclusive",
+    "pill.points",
+    "divider",
+    "bottomNav",
+    "unlockOverlay"
+   ],
+   "92:4615": [
+    "btn.primary",
+    "btn.icon.actionRail",
+    "tag.genre",
+    "tag.exclusive",
+    "pill.points",
+    "divider",
+    "bottomNav",
+    "unlockOverlay"
+   ],
+   "432:24224": [
+    "btn.primary",
+    "btn.icon.actionRail",
+    "tag.genre",
+    "tag.exclusive",
+    "pill.points",
+    "bottomNav",
+    "unlockOverlay"
+   ],
+   "92:4740": [
+    "btn.primary",
+    "btn.icon.actionRail",
+    "tag.genre",
+    "tag.exclusive",
+    "pill.points",
+    "bottomNav",
+    "unlockOverlay"
+   ],
+   "418:18836": [
+    "btn.primary",
+    "btn.icon.back",
+    "avatar",
+    "appBar.back",
+    "editProfileForm"
+   ],
+   "420:20093": [
+    "btn.primary",
+    "btn.outline",
+    "btn.icon.close",
+    "btn.icon.settings",
+    "avatar",
+    "sheetHandle",
+    "appBar.profile",
+    "sheet.bottom",
+    "statCard",
+    "profileScreen",
+    "menuRow",
+    "referSheet"
+   ],
+   "433:1005": [
+    "btn.primary",
+    "checkDisc",
+    "subscribeScreen"
+   ],
+   "396:8686": [
+    "btn.primary",
+    "streakIntro"
+   ],
+   "382:6636": [
+    "btn.primary",
+    "btn.text",
+    "badge.status",
+    "chip.counter",
+    "chip.timeLeft",
+    "progress.linear",
+    "progress.ring",
+    "divider",
+    "checkDisc",
+    "sheetHandle",
+    "actionCard",
+    "progressSummaryCard",
+    "completionModal"
+   ],
+   "404:9787": [
+    "btn.primary",
+    "btn.text",
+    "sheetHandle",
+    "successDrawer"
+   ],
+   "379:4980377:3922": [
+    "btn.primary"
+   ],
+   "406:9862": [
+    "btn.tonal",
+    "btn.icon.back",
+    "badge.status",
+    "pill.pointsOverImage",
+    "pill.multiplier",
+    "progress.linear",
+    "appBar.back",
+    "predictionCard"
+   ],
+   "408:10663": [
+    "btn.tonal",
+    "btn.icon.back",
+    "predictionDetail"
+   ],
+   "418:18052": [
+    "btn.outline",
+    "btn.text",
+    "btn.icon.back",
+    "badge.status",
+    "pill.points",
+    "avatar",
+    "auctionScreen"
+   ],
+   "97:5251": [
+    "btn.social",
+    "btn.icon.back",
+    "input.text",
+    "divider",
+    "authForm"
+   ],
+   "429:23362": [
+    "btn.text",
+    "btn.icon.settings",
+    "avatar",
+    "appBar.profile",
+    "bottomNav",
+    "statCard",
+    "profileScreen",
+    "menuRow"
+   ],
+   "427:20440": [
+    "btn.text",
+    "btn.icon.settings",
+    "avatar",
+    "appBar.profile",
+    "bottomNav",
+    "statCard",
+    "profileScreen",
+    "menuRow"
+   ],
+   "429:21182": [
+    "btn.text",
+    "btn.icon.settings",
+    "avatar",
+    "appBar.profile",
+    "bottomNav",
+    "statCard",
+    "profileScreen",
+    "menuRow"
+   ],
+   "429:22118": [
+    "btn.text",
+    "btn.icon.settings",
+    "avatar",
+    "appBar.profile",
+    "bottomNav",
+    "statCard",
+    "profileScreen",
+    "menuRow"
+   ],
+   "429:22828": [
+    "btn.text",
+    "btn.icon.settings",
+    "avatar",
+    "appBar.profile",
+    "bottomNav",
+    "statCard",
+    "profileScreen",
+    "menuRow"
+   ],
+   "429:21072": [
+    "btn.text",
+    "btn.icon.settings",
+    "avatar",
+    "appBar.profile",
+    "bottomNav",
+    "statCard",
+    "profileScreen",
+    "menuRow"
+   ],
+   "433:781": [
+    "btn.text",
+    "btn.icon.settings",
+    "avatar",
+    "appBar.profile",
+    "bottomNav",
+    "statCard",
+    "profileScreen",
+    "menuRow"
+   ],
+   "35:4491": [
+    "btn.text",
+    "btn.icon.close",
+    "btn.icon.actionRail",
+    "tag.genre",
+    "pill.points",
+    "avatar",
+    "sheetHandle",
+    "appBar.overVideo",
+    "videoOverlay",
+    "sheet.bottom"
+   ],
+   "30:3890": [
+    "btn.text",
+    "btn.icon.close",
+    "btn.icon.actionRail",
+    "tag.genre",
+    "pill.points",
+    "avatar",
+    "sheetHandle",
+    "appBar.overVideo",
+    "videoOverlay",
+    "sheet.bottom",
+    "commentCard"
+   ],
+   "129:125": [
+    "btn.text",
+    "btn.icon.back",
+    "input.otp",
+    "divider",
+    "authForm"
+   ],
+   "132:651": [
+    "btn.icon.back",
+    "input.text",
+    "divider",
+    "authForm"
+   ],
+   "377:3922": [
+    "btn.icon.back",
+    "badge.status",
+    "chip.counter",
+    "progress.linear",
+    "progress.ring",
+    "divider",
+    "checkDisc",
+    "appBar.back",
+    "actionCard",
+    "progressSummaryCard"
+   ],
+   "429:23676": [
+    "btn.icon.back",
+    "chip.filter",
+    "appBar.back",
+    "exclusiveLibrary"
+   ],
+   "432:23967": [
+    "btn.icon.back",
+    "chip.filter",
+    "appBar.back",
+    "exclusiveLibrary"
+   ],
+   "486:1739": [
+    "btn.icon.back",
+    "segmented",
+    "progress.linear",
+    "divider",
+    "appBar.back",
+    "bottomNav",
+    "earnRow"
+   ],
+   "429:21290": [
+    "btn.icon.back",
+    "segmented",
+    "progress.linear",
+    "divider",
+    "appBar.back",
+    "bottomNav",
+    "earnRow"
+   ],
+   "486:1868": [
+    "btn.icon.back",
+    "segmented",
+    "progress.linear",
+    "divider",
+    "appBar.back",
+    "bottomNav",
+    "earnRow"
+   ],
+   "486:1997": [
+    "btn.icon.back",
+    "segmented",
+    "progress.linear",
+    "divider",
+    "appBar.back",
+    "bottomNav",
+    "earnRow"
+   ],
+   "416:15593": [
+    "btn.icon.back",
+    "badge.level",
+    "chip.legend",
+    "appBar.back",
+    "activityRow",
+    "summaryHeader"
+   ],
+   "429:21790": [
+    "btn.icon.back",
+    "badge.status",
+    "chip.badgeEarned",
+    "divider",
+    "appBar.back",
+    "summaryHeader",
+    "winCard"
+   ],
+   "429:22526": [
+    "btn.icon.back",
+    "badge.status",
+    "chip.badgeEarned",
+    "divider",
+    "appBar.back",
+    "summaryHeader",
+    "predictionHistoryCard"
+   ],
+   "429:23212": [
+    "btn.icon.back",
+    "badge.status",
+    "chip.badgeEarned",
+    "divider",
+    "appBar.back",
+    "summaryHeader",
+    "questHistoryCard"
+   ],
+   "397:9099": [
+    "btn.icon.back",
+    "chip.badgeEarned",
+    "progress.linear",
+    "progress.steps",
+    "appBar.back",
+    "streakLevelCard",
+    "levelTrack",
+    "miniStatCard",
+    "sessionCard",
+    "streakCalendar",
+    "badgeTile",
+    "badgeUnlockRow"
+   ],
+   "379:4980": [
+    "btn.icon.back",
+    "badge.status",
+    "checkDisc",
+    "miniStatCard"
+   ],
+   "376:3272": [
+    "btn.icon.back",
+    "tag.category",
+    "progress.linear",
+    "divider",
+    "bottomNav",
+    "statRowCard",
+    "gameCard"
+   ],
+   "384:7013": [
+    "btn.icon.back",
+    "tag.category",
+    "progress.linear",
+    "divider",
+    "bottomNav",
+    "statRowCard",
+    "gameCard"
+   ],
+   "407:10456": [
+    "btn.icon.back",
+    "tag.category",
+    "progress.linear",
+    "divider",
+    "bottomNav",
+    "statRowCard",
+    "gameCard"
+   ],
+   "378:4464": [
+    "btn.icon.back",
+    "tag.category",
+    "progress.linear",
+    "divider",
+    "bottomNav",
+    "statRowCard",
+    "gameCard"
+   ],
+   "429:20692": [
+    "btn.icon.back",
+    "tag.category",
+    "progress.linear",
+    "divider",
+    "bottomNav",
+    "gameCard",
+    "pointsHeader"
+   ],
+   "429:23472": [
+    "btn.icon.back",
+    "tag.category",
+    "progress.linear",
+    "divider",
+    "bottomNav",
+    "gameCard",
+    "pointsHeader"
+   ],
+   "432:23866": [
+    "btn.icon.back",
+    "tag.category",
+    "progress.linear",
+    "divider",
+    "bottomNav",
+    "gameCard",
+    "pointsHeader"
+   ],
+   "25:2950": [
+    "btn.icon.actionRail",
+    "tag.genre",
+    "pill.points",
+    "appBar.overVideo",
+    "bottomNav",
+    "videoOverlay"
+   ],
+   "26:3104": [
+    "btn.icon.actionRail",
+    "tag.genre",
+    "pill.points",
+    "appBar.overVideo",
+    "bottomNav",
+    "videoOverlay"
+   ],
+   "28:3202": [
+    "btn.icon.actionRail",
+    "tag.genre",
+    "pill.points",
+    "appBar.overVideo",
+    "bottomNav",
+    "videoOverlay"
+   ],
+   "29:3649": [
+    "btn.icon.actionRail",
+    "tag.genre",
+    "pill.points",
+    "appBar.overVideo",
+    "bottomNav",
+    "videoOverlay"
+   ],
+   "30:3803": [
+    "btn.icon.actionRail",
+    "tag.genre",
+    "pill.points",
+    "appBar.overVideo",
+    "bottomNav",
+    "videoOverlay"
+   ],
+   "376:2650": [
+    "btn.icon.actionRail",
+    "tag.genre",
+    "pill.points",
+    "appBar.overVideo",
+    "bottomNav",
+    "videoOverlay"
+   ],
+   "384:6948": [
+    "btn.icon.actionRail",
+    "tag.genre",
+    "pill.points",
+    "appBar.overVideo",
+    "bottomNav",
+    "videoOverlay"
+   ],
+   "407:10391": [
+    "btn.icon.actionRail",
+    "tag.genre",
+    "pill.points",
+    "appBar.overVideo",
+    "bottomNav",
+    "videoOverlay"
+   ],
+   "388:8310": [
+    "btn.icon.actionRail",
+    "tag.genre",
+    "pill.points",
+    "appBar.overVideo",
+    "bottomNav",
+    "videoOverlay"
+   ],
+   "381:5991": [
+    "btn.icon.actionRail",
+    "tag.genre",
+    "pill.points",
+    "appBar.overVideo",
+    "bottomNav",
+    "videoOverlay"
+   ],
+   "378:4399": [
+    "btn.icon.actionRail",
+    "tag.genre",
+    "pill.points",
+    "appBar.overVideo",
+    "bottomNav",
+    "videoOverlay"
+   ],
+   "92:4859": [
+    "btn.icon.actionRail",
+    "tag.genre",
+    "pill.points",
+    "appBar.overVideo",
+    "bottomNav",
+    "videoOverlay"
+   ],
+   "36:4835": [
+    "btn.icon.actionRail",
+    "tag.genre",
+    "pill.points",
+    "sheetHandle",
+    "appBar.overVideo",
+    "videoOverlay",
+    "sheet.bottom"
+   ],
+   "414:12370": [
+    "segmented",
+    "tab.pill",
+    "progress.linear",
+    "bottomNav",
+    "badgeTile",
+    "currentBadgeCard",
+    "pointsHeader"
+   ],
+   "414:12502": [
+    "segmented",
+    "tab.pill",
+    "progress.linear",
+    "bottomNav",
+    "badgeTile",
+    "currentBadgeCard",
+    "pointsHeader"
+   ],
+   "(all)": [
+    "icon"
+   ],
+   "36:5658": [
+    "splash"
+   ]
+  },
+  "screenRegistry": {
+   "25:2950": "Home",
+   "26:3104": "Home (Liked Video)",
+   "36:5658": "OPTION 1 - Auction (splash screenshot)",
+   "85:1662": "Intro Screen 1",
+   "85:1733": "Intro Screen 2",
+   "85:1803": "Intro Screen 3",
+   "97:5251": "Sign In",
+   "128:70": "Sign In (Filled)",
+   "129:125": "Verify OTP",
+   "129:179": "Verify OTP (Filled)",
+   "132:651": "User's name",
+   "130:410": "User's name (Filled)",
+   "28:3202": "Home",
+   "36:4835": "Share video",
+   "29:3649": "Home",
+   "35:4491": "Video details",
+   "30:3803": "Home",
+   "30:3890": "Video comments",
+   "165:1931": "Weekly Quest listing",
+   "376:2650": "Home",
+   "376:3272": "P2P",
+   "377:3922": "Weekly quest track progress",
+   "397:9099": "Daily Streak",
+   "384:6948": "Home",
+   "384:7013": "P2P",
+   "407:10391": "Home",
+   "407:10456": "P2P",
+   "406:9862": "Prediction Game listing",
+   "408:10663": "Prediction game",
+   "429:20692": "Rewards",
+   "418:18052": "OPTION 1 - Auction",
+   "429:23472": "Rewards",
+   "429:23676": "Exclusive content",
+   "432:23866": "Rewards",
+   "432:23967": "Exclusive content",
+   "432:24030": "Home (exclusive unlocked)",
+   "432:24098": "Home (unlock overlay)",
+   "432:24224": "Home (unlock confirm)",
+   "414:12370": "Badges / Earned",
+   "414:12502": "Badges / Locked",
+   "429:23362": "Router (Profile)",
+   "418:18836": "Edit profile",
+   "427:20440": "Profile",
+   "486:1739": "My earns & rewards",
+   "416:15593": "Daily streaks rewards",
+   "429:21182": "Profile",
+   "429:21290": "My earns & rewards",
+   "429:21790": "Rewards / Live auction",
+   "429:22118": "Profile",
+   "486:1868": "My earns & rewards",
+   "429:22526": "Rewards / Prediction Games",
+   "429:22828": "Profile",
+   "486:1997": "My earns & rewards",
+   "429:23212": "Weekly Quest Rewards",
+   "429:21072": "Profile",
+   "420:20093": "Refer a friend",
+   "433:781": "Profile",
+   "433:1005": "Subscribe",
+   "388:8310": "Home",
+   "396:8686": "Daily Streak Intro",
+   "404:9787": "Successs state",
+   "381:5991": "Home",
+   "382:6636": "WeeklyQuestProgressScreen",
+   "378:4290": "Weekly Quest listing",
+   "378:4399": "Home",
+   "378:4464": "P2P",
+   "379:4980": "Completed weekly quest details",
+   "92:4859": "Home",
+   "92:4525": "Home (exclusive unlocked)",
+   "92:4615": "Home (unlock overlay)",
+   "92:4740": "Home (unlock confirm)"
+  },
+  "buildOrder": [
+   [
+    "1 tokens",
+    "ThemeData: ColorScheme (semantic.json) + TextTheme (typography.json) + spacing/radius/elevation constants (layout.json)"
+   ],
+   [
+    "2 primitives (by reuse)",
+    "icon (1214) → btn.icon.actionRail (96) → menuRow (48) → tag.genre (42) → btn.icon.back (41) → progress.linear (39) → badge.status (36) → pill.points (27) → btn.primary (24) → statCard (24) → divider (24) → tag.category (21) → btn.text (20) → avatar (19) → badge.level (15) → checkDisc (14) → input.text (8) → input.otp (8) → chip.filter (8) → chip.counter (8) → chip.badgeEarned (8) → segmented (6) → tag.eyebrow (6) → tag.exclusive (6) → sheetHandle (6) → pill.pointsOverImage (5) → btn.outline (5) → btn.social (4) → btn.tonal (4) → tab.pill (4) → btn.icon.close (3) → chip.timeLeft (3) → chip.legend (3) → pill.multiplier (3) → progress.ring (2) → progress.steps (1)"
+   ],
+   [
+    "3 composites (by reuse)",
+    "bottomNav (38) → appBar.overVideo (22) → videoOverlay (22) → gameCard (21) → appBar.back (18) → earnRow (16) → activityRow (15) → badgeTile (15) → appBar.profile (8) → profileScreen (8) → actionCard (8) → questListCard (6) → miniStatCard (6) → pointsHeader (5) → questHistoryCard (5) → sheet.bottom (4) → statRowCard (4) → summaryHeader (4) → winCard (4) → unlockOverlay (4) → commentCard (3) → predictionCard (3) → predictionHistoryCard (3) → badgeUnlockRow (3) → heroQuestCard (2) → progressSummaryCard (2) → currentBadgeCard (2) → exclusiveLibrary (2)"
+   ],
+   [
+    "4 patterns / one-offs",
+    "onboardingSlide (6) → authForm (6) → completionModal → streakLevelCard, levelTrack, sessionCard, streakCalendar (Daily Streak) → predictionDetail → editProfileForm → referSheet → subscribeScreen → streakIntro → splash → (defer) auctionScreen, successDrawer"
+   ]
+  ]
+ },
+ "decisions": [
+  {
+   "topic": "Library scope",
+   "decision": "Only the gluestack 'Semantic colors' collection Visuals binds is kept, and only the 6 variables actually painted — recorded as their rendered hex under final token names (navBar, navBarOutline, goldDeep, navInactive, gold). The 61 unbound variables and all Light/Dark columns are gone: the app is dark-only, so 'mode' is a library artefact, and the rendered value is the truth."
+  },
+  {
+   "topic": "Bottom nav",
+   "decision": "Library Nav Bar colours kept per client preference (bg #0D1C25, hairline #112532, active #B99C48, inactive #67899E). Hand-built nav on Rewards/Profile/Badges/Unlock screens is restyled to them; structure/auto-layout from the library component; indicator colour normalised to goldCta."
+  },
+  {
+   "topic": "Fonts",
+   "decision": "Four families kept: Poppins (display voice), DM Sans (UI), Inter (small print), Oswald (numerals). Dropped Sora (3-letter 'PTS' only), Golos Text (Auction concept), Plus Jakarta Sans (Success concept) — each was one font file for ≤26 glyph instances."
+  },
+  {
+   "topic": "Type scale",
+   "decision": "174 design combinations → 18 text roles + 7 numeral roles. Poppins is confined to display/headline/CTA; every 13–14px title becomes DM Sans SemiBold 14; every caption becomes Inter 11; auth headings 26→24 (the design already uses 24 on Sign In (Filled)); auth screen headers 16→18 to share the app-bar title role."
+  },
+  {
+   "topic": "Accessibility",
+   "decision": "8px and 9px text raised to 10 (labels/overlines/nav) and 11 (captions). Nothing under 10sp remains."
+  },
+  {
+   "topic": "Secondary text",
+   "decision": "Two greys: textSecondary #8FA0B3 and textMuted #7A93AB. #C8D4E0 (prediction questions) promoted to white; #B0BEC8/#A3B1C1/#8A9AB0 → textSecondary; #848F99 → textMuted. Auth: authTextSecondary #A8998A (absorbs #9A8878, #A0907E) and authTextMuted #7A6A58 (absorbs #867159)."
+  },
+  {
+   "topic": "Dark surfaces",
+   "decision": "Navy: surface #0C0F16, surfaceCard #13171F, surfaceRaised #1A1F2B, outline #1F2535 — 4 tokens replace 20 hexes (#0F1117 modal → surfaceCard; #292828 vote buttons → surfaceRaised; #232938/#2A3040/#1C2A38 → outline). Warm: authSurface #0D0B08, authContainer #141008, authOutline #2A2018 (#1D170C back-button disc → authContainer)."
+  },
+  {
+   "topic": "Gold family",
+   "decision": "gold #C9A24B (brand/primary), goldCta #FFDC78 (fills; absorbs #FFD966), goldLight #E6CB86 (numerals), goldDeep #B99C48 (nav active), goldLevel1 #A8874A (absorbs #8B6914, #635025), yellow #FFD700 (absorbs #FFD54F, #F2CA14). #D2AE5D/#BF9A49/#997D3D/#957B30 → gold; #514730 avatar ring → gold@30%."
+  },
+  {
+   "topic": "Status",
+   "decision": "success #2ECC71 (absorbs #6FCF97, #3D8C5F); error #EB5757 (absorbs #FF4444 logout, #E05252, #FF3333 LIVE, #7A3030). Warning = yellow. Info = seed-derived."
+  },
+  {
+   "topic": "Alpha",
+   "decision": "Design alphas snapped to 10% steps; conventions: tint fill 10/20%, tint border 30/40%, disabled 30/50%, glow 40/20/50%, scrim 80%, placeholder 50%, on-image text 60%, hairline 10%."
+  },
+  {
+   "topic": "onPrimary",
+   "decision": "#0C0F16 (surface) on all gold — the design split 13 large CTAs (#0D0B08) vs 17 small buttons (#0C0F16); one ink is enough and matches the app surface."
+  },
+  {
+   "topic": "Gradients",
+   "decision": "9 kept, re-expressed in final tokens; per-screen unique gradients on Auction/Success/Streak-intro collapsed into heroScrim / onboardingScrim / headerFade. Points-pill stroke approximated goldCta→goldLevel1 (design #FFD067→#635025)."
+  },
+  {
+   "topic": "Geometry",
+   "decision": "Spacing 2/4/8/12/16/20/24/32; radius 4/8/12/16/20/24/full (card 16, CTA & input 12, small button 8); icons 12/16/20/24/32; CTA 52, button 32, input 52, app bar 56 + status."
+  },
+  {
+   "topic": "States",
+   "decision": "Derived from each component's own colour (Material state layers 8/12%, disabled 30/50%, focus glow 20%). Light theme, info, toggles, toasts, empty/loading states left to ColorScheme.fromSeed(gold, dark) for now."
+  },
+  {
+   "topic": "Icons",
+   "decision": "Icon font for single-colour glyphs, SVG for multi-colour marks."
+  },
+  {
+   "topic": "Out of scope",
+   "decision": "Auction (418:18052), Success state (404:9787) and the splash screenshot (36:5658) are concepts; their unique values are mapped to the nearest kept token, not tokenised."
+  }
+ ],
+ "openItems": [
+  "Nav Bar library component needs Rewards/Profile active variants (only Home/P2P exist).",
+  "Home top-left 28×20 slot is empty on every Home — logo or menu?",
+  "Edit Profile 'change photo' button (93×28) is an empty frame.",
+  "Splash screen is a screenshot placeholder — needs a design.",
+  "Input error state, toggles/checkbox/radio, toast, empty/loading/error screens, Notifications screen — not designed; seed/derived rules apply until they are.",
+  "Confirm the points-pill stroke gradient approximation and the 8/9px → 10/11px size bumps with design."
+ ]
+}

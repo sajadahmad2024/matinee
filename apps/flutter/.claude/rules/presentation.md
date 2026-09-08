@@ -11,10 +11,11 @@ paths:
 
 ## Theme
 
-- `ThemeData` is the single source of truth. Colours come from `Theme.of(context).colorScheme`, semantic tokens from `context.appColors`, text styles from `Theme.of(context).textTheme`. No `Colors.x`, no `Color(0xFF...)`, no inline `TextStyle`, no brightness checks in widgets.
-- Spacing is `AppSpacing.*` only: `xxs` 4, `xs` 6, `sm` 8, `md` 12, `lg` 16, `xlg` 24, `xxlg` 32. `Column(spacing:)` and `Row(spacing:)` over `SizedBox` gaps. `EdgeInsets.symmetric` or `.only`, never `.fromLTRB`.
+- `ThemeData` is the single source of truth in code, and `docs/design/` (design-system.md, design-component-catalogue.md, design-system.json) is the source of truth for what the theme contains. Colours come from `Theme.of(context).colorScheme`, app roles and gradients from `context.appColors`, text styles from `Theme.of(context).textTheme`. No `Colors.x`, no `Color(0xFF...)`, no inline `TextStyle`, no brightness checks in widgets. The app is dark-only.
+- A value or component that is not in `docs/design/` is a stop, not a judgment call: report what is missing and confirm with the user before anything is added to the theme or the docs. Never a "close enough" hex, size or Material default in its place.
+- Spacing is `AppSpacing.*` only; the scale mirrors `docs/design/design-system.md` §6 and is not extended from a widget. `Column(spacing:)` and `Row(spacing:)` over `SizedBox` gaps. `EdgeInsets.symmetric` or `.only`, never `.fromLTRB`.
 - Component styling lives in `AppTheme`, not on widget instances. `FilledButton` is the default button; `ElevatedButton` is not used.
-- A new semantic colour is a field on `AppColors` (with `copyWith` and `lerp`), not a constant near the widget. A Figma variable maps to an existing `ColorScheme` role, `TextTheme` role or `AppSpacing` value first; a new token is added only when nothing fits.
+- A new semantic colour is a field on `AppColors` (with `copyWith` and `lerp`), not a constant near the widget. A Figma value maps to its `docs/design/` entry — `ColorScheme` role, `AppColors` role, `TextTheme` role or `AppSpacing` value — via `.claude/skills/implement-screen/references/figma-mapping.md`; a token is added only after the user confirms it is missing, and then to the docs and the theme together.
 
 ## Strings
 
