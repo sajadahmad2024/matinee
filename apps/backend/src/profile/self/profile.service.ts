@@ -19,6 +19,7 @@ import { ReferralRepository } from '@db/repositories/auth/referral.repository';
 import { ActiveSubscription, SubscriptionRepository } from '@db/repositories/subscriptions/subscription.repository';
 import { LeaderboardRepository, MyRank } from '@db/repositories/progression/leaderboard.repository';
 import { TokenService } from '@auth/services/token.service';
+import { FirebaseAdminService } from '@auth/services/firebase-admin.service';
 import { QueueService } from '@queue/queue.service';
 import { JobName, QueueName } from '@queue/queue.constant';
 import { UpdateProfileDto } from '../dto/update-profile.dto';
@@ -60,6 +61,7 @@ export class ProfileService {
     private readonly tokens: TokenService,
     private readonly queue: QueueService,
     private readonly db: DBService,
+    private readonly firebase: FirebaseAdminService,
   ) {}
 
   /** Current leaderboard period key ('YYYY-MM-01'). */
@@ -233,6 +235,36 @@ export class ProfileService {
       }
       await this.identity.consumeOtp(otp.id, tx);
       const row = await this.profiles.updateProfile(userId, { email, isEmailVerified: true }, tx);
+      if (!row) {
+        throw new NotFoundException('Profile not found');
+      }
+      return row;
+    });
+    await this.cache.invalidateTag(this.tag(userId));
+    return updated;
+  }
+
+  // ─── Phone update (Firebase-only) ──────────────────────────────────────────────
+  //
+  // The client runs Firebase Phone Auth and posts the resulting Firebase ID token here.
+  // The phone number lives inside the token (Firebase already verified it), so there's
+  // no server-side OTP send/verify. One call:
+  //   Bearer + { firebaseToken } → verify token → uniqueness check → write users.phone.
+
+  async updatePhoneFromFirebase(userId: string, firebaseToken: string): Promise<ProfileRecord> {
+    const identity = await this.firebase.verifyIdToken(firebaseToken).catch(() => {
+      throw new UnauthorizedException('Firebase token is invalid or expired');
+    });
+    const phone = identity.phone;
+    if (!phone) {
+      throw new UnauthorizedException('Firebase token has no verified phone number');
+    }
+    const updated = await this.db.transaction(async (tx) => {
+      const conflict = await this.users.findByPhone(phone, tx);
+      if (conflict && conflict.id !== userId) {
+        throw new ConflictException('That phone number is already in use');
+      }
+      const row = await this.profiles.updateProfile(userId, { phone, isPhoneVerified: true }, tx);
       if (!row) {
         throw new NotFoundException('Profile not found');
       }

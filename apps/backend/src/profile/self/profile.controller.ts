@@ -13,6 +13,7 @@ import { ProfileService } from './profile.service';
 import { UpdateProfileDto } from '../dto/update-profile.dto';
 import { EarnsQueryDto } from '../dto/profile-query.dto';
 import { RequestEmailOtpDto, VerifyEmailOtpDto } from '../dto/verify-email.dto';
+import { UpdatePhoneDto } from '../dto/verify-phone.dto';
 import {
   LedgerEntryDto,
   ProfileDto,
@@ -91,5 +92,16 @@ export class ProfileController {
     @Body() dto: VerifyEmailOtpDto,
   ) {
     return this.profile.confirmEmailVerification(userId, email, dto.code);
+  }
+
+  // ── Phone update (Firebase-only: client verifies via Firebase Phone Auth, posts token) ──
+
+  @Patch('phone')
+  @Throttle({ short: { limit: 5, ttl: 60_000 }, long: { limit: 20, ttl: 30 * 60_000 } })
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Update phone from a Firebase Phone Auth ID token' })
+  @ApiEnvelope(ProfileDto)
+  updatePhone(@CurrentUser('id') userId: string, @Body() dto: UpdatePhoneDto) {
+    return this.profile.updatePhoneFromFirebase(userId, dto.firebaseToken);
   }
 }

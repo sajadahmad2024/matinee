@@ -88,6 +88,7 @@ const phoneVerificationProvider = {
   // Exported so the global guards/interceptor (registered in AppModule) can resolve them.
   // HashingService is exported for reuse by other modules (e.g. profile email verification).
   // OtpChallengeGuard is exported so feature modules can attach it per-route.
-  exports: [TokenService, SessionService, HashingService, OtpChallengeGuard],
+  // FirebaseAdminService is exported for the profile phone-change flow (verifies Firebase ID tokens).
+  exports: [TokenService, SessionService, HashingService, OtpChallengeGuard, FirebaseAdminService],
 })
 export class AuthModule {}
