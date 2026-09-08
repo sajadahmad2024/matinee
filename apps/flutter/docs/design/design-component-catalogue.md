@@ -1646,12 +1646,14 @@
 1. Pasted screenshot 260×80 at (50,360) (logo)
 
 **Tokens**
-- background: gradient splashBg (12 stops {surface} → {goldLight})
+- background: gradient `splashBg` ({surface}@0 → {surfaceCard}@0.62 → {surfaceRaised}@1; the design's 12 stops ramp into gold past the viewport and never render)
+- logo: `assets/images/splash-logo.png`, 260x80
 
 **Evidence:** `OPTION 1 - Auction#36:5658`, `Screenshot#36:5659`
 
 **Notes**
 - Not a real design — a screenshot import. Splash needs to be designed; only the background gradient is usable.
+- Implemented 2026-09-08 on the startup route: background gradient plus the supplied raster logo, centred and alone as the design draws it. The wordmark and tagline have no text roles; a vector logo and a real layout are still outstanding.
 
 **Screens:** 36:5658 (OPTION 1 - Auction (splash screenshot))
 

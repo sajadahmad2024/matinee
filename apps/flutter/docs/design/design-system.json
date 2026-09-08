@@ -553,6 +553,26 @@
     ],
     "use": "P2P/Rewards/Badges header block background",
     "evidence": "Container#414:12373 (#376:3275 used a warm start #131008 → normalised)"
+   },
+   "splashBg": {
+    "type": "linear",
+    "angle": "top→bottom",
+    "stops": [
+     [
+      "{surface}",
+      0
+     ],
+     [
+      "{surfaceCard}",
+      0.62
+     ],
+     [
+      "{surfaceRaised}",
+      1
+     ]
+    ],
+    "use": "splash screen background (design: 12 stops #0C0E16→#F6D471 running to 467%; only the first fifth renders inside an 800dp frame, so the visible band is normalised onto the surface tokens)",
+    "evidence": "Frame#36:5658"
    }
   },
   "mappingFromDesign": {
@@ -4793,7 +4813,8 @@
      "Screenshot#36:5659"
     ],
     "notes": [
-     "Not a real design — a screenshot import. Splash needs to be designed; only the background gradient is usable."
+     "Not a real design — a screenshot import. Splash needs to be designed; only the background gradient is usable.",
+     "Implemented 2026-09-08: background is gradient splashBg; the logo is assets/images/splash-logo.png, a raster stand-in for a vector wordmark."
     ]
    }
   ],
@@ -5564,7 +5585,7 @@
   },
   {
    "topic": "Gradients",
-   "decision": "9 kept, re-expressed in final tokens; per-screen unique gradients on Auction/Success/Streak-intro collapsed into heroScrim / onboardingScrim / headerFade. Points-pill stroke approximated goldCta→goldLevel1 (design #FFD067→#635025)."
+   "decision": "10 kept, re-expressed in final tokens; per-screen unique gradients on Auction/Success/Streak-intro collapsed into heroScrim / onboardingScrim / headerFade. Points-pill stroke approximated goldCta→goldLevel1 (design #FFD067→#635025). splashBg added 2026-09-08: the splash frame 12-stop ramp into gold is normalised to surface→surfaceCard→surfaceRaised because the gold stops sit below the 800dp viewport and never render."
   },
   {
    "topic": "Geometry",
@@ -5587,7 +5608,7 @@
   "Nav Bar library component needs Rewards/Profile active variants (only Home/P2P exist).",
   "Home top-left 28×20 slot is empty on every Home — logo or menu?",
   "Edit Profile 'change photo' button (93×28) is an empty frame.",
-  "Splash screen is a screenshot placeholder — needs a design.",
+  "Splash screen is a screenshot placeholder — needs a design. Built 2026-09-08 from the normalised splashBg gradient plus a supplied assets/images/splash-logo.png wordmark; the wordmark and tagline still have no text roles, so a vector logo and a real layout are outstanding.",
   "Input error state, toggles/checkbox/radio, toast, empty/loading/error screens, Notifications screen — not designed; seed/derived rules apply until they are.",
   "Confirm the points-pill stroke gradient approximation and the 8/9px → 10/11px size bumps with design."
  ]

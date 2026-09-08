@@ -248,7 +248,7 @@ Dark-only. Roles not listed here (surfaceDim/Bright, inverse*, info, fixed/dim v
 | `calendar.day.future` | `transparent` |
 | `calendar.day.today` | `{gold@10%} + border {gold@40%}` |
 
-## 4. Gradients (9)
+## 4. Gradients (10)
 | Name | Type | Stops | Use | Evidence |
 |---|---|---|---|---|
 | `heroScrim` | linear top→bottom | `{goldCta@10%}`@0, `{surface@30%}`@0.2, `{surface@0%}`@0.4, `{surface@40%}`@0.6, `{surface@85%}`@0.85, `{surface}`@1 | over full-bleed video/poster on Home | Container#25:2956 |
@@ -260,6 +260,7 @@ Dark-only. Roles not listed here (surfaceDim/Bright, inverse*, info, fixed/dim v
 | `pointsPillStroke` | linear top→bottom | `{goldCta}`@0, `{goldLevel1}`@1 | 1px stroke of the points pill (design: #FFD067→#635025; approximated to kept tokens) | Background+Border#25:3071 |
 | `goldNumeral` | linear  | `{yellow}`@0, `{gold}`@1 | hero total-points numeral text fill | 7,082#429:20868 |
 | `headerFade` | linear top→bottom | `{surfaceCard}`@0, `{surface}`@1 | P2P/Rewards/Badges header block background | Container#414:12373 (#376:3275 used a warm start #131008 → normalised) |
+| `splashBg` | linear top→bottom | `{surface}`@0, `{surfaceCard}`@0.62, `{surfaceRaised}`@1 | splash screen background (design: 12 stops #0C0E16→#F6D471 running to 467%; only the first fifth renders inside an 800dp frame, so the visible band is normalised onto the surface tokens) | Frame#36:5658 |
 
 ### Design hex → token map
 `#0C0F16`→`surface`, `#0C0E16`→`surface`, `#0A1119`→`surface`, `#0A0E14`→`surface`, `#131008`→`surface`, `#0D0E10`→`surface`, `#080B10`→`surface`, `#101419`→`surface`, `#241A00`→`surface`, `#162D29`→`surface`, `#0E141E`→`surface`, `#0F1419`→`surface`, `#0F1117`→`surfaceCard`, `#101923`→`surfaceCard`, `#13171F`→`surfaceCard`, `#13161E`→`surfaceCard`, `#111B27`→`surfaceCard`, `#0F1820`→`surfaceCard`, `#111A24`→`surfaceCard`, `#14171F`→`surfaceCard`, `#1A1F2B`→`surfaceRaised`, `#292828`→`surfaceRaised`, `#161920`→`surfaceRaised`, `#181C21`→`surfaceRaised`, `#3C3E3A`→`surfaceRaised`, `#423F36`→`surfaceRaised`, `#1E252B`→`surfaceRaised`, `#282D2E`→`surfaceRaised`, `#313432`→`surfaceRaised`, `#1F2535`→`outline`, `#232938`→`outline`, `#2A3040`→`outline`, `#1C2A38`→`outline`, `#31353B`→`outline`, `#4D4634`→`outline`, `#3D3D3D`→`outline`, `#3A4050`→`textDisabled`, `#4A5568`→`textDisabled`, `#0F2D44`→`pointsPillBg`, `#0D1C25`→`navBar`, `#112532`→`navBarOutline`, `#67899E`→`navInactive`, `#FFFFFF`→`white`, `#FEFEFF`→`white`, `#C8D4E0`→`white`, `#FFF5E1`→`white`, `#8FA0B3`→`textSecondary`, `#B0BEC8`→`textSecondary`, `#A3B1C1`→`textSecondary`, `#8A9AB0`→`textSecondary`, `#D0C6AE`→`textSecondary`, `#C6C6C9`→`textSecondary`, `#CACACA`→`textSecondary`, `#7A93AB`→`textMuted`, `#848F99`→`textMuted`, `#9B8D6D`→`textMuted`, `#0D0B08`→`authSurface`, `#141008`→`authContainer`, `#1D170C`→`authContainer`, `#3F392C`→`authContainer`, `#2A2018`→`authOutline`, `#5D5032`→`authOutline`, `#514730`→`gold@30`, `#4C3B16`→`gold`, `#A8998A`→`authTextSecondary`, `#9A8878`→`authTextSecondary`, `#A0907E`→`authTextSecondary`, `#7A6A58`→`authTextMuted`, `#867159`→`authTextMuted`, `#C9A24B`→`gold`, `#D2AE5D`→`gold`, `#BF9A49`→`gold`, `#997D3D`→`gold`, `#957B30`→`gold`, `#D8B76A`→`gold`, `#DAB96D`→`gold`, `#564D33`→`gold`, `#7B6C41`→`gold`, `#95824B`→`gold`, `#B69E58`→`gold`, `#D6B964`→`gold`, `#F6D471`→`goldLight`, `#99823D`→`goldDeep`, `#B99C48`→`goldDeep`, `#FFDC78`→`goldCta`, `#FFD966`→`goldCta`, `#FFD067`→`goldCta`, `#E6CB86`→`goldLight`, `#FFD700`→`yellow`, `#FFD54F`→`yellow`, `#F2CA14`→`yellow`, `#A8874A`→`goldLevel1`, `#8B6914`→`goldLevel1`, `#635025`→`goldLevel1`, `#2ECC71`→`success`, `#6FCF97`→`success`, `#3D8C5F`→`success`, `#1B4D38`→`success@30`, `#FF4444`→`error`, `#EB5757`→`error`, `#E05252`→`error`, `#FF3333`→`error`, `#7A3030`→`error`, `#000000`→`black`, `#25D366`→`brand.whatsapp`, `#0088CC`→`brand.telegram`, `#E1306C`→`brand.instagram`, `#34B7F1`→`brand.messages`, `#1DA1F2`→`brand.twitter`, `#4285F4`→`brand.googleBlue`, `#34A853`→`brand.googleGreen`, `#FBBC05`→`brand.googleYellow`, `#EA4335`→`brand.googleRed`
@@ -600,17 +601,17 @@ Emoji (🔥 🎖️ 🏆 🎬 🌍 ✨ 🧠 🔮 🎟️ 🤝 💎 🔗) are use
 | **Status** | success #2ECC71 (absorbs #6FCF97, #3D8C5F); error #EB5757 (absorbs #FF4444 logout, #E05252, #FF3333 LIVE, #7A3030). Warning = yellow. Info = seed-derived. |
 | **Alpha** | Design alphas snapped to 10% steps; conventions: tint fill 10/20%, tint border 30/40%, disabled 30/50%, glow 40/20/50%, scrim 80%, placeholder 50%, on-image text 60%, hairline 10%. |
 | **onPrimary** | #0C0F16 (surface) on all gold — the design split 13 large CTAs (#0D0B08) vs 17 small buttons (#0C0F16); one ink is enough and matches the app surface. |
-| **Gradients** | 9 kept, re-expressed in final tokens; per-screen unique gradients on Auction/Success/Streak-intro collapsed into heroScrim / onboardingScrim / headerFade. Points-pill stroke approximated goldCta→goldLevel1 (design #FFD067→#635025). |
+| **Gradients** | 10 kept, re-expressed in final tokens; per-screen unique gradients on Auction/Success/Streak-intro collapsed into heroScrim / onboardingScrim / headerFade. Points-pill stroke approximated goldCta→goldLevel1 (design #FFD067→#635025). splashBg added 2026-09-08: the splash frame's 12-stop ramp into gold is normalised to surface→surfaceCard→surfaceRaised because the gold stops sit below the 800dp viewport and never render. |
 | **Geometry** | Spacing 2/4/8/12/16/20/24/32; radius 4/8/12/16/20/24/full (card 16, CTA & input 12, small button 8); icons 12/16/20/24/32; CTA 52, button 32, input 52, app bar 56 + status. |
 | **States** | Derived from each component's own colour (Material state layers 8/12%, disabled 30/50%, focus glow 20%). Light theme, info, toggles, toasts, empty/loading states left to ColorScheme.fromSeed(gold, dark) for now. |
 | **Icons** | Icon font for single-colour glyphs, SVG for multi-colour marks. |
-| **Out of scope** | Auction (418:18052), Success state (404:9787) and the splash screenshot (36:5658) are concepts; their unique values are mapped to the nearest kept token, not tokenised. |
+| **Out of scope** | Auction (418:18052), Success state (404:9787) and the splash screenshot (36:5658) are concepts; their unique values are mapped to the nearest kept token, not tokenised. The splash background was later tokenised as `splashBg` so the screen could be built. |
 
 ## 10. Open items for design
 
 - Nav Bar library component needs Rewards/Profile active variants (only Home/P2P exist).
 - Home top-left 28×20 slot is empty on every Home — logo or menu?
 - Edit Profile 'change photo' button (93×28) is an empty frame.
-- Splash screen is a screenshot placeholder — needs a design.
+- Splash screen is a screenshot placeholder — needs a design. Built 2026-09-08 from the normalised `splashBg` gradient plus a supplied `assets/images/splash-logo.png` wordmark; the wordmark and tagline still have no text roles, so a vector logo and a real layout are outstanding.
 - Input error state, toggles/checkbox/radio, toast, empty/loading/error screens, Notifications screen — not designed; seed/derived rules apply until they are.
 - Confirm the points-pill stroke gradient approximation and the 8/9px → 10/11px size bumps with design.

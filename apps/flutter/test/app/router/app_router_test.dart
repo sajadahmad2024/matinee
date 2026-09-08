@@ -8,6 +8,7 @@ import 'package:matinee/app/router/app_router.dart';
 import 'package:matinee/app/router/stream_listenable.dart';
 import 'package:matinee/app/startup/app_startup_cubit.dart';
 import 'package:matinee/app/startup/splash_screen.dart';
+import 'package:matinee/core/theme/app_theme.dart';
 import 'package:matinee/features/home/presentation/home_screen.dart';
 import 'package:matinee/l10n/gen/app_localizations.dart';
 
@@ -36,6 +37,7 @@ void main() {
           value: startup,
           child: MaterialApp.router(
             routerConfig: router,
+            theme: AppTheme.dark,
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
           ),

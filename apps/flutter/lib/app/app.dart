@@ -9,8 +9,6 @@ import 'package:matinee/app/startup/app_startup_cubit.dart';
 import 'package:matinee/app/startup/app_startup_state.dart';
 import 'package:matinee/app/startup/post_init.dart';
 import 'package:matinee/core/theme/app_theme.dart';
-import 'package:matinee/core/theme/cubit/theme_cubit.dart';
-import 'package:matinee/core/theme/cubit/theme_state.dart';
 import 'package:matinee/di/service_locator.dart';
 import 'package:matinee/l10n/gen/app_localizations.dart';
 
@@ -19,17 +17,12 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (_) {
-            final startup = AppStartupCubit(getIt, registerStartupDependencies);
-            unawaited(startup.start());
-            return startup;
-          },
-        ),
-        BlocProvider(create: (_) => ThemeCubit()),
-      ],
+    return BlocProvider(
+      create: (_) {
+        final startup = AppStartupCubit(getIt, registerStartupDependencies);
+        unawaited(startup.start());
+        return startup;
+      },
       child: const _AppView(),
     );
   }
@@ -67,18 +60,12 @@ class _AppViewState extends State<_AppView> {
     return BlocListener<AppStartupCubit, AppStartupState>(
       listenWhen: (_, current) => current is StartupSuccess,
       listener: (_, _) => runPostInit(),
-      child: BlocBuilder<ThemeCubit, ThemeState>(
-        builder: (context, themeState) {
-          final appTheme = AppTheme(themeState.colorScheme);
-          return MaterialApp.router(
-            routerConfig: _router,
-            theme: appTheme.light(),
-            darkTheme: appTheme.dark(),
-            themeMode: themeState.themeMode,
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
-          );
-        },
+      // The design is dark-only: one ThemeData, no mode to switch.
+      child: MaterialApp.router(
+        routerConfig: _router,
+        theme: AppTheme.dark,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
       ),
     );
   }

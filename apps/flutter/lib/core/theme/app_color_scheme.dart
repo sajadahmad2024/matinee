@@ -1,22 +1,45 @@
 import 'package:flutter/material.dart';
+import 'package:matinee/core/theme/app_palette.dart';
 
 ///
-/// Selectable colour schemes. Adding one is a new value plus a branch in each
-/// switch; the compiler enforces exhaustiveness. Seeds come from the design's
-/// primary colour; ColorScheme.fromSeed derives the other roles.
+/// The one ColorScheme of the app. The design is dark-only, so there is no
+/// light scheme and no palette to select. Roles the design never drew
+/// (info, surfaceDim/Bright, inverse*, fixed variants) stay as
+/// ColorScheme.fromSeed derives them from the brand gold.
 ///
-enum AppColorScheme {
-  standard,
-  forest,
-  sunset;
-
-  ColorScheme light() => ColorScheme.fromSeed(seedColor: _seed);
-
-  ColorScheme dark() => ColorScheme.fromSeed(seedColor: _seed, brightness: Brightness.dark);
-
-  Color get _seed => switch (this) {
-    AppColorScheme.standard => const Color(0xFF0061A4),
-    AppColorScheme.forest => const Color(0xFF2E7D32),
-    AppColorScheme.sunset => const Color(0xFFE65100),
-  };
+abstract final class AppColorScheme {
+  static final ColorScheme dark =
+      ColorScheme.fromSeed(
+        seedColor: AppPalette.gold,
+        brightness: Brightness.dark,
+      ).copyWith(
+        primary: AppPalette.goldCta,
+        onPrimary: AppPalette.surface,
+        primaryContainer: AppPalette.gold.a10,
+        onPrimaryContainer: AppPalette.gold,
+        secondary: AppPalette.gold,
+        onSecondary: AppPalette.surface,
+        secondaryContainer: AppPalette.surfaceRaised,
+        onSecondaryContainer: AppPalette.textSecondary,
+        tertiary: AppPalette.yellow,
+        onTertiary: AppPalette.surface,
+        tertiaryContainer: AppPalette.yellow.a10,
+        onTertiaryContainer: AppPalette.yellow,
+        error: AppPalette.error,
+        onError: AppPalette.white,
+        errorContainer: AppPalette.error.a10,
+        onErrorContainer: AppPalette.error,
+        surface: AppPalette.surface,
+        onSurface: AppPalette.white,
+        onSurfaceVariant: AppPalette.textSecondary,
+        surfaceContainerLow: AppPalette.surface,
+        surfaceContainer: AppPalette.surfaceCard,
+        surfaceContainerHigh: AppPalette.surfaceRaised,
+        surfaceContainerHighest: AppPalette.surfaceRaised,
+        outline: AppPalette.outline,
+        outlineVariant: AppPalette.outline,
+        scrim: AppPalette.surface.a80,
+        shadow: AppPalette.black,
+        surfaceTint: AppPalette.gold,
+      );
 }

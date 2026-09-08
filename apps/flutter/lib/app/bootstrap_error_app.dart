@@ -18,7 +18,7 @@ class BootstrapErrorApp extends StatelessWidget {
       home: Scaffold(
         body: Center(
           child: Padding(
-            padding: EdgeInsets.all(AppSpacing.xlg),
+            padding: EdgeInsets.all(AppSpacing.xl),
             child: Text(_message, textAlign: TextAlign.center),
           ),
         ),
