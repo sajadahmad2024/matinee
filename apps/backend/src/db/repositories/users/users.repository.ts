@@ -90,7 +90,7 @@ export class UsersRepository {
    *  silently mutated by a replayed/forged guest token. */
   async upgradeGuestToCustomer(
     id: string,
-    data: { phone?: string; email?: string; primaryAuthMethod: string; isPhoneVerified?: boolean; isEmailVerified?: boolean },
+    data: { phone?: string; email?: string; primaryAuthMethod: string; isPhoneVerified?: boolean; isEmailVerified?: boolean; avatarUrl?: string | null },
     tx?: DBExecutor,
   ): Promise<UserRecord> {
     const rows = await this.exec(tx)
@@ -99,6 +99,7 @@ export class UsersRepository {
         accountType: 'customer',
         ...(data.phone ? { phone: data.phone, isPhoneVerified: data.isPhoneVerified ?? true } : {}),
         ...(data.email ? { email: data.email, isEmailVerified: data.isEmailVerified ?? false } : {}),
+        ...(data.avatarUrl ? { avatarUrl: data.avatarUrl } : {}),
         primaryAuthMethod: data.primaryAuthMethod,
         lastLoginAt: sql`now()`,
         updatedAt: sql`now()`,
@@ -114,7 +115,7 @@ export class UsersRepository {
   }
 
   async createCustomer(
-    data: { phone?: string; email?: string; primaryAuthMethod: string; isPhoneVerified?: boolean; isEmailVerified?: boolean },
+    data: { phone?: string; email?: string; primaryAuthMethod: string; isPhoneVerified?: boolean; isEmailVerified?: boolean; avatarUrl?: string | null },
     tx?: DBExecutor,
   ): Promise<UserRecord> {
     const rows = await this.exec(tx)
@@ -123,6 +124,7 @@ export class UsersRepository {
         accountType: 'customer',
         ...(data.phone ? { phone: data.phone } : {}),
         ...(data.email ? { email: data.email } : {}),
+        ...(data.avatarUrl ? { avatarUrl: data.avatarUrl } : {}),
         primaryAuthMethod: data.primaryAuthMethod,
         isPhoneVerified: data.isPhoneVerified ?? false,
         isEmailVerified: data.isEmailVerified ?? false,
@@ -130,6 +132,14 @@ export class UsersRepository {
       })
       .returning();
     return this.map(rows[0])!;
+  }
+
+  /** Backfill avatarUrl only when the user hasn't set one. Never overwrites a manual choice. */
+  async setAvatarIfEmpty(id: string, url: string, tx?: DBExecutor): Promise<void> {
+    await this.exec(tx)
+      .update(users)
+      .set({ avatarUrl: url, updatedAt: sql`now()` })
+      .where(and(eq(users.id, id), isNull(users.avatarUrl), isNull(users.deletedAt)));
   }
 
   async createAdmin(input: CreateAdminInput, tx?: DBExecutor): Promise<UserRecord> {

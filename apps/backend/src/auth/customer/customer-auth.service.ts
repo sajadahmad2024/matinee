@@ -242,15 +242,23 @@ export class CustomerAuthService {
     if (profile.email && profile.emailVerified) {
       const byEmail = await this.users.findByEmail(profile.email);
       if (byEmail && byEmail.accountType === 'customer') {
-        await this.identity.upsertOauth({
-          userId: byEmail.id,
-          provider,
-          providerUserId: profile.providerUserId,
-          email: profile.email,
-          rawProfile: { name: profile.name, picture: profile.picture },
+        await this.db.transaction(async (tx) => {
+          await this.identity.upsertOauth(
+            {
+              userId: byEmail.id,
+              provider,
+              providerUserId: profile.providerUserId,
+              email: profile.email,
+              rawProfile: { name: profile.name, picture: profile.picture },
+            },
+            tx,
+          );
+          if (profile.picture) {
+            await this.users.setAvatarIfEmpty(byEmail.id, profile.picture, tx);
+          }
+          await this.mergeGuestIfAny(guestToken, byEmail.id, tx);
+          await this.users.touchLastLogin(byEmail.id, tx);
         });
-        await this.mergeGuestIfAny(guestToken, byEmail.id);
-        await this.users.touchLastLogin(byEmail.id);
         return this.result(byEmail, false);
       }
     }
@@ -266,11 +274,21 @@ export class CustomerAuthService {
         const created = guestId
           ? await this.users.upgradeGuestToCustomer(
               guestId,
-              { ...(verifiedEmail ? { email: verifiedEmail } : {}), primaryAuthMethod: provider, isEmailVerified: !!verifiedEmail },
+              {
+                ...(verifiedEmail ? { email: verifiedEmail } : {}),
+                ...(profile.picture ? { avatarUrl: profile.picture } : {}),
+                primaryAuthMethod: provider,
+                isEmailVerified: !!verifiedEmail,
+              },
               tx,
             )
           : await this.users.createCustomer(
-              { ...(verifiedEmail ? { email: verifiedEmail } : {}), primaryAuthMethod: provider, isEmailVerified: !!verifiedEmail },
+              {
+                ...(verifiedEmail ? { email: verifiedEmail } : {}),
+                ...(profile.picture ? { avatarUrl: profile.picture } : {}),
+                primaryAuthMethod: provider,
+                isEmailVerified: !!verifiedEmail,
+              },
               tx,
             );
         await this.identity.upsertOauth(
@@ -399,19 +417,21 @@ export class CustomerAuthService {
     }
   }
 
-  /** Guest merge — idempotent + atomic. Repoints devices only if this call did the merge. */
-  private async mergeGuestIfAny(guestToken: string | undefined, targetUserId: string): Promise<void> {
+  /** Guest merge — idempotent + atomic. Repoints devices only if this call did the merge.
+   *  Reuses the caller's `tx` when provided so the merge can join a larger transaction. */
+  private async mergeGuestIfAny(guestToken: string | undefined, targetUserId: string, tx?: DBExecutor): Promise<void> {
     const guestId = await this.extractGuestId(guestToken);
     if (!guestId || guestId === targetUserId) {
       return;
     }
-    const merged = await this.db.transaction(async (tx) => {
-      const ok = await this.users.mergeGuestInto(guestId, targetUserId, tx);
+    const doMerge = async (exec: DBExecutor): Promise<boolean> => {
+      const ok = await this.users.mergeGuestInto(guestId, targetUserId, exec);
       if (ok) {
-        await this.devices.repointUser(guestId, targetUserId, tx);
+        await this.devices.repointUser(guestId, targetUserId, exec);
       }
       return ok;
-    });
+    };
+    const merged = tx ? await doMerge(tx) : await this.db.transaction(doMerge);
     if (merged) {
       this.logger.debug(`Merged guest ${guestId} into ${targetUserId}`);
     }
