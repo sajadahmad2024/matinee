@@ -7,8 +7,8 @@ import { Throttle } from '@nestjs/throttler';
 import { AccountTypes, CustomerOnly } from '../../auth/decorators/account-type.decorator';
 import { CurrentUser } from '../../auth/decorators/current-user.decorator';
 import { Public } from '../../auth/decorators/public.decorator';
-import { Challenge, RequireOtpPurpose } from '../../auth/decorators/otp-challenge.decorator';
-import { OtpChallengeGuard } from '../../auth/guards/otp-challenge.guard';
+import { RequirePurpose, TempToken } from '../../auth/decorators/temp-token.decorator';
+import { TempTokenGuard } from '../../auth/guards/temp-token.guard';
 import { ProfileService } from './profile.service';
 import { UpdateProfileDto } from '../dto/update-profile.dto';
 import { EarnsQueryDto } from '../dto/profile-query.dto';
@@ -80,15 +80,15 @@ export class ProfileController {
   @Post('email/verify/confirm')
   @Public()
   @AccountTypes() // clears class-level @CustomerOnly — otpToken is the auth for this step
-  @UseGuards(OtpChallengeGuard)
-  @RequireOtpPurpose('email_verification')
+  @UseGuards(TempTokenGuard)
+  @RequirePurpose('email_verification')
   @Throttle({ short: { limit: 10, ttl: 60_000 } })
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Confirm the email OTP; auth is the challenge token, no Bearer required' })
   @ApiEnvelope(ProfileDto)
   confirmEmailOtp(
-    @Challenge('sub') userId: string,
-    @Challenge('destination') email: string,
+    @TempToken('sub') userId: string,
+    @TempToken('destination') email: string,
     @Body() dto: VerifyEmailOtpDto,
   ) {
     return this.profile.confirmEmailVerification(userId, email, dto.code);

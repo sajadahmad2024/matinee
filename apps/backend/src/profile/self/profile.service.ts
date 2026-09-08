@@ -209,7 +209,7 @@ export class ProfileService {
   }
 
   /** Confirm the OTP → atomically set `users.email` + `isEmailVerified=true`.
-   *  Auth here is the otpToken itself (holds `sub`) — verified upstream by OtpChallengeGuard,
+   *  Auth here is the otpToken itself (holds `sub`) — verified upstream by TempTokenGuard,
    *  which passes `userId` (challenge.sub) and `email` (challenge.destination) as args. */
   async confirmEmailVerification(userId: string, email: string, code: string): Promise<ProfileRecord> {
     // Scope by userId as well as destination: defence-in-depth against another user having
