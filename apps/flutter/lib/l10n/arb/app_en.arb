@@ -1,0 +1,20 @@
+{
+  "@@locale": "en",
+  "appTitle": "Template",
+  "homePlaceholder": "Replace this screen with the first feature.",
+  "retry": "Retry",
+  "goHome": "Go to home",
+  "startupFailed": "The app could not start. Check your connection and try again.",
+  "pageNotFound": "There is nothing at {path}.",
+  "@pageNotFound": {
+    "placeholders": {
+      "path": { "type": "String" }
+    }
+  },
+  "errorNetwork": "You appear to be offline. Check your connection and try again.",
+  "errorCancelled": "The request was cancelled.",
+  "errorAuth": "You need to sign in again.",
+  "errorNotFound": "We could not find what you were looking for.",
+  "errorValidation": "Some of the information provided was not accepted.",
+  "errorServer": "Something went wrong on our side. Please try again later."
+}

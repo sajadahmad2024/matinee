@@ -1,0 +1,28 @@
+import 'package:flutter/material.dart';
+import 'package:template/core/theme/app_spacing.dart';
+
+///
+/// Shown when pre-init throws. Nothing else may have initialised, so this has
+/// no DI, no router, no theme and no localisation. AppSpacing is safe: it is a
+/// constants class with no dependencies.
+///
+class BootstrapErrorApp extends StatelessWidget {
+  const BootstrapErrorApp({super.key});
+
+  // Localisation is not available before DI, so this one string is literal.
+  static const _message = 'Something went wrong while starting. Please restart the app.';
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      home: Scaffold(
+        body: Center(
+          child: Padding(
+            padding: EdgeInsets.all(AppSpacing.xlg),
+            child: Text(_message, textAlign: TextAlign.center),
+          ),
+        ),
+      ),
+    );
+  }
+}

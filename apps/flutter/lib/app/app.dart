@@ -1,0 +1,85 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:template/app/router/app_router.dart';
+import 'package:template/app/router/stream_listenable.dart';
+import 'package:template/app/startup/app_startup_cubit.dart';
+import 'package:template/app/startup/app_startup_state.dart';
+import 'package:template/app/startup/post_init.dart';
+import 'package:template/core/theme/app_theme.dart';
+import 'package:template/core/theme/cubit/theme_cubit.dart';
+import 'package:template/core/theme/cubit/theme_state.dart';
+import 'package:template/di/service_locator.dart';
+import 'package:template/l10n/gen/app_localizations.dart';
+
+class App extends StatelessWidget {
+  const App({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (_) {
+            final startup = AppStartupCubit(getIt, registerStartupDependencies);
+            unawaited(startup.start());
+            return startup;
+          },
+        ),
+        BlocProvider(create: (_) => ThemeCubit()),
+      ],
+      child: const _AppView(),
+    );
+  }
+}
+
+class _AppView extends StatefulWidget {
+  const _AppView();
+
+  @override
+  State<_AppView> createState() => _AppViewState();
+}
+
+class _AppViewState extends State<_AppView> {
+  late final StreamListenable _startupChanges;
+  late final GoRouter _router;
+
+  @override
+  void initState() {
+    super.initState();
+    // The router is created once; rebuilding it on theme changes would reset navigation.
+    final startup = context.read<AppStartupCubit>();
+    _startupChanges = StreamListenable(startup.stream);
+    _router = createRouter(startup, refreshListenable: _startupChanges);
+  }
+
+  @override
+  void dispose() {
+    _router.dispose();
+    _startupChanges.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocListener<AppStartupCubit, AppStartupState>(
+      listenWhen: (_, current) => current is StartupSuccess,
+      listener: (_, _) => runPostInit(),
+      child: BlocBuilder<ThemeCubit, ThemeState>(
+        builder: (context, themeState) {
+          final appTheme = AppTheme(themeState.colorScheme);
+          return MaterialApp.router(
+            routerConfig: _router,
+            theme: appTheme.light(),
+            darkTheme: appTheme.dark(),
+            themeMode: themeState.themeMode,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+          );
+        },
+      ),
+    );
+  }
+}

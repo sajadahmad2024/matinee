@@ -1,0 +1,94 @@
+# Configuration for the package_rename tool.
+# Update all placeholder values below with your actual app details before running the rename commands.
+#
+# Usage (run once per flavor):
+#   dart run package_rename --flavour=dev
+#   dart run package_rename --flavour=staging
+#   dart run package_rename --flavour=prod
+
+# ─── Dev ──────────────────────────────────────────────────────────────────────
+
+package_rename_config-dev:
+  android:
+    app_name: My App Dev # Display name shown on the device
+    package_name: com.example.myapp.dev # Android application ID
+    override_old_package: com.geekyants.coe.template # Cleans up old folder structure
+    lang: kotlin
+  ios:
+    app_name: My App Dev
+    bundle_name: myapp-dev # Short bundle name (lowercase, no spaces)
+    package_name: com.example.myapp.dev # iOS bundle identifier
+  macos:
+    app_name: My App Dev
+    package_name: com.example.myapp.dev
+    copyright_notice: Copyright © 2024 Your Organization. All rights reserved.
+  web:
+    app_name: My App Dev
+    description: A Flutter application (dev).
+  linux:
+    app_name: My App Dev
+    package_name: com.example.myapp.dev
+    exe_name: myapp-dev
+  windows:
+    app_name: My App Dev
+    organization: Your Organization
+    copyright_notice: Copyright © 2024 Your Organization. All rights reserved.
+    exe_name: myapp-dev
+
+# ─── Staging ──────────────────────────────────────────────────────────────────
+
+package_rename_config-staging:
+  android:
+    app_name: My App Staging
+    package_name: com.example.myapp.staging
+    override_old_package: com.geekyants.coe.template
+    lang: kotlin
+  ios:
+    app_name: My App Staging
+    bundle_name: myapp-staging
+    package_name: com.example.myapp.staging
+  macos:
+    app_name: My App Staging
+    package_name: com.example.myapp.staging
+    copyright_notice: Copyright © 2024 Your Organization. All rights reserved.
+  web:
+    app_name: My App Staging
+    description: A Flutter application (staging).
+  linux:
+    app_name: My App Staging
+    package_name: com.example.myapp.staging
+    exe_name: myapp-staging
+  windows:
+    app_name: My App Staging
+    organization: Your Organization
+    copyright_notice: Copyright © 2024 Your Organization. All rights reserved.
+    exe_name: myapp-staging
+
+# ─── Prod ─────────────────────────────────────────────────────────────────────
+
+package_rename_config-prod:
+  android:
+    app_name: My App
+    package_name: com.example.myapp
+    override_old_package: com.geekyants.coe.template
+    lang: kotlin
+  ios:
+    app_name: My App
+    bundle_name: myapp
+    package_name: com.example.myapp
+  macos:
+    app_name: My App
+    package_name: com.example.myapp
+    copyright_notice: Copyright © 2024 Your Organization. All rights reserved.
+  web:
+    app_name: My App
+    description: A Flutter application.
+  linux:
+    app_name: My App
+    package_name: com.example.myapp
+    exe_name: myapp
+  windows:
+    app_name: My App
+    organization: Your Organization
+    copyright_notice: Copyright © 2024 Your Organization. All rights reserved.
+    exe_name: myapp
