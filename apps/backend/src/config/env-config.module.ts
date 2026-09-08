@@ -89,6 +89,7 @@ const envConfig = registerAs(
       FCM_PRIVATE_KEY: process.env['FCM_PRIVATE_KEY'] || '',
       // SendGrid dynamic-template IDs (optional; empty = fall back to local Handlebars)
       SENDGRID_FROM_EMAIL: process.env['SENDGRID_FROM_EMAIL'] || '',
+      SENDGRID_FROM_NAME: process.env['SENDGRID_FROM_NAME'] || '',
     }) as EnvConfig
 );
 
@@ -177,6 +178,7 @@ const validationSchema = Joi.object({
   FCM_CLIENT_EMAIL: Joi.string().allow('').default(''),
   FCM_PRIVATE_KEY: Joi.string().allow('').default(''),
   SENDGRID_FROM_EMAIL: Joi.string().allow('').default(''),
+  SENDGRID_FROM_NAME: Joi.string().allow('').default(''),
   // Email provider (env-driven strategy: smtp / ses / sendgrid / log [dev — logs + stashes code])
   EMAIL_PROVIDER: Joi.string().valid('smtp', 'ses', 'sendgrid', 'log').default('smtp'),
   EMAIL_FROM: Joi.string().allow('').default('noreply@example.com'),

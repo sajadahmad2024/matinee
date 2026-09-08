@@ -60,8 +60,12 @@ export class IdentityRepository {
     return tx ? run(tx) : this.dbService.transaction(run);
   }
 
-  async findActiveOtp(destination: string, purpose: OtpPurpose, tx?: DBExecutor): Promise<OtpRecord | null> {
-    const rows = await this.exec(tx)
+  async findActiveOtp(
+    destination: string,
+    purpose: OtpPurpose,
+    opts?: { userId?: string; tx?: DBExecutor },
+  ): Promise<OtpRecord | null> {
+    const rows = await this.exec(opts?.tx)
       .select()
       .from(otpCodes)
       .where(
@@ -70,6 +74,7 @@ export class IdentityRepository {
           eq(otpCodes.purpose, purpose),
           isNull(otpCodes.consumedAt),
           gt(otpCodes.expiresAt, sql`now()`),
+          ...(opts?.userId ? [eq(otpCodes.userId, opts.userId)] : []),
         ),
       )
       .orderBy(desc(otpCodes.createdAt))

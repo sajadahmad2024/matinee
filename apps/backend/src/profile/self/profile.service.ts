@@ -11,6 +11,7 @@ import {
 } from '@db/repositories/users/profile.repository';
 import { UsersRepository } from '@db/repositories/users/users.repository';
 import { IdentityRepository } from '@db/repositories/auth/identity.repository';
+import { DBService } from '@db/db.service';
 import { WalletRepository, WalletView } from '@db/repositories/tokenomics/wallet.repository';
 import { LedgerEntry, LedgerRepository } from '@db/repositories/tokenomics/ledger.repository';
 import { NotificationRepository } from '@db/repositories/notifications/notification.repository';
@@ -58,6 +59,7 @@ export class ProfileService {
     private readonly hashing: HashingService,
     private readonly tokens: TokenService,
     private readonly queue: QueueService,
+    private readonly db: DBService,
   ) {}
 
   /** Current leaderboard period key ('YYYY-MM-01'). */
@@ -218,7 +220,9 @@ export class ProfileService {
     }
     const userId = challenge.sub;
     const email = challenge.destination;
-    const otp = await this.identity.findActiveOtp(email, 'email_verification');
+    // Scope by userId as well as destination: defence-in-depth against another user having
+    // created an OTP for the same email in the narrow window before the uniqueness check.
+    const otp = await this.identity.findActiveOtp(email, 'email_verification', { userId });
     if (!otp) {
       throw new UnauthorizedException('No active verification code — request a new one');
     }
@@ -230,16 +234,20 @@ export class ProfileService {
       await this.identity.incrementOtpAttempts(otp.id);
       throw new UnauthorizedException('Incorrect code');
     }
-    // Re-check the uniqueness window; a concurrent claim could have snuck in.
-    const conflict = await this.users.findByEmail(email);
-    if (conflict && conflict.id !== userId) {
-      throw new ConflictException('That email is already in use');
-    }
-    await this.identity.consumeOtp(otp.id);
-    const updated = await this.profiles.updateProfile(userId, { email, isEmailVerified: true });
-    if (!updated) {
-      throw new NotFoundException('Profile not found');
-    }
+    // Consume + write email atomically: if the profile update fails, the OTP stays valid
+    // and the user isn't forced to request a fresh code.
+    const updated = await this.db.transaction(async (tx) => {
+      const conflict = await this.users.findByEmail(email, tx);
+      if (conflict && conflict.id !== userId) {
+        throw new ConflictException('That email is already in use');
+      }
+      await this.identity.consumeOtp(otp.id, tx);
+      const row = await this.profiles.updateProfile(userId, { email, isEmailVerified: true }, tx);
+      if (!row) {
+        throw new NotFoundException('Profile not found');
+      }
+      return row;
+    });
     await this.cache.invalidateTag(this.tag(userId));
     return updated;
   }
