@@ -1,12 +1,14 @@
 import { RouteNames } from '@common/route-names';
 import { ApiEnvelope } from '@common/swagger/api-envelope.decorator';
 import { ApiPaginatedEnvelope } from '@common/swagger/api-paginated-envelope.decorator';
-import { Body, Controller, Get, HttpCode, HttpStatus, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import { AccountTypes, CustomerOnly } from '../../auth/decorators/account-type.decorator';
 import { CurrentUser } from '../../auth/decorators/current-user.decorator';
 import { Public } from '../../auth/decorators/public.decorator';
+import { Challenge, RequireOtpPurpose } from '../../auth/decorators/otp-challenge.decorator';
+import { OtpChallengeGuard } from '../../auth/guards/otp-challenge.guard';
 import { ProfileService } from './profile.service';
 import { UpdateProfileDto } from '../dto/update-profile.dto';
 import { EarnsQueryDto } from '../dto/profile-query.dto';
@@ -77,11 +79,17 @@ export class ProfileController {
   @Post('email/verify/confirm')
   @Public()
   @AccountTypes() // clears class-level @CustomerOnly — otpToken is the auth for this step
+  @UseGuards(OtpChallengeGuard)
+  @RequireOtpPurpose('email_verification')
   @Throttle({ short: { limit: 10, ttl: 60_000 } })
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Confirm the email OTP; auth is the challenge token, no Bearer required' })
   @ApiEnvelope(ProfileDto)
-  confirmEmailOtp(@Body() dto: VerifyEmailOtpDto) {
-    return this.profile.confirmEmailVerification(dto.otpToken, dto.code);
+  confirmEmailOtp(
+    @Challenge('sub') userId: string,
+    @Challenge('destination') email: string,
+    @Body() dto: VerifyEmailOtpDto,
+  ) {
+    return this.profile.confirmEmailVerification(userId, email, dto.code);
   }
 }

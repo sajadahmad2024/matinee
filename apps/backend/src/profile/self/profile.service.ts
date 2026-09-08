@@ -207,19 +207,9 @@ export class ProfileService {
   }
 
   /** Confirm the OTP → atomically set `users.email` + `isEmailVerified=true`.
-   *  Auth here is the otpToken itself (holds `sub`) — no Bearer required. */
-  async confirmEmailVerification(otpToken: string, code: string): Promise<ProfileRecord> {
-    let challenge;
-    try {
-      challenge = this.tokens.verifyOtpChallenge(otpToken);
-    } catch {
-      throw new UnauthorizedException('Verification session is invalid or expired — request a new code');
-    }
-    if (challenge.purpose !== 'email_verification' || !challenge.sub) {
-      throw new UnauthorizedException('Invalid verification session');
-    }
-    const userId = challenge.sub;
-    const email = challenge.destination;
+   *  Auth here is the otpToken itself (holds `sub`) — verified upstream by OtpChallengeGuard,
+   *  which passes `userId` (challenge.sub) and `email` (challenge.destination) as args. */
+  async confirmEmailVerification(userId: string, email: string, code: string): Promise<ProfileRecord> {
     // Scope by userId as well as destination: defence-in-depth against another user having
     // created an OTP for the same email in the narrow window before the uniqueness check.
     const otp = await this.identity.findActiveOtp(email, 'email_verification', { userId });

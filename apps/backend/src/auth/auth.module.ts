@@ -11,6 +11,9 @@ import { TokenService } from './services/token.service';
 import { SessionService } from './services/session.service';
 import { FirebaseAdminService } from './services/firebase-admin.service';
 
+// Guards (exported for opt-in use by other modules — global guards are wired in AppModule)
+import { OtpChallengeGuard } from './guards/otp-challenge.guard';
+
 // Providers (phone verification — env-selected)
 import { PhoneVerificationProvider } from './providers/phone-verification.provider';
 import { TwilioOtpProvider } from './providers/twilio-otp.provider';
@@ -78,9 +81,13 @@ const phoneVerificationProvider = {
     DeviceService,
     AdminAuthService,
     AdminManagementService,
+
+    // Opt-in guard — attached per-route via @UseGuards(OtpChallengeGuard) in feature modules.
+    OtpChallengeGuard,
   ],
   // Exported so the global guards/interceptor (registered in AppModule) can resolve them.
   // HashingService is exported for reuse by other modules (e.g. profile email verification).
-  exports: [TokenService, SessionService, HashingService],
+  // OtpChallengeGuard is exported so feature modules can attach it per-route.
+  exports: [TokenService, SessionService, HashingService, OtpChallengeGuard],
 })
 export class AuthModule {}
