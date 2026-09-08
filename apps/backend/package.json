@@ -105,6 +105,7 @@
     "@opentelemetry/exporter-trace-otlp-proto": "0.205.0",
     "@opentelemetry/resources": "2.1.0",
     "@opentelemetry/sdk-node": "0.205.0",
+    "@sendgrid/mail": "8.1.6",
     "@willsoto/nestjs-prometheus": "6.0.2",
     "bcrypt": "6.0.0",
     "body-parser": "2.2.0",

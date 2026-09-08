@@ -80,6 +80,7 @@ const phoneVerificationProvider = {
     AdminManagementService,
   ],
   // Exported so the global guards/interceptor (registered in AppModule) can resolve them.
-  exports: [TokenService, SessionService],
+  // HashingService is exported for reuse by other modules (e.g. profile email verification).
+  exports: [TokenService, SessionService, HashingService],
 })
 export class AuthModule {}

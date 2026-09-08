@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { AuthModule } from '@auth/auth.module';
 import { ProfileController } from './self/profile.controller';
 import { MeController } from './self/me.controller';
 import { ProfileService } from './self/profile.service';
@@ -13,6 +14,7 @@ import { AdminUser360Service } from './admin/admin-user-360.service';
  * + the admin user-360 tabs (watch history / referrals / games / reports / roles / warn).
  */
 @Module({
+  imports: [AuthModule], // TokenService + HashingService for email verification
   controllers: [MeController, ProfileController, NotificationController, AdminUserProfileController],
   providers: [ProfileService, NotificationService, AdminUser360Service],
   exports: [ProfileService, NotificationService],

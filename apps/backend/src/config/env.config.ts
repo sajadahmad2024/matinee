@@ -229,6 +229,19 @@ export class EnvConfig {
   @IsString()
   FCM_CLIENT_EMAIL?: string;
 
+  // ─── Email provider strategy ────────────────────────────────────────────
+  @IsOptional()
+  @IsString()
+  EMAIL_PROVIDER?: string;
+
+  @IsOptional()
+  @IsString()
+  SENDGRID_FROM_EMAIL?: string;
+
+  @IsOptional()
+  @IsString()
+  SENDGRID_FROM_NAME?: string;
+
   // ─── AI / OpenAI ──────────────────────────────────────────────────────────
 
   @IsOptional()

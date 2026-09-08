@@ -13,10 +13,13 @@ const REFRESH_COOKIE = 'refresh_token';
 const DEFAULT_ACCESS_SECRET = 'dev-access-secret-change-me';
 const OTP_CHALLENGE_TTL = 600; // 10 minutes
 
-/** Short-lived token issued when an OTP is requested; required to verify it. */
+/** Short-lived token issued when an OTP is requested; required to verify it.
+ *  `sub` is set when the OTP is bound to an already-known user (e.g. verifying email of a
+ *  logged-in customer) so the confirm step can authorise without a Bearer token. */
 export interface OtpChallenge {
   destination: string;
   purpose: string;
+  sub?: string;
 }
 
 /** Everything embedded in an access token (authorization travels in the token). */
@@ -112,9 +115,9 @@ export class TokenService implements OnModuleInit {
 
   // ─── OTP challenge token (issued on request; required to verify) ─────────────
 
-  signOtpChallenge(destination: string, purpose: string): string {
+  signOtpChallenge(destination: string, purpose: string, subject?: string): string {
     return this.jwt.sign(
-      { typ: 'otp', dest: destination, purp: purpose },
+      { typ: 'otp', dest: destination, purp: purpose, ...(subject ? { sub: subject } : {}) },
       { secret: this.accessSecret, expiresIn: OTP_CHALLENGE_TTL, jwtid: randomUUID() },
     );
   }
@@ -139,14 +142,14 @@ export class TokenService implements OnModuleInit {
   }
 
   verifyOtpChallenge(token: string): OtpChallenge {
-    const payload = this.jwt.verify<{ typ: string; dest: string; purp: string }>(token, {
+    const payload = this.jwt.verify<{ typ: string; dest: string; purp: string; sub?: string }>(token, {
       secret: this.accessSecret,
       algorithms: ['HS256'],
     });
     if (payload.typ !== 'otp') {
       throw new Error('Not an OTP challenge token');
     }
-    return { destination: payload.dest, purpose: payload.purp };
+    return { destination: payload.dest, purpose: payload.purp, ...(payload.sub ? { sub: payload.sub } : {}) };
   }
 
   verifyAccess(token: string): JwtPayload {
