@@ -1005,6 +1005,12 @@
 
 **Evidence:** `OnboardingScreen#85:1664`, `Frame#85:1670`
 
+**Notes**
+- Implemented 2026-09-09 as the onboarding feature: a three-page PageView, one slide widget per frame. The three frames differ only in image and copy, so they are one widget driven by data rather than three screens.
+- The frame places the copy at a fixed y=326 in an 810 frame; the build anchors it to the bottom above the CTA instead, so it holds on shorter and taller devices.
+- Figma draws image opacity 0.35, stat pill {gold@8%} and tiles {white@5%}/{white@9%}/{white@75%}; these use the normalised tokens (0.30, {gold@10%}, {white@10%}, {white@80%}) the token set already records.
+- Emoji take AppIconSize.lg (22 snaps to 24) since the system treats them as icons in the platform emoji font.
+
 **Screens:** 85:1662 (Intro Screen 1), 85:1733 (Intro Screen 2), 85:1803 (Intro Screen 3)
 
 ### `authForm` — Auth form (Sign In / OTP / Create Account)

@@ -4,6 +4,7 @@ import 'package:matinee/core/config/env.dart';
 import 'package:matinee/core/network/dio_factory.dart';
 import 'package:matinee/core/storage/preferences_service.dart';
 import 'package:matinee/core/storage/secure_storage_service.dart';
+import 'package:matinee/features/onboarding/onboarding_di.dart';
 
 ///
 /// The composition root. Declared once; every feature imports this instance.
@@ -22,6 +23,8 @@ void registerDependencies(Env env) {
     ..registerLazySingleton<PreferencesService>(PreferencesService.new)
     ..registerLazySingleton<SecureStorageService>(SecureStorageService.new);
 
+  registerOnboardingDependencies();
+
   // Feature registrations follow. create-feature appends one line per feature.
 }
 
@@ -31,4 +34,23 @@ void registerDependencies(Env env) {
 /// factory failed is created again. Only registerSingletonAsync services the
 /// first screen cannot render without belong here.
 ///
-void registerStartupDependencies(GetIt locator) {}
+void registerStartupDependencies(GetIt locator) {
+  locator.registerSingletonAsync<DemoSplashHold>(DemoSplashHold.create);
+}
+
+///
+/// TEMPORARY, FOR DEMOS. A startup gate that resolves after a fixed delay so
+/// the splash stays on screen long enough to be seen. allReady() waits for it,
+/// which is the whole point; delete this class and its registration above, and
+/// the splash goes back to lasting exactly as long as real startup work takes.
+///
+class DemoSplashHold {
+  const DemoSplashHold();
+
+  static const Duration duration = Duration(seconds: 5);
+
+  static Future<DemoSplashHold> create() async {
+    await Future<void>.delayed(duration);
+    return const DemoSplashHold();
+  }
+}

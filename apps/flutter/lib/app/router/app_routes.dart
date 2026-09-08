@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:matinee/app/startup/splash_screen.dart';
 import 'package:matinee/features/home/presentation/home_screen.dart';
+import 'package:matinee/features/onboarding/presentation/onboarding_screen.dart';
 
 part 'app_routes.g.dart';
 
@@ -22,4 +23,12 @@ class HomeRoute extends GoRouteData with $HomeRoute {
 
   @override
   Widget build(BuildContext context, GoRouterState state) => const HomeScreen();
+}
+
+@TypedGoRoute<OnboardingRoute>(path: '/onboarding')
+class OnboardingRoute extends GoRouteData with $OnboardingRoute {
+  const OnboardingRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) => const OnboardingScreen();
 }

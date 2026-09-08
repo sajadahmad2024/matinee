@@ -29,6 +29,88 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get onboardingSkip => 'Skip';
+
+  @override
+  String get onboardingContinue => 'Continue';
+
+  @override
+  String get onboardingBack => 'Back';
+
+  @override
+  String get onboardingSlide1Eyebrow => 'DISCOVER';
+
+  @override
+  String get onboardingSlide1Heading => 'Watch Trailers Instantly';
+
+  @override
+  String get onboardingSlide1Body => 'Swipe through upcoming movies from around the world, curated daily just for you.';
+
+  @override
+  String get onboardingSlide1StatValue => '10M+';
+
+  @override
+  String get onboardingSlide1StatCaption => 'trailers watched monthly';
+
+  @override
+  String get onboardingSlide1Highlight1 => '500+ Trailers';
+
+  @override
+  String get onboardingSlide1Highlight2 => 'Global content';
+
+  @override
+  String get onboardingSlide1Highlight3 => 'Daily Picks';
+
+  @override
+  String get onboardingSlide2Eyebrow => 'PLAY';
+
+  @override
+  String get onboardingSlide2Heading => 'Play Interactive Games';
+
+  @override
+  String get onboardingSlide2Body => 'Challenge yourself with trailer-based quizzes and earn CinePoints every day.';
+
+  @override
+  String get onboardingSlide2StatValue => '500 CP';
+
+  @override
+  String get onboardingSlide2StatCaption => 'earnable per day';
+
+  @override
+  String get onboardingSlide2Highlight1 => 'Exclusive Videos';
+
+  @override
+  String get onboardingSlide2Highlight2 => 'Predictions';
+
+  @override
+  String get onboardingSlide2Highlight3 => 'Daily Streaks';
+
+  @override
+  String get onboardingSlide3Eyebrow => 'EARN';
+
+  @override
+  String get onboardingSlide3Heading => 'Win Real points Rewards';
+
+  @override
+  String get onboardingSlide3Body =>
+      'Redeem points for premieres, exclusive content, and once-in-a-lifetime experiences.';
+
+  @override
+  String get onboardingSlide3StatValue => '₹50K+';
+
+  @override
+  String get onboardingSlide3StatCaption => 'in prizes monthly';
+
+  @override
+  String get onboardingSlide3Highlight1 => 'Premieres';
+
+  @override
+  String get onboardingSlide3Highlight2 => 'Meet Stars';
+
+  @override
+  String get onboardingSlide3Highlight3 => 'Interviews';
+
+  @override
   String get errorNetwork => 'You appear to be offline. Check your connection and try again.';
 
   @override

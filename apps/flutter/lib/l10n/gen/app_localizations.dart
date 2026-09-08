@@ -127,6 +127,168 @@ abstract class AppLocalizations {
   /// **'There is nothing at {path}.'**
   String pageNotFound(String path);
 
+  /// No description provided for @onboardingSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get onboardingSkip;
+
+  /// No description provided for @onboardingContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get onboardingContinue;
+
+  /// No description provided for @onboardingBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get onboardingBack;
+
+  /// No description provided for @onboardingSlide1Eyebrow.
+  ///
+  /// In en, this message translates to:
+  /// **'DISCOVER'**
+  String get onboardingSlide1Eyebrow;
+
+  /// No description provided for @onboardingSlide1Heading.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch Trailers Instantly'**
+  String get onboardingSlide1Heading;
+
+  /// No description provided for @onboardingSlide1Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Swipe through upcoming movies from around the world, curated daily just for you.'**
+  String get onboardingSlide1Body;
+
+  /// No description provided for @onboardingSlide1StatValue.
+  ///
+  /// In en, this message translates to:
+  /// **'10M+'**
+  String get onboardingSlide1StatValue;
+
+  /// No description provided for @onboardingSlide1StatCaption.
+  ///
+  /// In en, this message translates to:
+  /// **'trailers watched monthly'**
+  String get onboardingSlide1StatCaption;
+
+  /// No description provided for @onboardingSlide1Highlight1.
+  ///
+  /// In en, this message translates to:
+  /// **'500+ Trailers'**
+  String get onboardingSlide1Highlight1;
+
+  /// No description provided for @onboardingSlide1Highlight2.
+  ///
+  /// In en, this message translates to:
+  /// **'Global content'**
+  String get onboardingSlide1Highlight2;
+
+  /// No description provided for @onboardingSlide1Highlight3.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Picks'**
+  String get onboardingSlide1Highlight3;
+
+  /// No description provided for @onboardingSlide2Eyebrow.
+  ///
+  /// In en, this message translates to:
+  /// **'PLAY'**
+  String get onboardingSlide2Eyebrow;
+
+  /// No description provided for @onboardingSlide2Heading.
+  ///
+  /// In en, this message translates to:
+  /// **'Play Interactive Games'**
+  String get onboardingSlide2Heading;
+
+  /// No description provided for @onboardingSlide2Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Challenge yourself with trailer-based quizzes and earn CinePoints every day.'**
+  String get onboardingSlide2Body;
+
+  /// No description provided for @onboardingSlide2StatValue.
+  ///
+  /// In en, this message translates to:
+  /// **'500 CP'**
+  String get onboardingSlide2StatValue;
+
+  /// No description provided for @onboardingSlide2StatCaption.
+  ///
+  /// In en, this message translates to:
+  /// **'earnable per day'**
+  String get onboardingSlide2StatCaption;
+
+  /// No description provided for @onboardingSlide2Highlight1.
+  ///
+  /// In en, this message translates to:
+  /// **'Exclusive Videos'**
+  String get onboardingSlide2Highlight1;
+
+  /// No description provided for @onboardingSlide2Highlight2.
+  ///
+  /// In en, this message translates to:
+  /// **'Predictions'**
+  String get onboardingSlide2Highlight2;
+
+  /// No description provided for @onboardingSlide2Highlight3.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Streaks'**
+  String get onboardingSlide2Highlight3;
+
+  /// No description provided for @onboardingSlide3Eyebrow.
+  ///
+  /// In en, this message translates to:
+  /// **'EARN'**
+  String get onboardingSlide3Eyebrow;
+
+  /// No description provided for @onboardingSlide3Heading.
+  ///
+  /// In en, this message translates to:
+  /// **'Win Real points Rewards'**
+  String get onboardingSlide3Heading;
+
+  /// No description provided for @onboardingSlide3Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Redeem points for premieres, exclusive content, and once-in-a-lifetime experiences.'**
+  String get onboardingSlide3Body;
+
+  /// No description provided for @onboardingSlide3StatValue.
+  ///
+  /// In en, this message translates to:
+  /// **'₹50K+'**
+  String get onboardingSlide3StatValue;
+
+  /// No description provided for @onboardingSlide3StatCaption.
+  ///
+  /// In en, this message translates to:
+  /// **'in prizes monthly'**
+  String get onboardingSlide3StatCaption;
+
+  /// No description provided for @onboardingSlide3Highlight1.
+  ///
+  /// In en, this message translates to:
+  /// **'Premieres'**
+  String get onboardingSlide3Highlight1;
+
+  /// No description provided for @onboardingSlide3Highlight2.
+  ///
+  /// In en, this message translates to:
+  /// **'Meet Stars'**
+  String get onboardingSlide3Highlight2;
+
+  /// No description provided for @onboardingSlide3Highlight3.
+  ///
+  /// In en, this message translates to:
+  /// **'Interviews'**
+  String get onboardingSlide3Highlight3;
+
   /// No description provided for @errorNetwork.
   ///
   /// In en, this message translates to:

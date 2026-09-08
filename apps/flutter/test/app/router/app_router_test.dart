@@ -9,14 +9,26 @@ import 'package:matinee/app/router/stream_listenable.dart';
 import 'package:matinee/app/startup/app_startup_cubit.dart';
 import 'package:matinee/app/startup/splash_screen.dart';
 import 'package:matinee/core/theme/app_theme.dart';
-import 'package:matinee/features/home/presentation/home_screen.dart';
+import 'package:matinee/di/service_locator.dart';
+import 'package:matinee/features/onboarding/data/onboarding_repository.dart';
+import 'package:matinee/features/onboarding/presentation/onboarding_screen.dart';
 import 'package:matinee/l10n/gen/app_localizations.dart';
+import 'package:mocktail/mocktail.dart';
 
 class _Gate {}
 
+class _MockOnboardingRepository extends Mock implements OnboardingRepository {}
+
 void main() {
   group('createRouter', () {
-    testWidgets('shows $SplashScreen until startup succeeds, then $HomeScreen', (tester) async {
+    testWidgets('shows $SplashScreen until startup succeeds, then $OnboardingScreen', (tester) async {
+      // OnboardingScreen resolves its repository from the composition root, so
+      // the landing route needs one registered before the router builds it. It
+      // is mocked because the real one reaches SharedPreferences, which has no
+      // platform binding under test.
+      getIt.registerLazySingleton<OnboardingRepository>(_MockOnboardingRepository.new);
+      addTearDown(getIt.reset);
+
       final gate = Completer<void>();
       final startup = AppStartupCubit(GetIt.asNewInstance(), (locator) {
         locator.registerSingletonAsync<_Gate>(() async {
@@ -52,7 +64,7 @@ void main() {
       await tester.pump();
       await tester.pump();
 
-      expect(find.byType(HomeScreen), findsOneWidget);
+      expect(find.byType(OnboardingScreen), findsOneWidget);
     });
   });
 }

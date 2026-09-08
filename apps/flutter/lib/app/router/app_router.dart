@@ -23,7 +23,11 @@ GoRouter createRouter(AppStartupCubit startup, {required Listenable refreshListe
         return onSplash ? null : SplashRoute(from: state.uri.toString()).location;
       }
       if (onSplash) {
-        return state.uri.queryParameters['from'] ?? const HomeRoute().location;
+        // TEMPORARY, FOR DEMOS: the intro is the landing screen every launch,
+        // so the whole flow is visible. This deliberately ignores the 'from'
+        // deep link too, which the real clause below must restore.
+        return const OnboardingRoute().location;
+        // return state.uri.queryParameters['from'] ?? const HomeRoute().location;
       }
       return null;
     },

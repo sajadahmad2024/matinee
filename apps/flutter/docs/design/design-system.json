@@ -3817,6 +3817,9 @@
     "evidence": [
      "OnboardingScreen#85:1664",
      "Frame#85:1670"
+    ],
+    "notes": [
+     "Implemented 2026-09-09 as the onboarding feature: one slide widget driven by data across a three-page PageView. The copy is anchored above the CTA rather than at the frame's fixed y=326 so it holds on any device height. Figma's 0.35 image opacity, {gold@8%} pill and {white@5%}/{white@9%}/{white@75%} tiles use the normalised tokens already recorded here. Emoji take AppIconSize.lg and render as tofu on the iOS simulator, which ships no colour emoji font."
     ]
    },
    {
