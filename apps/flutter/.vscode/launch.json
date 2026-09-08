@@ -4,7 +4,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Template DEV",
+      "name": "Matinee DEV",
       "request": "launch",
       "type": "dart",
       "flutterMode": "debug",
@@ -12,7 +12,7 @@
       "args": ["--flavor", "dev"]
     },
     {
-      "name": "Template STAGING",
+      "name": "Matinee STAGING",
       "request": "launch",
       "type": "dart",
       "flutterMode": "debug",
@@ -20,7 +20,7 @@
       "args": ["--flavor", "staging"]
     },
     {
-      "name": "Template PROD",
+      "name": "Matinee PROD",
       "request": "launch",
       "type": "dart",
       "flutterMode": "debug",

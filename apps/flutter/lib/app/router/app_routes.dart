@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:template/app/startup/splash_screen.dart';
-import 'package:template/features/home/presentation/home_screen.dart';
+import 'package:matinee/app/startup/splash_screen.dart';
+import 'package:matinee/features/home/presentation/home_screen.dart';
 
 part 'app_routes.g.dart';
 

@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:template/app/startup/app_startup_state.dart';
-import 'package:template/core/error/report.dart';
+import 'package:matinee/app/startup/app_startup_state.dart';
+import 'package:matinee/core/error/report.dart';
 
 ///
 /// Main-init orchestrator. It sequences and maps to state; the actual work

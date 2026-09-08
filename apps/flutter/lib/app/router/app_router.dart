@@ -1,9 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
-import 'package:template/app/router/app_routes.dart';
-import 'package:template/app/router/not_found_screen.dart';
-import 'package:template/app/startup/app_startup_cubit.dart';
-import 'package:template/app/startup/app_startup_state.dart';
+import 'package:matinee/app/router/app_routes.dart';
+import 'package:matinee/app/router/not_found_screen.dart';
+import 'package:matinee/app/startup/app_startup_cubit.dart';
+import 'package:matinee/app/startup/app_startup_state.dart';
 
 ///
 /// Built once by App. The redirect keeps every route behind the splash until

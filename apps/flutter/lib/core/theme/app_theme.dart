@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:template/core/theme/app_color_scheme.dart';
-import 'package:template/core/theme/app_colors.dart';
-import 'package:template/core/theme/app_spacing.dart';
-import 'package:template/core/theme/app_text_styles.dart';
+import 'package:matinee/core/theme/app_color_scheme.dart';
+import 'package:matinee/core/theme/app_colors.dart';
+import 'package:matinee/core/theme/app_spacing.dart';
+import 'package:matinee/core/theme/app_text_styles.dart';
 
 ///
 /// Builds ThemeData for one scheme. Component themes are defined here once;

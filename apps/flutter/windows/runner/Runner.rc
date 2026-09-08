@@ -89,13 +89,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.geekyants.coe" "\0"
-            VALUE "FileDescription", "template" "\0"
+            VALUE "CompanyName", "TTLE" "\0"
+            VALUE "FileDescription", "Matinee" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "template" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2026 com.geekyants.coe. All rights reserved." "\0"
-            VALUE "OriginalFilename", "template.exe" "\0"
-            VALUE "ProductName", "template" "\0"
+            VALUE "InternalName", "Matinee" "\0"
+            VALUE "LegalCopyright", "Copyright © 2026 TTLE. All rights reserved." "\0"
+            VALUE "OriginalFilename", "matinee.exe" "\0"
+            VALUE "ProductName", "Matinee" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

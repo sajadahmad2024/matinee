@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:template/core/config/env.dart';
+import 'package:matinee/core/config/env.dart';
 
 ///
 /// One Dio per app, registered in get_it. An AuthInterceptor, when a project

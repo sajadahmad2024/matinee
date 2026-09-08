@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:template/core/error/app_exception.dart';
+import 'package:matinee/core/error/app_exception.dart';
 
 ///
 /// Runs one API call and converts any DioException into the matching

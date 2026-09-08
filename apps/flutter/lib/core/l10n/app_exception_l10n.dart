@@ -1,5 +1,5 @@
-import 'package:template/core/error/app_exception.dart';
-import 'package:template/l10n/gen/app_localizations.dart';
+import 'package:matinee/core/error/app_exception.dart';
+import 'package:matinee/l10n/gen/app_localizations.dart';
 
 ///
 /// The one mapping from a failure to the sentence the user reads. Feature

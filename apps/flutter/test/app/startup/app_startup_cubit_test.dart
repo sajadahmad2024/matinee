@@ -1,8 +1,8 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
-import 'package:template/app/startup/app_startup_cubit.dart';
-import 'package:template/app/startup/app_startup_state.dart';
+import 'package:matinee/app/startup/app_startup_cubit.dart';
+import 'package:matinee/app/startup/app_startup_state.dart';
 
 class _Gate {}
 

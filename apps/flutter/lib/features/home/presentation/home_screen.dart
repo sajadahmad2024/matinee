@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:template/core/l10n/l10n.dart';
-import 'package:template/core/responsive/responsive.dart';
+import 'package:matinee/core/l10n/l10n.dart';
+import 'package:matinee/core/responsive/responsive.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});

@@ -1,4 +1,4 @@
-package com.geekyants.coe.template
+package com.ttle.matinee
 
 import io.flutter.embedding.android.FlutterActivity
 

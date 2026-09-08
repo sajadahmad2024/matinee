@@ -1,9 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
-import 'package:template/core/config/env.dart';
-import 'package:template/core/network/dio_factory.dart';
-import 'package:template/core/storage/preferences_service.dart';
-import 'package:template/core/storage/secure_storage_service.dart';
+import 'package:matinee/core/config/env.dart';
+import 'package:matinee/core/network/dio_factory.dart';
+import 'package:matinee/core/storage/preferences_service.dart';
+import 'package:matinee/core/storage/secure_storage_service.dart';
 
 ///
 /// The composition root. Declared once; every feature imports this instance.

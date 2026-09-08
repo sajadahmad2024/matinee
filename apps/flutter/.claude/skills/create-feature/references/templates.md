@@ -26,7 +26,7 @@ abstract class ProfileDto with _$ProfileDto {
 
 ```dart
 import 'package:dio/dio.dart';
-import 'package:template/features/profile/data/models/profile_dto.dart';
+import 'package:matinee/features/profile/data/models/profile_dto.dart';
 
 ///
 /// One service per data source. It speaks HTTP and returns DTOs; it does not
@@ -49,9 +49,9 @@ With a generated client from add-api, the repository takes the generated `Profil
 ## `data/profile_repository.dart`
 
 ```dart
-import 'package:template/core/network/error_mapper.dart';
-import 'package:template/features/profile/data/models/profile_dto.dart';
-import 'package:template/features/profile/data/services/profile_api_service.dart';
+import 'package:matinee/core/network/error_mapper.dart';
+import 'package:matinee/features/profile/data/models/profile_dto.dart';
+import 'package:matinee/features/profile/data/services/profile_api_service.dart';
 
 ///
 /// Source of truth for profile data. Every method is one guardApi call, so a
@@ -72,8 +72,8 @@ A separate domain model, when earned, is mapped here: `Future<UserProfile> fetch
 
 ```dart
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:template/core/error/app_exception.dart';
-import 'package:template/features/profile/data/models/profile_dto.dart';
+import 'package:matinee/core/error/app_exception.dart';
+import 'package:matinee/features/profile/data/models/profile_dto.dart';
 
 part 'profile_state.freezed.dart';
 
@@ -90,9 +90,9 @@ sealed class ProfileState with _$ProfileState {
 
 ```dart
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:template/core/error/app_exception.dart';
-import 'package:template/features/profile/data/profile_repository.dart';
-import 'package:template/features/profile/presentation/cubit/profile_state.dart';
+import 'package:matinee/core/error/app_exception.dart';
+import 'package:matinee/features/profile/data/profile_repository.dart';
+import 'package:matinee/features/profile/presentation/cubit/profile_state.dart';
 
 class ProfileCubit extends Cubit<ProfileState> {
   ProfileCubit(this._repository) : super(const ProfileState.initial());
@@ -116,9 +116,9 @@ Bloc variant, only when events are needed:
 
 ```dart
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:template/core/error/app_exception.dart';
-import 'package:template/features/profile/data/profile_repository.dart';
-import 'package:template/features/profile/presentation/cubit/profile_state.dart';
+import 'package:matinee/core/error/app_exception.dart';
+import 'package:matinee/features/profile/data/profile_repository.dart';
+import 'package:matinee/features/profile/presentation/cubit/profile_state.dart';
 
 part 'profile_event.dart';
 
@@ -160,15 +160,15 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:template/core/l10n/app_exception_l10n.dart';
-import 'package:template/core/l10n/l10n.dart';
-import 'package:template/core/responsive/responsive.dart';
-import 'package:template/core/theme/app_spacing.dart';
-import 'package:template/core/widgets/error_view.dart';
-import 'package:template/di/service_locator.dart';
-import 'package:template/features/profile/data/profile_repository.dart';
-import 'package:template/features/profile/presentation/cubit/profile_cubit.dart';
-import 'package:template/features/profile/presentation/cubit/profile_state.dart';
+import 'package:matinee/core/l10n/app_exception_l10n.dart';
+import 'package:matinee/core/l10n/l10n.dart';
+import 'package:matinee/core/responsive/responsive.dart';
+import 'package:matinee/core/theme/app_spacing.dart';
+import 'package:matinee/core/widgets/error_view.dart';
+import 'package:matinee/di/service_locator.dart';
+import 'package:matinee/features/profile/data/profile_repository.dart';
+import 'package:matinee/features/profile/presentation/cubit/profile_cubit.dart';
+import 'package:matinee/features/profile/presentation/cubit/profile_state.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -233,9 +233,9 @@ A detail route takes its identifier in the path: `path: '/orders/:id'`, `final S
 ## `profile_di.dart`
 
 ```dart
-import 'package:template/di/service_locator.dart';
-import 'package:template/features/profile/data/profile_repository.dart';
-import 'package:template/features/profile/data/services/profile_api_service.dart';
+import 'package:matinee/di/service_locator.dart';
+import 'package:matinee/features/profile/data/profile_repository.dart';
+import 'package:matinee/features/profile/data/services/profile_api_service.dart';
 
 void registerProfileDependencies() {
   getIt
@@ -249,7 +249,7 @@ void registerProfileDependencies() {
 One import and one line inside `registerDependencies`, after the core registrations:
 
 ```dart
-import 'package:template/features/profile/profile_di.dart';
+import 'package:matinee/features/profile/profile_di.dart';
 ```
 
 ```dart
@@ -268,11 +268,11 @@ import 'package:template/features/profile/profile_di.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:template/core/error/app_exception.dart';
-import 'package:template/features/profile/data/models/profile_dto.dart';
-import 'package:template/features/profile/data/profile_repository.dart';
-import 'package:template/features/profile/presentation/cubit/profile_cubit.dart';
-import 'package:template/features/profile/presentation/cubit/profile_state.dart';
+import 'package:matinee/core/error/app_exception.dart';
+import 'package:matinee/features/profile/data/models/profile_dto.dart';
+import 'package:matinee/features/profile/data/profile_repository.dart';
+import 'package:matinee/features/profile/presentation/cubit/profile_cubit.dart';
+import 'package:matinee/features/profile/presentation/cubit/profile_state.dart';
 
 class _MockProfileRepository extends Mock implements ProfileRepository {}
 
@@ -315,11 +315,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:template/core/error/app_exception.dart';
-import 'package:template/core/widgets/error_view.dart';
-import 'package:template/features/profile/presentation/cubit/profile_cubit.dart';
-import 'package:template/features/profile/presentation/cubit/profile_state.dart';
-import 'package:template/features/profile/presentation/profile_screen.dart';
+import 'package:matinee/core/error/app_exception.dart';
+import 'package:matinee/core/widgets/error_view.dart';
+import 'package:matinee/features/profile/presentation/cubit/profile_cubit.dart';
+import 'package:matinee/features/profile/presentation/cubit/profile_state.dart';
+import 'package:matinee/features/profile/presentation/profile_screen.dart';
 
 import '../../../helpers/helpers.dart';
 

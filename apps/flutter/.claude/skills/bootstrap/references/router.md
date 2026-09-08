@@ -14,8 +14,8 @@ Rules that apply to every route in the app:
 ```dart
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:template/app/startup/splash_screen.dart';
-import 'package:template/features/home/presentation/home_screen.dart';
+import 'package:matinee/app/startup/splash_screen.dart';
+import 'package:matinee/features/home/presentation/home_screen.dart';
 
 part 'app_routes.g.dart';
 
@@ -72,10 +72,10 @@ final class StreamListenable extends ChangeNotifier {
 ```dart
 import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
-import 'package:template/app/router/app_routes.dart';
-import 'package:template/app/router/not_found_screen.dart';
-import 'package:template/app/startup/app_startup_cubit.dart';
-import 'package:template/app/startup/app_startup_state.dart';
+import 'package:matinee/app/router/app_routes.dart';
+import 'package:matinee/app/router/not_found_screen.dart';
+import 'package:matinee/app/startup/app_startup_cubit.dart';
+import 'package:matinee/app/startup/app_startup_state.dart';
 
 ///
 /// Built once by App. The redirect keeps every route behind the splash until
@@ -109,9 +109,9 @@ GoRouter createRouter(AppStartupCubit startup, {required Listenable refreshListe
 
 ```dart
 import 'package:flutter/material.dart';
-import 'package:template/app/router/app_routes.dart';
-import 'package:template/core/l10n/l10n.dart';
-import 'package:template/core/widgets/error_view.dart';
+import 'package:matinee/app/router/app_routes.dart';
+import 'package:matinee/core/l10n/l10n.dart';
+import 'package:matinee/core/widgets/error_view.dart';
 
 class NotFoundScreen extends StatelessWidget {
   const NotFoundScreen({required this.uri, super.key});
@@ -137,8 +137,8 @@ The first route needs a screen. This placeholder is replaced by the first real f
 
 ```dart
 import 'package:flutter/material.dart';
-import 'package:template/core/l10n/l10n.dart';
-import 'package:template/core/responsive/responsive.dart';
+import 'package:matinee/core/l10n/l10n.dart';
+import 'package:matinee/core/responsive/responsive.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});

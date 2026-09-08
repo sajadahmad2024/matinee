@@ -30,9 +30,9 @@ class AppShellRoute extends ShellRouteData {
 ```dart
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:template/app/router/app_routes.dart';
-import 'package:template/core/l10n/l10n.dart';
-import 'package:template/core/responsive/responsive.dart';
+import 'package:matinee/app/router/app_routes.dart';
+import 'package:matinee/core/l10n/l10n.dart';
+import 'package:matinee/core/responsive/responsive.dart';
 
 class AppShell extends StatelessWidget {
   const AppShell({required this.child, super.key});

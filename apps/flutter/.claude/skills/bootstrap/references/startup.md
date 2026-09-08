@@ -5,8 +5,8 @@ Copy these files exactly. Replace `template` with the package name from `pubspec
 ## `lib/main_dev.dart` (and `main_staging.dart`, `main_prod.dart`)
 
 ```dart
-import 'package:template/bootstrap.dart';
-import 'package:template/core/config/env.dart';
+import 'package:matinee/bootstrap.dart';
+import 'package:matinee/core/config/env.dart';
 
 Future<void> main() => bootstrap(Env.dev);
 ```
@@ -19,12 +19,12 @@ The other two files differ only in `Env.staging` and `Env.prod`. There is no `li
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:template/app/app.dart';
-import 'package:template/app/bootstrap_error_app.dart';
-import 'package:template/core/config/env.dart';
-import 'package:template/core/error/report.dart';
-import 'package:template/core/observer/app_bloc_observer.dart';
-import 'package:template/di/service_locator.dart';
+import 'package:matinee/app/app.dart';
+import 'package:matinee/app/bootstrap_error_app.dart';
+import 'package:matinee/core/config/env.dart';
+import 'package:matinee/core/error/report.dart';
+import 'package:matinee/core/observer/app_bloc_observer.dart';
+import 'package:matinee/di/service_locator.dart';
 
 ///
 /// Pre-init. Runs before any widget exists, so it stays minimal: binding,
@@ -68,7 +68,7 @@ Future<void> bootstrap(Env env) async {
 
 ```dart
 import 'package:flutter/material.dart';
-import 'package:template/core/theme/app_spacing.dart';
+import 'package:matinee/core/theme/app_spacing.dart';
 
 ///
 /// Shown when pre-init throws. Nothing else may have initialised, so this has
@@ -129,8 +129,8 @@ final class StartupFailure extends AppStartupState {
 ```dart
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:template/app/startup/app_startup_state.dart';
-import 'package:template/core/error/report.dart';
+import 'package:matinee/app/startup/app_startup_state.dart';
+import 'package:matinee/core/error/report.dart';
 
 ///
 /// Main-init orchestrator. It sequences and maps to state; the actual work
@@ -174,10 +174,10 @@ class AppStartupCubit extends Cubit<AppStartupState> {
 ```dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:template/app/startup/app_startup_cubit.dart';
-import 'package:template/app/startup/app_startup_state.dart';
-import 'package:template/core/l10n/l10n.dart';
-import 'package:template/core/widgets/error_view.dart';
+import 'package:matinee/app/startup/app_startup_cubit.dart';
+import 'package:matinee/app/startup/app_startup_state.dart';
+import 'package:matinee/core/l10n/l10n.dart';
+import 'package:matinee/core/widgets/error_view.dart';
 
 ///
 /// The only route reachable before startup succeeds. The router redirect keeps
@@ -208,7 +208,7 @@ class SplashScreen extends StatelessWidget {
 ```dart
 import 'dart:async';
 
-import 'package:template/core/error/report.dart';
+import 'package:matinee/core/error/report.dart';
 
 ///
 /// Post-init. Fired once by App when startup succeeds. Nothing here may block
@@ -241,16 +241,16 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:template/app/router/app_router.dart';
-import 'package:template/app/router/stream_listenable.dart';
-import 'package:template/app/startup/app_startup_cubit.dart';
-import 'package:template/app/startup/app_startup_state.dart';
-import 'package:template/app/startup/post_init.dart';
-import 'package:template/core/theme/app_theme.dart';
-import 'package:template/core/theme/cubit/theme_cubit.dart';
-import 'package:template/core/theme/cubit/theme_state.dart';
-import 'package:template/di/service_locator.dart';
-import 'package:template/l10n/gen/app_localizations.dart';
+import 'package:matinee/app/router/app_router.dart';
+import 'package:matinee/app/router/stream_listenable.dart';
+import 'package:matinee/app/startup/app_startup_cubit.dart';
+import 'package:matinee/app/startup/app_startup_state.dart';
+import 'package:matinee/app/startup/post_init.dart';
+import 'package:matinee/core/theme/app_theme.dart';
+import 'package:matinee/core/theme/cubit/theme_cubit.dart';
+import 'package:matinee/core/theme/cubit/theme_state.dart';
+import 'package:matinee/di/service_locator.dart';
+import 'package:matinee/l10n/gen/app_localizations.dart';
 
 class App extends StatelessWidget {
   const App({super.key});

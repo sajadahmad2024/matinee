@@ -1,5 +1,5 @@
-name: template
-description: "A Flutter cross-platform template project."
+name: matinee
+description: "Matinee Flutter application."
 publish_to: "none"
 
 version: 1.0.0+1

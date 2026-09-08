@@ -167,10 +167,10 @@ abstract final class AppSpacing {
 
 ```dart
 import 'package:flutter/material.dart';
-import 'package:template/core/theme/app_color_scheme.dart';
-import 'package:template/core/theme/app_colors.dart';
-import 'package:template/core/theme/app_spacing.dart';
-import 'package:template/core/theme/app_text_styles.dart';
+import 'package:matinee/core/theme/app_color_scheme.dart';
+import 'package:matinee/core/theme/app_colors.dart';
+import 'package:matinee/core/theme/app_spacing.dart';
+import 'package:matinee/core/theme/app_text_styles.dart';
 
 ///
 /// Builds ThemeData for one scheme. Component themes are defined here once;
@@ -221,7 +221,7 @@ class AppTheme {
 ```dart
 import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:template/core/theme/app_color_scheme.dart';
+import 'package:matinee/core/theme/app_color_scheme.dart';
 
 part 'theme_state.freezed.dart';
 
@@ -239,8 +239,8 @@ abstract class ThemeState with _$ThemeState {
 ```dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:template/core/theme/app_color_scheme.dart';
-import 'package:template/core/theme/cubit/theme_state.dart';
+import 'package:matinee/core/theme/app_color_scheme.dart';
+import 'package:matinee/core/theme/cubit/theme_state.dart';
 
 ///
 /// Holds the active scheme and mode. Persisting the choice is a per-project
@@ -259,7 +259,7 @@ class ThemeCubit extends Cubit<ThemeState> {
 
 ```dart
 import 'package:flutter/material.dart';
-import 'package:template/core/theme/app_colors.dart';
+import 'package:matinee/core/theme/app_colors.dart';
 
 extension AppThemeBuildContext on BuildContext {
   AppColors get appColors => Theme.of(this).extension<AppColors>()!;

@@ -1,5 +1,5 @@
 import 'package:flutter/widgets.dart';
-import 'package:template/core/responsive/window_size.dart';
+import 'package:matinee/core/responsive/window_size.dart';
 
 ///
 /// Uses MediaQuery.sizeOf, which rebuilds only on size changes, not on every

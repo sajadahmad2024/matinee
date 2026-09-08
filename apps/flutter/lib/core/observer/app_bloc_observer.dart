@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:template/core/error/report.dart';
+import 'package:matinee/core/error/report.dart';
 
 final class AppBlocObserver extends BlocObserver {
   const AppBlocObserver();

@@ -1,6 +1,6 @@
-# template
+# matinee
 
-A Flutter cross-platform template project.
+Matinee — a Flutter cross-platform application.
 
 ---
 
@@ -8,22 +8,22 @@ A Flutter cross-platform template project.
 
 Before writing any code, complete the following one-time setup steps:
 
-### 1. Rename the package and app name
+### 1. Package and app identity
 
-Open `package_rename_config.yaml` and replace all placeholder values
-(`My App`, `com.example.myapp`, `Your Organization`, etc.) with your
-actual app name, bundle identifier, and organization details.
+Already applied for this project. `package_rename_config.yaml` holds the base
+identity (`com.ttle.matinee`, `Matinee`); the Dart package is `matinee`.
+Per-flavor identity is not in that file — it lives where the build systems read it:
+`applicationIdSuffix` and the `app_name` resValue per productFlavor in
+`android/app/build.gradle.kts`, and `PRODUCT_BUNDLE_IDENTIFIER` /
+`APP_DISPLAY_NAME` per build configuration in the Xcode projects.
 
-Then run the rename tool once per flavor:
+To change the base identity again, edit the config and re-run:
 
 ```bash
 dart run package_rename --flavour=dev
 dart run package_rename --flavour=staging
 dart run package_rename --flavour=prod
 ```
-
-This updates the app name and package/bundle ID across all 6 platforms
-(Android, iOS, macOS, Web, Linux, Windows) in one step.
 
 ### 2. Set up app icons
 
@@ -50,7 +50,7 @@ Three environments are available: `dev`, `staging`, and `prod`. Each has a dedic
 
 ### VSCode
 
-Use the pre-configured launch targets in `.vscode/launch.json` (`Template DEV`, `Template STAGING`, `Template PROD`).
+Use the pre-configured launch targets in `.vscode/launch.json` (`Matinee DEV`, `Matinee STAGING`, `Matinee PROD`).
 
 ### Android / iOS / macOS
 

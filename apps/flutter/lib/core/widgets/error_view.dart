@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:template/core/l10n/l10n.dart';
-import 'package:template/core/theme/app_spacing.dart';
+import 'package:matinee/core/l10n/l10n.dart';
+import 'package:matinee/core/theme/app_spacing.dart';
 
 class ErrorView extends StatelessWidget {
   const ErrorView({required this.message, required this.onRetry, super.key, this.actionLabel});

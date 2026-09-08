@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:template/core/theme/app_spacing.dart';
+import 'package:matinee/core/theme/app_spacing.dart';
 
 ///
 /// Shown when pre-init throws. Nothing else may have initialised, so this has

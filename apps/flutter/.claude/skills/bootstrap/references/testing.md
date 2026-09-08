@@ -7,9 +7,9 @@ Conventions for every test file are in `.claude/rules/testing.md` and load autom
 ```dart
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:template/core/theme/app_color_scheme.dart';
-import 'package:template/core/theme/app_theme.dart';
-import 'package:template/l10n/gen/app_localizations.dart';
+import 'package:matinee/core/theme/app_color_scheme.dart';
+import 'package:matinee/core/theme/app_theme.dart';
+import 'package:matinee/l10n/gen/app_localizations.dart';
 
 extension PumpApp on WidgetTester {
   Future<void> pumpApp(Widget widget, {ThemeData? theme}) {
@@ -47,8 +47,8 @@ Test files import helpers relatively (`import '../helpers/helpers.dart';`); `alw
 ```dart
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:template/core/error/app_exception.dart';
-import 'package:template/core/network/error_mapper.dart';
+import 'package:matinee/core/error/app_exception.dart';
+import 'package:matinee/core/network/error_mapper.dart';
 
 DioException _badResponse(int statusCode) {
   final options = RequestOptions(path: '/x');
@@ -109,8 +109,8 @@ void main() {
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
-import 'package:template/app/startup/app_startup_cubit.dart';
-import 'package:template/app/startup/app_startup_state.dart';
+import 'package:matinee/app/startup/app_startup_cubit.dart';
+import 'package:matinee/app/startup/app_startup_state.dart';
 
 class _Gate {}
 
@@ -176,12 +176,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
-import 'package:template/app/router/app_router.dart';
-import 'package:template/app/router/stream_listenable.dart';
-import 'package:template/app/startup/app_startup_cubit.dart';
-import 'package:template/app/startup/splash_screen.dart';
-import 'package:template/features/home/presentation/home_screen.dart';
-import 'package:template/l10n/gen/app_localizations.dart';
+import 'package:matinee/app/router/app_router.dart';
+import 'package:matinee/app/router/stream_listenable.dart';
+import 'package:matinee/app/startup/app_startup_cubit.dart';
+import 'package:matinee/app/startup/splash_screen.dart';
+import 'package:matinee/features/home/presentation/home_screen.dart';
+import 'package:matinee/l10n/gen/app_localizations.dart';
 
 class _Gate {}
 
@@ -234,7 +234,7 @@ void main() {
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:template/app/router/stream_listenable.dart';
+import 'package:matinee/app/router/stream_listenable.dart';
 
 void main() {
   group(StreamListenable, () {
@@ -271,9 +271,9 @@ void main() {
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:template/core/theme/app_color_scheme.dart';
-import 'package:template/core/theme/cubit/theme_cubit.dart';
-import 'package:template/core/theme/cubit/theme_state.dart';
+import 'package:matinee/core/theme/app_color_scheme.dart';
+import 'package:matinee/core/theme/cubit/theme_cubit.dart';
+import 'package:matinee/core/theme/cubit/theme_state.dart';
 
 void main() {
   group(ThemeCubit, () {
@@ -298,9 +298,9 @@ void main() {
 
 ```dart
 import 'package:flutter_test/flutter_test.dart';
-import 'package:template/core/error/app_exception.dart';
-import 'package:template/core/l10n/app_exception_l10n.dart';
-import 'package:template/l10n/gen/app_localizations_en.dart';
+import 'package:matinee/core/error/app_exception.dart';
+import 'package:matinee/core/l10n/app_exception_l10n.dart';
+import 'package:matinee/l10n/gen/app_localizations_en.dart';
 
 void main() {
   group('AppExceptionL10n', () {

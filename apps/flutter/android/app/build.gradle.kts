@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.geekyants.coe.template"
+    namespace = "com.ttle.matinee"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -20,7 +20,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.geekyants.coe.template"
+        applicationId = "com.ttle.matinee"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
@@ -40,16 +40,16 @@ android {
         create("dev") {
             dimension = "default"
             applicationIdSuffix = ".dev"
-            resValue(type = "string", name = "app_name", value = "Template Dev")
+            resValue(type = "string", name = "app_name", value = "Matinee Dev")
         }
         create("staging") {
             dimension = "default"
             applicationIdSuffix = ".staging"
-            resValue(type = "string", name = "app_name", value = "Template Staging")
+            resValue(type = "string", name = "app_name", value = "Matinee Staging")
         }
         create("prod") {
             dimension = "default"
-            resValue(type = "string", name = "app_name", value = "Template")
+            resValue(type = "string", name = "app_name", value = "Matinee")
         }
     }
 }

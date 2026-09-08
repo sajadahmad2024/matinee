@@ -1,94 +1,95 @@
 # Configuration for the package_rename tool.
-# Update all placeholder values below with your actual app details before running the rename commands.
 #
 # Usage (run once per flavor):
 #   dart run package_rename --flavour=dev
 #   dart run package_rename --flavour=staging
 #   dart run package_rename --flavour=prod
+#
+# The three sections are intentionally identical. package_rename is flavor-blind:
+# it writes a single applicationId/namespace, a single Info.plist and a single
+# CMake/Runner.rc, so per-flavor values here would just overwrite each other.
+# Flavor identity already lives where the build system expects it and must stay there:
+#   - Android: `applicationIdSuffix` and the `app_name` resValue per productFlavor
+#     in android/app/build.gradle.kts, read through android:label="@string/app_name".
+#   - iOS/macOS: PRODUCT_BUNDLE_IDENTIFIER and APP_DISPLAY_NAME per build
+#     configuration in Runner.xcodeproj, read through $(APP_DISPLAY_NAME).
+# So `android.app_name`, `ios.app_name` and the flavor suffixes are deliberately
+# omitted below; only the base identity is written here.
 
 # ─── Dev ──────────────────────────────────────────────────────────────────────
 
 package_rename_config-dev:
   android:
-    app_name: My App Dev # Display name shown on the device
-    package_name: com.example.myapp.dev # Android application ID
-    override_old_package: com.geekyants.coe.template # Cleans up old folder structure
+    package_name: com.ttle.matinee # Base applicationId; flavors append .dev / .staging
     lang: kotlin
   ios:
-    app_name: My App Dev
-    bundle_name: myapp-dev # Short bundle name (lowercase, no spaces)
-    package_name: com.example.myapp.dev # iOS bundle identifier
+    bundle_name: matinee # Short bundle name (lowercase, no spaces)
+    package_name: com.ttle.matinee # Base bundle identifier; flavor suffixes are preserved
   macos:
-    app_name: My App Dev
-    package_name: com.example.myapp.dev
-    copyright_notice: Copyright © 2024 Your Organization. All rights reserved.
+    app_name: Matinee
+    package_name: com.ttle.matinee
+    copyright_notice: Copyright © 2026 TTLE. All rights reserved.
   web:
-    app_name: My App Dev
-    description: A Flutter application (dev).
+    app_name: Matinee
+    description: Matinee.
   linux:
-    app_name: My App Dev
-    package_name: com.example.myapp.dev
-    exe_name: myapp-dev
+    app_name: Matinee
+    package_name: com.ttle.matinee
+    exe_name: matinee
   windows:
-    app_name: My App Dev
-    organization: Your Organization
-    copyright_notice: Copyright © 2024 Your Organization. All rights reserved.
-    exe_name: myapp-dev
+    app_name: Matinee
+    organization: TTLE
+    copyright_notice: Copyright © 2026 TTLE. All rights reserved.
+    exe_name: matinee
 
 # ─── Staging ──────────────────────────────────────────────────────────────────
 
 package_rename_config-staging:
   android:
-    app_name: My App Staging
-    package_name: com.example.myapp.staging
-    override_old_package: com.geekyants.coe.template
+    package_name: com.ttle.matinee
     lang: kotlin
   ios:
-    app_name: My App Staging
-    bundle_name: myapp-staging
-    package_name: com.example.myapp.staging
+    bundle_name: matinee
+    package_name: com.ttle.matinee
   macos:
-    app_name: My App Staging
-    package_name: com.example.myapp.staging
-    copyright_notice: Copyright © 2024 Your Organization. All rights reserved.
+    app_name: Matinee
+    package_name: com.ttle.matinee
+    copyright_notice: Copyright © 2026 TTLE. All rights reserved.
   web:
-    app_name: My App Staging
-    description: A Flutter application (staging).
+    app_name: Matinee
+    description: Matinee.
   linux:
-    app_name: My App Staging
-    package_name: com.example.myapp.staging
-    exe_name: myapp-staging
+    app_name: Matinee
+    package_name: com.ttle.matinee
+    exe_name: matinee
   windows:
-    app_name: My App Staging
-    organization: Your Organization
-    copyright_notice: Copyright © 2024 Your Organization. All rights reserved.
-    exe_name: myapp-staging
+    app_name: Matinee
+    organization: TTLE
+    copyright_notice: Copyright © 2026 TTLE. All rights reserved.
+    exe_name: matinee
 
 # ─── Prod ─────────────────────────────────────────────────────────────────────
 
 package_rename_config-prod:
   android:
-    app_name: My App
-    package_name: com.example.myapp
-    override_old_package: com.geekyants.coe.template
+    package_name: com.ttle.matinee
     lang: kotlin
   ios:
-    app_name: My App
-    bundle_name: myapp
-    package_name: com.example.myapp
+    bundle_name: matinee
+    package_name: com.ttle.matinee
   macos:
-    app_name: My App
-    package_name: com.example.myapp
-    copyright_notice: Copyright © 2024 Your Organization. All rights reserved.
+    app_name: Matinee
+    package_name: com.ttle.matinee
+    copyright_notice: Copyright © 2026 TTLE. All rights reserved.
   web:
-    app_name: My App
-    description: A Flutter application.
+    app_name: Matinee
+    description: Matinee.
   linux:
-    app_name: My App
-    package_name: com.example.myapp
-    exe_name: myapp
+    app_name: Matinee
+    package_name: com.ttle.matinee
+    exe_name: matinee
   windows:
-    app_name: My App
-    organization: Your Organization
-    copyright_notice: Copyright © 2024 Your Organization. All rights reserved.
-    exe_name: myapp
+    app_name: Matinee
+    organization: TTLE
+    copyright_notice: Copyright © 2026 TTLE. All rights reserved.
+    exe_name: matinee

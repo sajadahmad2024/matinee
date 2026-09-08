@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:template/core/theme/app_color_scheme.dart';
-import 'package:template/core/theme/cubit/theme_state.dart';
+import 'package:matinee/core/theme/app_color_scheme.dart';
+import 'package:matinee/core/theme/cubit/theme_state.dart';
 
 ///
 /// Holds the active scheme and mode. Persisting the choice is a per-project

@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:template/core/error/app_exception.dart';
-import 'package:template/core/l10n/app_exception_l10n.dart';
-import 'package:template/l10n/gen/app_localizations_en.dart';
+import 'package:matinee/core/error/app_exception.dart';
+import 'package:matinee/core/l10n/app_exception_l10n.dart';
+import 'package:matinee/l10n/gen/app_localizations_en.dart';
 
 void main() {
   group('AppExceptionL10n', () {

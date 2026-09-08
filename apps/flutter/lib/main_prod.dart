@@ -1,4 +1,4 @@
-import 'package:template/bootstrap.dart';
-import 'package:template/core/config/env.dart';
+import 'package:matinee/bootstrap.dart';
+import 'package:matinee/core/config/env.dart';
 
 Future<void> main() => bootstrap(Env.prod);

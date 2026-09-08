@@ -3,16 +3,16 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:template/app/router/app_router.dart';
-import 'package:template/app/router/stream_listenable.dart';
-import 'package:template/app/startup/app_startup_cubit.dart';
-import 'package:template/app/startup/app_startup_state.dart';
-import 'package:template/app/startup/post_init.dart';
-import 'package:template/core/theme/app_theme.dart';
-import 'package:template/core/theme/cubit/theme_cubit.dart';
-import 'package:template/core/theme/cubit/theme_state.dart';
-import 'package:template/di/service_locator.dart';
-import 'package:template/l10n/gen/app_localizations.dart';
+import 'package:matinee/app/router/app_router.dart';
+import 'package:matinee/app/router/stream_listenable.dart';
+import 'package:matinee/app/startup/app_startup_cubit.dart';
+import 'package:matinee/app/startup/app_startup_state.dart';
+import 'package:matinee/app/startup/post_init.dart';
+import 'package:matinee/core/theme/app_theme.dart';
+import 'package:matinee/core/theme/cubit/theme_cubit.dart';
+import 'package:matinee/core/theme/cubit/theme_state.dart';
+import 'package:matinee/di/service_locator.dart';
+import 'package:matinee/l10n/gen/app_localizations.dart';
 
 class App extends StatelessWidget {
   const App({super.key});

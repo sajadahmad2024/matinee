@@ -4,12 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
-import 'package:template/app/router/app_router.dart';
-import 'package:template/app/router/stream_listenable.dart';
-import 'package:template/app/startup/app_startup_cubit.dart';
-import 'package:template/app/startup/splash_screen.dart';
-import 'package:template/features/home/presentation/home_screen.dart';
-import 'package:template/l10n/gen/app_localizations.dart';
+import 'package:matinee/app/router/app_router.dart';
+import 'package:matinee/app/router/stream_listenable.dart';
+import 'package:matinee/app/startup/app_startup_cubit.dart';
+import 'package:matinee/app/startup/splash_screen.dart';
+import 'package:matinee/features/home/presentation/home_screen.dart';
+import 'package:matinee/l10n/gen/app_localizations.dart';
 
 class _Gate {}
 

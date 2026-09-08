@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:template/core/error/report.dart';
+import 'package:matinee/core/error/report.dart';
 
 ///
 /// Post-init. Fired once by App when startup succeeds. Nothing here may block

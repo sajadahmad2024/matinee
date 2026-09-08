@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:template/app/startup/app_startup_cubit.dart';
-import 'package:template/app/startup/app_startup_state.dart';
-import 'package:template/core/l10n/l10n.dart';
-import 'package:template/core/widgets/error_view.dart';
+import 'package:matinee/app/startup/app_startup_cubit.dart';
+import 'package:matinee/app/startup/app_startup_state.dart';
+import 'package:matinee/core/l10n/l10n.dart';
+import 'package:matinee/core/widgets/error_view.dart';
 
 ///
 /// The only route reachable before startup succeeds. The router redirect keeps

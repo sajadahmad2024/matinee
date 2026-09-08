@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:template/core/error/app_exception.dart';
-import 'package:template/core/network/error_mapper.dart';
+import 'package:matinee/core/error/app_exception.dart';
+import 'package:matinee/core/network/error_mapper.dart';
 
 DioException _badResponse(int statusCode) {
   final options = RequestOptions(path: '/x');
