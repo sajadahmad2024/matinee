@@ -83,6 +83,10 @@ const envConfig = registerAs(
       CSRF_ENABLED: (process.env['CSRF_ENABLED'] || 'false').toLowerCase() === 'true',
       PHONE_VERIFICATION_PROVIDER: process.env['PHONE_VERIFICATION_PROVIDER'] || 'twilio',
       APPLE_CLIENT_ID: process.env['APPLE_CLIENT_ID'] || '',
+      // Firebase Admin SDK — required when PHONE_VERIFICATION_PROVIDER=firebase
+      FCM_PROJECT_ID: process.env['FCM_PROJECT_ID'] || '',
+      FCM_CLIENT_EMAIL: process.env['FCM_CLIENT_EMAIL'] || '',
+      FCM_PRIVATE_KEY: process.env['FCM_PRIVATE_KEY'] || '',
     }) as EnvConfig
 );
 
@@ -167,6 +171,9 @@ const validationSchema = Joi.object({
   CSRF_ENABLED: Joi.boolean().default(false),
   PHONE_VERIFICATION_PROVIDER: Joi.string().valid('twilio', 'firebase').default('twilio'),
   APPLE_CLIENT_ID: Joi.string().allow('').default(''),
+  FCM_PROJECT_ID: Joi.string().allow('').default(''),
+  FCM_CLIENT_EMAIL: Joi.string().allow('').default(''),
+  FCM_PRIVATE_KEY: Joi.string().allow('').default(''),
   // Email provider (env-driven strategy: smtp / ses / sendgrid / log [dev — logs + stashes code])
   EMAIL_PROVIDER: Joi.string().valid('smtp', 'ses', 'sendgrid', 'log').default('smtp'),
   EMAIL_FROM: Joi.string().allow('').default('noreply@example.com'),

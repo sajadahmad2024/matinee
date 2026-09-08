@@ -320,6 +320,13 @@ export class CustomerAuthService {
 
   // ─── Profile completion (username + referral) ────────────────────────────────
 
+  /** Debounced pre-check for the Create Account screen. `available=false` means someone else
+   *  has this username. Case-insensitively unique — the DB has a lowercase unique index. */
+  async isUsernameAvailable(username: string): Promise<boolean> {
+    const taken = await this.users.findByUsername(username);
+    return !taken;
+  }
+
   async completeProfile(
     userId: string,
     input: { username: string; referralCode?: string | undefined; gender?: string | undefined; fullName?: string | undefined },

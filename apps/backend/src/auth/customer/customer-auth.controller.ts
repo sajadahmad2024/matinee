@@ -11,6 +11,7 @@ import { CustomerAuthService } from './customer-auth.service';
 import { RequestPhoneOtpDto } from './dto/request-phone-otp.dto';
 import { VerifyPhoneDto } from './dto/verify-phone.dto';
 import { CompleteProfileDto } from './dto/complete-profile.dto';
+import { CheckUsernameDto } from './dto/check-username.dto';
 import { RefreshDto } from './dto/refresh.dto';
 import {
   AuthResponseDto,
@@ -18,6 +19,7 @@ import {
   OtpDeliveryResponseDto,
   RefreshResponseDto,
   UserResponseDto,
+  UsernameAvailableResponseDto,
 } from '../dto/auth-responses.dto';
 
 @ApiTags('Customer Auth')
@@ -103,6 +105,15 @@ export class CustomerAuthController {
     const { guestToken, redirect } = this.auth.decodeOAuthState(state);
     const result = await this.auth.completeSocialLogin('apple', code, guestToken);
     res.redirect(this.auth.buildSuccessRedirect(result, redirect));
+  }
+
+  @Get('username/available')
+  @Public()
+  @Throttle({ short: { limit: 30, ttl: 60_000 } })
+  @ApiOperation({ summary: 'Pre-check username availability (for the Create Account screen)' })
+  @ApiEnvelope(UsernameAvailableResponseDto)
+  async checkUsername(@Query() dto: CheckUsernameDto) {
+    return { available: await this.auth.isUsernameAvailable(dto.username) };
   }
 
   @Post('profile')
