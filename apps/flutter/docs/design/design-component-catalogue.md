@@ -1481,6 +1481,14 @@
 
 **Evidence:** `ProfileScreen#429:23364`
 
+**Notes**
+- Built 2026-09-09 from `429:23362`. Two frames disagree on the menu: this one lists 6 rows, `420:20093` lists 7 (My Earns & Rewards renamed, plus Exclusive Content). The 6-row list is what the app builds, per the user.
+- The header glyph is a **bell**, not the gear this component's name implies. Rendered as drawn; the glyph inventory has no bell entry.
+- My Earns, Notifications and Logout have no destination yet and render inert. Terms and Privacy open the same placeholder link the sign-in legal text uses. Upgrade opens the subscribe sheet.
+- No avatar asset exists, so the avatar falls back to the name's initials; the model carries an `avatarUrl` for when one does.
+- The counters take a thousands separator ('2,500'), as the frame writes them.
+- The title row takes no top padding. The frame leaves 11 between the status bar and the bell glyph, and the bell's 48 tap target already carries 12 around its 24 glyph; a gap on top of that put the avatar 88 below the status bar where the frame draws it at 72.
+
 **Screens:** 429:23362 (Router (Profile)), 427:20440 (Profile), 429:21182 (Profile), 429:22118 (Profile), 429:22828 (Profile), 429:21072 (Profile), 433:781 (Profile), 420:20093 (Refer a friend)
 
 ### `menuRow` — Menu row
@@ -1515,6 +1523,10 @@
 
 **Notes**
 - Button#418:18855 (93×28) is an empty frame — missing 'Change photo' label.
+- Built 2026-09-09. The empty change-photo frame is left out rather than given invented copy.
+- The frame draws no bottom nav, so the route sits outside the shell and covers it while the path still nests under `/profile`.
+- Field labels and the 'About You' eyebrow render upper-case, as the frame draws them, though this entry records the label role as {labelMedium}.
+- The avatar badge glyph is a **pencil**; the glyph inventory calls this one 'camera (edit avatar)'.
 
 **Screens:** 418:18836 (Edit profile)
 
@@ -1527,6 +1539,11 @@
 1. Content P0/20/32/20: title row SB ({titleMedium} + btn.icon.close); code card pt16 {surfaceRaised} r12 P14/16 SB (Your Referral Code {caption} {textSecondary} pb4; CH8362 {numeralLg} {goldLight}; btn.outline copyCode); apps row P20/0/24/0: 4× disc 48 r24 ({brand.whatsapp} / {brand.telegram} / {brand.instagram} / {textMuted}) {titleMedium} white letter + {caption} {textSecondary} label gap 8; btn.primary 'Refer a friend'
 
 **Evidence:** `Container#420:20170`
+
+**Notes**
+- Built 2026-09-09. The share targets are the coloured letter discs the frame draws, not brand marks, so no brand SVGs were needed; the marks stay on the icon-font list.
+- Every target and the CTA copy the code, since no share intent is wired yet.
+- The route is transparent and full-height with the block painted at the bottom, so the sheet can hug its content and still carry the messenger its copy confirmation needs — a sheet sized to its content puts that confirmation behind itself.
 
 **Screens:** 420:20093 (Refer a friend)
 

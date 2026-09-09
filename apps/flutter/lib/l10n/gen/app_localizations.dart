@@ -97,6 +97,210 @@ abstract class AppLocalizations {
   /// **'Matinee'**
   String get appTitle;
 
+  /// No description provided for @profileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get profileTitle;
+
+  /// No description provided for @profileEditAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit profile'**
+  String get profileEditAction;
+
+  /// No description provided for @profileStatPoints.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Points'**
+  String get profileStatPoints;
+
+  /// No description provided for @profileStatStreaks.
+  ///
+  /// In en, this message translates to:
+  /// **'Streaks'**
+  String get profileStatStreaks;
+
+  /// No description provided for @profileStatRank.
+  ///
+  /// In en, this message translates to:
+  /// **'Rank'**
+  String get profileStatRank;
+
+  /// No description provided for @profileUpgradeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Upgrade Subscription'**
+  String get profileUpgradeTitle;
+
+  /// Line under the upgrade row naming the current plan and when it lapses.
+  ///
+  /// In en, this message translates to:
+  /// **'{plan} expires {date}'**
+  String profileUpgradeSubtitle(String plan, String date);
+
+  /// No description provided for @profileUpgradeCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Upgrade'**
+  String get profileUpgradeCta;
+
+  /// No description provided for @profileMenuEarns.
+  ///
+  /// In en, this message translates to:
+  /// **'My Earns'**
+  String get profileMenuEarns;
+
+  /// No description provided for @profileMenuRefer.
+  ///
+  /// In en, this message translates to:
+  /// **'Refer a Friend'**
+  String get profileMenuRefer;
+
+  /// No description provided for @profileMenuNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get profileMenuNotifications;
+
+  /// No description provided for @profileMenuTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms & Conditions'**
+  String get profileMenuTerms;
+
+  /// No description provided for @profileMenuPrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy Policy'**
+  String get profileMenuPrivacy;
+
+  /// No description provided for @profileMenuLogout.
+  ///
+  /// In en, this message translates to:
+  /// **'Logout'**
+  String get profileMenuLogout;
+
+  /// No description provided for @editProfileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Profile'**
+  String get editProfileTitle;
+
+  /// No description provided for @editProfileAboutYou.
+  ///
+  /// In en, this message translates to:
+  /// **'About You'**
+  String get editProfileAboutYou;
+
+  /// No description provided for @editProfileNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Full Name'**
+  String get editProfileNameLabel;
+
+  /// No description provided for @editProfileEmailLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Email ID'**
+  String get editProfileEmailLabel;
+
+  /// No description provided for @editProfilePhoneLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone No.'**
+  String get editProfilePhoneLabel;
+
+  /// No description provided for @editProfileSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Changes'**
+  String get editProfileSave;
+
+  /// No description provided for @editProfileSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile updated.'**
+  String get editProfileSaved;
+
+  /// No description provided for @editProfileNameError.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your name.'**
+  String get editProfileNameError;
+
+  /// No description provided for @editProfileEmailError.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid email address.'**
+  String get editProfileEmailError;
+
+  /// No description provided for @editProfilePhoneError.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid phone number.'**
+  String get editProfilePhoneError;
+
+  /// No description provided for @referTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Refer a Friend'**
+  String get referTitle;
+
+  /// No description provided for @referClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get referClose;
+
+  /// No description provided for @referCodeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Referral Code'**
+  String get referCodeLabel;
+
+  /// No description provided for @referCopyCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy Code'**
+  String get referCopyCode;
+
+  /// No description provided for @referCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Referral code copied.'**
+  String get referCopied;
+
+  /// No description provided for @referShareWhatsapp.
+  ///
+  /// In en, this message translates to:
+  /// **'WhatsApp'**
+  String get referShareWhatsapp;
+
+  /// No description provided for @referShareTelegram.
+  ///
+  /// In en, this message translates to:
+  /// **'Telegram'**
+  String get referShareTelegram;
+
+  /// No description provided for @referShareInstagram.
+  ///
+  /// In en, this message translates to:
+  /// **'Instagram'**
+  String get referShareInstagram;
+
+  /// No description provided for @referShareCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get referShareCopy;
+
+  /// No description provided for @referCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Refer a friend'**
+  String get referCta;
+
   /// No description provided for @navHome.
   ///
   /// In en, this message translates to:

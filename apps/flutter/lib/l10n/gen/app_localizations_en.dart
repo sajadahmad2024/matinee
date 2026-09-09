@@ -12,6 +12,110 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appTitle => 'Matinee';
 
   @override
+  String get profileTitle => 'Profile';
+
+  @override
+  String get profileEditAction => 'Edit profile';
+
+  @override
+  String get profileStatPoints => 'Total Points';
+
+  @override
+  String get profileStatStreaks => 'Streaks';
+
+  @override
+  String get profileStatRank => 'Rank';
+
+  @override
+  String get profileUpgradeTitle => 'Upgrade Subscription';
+
+  @override
+  String profileUpgradeSubtitle(String plan, String date) {
+    return '$plan expires $date';
+  }
+
+  @override
+  String get profileUpgradeCta => 'Upgrade';
+
+  @override
+  String get profileMenuEarns => 'My Earns';
+
+  @override
+  String get profileMenuRefer => 'Refer a Friend';
+
+  @override
+  String get profileMenuNotifications => 'Notifications';
+
+  @override
+  String get profileMenuTerms => 'Terms & Conditions';
+
+  @override
+  String get profileMenuPrivacy => 'Privacy Policy';
+
+  @override
+  String get profileMenuLogout => 'Logout';
+
+  @override
+  String get editProfileTitle => 'Edit Profile';
+
+  @override
+  String get editProfileAboutYou => 'About You';
+
+  @override
+  String get editProfileNameLabel => 'Full Name';
+
+  @override
+  String get editProfileEmailLabel => 'Email ID';
+
+  @override
+  String get editProfilePhoneLabel => 'Phone No.';
+
+  @override
+  String get editProfileSave => 'Save Changes';
+
+  @override
+  String get editProfileSaved => 'Profile updated.';
+
+  @override
+  String get editProfileNameError => 'Enter your name.';
+
+  @override
+  String get editProfileEmailError => 'Enter a valid email address.';
+
+  @override
+  String get editProfilePhoneError => 'Enter a valid phone number.';
+
+  @override
+  String get referTitle => 'Refer a Friend';
+
+  @override
+  String get referClose => 'Close';
+
+  @override
+  String get referCodeLabel => 'Your Referral Code';
+
+  @override
+  String get referCopyCode => 'Copy Code';
+
+  @override
+  String get referCopied => 'Referral code copied.';
+
+  @override
+  String get referShareWhatsapp => 'WhatsApp';
+
+  @override
+  String get referShareTelegram => 'Telegram';
+
+  @override
+  String get referShareInstagram => 'Instagram';
+
+  @override
+  String get referShareCopy => 'Copy';
+
+  @override
+  String get referCta => 'Refer a friend';
+
+  @override
   String get navHome => 'Home';
 
   @override

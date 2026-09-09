@@ -9,6 +9,7 @@ import 'package:matinee/features/auth/presentation/verify_otp_screen.dart';
 import 'package:matinee/features/home/presentation/home_screen.dart';
 import 'package:matinee/features/onboarding/presentation/onboarding_screen.dart';
 import 'package:matinee/features/p2p/presentation/p2p_screen.dart';
+import 'package:matinee/features/profile/presentation/edit_profile_screen.dart';
 import 'package:matinee/features/profile/presentation/profile_screen.dart';
 import 'package:matinee/features/rewards/presentation/rewards_screen.dart';
 
@@ -87,6 +88,19 @@ class ProfileRoute extends GoRouteData with $ProfileRoute {
 
   @override
   Widget build(BuildContext context, GoRouterState state) => const ProfileScreen();
+}
+
+///
+/// Outside the shell, not under the profile branch: the frame draws no bottom
+/// nav, so the screen covers it. The path still nests so the URL and the back
+/// affordance read the way they should.
+///
+@TypedGoRoute<EditProfileRoute>(path: '/profile/edit')
+class EditProfileRoute extends GoRouteData with $EditProfileRoute {
+  const EditProfileRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) => const EditProfileScreen();
 }
 
 @TypedGoRoute<OnboardingRoute>(path: '/onboarding')

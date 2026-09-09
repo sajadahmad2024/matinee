@@ -6,6 +6,7 @@ import 'package:matinee/core/storage/preferences_service.dart';
 import 'package:matinee/core/storage/secure_storage_service.dart';
 import 'package:matinee/features/auth/auth_di.dart';
 import 'package:matinee/features/onboarding/onboarding_di.dart';
+import 'package:matinee/features/profile/profile_di.dart';
 
 ///
 /// The composition root. Declared once; every feature imports this instance.
@@ -26,6 +27,7 @@ void registerDependencies(Env env) {
 
   registerAuthDependencies();
   registerOnboardingDependencies();
+  registerProfileDependencies();
 
   // Feature registrations follow. create-feature appends one line per feature.
 }
