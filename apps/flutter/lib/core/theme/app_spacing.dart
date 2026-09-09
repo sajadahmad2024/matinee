@@ -26,6 +26,15 @@ abstract final class AppSpacing {
   /// Cards are tighter vertically than horizontally by design.
   static const EdgeInsets cardPadding = EdgeInsets.symmetric(horizontal: lg, vertical: 14);
 
+  ///
+  /// The inset that centres a value inside a 52-tall input. The height cannot
+  /// come from a minHeight alone: the decorator anchors its text by baseline
+  /// inside whatever extra height a minHeight adds, which leaves the value
+  /// sitting high. Padding it to nearly the full height and letting minHeight
+  /// make up the last pixel keeps the value centred.
+  ///
+  static const EdgeInsets inputContent = EdgeInsets.symmetric(horizontal: lg, vertical: 14);
+
   static const EdgeInsets sheetContent = EdgeInsets.only(left: xl, right: xl, bottom: xxxl);
 
   static const EdgeInsets modalContent = EdgeInsets.only(top: sm, left: xxl, right: xxl, bottom: 40);

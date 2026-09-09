@@ -12,6 +12,11 @@ import 'package:flutter/material.dart';
 /// Roles marked upper-case in the design (labelSmall, overline, navLabel) are
 /// not transformed here — the caller supplies upper-case text.
 ///
+/// Every role sets `leadingDistribution: even`. Flutter's default splits the
+/// leading a line height adds unevenly, which pushes glyphs towards the top of
+/// their box — visible wherever text is vertically centred in a fixed-height
+/// control, such as an input or a button. Any style added here needs it too.
+///
 abstract final class AppTextStyle {
   static const String _dmSans = 'DM Sans';
   static const String _poppins = 'Poppins';
@@ -23,6 +28,7 @@ abstract final class AppTextStyle {
     fontWeight: FontWeight.w700,
     fontSize: 34,
     height: 1.2,
+    leadingDistribution: TextLeadingDistribution.even,
   );
 
   static const TextStyle displaySmall = TextStyle(
@@ -30,6 +36,7 @@ abstract final class AppTextStyle {
     fontWeight: FontWeight.w800,
     fontSize: 30,
     height: 1.2,
+    leadingDistribution: TextLeadingDistribution.even,
   );
 
   static const TextStyle headlineLarge = TextStyle(
@@ -37,6 +44,7 @@ abstract final class AppTextStyle {
     fontWeight: FontWeight.w700,
     fontSize: 26,
     height: 1.5,
+    leadingDistribution: TextLeadingDistribution.even,
   );
 
   static const TextStyle headlineMedium = TextStyle(
@@ -44,6 +52,7 @@ abstract final class AppTextStyle {
     fontWeight: FontWeight.w700,
     fontSize: 24,
     height: 1.3,
+    leadingDistribution: TextLeadingDistribution.even,
   );
 
   static const TextStyle headlineSmall = TextStyle(
@@ -51,6 +60,7 @@ abstract final class AppTextStyle {
     fontWeight: FontWeight.w700,
     fontSize: 22,
     height: 1.5,
+    leadingDistribution: TextLeadingDistribution.even,
   );
 
   static const TextStyle titleLarge = TextStyle(
@@ -58,6 +68,7 @@ abstract final class AppTextStyle {
     fontWeight: FontWeight.w700,
     fontSize: 20,
     height: 1.5,
+    leadingDistribution: TextLeadingDistribution.even,
   );
 
   static const TextStyle titleMedium = TextStyle(
@@ -65,6 +76,7 @@ abstract final class AppTextStyle {
     fontWeight: FontWeight.w600,
     fontSize: 18,
     height: 1.3333,
+    leadingDistribution: TextLeadingDistribution.even,
   );
 
   /// Game and reward card titles set over images.
@@ -73,6 +85,7 @@ abstract final class AppTextStyle {
     fontWeight: FontWeight.w900,
     fontSize: 18,
     height: 1.3333,
+    leadingDistribution: TextLeadingDistribution.even,
   );
 
   static const TextStyle titleSmall = TextStyle(
@@ -80,6 +93,7 @@ abstract final class AppTextStyle {
     fontWeight: FontWeight.w600,
     fontSize: 14,
     height: 1.5,
+    leadingDistribution: TextLeadingDistribution.even,
   );
 
   static const TextStyle bodyLarge = TextStyle(
@@ -87,6 +101,7 @@ abstract final class AppTextStyle {
     fontWeight: FontWeight.w400,
     fontSize: 15,
     height: 1.5,
+    leadingDistribution: TextLeadingDistribution.even,
   );
 
   static const TextStyle bodyMedium = TextStyle(
@@ -94,6 +109,7 @@ abstract final class AppTextStyle {
     fontWeight: FontWeight.w400,
     fontSize: 14,
     height: 1.5,
+    leadingDistribution: TextLeadingDistribution.even,
   );
 
   static const TextStyle bodySmall = TextStyle(
@@ -101,6 +117,7 @@ abstract final class AppTextStyle {
     fontWeight: FontWeight.w400,
     fontSize: 13,
     height: 1.5,
+    leadingDistribution: TextLeadingDistribution.even,
   );
 
   static const TextStyle labelLarge = TextStyle(
@@ -108,6 +125,7 @@ abstract final class AppTextStyle {
     fontWeight: FontWeight.w600,
     fontSize: 15,
     height: 1.5,
+    leadingDistribution: TextLeadingDistribution.even,
     letterSpacing: 0.6,
   );
 
@@ -116,6 +134,7 @@ abstract final class AppTextStyle {
     fontWeight: FontWeight.w700,
     fontSize: 12,
     height: 1.5,
+    leadingDistribution: TextLeadingDistribution.even,
   );
 
   static const TextStyle labelSmall = TextStyle(
@@ -123,6 +142,7 @@ abstract final class AppTextStyle {
     fontWeight: FontWeight.w700,
     fontSize: 10,
     height: 1.5,
+    leadingDistribution: TextLeadingDistribution.even,
     letterSpacing: 1,
   );
 
@@ -132,6 +152,7 @@ abstract final class AppTextStyle {
     fontWeight: FontWeight.w400,
     fontSize: 11,
     height: 1.5,
+    leadingDistribution: TextLeadingDistribution.even,
   );
 
   /// Section eyebrows.
@@ -140,6 +161,7 @@ abstract final class AppTextStyle {
     fontWeight: FontWeight.w700,
     fontSize: 10,
     height: 1.5,
+    leadingDistribution: TextLeadingDistribution.even,
     letterSpacing: 1.2,
   );
 
@@ -149,6 +171,7 @@ abstract final class AppTextStyle {
     fontWeight: FontWeight.w700,
     fontSize: 10,
     height: 1.35,
+    leadingDistribution: TextLeadingDistribution.even,
     letterSpacing: 0.7,
   );
 
@@ -157,6 +180,7 @@ abstract final class AppTextStyle {
     fontWeight: FontWeight.w600,
     fontSize: 38,
     height: 1,
+    leadingDistribution: TextLeadingDistribution.even,
   );
 
   static const TextStyle numeralXl = TextStyle(
@@ -164,6 +188,7 @@ abstract final class AppTextStyle {
     fontWeight: FontWeight.w600,
     fontSize: 34,
     height: 1,
+    leadingDistribution: TextLeadingDistribution.even,
   );
 
   static const TextStyle numeralLg = TextStyle(
@@ -171,6 +196,7 @@ abstract final class AppTextStyle {
     fontWeight: FontWeight.w600,
     fontSize: 26,
     height: 1.5,
+    leadingDistribution: TextLeadingDistribution.even,
   );
 
   static const TextStyle numeralMd = TextStyle(
@@ -178,6 +204,7 @@ abstract final class AppTextStyle {
     fontWeight: FontWeight.w600,
     fontSize: 20,
     height: 1.5,
+    leadingDistribution: TextLeadingDistribution.even,
   );
 
   static const TextStyle numeralSm = TextStyle(
@@ -185,6 +212,7 @@ abstract final class AppTextStyle {
     fontWeight: FontWeight.w600,
     fontSize: 18,
     height: 1,
+    leadingDistribution: TextLeadingDistribution.even,
   );
 
   static const TextStyle numeralPill = TextStyle(
@@ -192,6 +220,7 @@ abstract final class AppTextStyle {
     fontWeight: FontWeight.w700,
     fontSize: 14,
     height: 1,
+    leadingDistribution: TextLeadingDistribution.even,
   );
 
   static const TextStyle numeralAction = TextStyle(
@@ -199,6 +228,7 @@ abstract final class AppTextStyle {
     fontWeight: FontWeight.w500,
     fontSize: 11,
     height: 1.5,
+    leadingDistribution: TextLeadingDistribution.even,
   );
 
   /// displayMedium has no design role and is left at the Material default; a

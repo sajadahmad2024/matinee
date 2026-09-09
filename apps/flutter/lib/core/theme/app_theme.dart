@@ -72,7 +72,7 @@ abstract final class AppTheme {
         filled: true,
         fillColor: appColors.input.background,
         constraints: const BoxConstraints(minHeight: AppControlHeight.input),
-        contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
+        contentPadding: AppSpacing.inputContent,
         hintStyle: AppTextStyle.bodyLarge.copyWith(color: appColors.input.placeholder),
         labelStyle: AppTextStyle.labelMedium.copyWith(color: appColors.input.label),
         errorStyle: AppTextStyle.caption.copyWith(color: appColors.input.errorBorder),
