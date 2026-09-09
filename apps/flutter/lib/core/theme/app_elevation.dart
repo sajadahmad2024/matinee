@@ -14,6 +14,15 @@ abstract final class AppElevation {
     BoxShadow(color: AppPalette.gold.a20, blurRadius: 16),
   ];
 
+  ///
+  /// The focus glow in the error colour. The design draws no input error
+  /// state, so this mirrors the focus geometry with the recorded error role
+  /// rather than inventing a shape of its own.
+  ///
+  static final List<BoxShadow> glowError = [
+    BoxShadow(color: AppPalette.error.a20, blurRadius: 16),
+  ];
+
   static final List<BoxShadow> glowNavIndicator = [
     BoxShadow(color: AppPalette.goldCta.a50, offset: const Offset(0, 1), blurRadius: 6),
   ];

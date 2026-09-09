@@ -1038,6 +1038,14 @@
 
 **Evidence:** `Container#97:5260`, `Container#129:132`, `Container#132:659`
 
+**Notes**
+- Built 2026-09-09 against a mocked service: the CTAs advance the flow, nothing is sent.
+- Radius 10 and the 50/54 button heights take the recorded snaps (12, control 52); block gap 28→32, field gap 18→20, social gap 10→12.
+- The input error state is still undesigned, so an invalid field takes the recorded error role and a focus-shaped glow in it, which is what the open item's derived-rules note calls for.
+- The Google mark is `assets/icons/google.svg`, the vector layer of `97:5288`, rendered with flutter_svg as the icon decision here calls for. The legal document names open a placeholder URL until the real pages exist.
+- Vertical centring of text takes two rules, both in the theme so every screen inherits them: text roles all set `leadingDistribution: even`, because Flutter's default splits a line's extra leading unevenly; and an input's 52 height comes from `AppSpacing.inputContent` rather than a `minHeight` alone, because the decorator anchors its text by baseline inside height a `minHeight` adds, leaving the value sitting high. A test in `test/core/theme` guards both.
+- The dialling-code box is a menu of six markets rather than the static +91 the frame draws; the number's expected length follows the country chosen.
+
 **Screens:** 97:5251 (Sign In), 128:70 (Sign In (Filled)), 129:125 (Verify OTP), 129:179 (Verify OTP (Filled)), 132:651 (User's name), 130:410 (User's name (Filled))
 
 ### `statCard` — Stat card (3-up)
@@ -1534,6 +1542,10 @@
 **Notes**
 - No app bar / close affordance on the paywall.
 - CTA inset 24 while content inset 16.
+- Built 2026-09-09 as the last step of sign-up. The absolute y positions become a scrolling column and the CTA stays pinned beneath it, so the screen holds on shorter and taller devices.
+- Feature-row and benefit copy is placeholder; the frame's own text was not available when this was built.
+- The feature18 check disc renders at 20 (18 snaps to 20).
+- The sign-up flow's paywall is `777:2871` (inside section 97:5036), a newer frame than the `433:1005` this entry was written from, and that is what the app builds. Its off-system values were normalised onto the existing token set rather than added to it: the warm surface makes it an auth screen, so cards are {authContainer} on {authOutline} at radius 16 (design: {white@4%} blurred, {white@8%} stroke) and every text colour is an auth role (design: #94A3B8 / #CBD5E1); the 26px Inter title takes headlineMedium per the 26→24 auth-heading rule; the UNLOCK pill follows this entry's own chip spec ({gold@10%} on {gold}) rather than the frame's {gold@70%} border on {black@20%}; the eyebrow gold is {gold}, not #F5C518. Dropped for want of a role: the 6px backdrop blur, the {white@10%} inset top highlight and the eyebrow's glow. The frame also adds a 'Skip for now' action and carries five bullets, both built.
 
 **Screens:** 433:1005 (Subscribe)
 

@@ -324,6 +324,372 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Something went wrong on our side. Please try again later.'**
   String get errorServer;
+
+  /// No description provided for @authSignInHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign In'**
+  String get authSignInHeader;
+
+  /// No description provided for @authSignInTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What\'\'s your phone number?'**
+  String get authSignInTitle;
+
+  /// No description provided for @authSignInSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'\'ll send you a one-time verification code to confirm your identity.'**
+  String get authSignInSubtitle;
+
+  /// No description provided for @authPhoneLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone Number'**
+  String get authPhoneLabel;
+
+  /// No description provided for @authPhoneHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter phone number'**
+  String get authPhoneHint;
+
+  /// No description provided for @authDialCodeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Country dialling code'**
+  String get authDialCodeLabel;
+
+  /// No description provided for @authDialCodeSheetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Select country'**
+  String get authDialCodeSheetTitle;
+
+  /// No description provided for @authCountryIN.
+  ///
+  /// In en, this message translates to:
+  /// **'India'**
+  String get authCountryIN;
+
+  /// No description provided for @authCountryUS.
+  ///
+  /// In en, this message translates to:
+  /// **'United States'**
+  String get authCountryUS;
+
+  /// No description provided for @authCountryGB.
+  ///
+  /// In en, this message translates to:
+  /// **'United Kingdom'**
+  String get authCountryGB;
+
+  /// No description provided for @authCountryAU.
+  ///
+  /// In en, this message translates to:
+  /// **'Australia'**
+  String get authCountryAU;
+
+  /// No description provided for @authCountrySG.
+  ///
+  /// In en, this message translates to:
+  /// **'Singapore'**
+  String get authCountrySG;
+
+  /// No description provided for @authCountryAE.
+  ///
+  /// In en, this message translates to:
+  /// **'United Arab Emirates'**
+  String get authCountryAE;
+
+  /// No description provided for @authContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get authContinue;
+
+  /// No description provided for @authGetOtp.
+  ///
+  /// In en, this message translates to:
+  /// **'Get OTP'**
+  String get authGetOtp;
+
+  /// No description provided for @authDividerLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'or continue with'**
+  String get authDividerLabel;
+
+  /// No description provided for @authContinueWithGoogle.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue with Google'**
+  String get authContinueWithGoogle;
+
+  /// No description provided for @authContinueWithApple.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue with Apple'**
+  String get authContinueWithApple;
+
+  /// Legal line under the auth forms. The markers are replaced by gold document names.
+  ///
+  /// In en, this message translates to:
+  /// **'By continuing, you agree to our {terms} and {privacy}'**
+  String authLegal(String terms, String privacy);
+
+  /// No description provided for @authLegalTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms of Service'**
+  String get authLegalTerms;
+
+  /// No description provided for @authLegalPrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy Policy'**
+  String get authLegalPrivacy;
+
+  /// No description provided for @authBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get authBack;
+
+  /// No description provided for @authPhoneRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your phone number.'**
+  String get authPhoneRequired;
+
+  /// No description provided for @authPhoneInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the {length} digits of your number, without the dialling code.'**
+  String authPhoneInvalid(int length);
+
+  /// No description provided for @authVerifyHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify OTP'**
+  String get authVerifyHeader;
+
+  /// No description provided for @authVerifyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter Verification Code'**
+  String get authVerifyTitle;
+
+  /// No description provided for @authVerifySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'\'ve sent a {length}-digit OTP to {phoneNumber}'**
+  String authVerifySubtitle(int length, String phoneNumber);
+
+  /// No description provided for @authOtpIncomplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter all {length} digits of the code.'**
+  String authOtpIncomplete(int length);
+
+  /// No description provided for @authOtpResend.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend Code'**
+  String get authOtpResend;
+
+  /// The resend countdown. countdown arrives already formatted, as 0:59s.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend Code in {countdown}'**
+  String authOtpResendIn(String countdown);
+
+  /// No description provided for @authOtpResent.
+  ///
+  /// In en, this message translates to:
+  /// **'We sent a new code.'**
+  String get authOtpResent;
+
+  /// No description provided for @authCreateAccountHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Account'**
+  String get authCreateAccountHeader;
+
+  /// No description provided for @authCreateAccountTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell us a little bit about yourself'**
+  String get authCreateAccountTitle;
+
+  /// No description provided for @authCreateAccountSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your username is how other members will see you.'**
+  String get authCreateAccountSubtitle;
+
+  /// No description provided for @authNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'NAME'**
+  String get authNameLabel;
+
+  /// No description provided for @authNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'@yourusername'**
+  String get authNameHint;
+
+  /// No description provided for @authNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your name.'**
+  String get authNameRequired;
+
+  /// No description provided for @authNameTooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Use at least {length} characters.'**
+  String authNameTooShort(int length);
+
+  /// No description provided for @authNameTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Use no more than {length} characters.'**
+  String authNameTooLong(int length);
+
+  /// No description provided for @authReferralLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Referral Code'**
+  String get authReferralLabel;
+
+  /// No description provided for @authFieldOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'(optional)'**
+  String get authFieldOptional;
+
+  /// No description provided for @authReferralHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter referral code'**
+  String get authReferralHint;
+
+  /// No description provided for @authReferralCodeInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Referral codes are 4 to 12 letters and numbers.'**
+  String get authReferralCodeInvalid;
+
+  /// No description provided for @authCreateAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Account'**
+  String get authCreateAccount;
+
+  /// No description provided for @subscribeEyebrow.
+  ///
+  /// In en, this message translates to:
+  /// **'PREMIUM ACCESS'**
+  String get subscribeEyebrow;
+
+  /// No description provided for @subscribeSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip for now'**
+  String get subscribeSkip;
+
+  /// No description provided for @subscribeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Level Up Your Cinema Experience'**
+  String get subscribeTitle;
+
+  /// No description provided for @subscribeUnlockChip.
+  ///
+  /// In en, this message translates to:
+  /// **'UNLOCK'**
+  String get subscribeUnlockChip;
+
+  /// No description provided for @subscribeFeature1Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Streaks'**
+  String get subscribeFeature1Title;
+
+  /// No description provided for @subscribeFeature1Subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Earn points by engaging daily'**
+  String get subscribeFeature1Subtitle;
+
+  /// No description provided for @subscribeFeature2Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly Quests'**
+  String get subscribeFeature2Title;
+
+  /// No description provided for @subscribeFeature2Subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete missions for big rewards'**
+  String get subscribeFeature2Subtitle;
+
+  /// No description provided for @subscribeFeature3Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Predictive Games'**
+  String get subscribeFeature3Title;
+
+  /// No description provided for @subscribeFeature3Subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Test your cinematic intuition'**
+  String get subscribeFeature3Subtitle;
+
+  /// No description provided for @subscribeWhyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'WHY SUBSCRIBE?'**
+  String get subscribeWhyTitle;
+
+  /// No description provided for @subscribeBenefit1.
+  ///
+  /// In en, this message translates to:
+  /// **'Access to exclusive movie premieres and events'**
+  String get subscribeBenefit1;
+
+  /// No description provided for @subscribeBenefit2.
+  ///
+  /// In en, this message translates to:
+  /// **'Multiplier boosts on all earned Points'**
+  String get subscribeBenefit2;
+
+  /// No description provided for @subscribeBenefit3.
+  ///
+  /// In en, this message translates to:
+  /// **'Priority access to Live Auctions'**
+  String get subscribeBenefit3;
+
+  /// No description provided for @subscribeBenefit4.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly badge unlocks and collectibles'**
+  String get subscribeBenefit4;
+
+  /// No description provided for @subscribeBenefit5.
+  ///
+  /// In en, this message translates to:
+  /// **'Ad-free premium content experience'**
+  String get subscribeBenefit5;
+
+  /// No description provided for @subscribeCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscribe Now'**
+  String get subscribeCta;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

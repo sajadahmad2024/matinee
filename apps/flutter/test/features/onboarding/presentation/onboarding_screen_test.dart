@@ -2,11 +2,11 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:matinee/core/widgets/back_disc_button.dart';
 import 'package:matinee/features/onboarding/data/models/onboarding_slide.dart';
 import 'package:matinee/features/onboarding/presentation/cubit/onboarding_cubit.dart';
 import 'package:matinee/features/onboarding/presentation/cubit/onboarding_state.dart';
 import 'package:matinee/features/onboarding/presentation/onboarding_screen.dart';
-import 'package:matinee/features/onboarding/presentation/widgets/onboarding_back_button.dart';
 import 'package:matinee/features/onboarding/presentation/widgets/onboarding_eyebrow.dart';
 import 'package:matinee/features/onboarding/presentation/widgets/onboarding_stat_pill.dart';
 import 'package:mocktail/mocktail.dart';
@@ -129,7 +129,7 @@ void main() {
         when(cubit.previous).thenAnswer((_) async {});
 
         await pumpView(tester);
-        await tester.tap(find.byType(OnboardingBackButton));
+        await tester.tap(find.byType(BackDiscButton));
         await tester.pump();
 
         verify(cubit.previous).called(1);
@@ -139,7 +139,7 @@ void main() {
         whenShowingFirstSlide();
 
         await pumpView(tester);
-        await tester.tap(find.byType(OnboardingBackButton));
+        await tester.tap(find.byType(BackDiscButton));
         await tester.pump();
 
         verifyNever(cubit.previous);

@@ -1,8 +1,8 @@
 import 'package:flutter/widgets.dart';
 
 ///
-/// Corner radii. CTA, input and card rows are md; cards lg; small buttons,
-/// OTP boxes and calendar days sm; tags, badges and pills pill; tab pills,
+/// Corner radii. CTA, input, card rows and OTP boxes are md; cards lg; small
+/// buttons and calendar days sm; tags, badges and pills pill; tab pills,
 /// points pills and avatars full.
 ///
 abstract final class AppRadius {

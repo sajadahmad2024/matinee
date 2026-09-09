@@ -9,12 +9,12 @@ import 'package:matinee/core/responsive/responsive.dart';
 import 'package:matinee/core/theme/app_sizes.dart';
 import 'package:matinee/core/theme/app_spacing.dart';
 import 'package:matinee/core/theme/extensions/build_context_extensions.dart';
+import 'package:matinee/core/widgets/back_disc_button.dart';
 import 'package:matinee/di/service_locator.dart';
 import 'package:matinee/features/onboarding/data/models/onboarding_slide.dart';
 import 'package:matinee/features/onboarding/data/onboarding_repository.dart';
 import 'package:matinee/features/onboarding/presentation/cubit/onboarding_cubit.dart';
 import 'package:matinee/features/onboarding/presentation/cubit/onboarding_state.dart';
-import 'package:matinee/features/onboarding/presentation/widgets/onboarding_back_button.dart';
 import 'package:matinee/features/onboarding/presentation/widgets/onboarding_slide_view.dart';
 import 'package:matinee/l10n/gen/app_localizations.dart';
 
@@ -154,7 +154,7 @@ class _OnboardingViewState extends State<OnboardingView> {
             return;
           }
           if (state.data.finished) {
-            const HomeRoute().go(context);
+            const SignInRoute().go(context);
             return;
           }
           _syncPager(state.data.index);
@@ -211,7 +211,7 @@ class _TopBar extends StatelessWidget {
             children: [
               // The first slide has nowhere to go back to, so the control is
               // disabled rather than silently doing nothing when tapped.
-              OnboardingBackButton(
+              BackDiscButton(
                 tooltip: l10n.onboardingBack,
                 onPressed: isFirstSlide ? null : () => unawaited(cubit.previous()),
               ),

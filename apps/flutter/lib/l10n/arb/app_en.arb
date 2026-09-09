@@ -43,5 +43,105 @@
   "errorAuth": "You need to sign in again.",
   "errorNotFound": "We could not find what you were looking for.",
   "errorValidation": "Some of the information provided was not accepted.",
-  "errorServer": "Something went wrong on our side. Please try again later."
+  "errorServer": "Something went wrong on our side. Please try again later.",
+  "authSignInHeader": "Sign In",
+  "authSignInTitle": "What''s your phone number?",
+  "authSignInSubtitle": "We''ll send you a one-time verification code to confirm your identity.",
+  "authPhoneLabel": "Phone Number",
+  "authPhoneHint": "Enter phone number",
+  "authDialCodeLabel": "Country dialling code",
+  "authDialCodeSheetTitle": "Select country",
+  "authCountryIN": "India",
+  "authCountryUS": "United States",
+  "authCountryGB": "United Kingdom",
+  "authCountryAU": "Australia",
+  "authCountrySG": "Singapore",
+  "authCountryAE": "United Arab Emirates",
+  "authContinue": "Continue",
+  "authGetOtp": "Get OTP",
+  "authDividerLabel": "or continue with",
+  "authContinueWithGoogle": "Continue with Google",
+  "authContinueWithApple": "Continue with Apple",
+  "authLegal": "By continuing, you agree to our {terms} and {privacy}",
+  "@authLegal": {
+    "description": "Legal line under the auth forms. The markers are replaced by gold document names.",
+    "placeholders": {
+      "terms": { "type": "String" },
+      "privacy": { "type": "String" }
+    }
+  },
+  "authLegalTerms": "Terms of Service",
+  "authLegalPrivacy": "Privacy Policy",
+  "authBack": "Back",
+  "authPhoneRequired": "Enter your phone number.",
+  "authPhoneInvalid": "Enter the {length} digits of your number, without the dialling code.",
+  "@authPhoneInvalid": {
+    "placeholders": {
+      "length": { "type": "int" }
+    }
+  },
+  "authVerifyHeader": "Verify OTP",
+  "authVerifyTitle": "Enter Verification Code",
+  "authVerifySubtitle": "We''ve sent a {length}-digit OTP to {phoneNumber}",
+  "@authVerifySubtitle": {
+    "placeholders": {
+      "length": { "type": "int" },
+      "phoneNumber": { "type": "String" }
+    }
+  },
+  "authOtpIncomplete": "Enter all {length} digits of the code.",
+  "@authOtpIncomplete": {
+    "placeholders": {
+      "length": { "type": "int" }
+    }
+  },
+  "authOtpResend": "Resend Code",
+  "authOtpResendIn": "Resend Code in {countdown}",
+  "@authOtpResendIn": {
+    "description": "The resend countdown. countdown arrives already formatted, as 0:59s.",
+    "placeholders": {
+      "countdown": { "type": "String" }
+    }
+  },
+  "authOtpResent": "We sent a new code.",
+  "authCreateAccountHeader": "Create Account",
+  "authCreateAccountTitle": "Tell us a little bit about yourself",
+  "authCreateAccountSubtitle": "Your username is how other members will see you.",
+  "authNameLabel": "NAME",
+  "authNameHint": "@yourusername",
+  "authNameRequired": "Enter your name.",
+  "authNameTooShort": "Use at least {length} characters.",
+  "@authNameTooShort": {
+    "placeholders": {
+      "length": { "type": "int" }
+    }
+  },
+  "authNameTooLong": "Use no more than {length} characters.",
+  "@authNameTooLong": {
+    "placeholders": {
+      "length": { "type": "int" }
+    }
+  },
+  "authReferralLabel": "Referral Code",
+  "authFieldOptional": "(optional)",
+  "authReferralHint": "Enter referral code",
+  "authReferralCodeInvalid": "Referral codes are 4 to 12 letters and numbers.",
+  "authCreateAccount": "Create Account",
+  "subscribeEyebrow": "PREMIUM ACCESS",
+  "subscribeSkip": "Skip for now",
+  "subscribeTitle": "Level Up Your Cinema Experience",
+  "subscribeUnlockChip": "UNLOCK",
+  "subscribeFeature1Title": "Daily Streaks",
+  "subscribeFeature1Subtitle": "Earn points by engaging daily",
+  "subscribeFeature2Title": "Weekly Quests",
+  "subscribeFeature2Subtitle": "Complete missions for big rewards",
+  "subscribeFeature3Title": "Predictive Games",
+  "subscribeFeature3Subtitle": "Test your cinematic intuition",
+  "subscribeWhyTitle": "WHY SUBSCRIBE?",
+  "subscribeBenefit1": "Access to exclusive movie premieres and events",
+  "subscribeBenefit2": "Multiplier boosts on all earned Points",
+  "subscribeBenefit3": "Priority access to Live Auctions",
+  "subscribeBenefit4": "Monthly badge unlocks and collectibles",
+  "subscribeBenefit5": "Ad-free premium content experience",
+  "subscribeCta": "Subscribe Now"
 }

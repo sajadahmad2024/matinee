@@ -4,11 +4,11 @@ import 'package:matinee/core/theme/app_sizes.dart';
 import 'package:matinee/core/theme/extensions/build_context_extensions.dart';
 
 ///
-/// The bordered disc the design uses for back on every warm-palette screen.
-/// The disc itself is 36, so the button keeps a 48 tap target around it.
+/// The bordered disc the design uses for back on every screen, warm palette or
+/// navy. The disc itself is 36, so the button keeps a 48 tap target around it.
 ///
-class OnboardingBackButton extends StatelessWidget {
-  const OnboardingBackButton({required this.tooltip, required this.onPressed, super.key});
+class BackDiscButton extends StatelessWidget {
+  const BackDiscButton({required this.tooltip, required this.onPressed, super.key});
 
   static const double _discSize = 36;
 

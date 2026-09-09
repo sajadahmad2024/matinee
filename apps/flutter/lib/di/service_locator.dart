@@ -4,6 +4,7 @@ import 'package:matinee/core/config/env.dart';
 import 'package:matinee/core/network/dio_factory.dart';
 import 'package:matinee/core/storage/preferences_service.dart';
 import 'package:matinee/core/storage/secure_storage_service.dart';
+import 'package:matinee/features/auth/auth_di.dart';
 import 'package:matinee/features/onboarding/onboarding_di.dart';
 
 ///
@@ -23,6 +24,7 @@ void registerDependencies(Env env) {
     ..registerLazySingleton<PreferencesService>(PreferencesService.new)
     ..registerLazySingleton<SecureStorageService>(SecureStorageService.new);
 
+  registerAuthDependencies();
   registerOnboardingDependencies();
 
   // Feature registrations follow. create-feature appends one line per feature.
