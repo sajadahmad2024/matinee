@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/widgets.dart';
 import 'package:matinee/core/responsive/window_size.dart';
 
@@ -14,6 +16,22 @@ extension ResponsiveContext on BuildContext {
 
   // Expanded means expanded or wider, so a two-way branch is isExpanded / else.
   bool get isExpanded => windowSize == WindowSize.expanded;
+
+  ///
+  /// The clearance the last element on a screen needs above the bottom edge.
+  ///
+  /// The design's frames are the whole device screen and draw no separate home
+  /// indicator, so the gap one leaves under a CTA already contains it. Wrapping
+  /// the screen in a bottom SafeArea *and* keeping that gap stacks the two and
+  /// lifts the content well off the bottom. A screen passes the design's gap
+  /// here instead and drops `bottom` from its SafeArea: on a device with an
+  /// indicator the inset wins when it is the larger of the two, and on one
+  /// without, the design's gap still applies.
+  ///
+  /// Reads `padding`, not `viewPadding`, so an open keyboard — which consumes
+  /// the inset itself — leaves only the design's gap.
+  ///
+  double bottomInset(double designGap) => math.max(designGap, MediaQuery.paddingOf(this).bottom);
 
   ///
   /// Picks a value per tier. Only compact is required; missing tiers fall back

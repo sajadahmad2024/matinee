@@ -48,6 +48,7 @@ class SubscribeView extends StatelessWidget {
       child: Scaffold(
         backgroundColor: context.appColors.auth.surface,
         body: SafeArea(
+          bottom: false,
           child: ContentContainer(
             maxWidth: _contentMaxWidth,
             child: Column(
@@ -64,11 +65,11 @@ class SubscribeView extends StatelessWidget {
                 ),
                 // The design insets the CTA further than the content above it.
                 Padding(
-                  padding: const EdgeInsets.only(
+                  padding: EdgeInsets.only(
                     left: AppScreenPadding.auth,
                     right: AppScreenPadding.auth,
                     top: AppSpacing.xxxl,
-                    bottom: AppSpacing.md,
+                    bottom: context.bottomInset(AppSpacing.screenBottom),
                   ),
                   child: BlocBuilder<AuthCubit, AuthState>(
                     builder: (context, state) => AuthSubmitButton(

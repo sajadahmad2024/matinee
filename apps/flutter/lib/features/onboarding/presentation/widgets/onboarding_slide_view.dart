@@ -9,10 +9,17 @@ import 'package:matinee/features/onboarding/presentation/widgets/onboarding_high
 import 'package:matinee/features/onboarding/presentation/widgets/onboarding_stat_pill.dart';
 
 ///
-/// The vertical room the floating CTA needs: its own height, the gap the design
-/// leaves beneath it, and a matching gap between it and the copy above.
+/// The gap the design leaves between the copy and the CTA below it.
 ///
-const double _ctaReserve = AppControlHeight.cta + AppSpacing.xxxl + AppSpacing.xxxl;
+const double _ctaGap = AppSpacing.xl;
+
+///
+/// The vertical room the floating CTA needs: its own height, the gap above it,
+/// and the clearance beneath it. The last term is the device's, so this has to
+/// be read per build rather than fixed as a constant — and it has to match
+/// what the CTA itself uses, or the copy and the button drift apart.
+///
+double _ctaReserve(BuildContext context) => AppControlHeight.cta + _ctaGap + context.bottomInset(AppSpacing.xxl);
 
 ///
 /// One intro slide: the dimmed still with its two scrims, bleeding to every
@@ -48,8 +55,9 @@ class OnboardingSlideView extends StatelessWidget {
         // reserves the button height plus the gaps the design leaves above and
         // below it.
         SafeArea(
+          bottom: false,
           child: Padding(
-            padding: const EdgeInsets.only(bottom: _ctaReserve),
+            padding: EdgeInsets.only(bottom: _ctaReserve(context)),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: AppScreenPadding.onboarding),
               child: ContentContainer(

@@ -37,7 +37,10 @@ class AuthScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: context.appColors.auth.surface,
+      // The bottom inset belongs to the scrolling body, which needs it as
+      // padding rather than as a gap the scroll view cannot reach into.
       body: SafeArea(
+        bottom: false,
         child: ContentContainer(
           maxWidth: _contentMaxWidth,
           child: Column(
@@ -94,20 +97,21 @@ class _Body extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bottom = context.bottomInset(AppSpacing.screenBottom);
     return LayoutBuilder(
       builder: (context, constraints) => SingleChildScrollView(
-        padding: const EdgeInsets.only(
+        padding: EdgeInsets.only(
           left: AppScreenPadding.auth,
           right: AppScreenPadding.auth,
           top: AppSpacing.xxl,
-          bottom: AppSpacing.xxxl,
+          bottom: bottom,
         ),
         child: ConstrainedBox(
           // The vertical padding comes off the viewport so the footer lands
           // inside it; a viewport shorter than that padding would otherwise
           // ask for a negative height.
           constraints: BoxConstraints(
-            minHeight: (constraints.maxHeight - AppSpacing.xxl - AppSpacing.xxxl).clamp(0, double.infinity),
+            minHeight: (constraints.maxHeight - AppSpacing.xxl - bottom).clamp(0, double.infinity),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,

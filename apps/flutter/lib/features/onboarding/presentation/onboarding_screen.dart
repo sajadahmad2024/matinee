@@ -233,11 +233,12 @@ class _Cta extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
+      bottom: false,
       child: Padding(
-        padding: const EdgeInsets.only(
+        padding: EdgeInsets.only(
           left: AppScreenPadding.onboarding,
           right: AppScreenPadding.onboarding,
-          bottom: AppSpacing.xxxl,
+          bottom: context.bottomInset(AppSpacing.xxl),
         ),
         child: ContentContainer(
           maxWidth: 560,

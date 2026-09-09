@@ -15,6 +15,16 @@ abstract final class AppSpacing {
   static const double xxl = 24;
   static const double xxxl = 32;
 
+  ///
+  /// The clearance below the last element on a screen, home indicator included.
+  ///
+  /// Measured off the design's frames, which are the full screen height: the
+  /// Create Account CTA leaves 42 to the frame bottom, Subscribe 46, the Sign
+  /// In legal line 32. Screens apply it through `context.bottomInset`, never as
+  /// a padding stacked on a bottom SafeArea.
+  ///
+  static const double screenBottom = 40;
+
   static const double sectionGap = lg;
   static const double cardGap = md;
   static const double listGap = sm;

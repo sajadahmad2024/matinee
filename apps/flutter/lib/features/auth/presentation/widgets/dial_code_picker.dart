@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:matinee/core/responsive/responsive.dart';
 import 'package:matinee/core/theme/app_radius.dart';
 import 'package:matinee/core/theme/app_sizes.dart';
 import 'package:matinee/core/theme/app_spacing.dart';
@@ -99,6 +100,7 @@ class _DialCodeSheet extends StatelessWidget {
     final colors = context.appColors;
     final textTheme = Theme.of(context).textTheme;
     return SafeArea(
+      bottom: false,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -114,7 +116,7 @@ class _DialCodeSheet extends StatelessWidget {
           // a country does not push the last row past the bottom.
           Flexible(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.only(bottom: AppSpacing.xxl),
+              padding: EdgeInsets.only(bottom: context.bottomInset(AppSpacing.xxl)),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
