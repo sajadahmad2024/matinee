@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:matinee/core/assets/app_icon_assets.dart';
 import 'package:matinee/core/theme/app_colors.dart';
 import 'package:matinee/core/theme/app_sizes.dart';
+import 'package:matinee/core/theme/app_spacing.dart';
 import 'package:matinee/core/widgets/app_bottom_nav.dart';
 
 import '../../helpers/helpers.dart';
@@ -109,6 +111,49 @@ void main() {
       );
 
       expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('absorbs its own bottom padding into the home indicator', (tester) async {
+      // The design's 12 under the items and the indicator's strip are the same
+      // gap, so the taller of the two wins rather than the pair stacking.
+      await tester.pumpApp(
+        MediaQuery(
+          data: const MediaQueryData(padding: EdgeInsets.only(bottom: 34)),
+          child: bar(),
+        ),
+      );
+
+      final withIndicator = tester.getSize(find.byType(AppBottomNav)).height;
+
+      await tester.pumpApp(bar());
+      final plain = tester.getSize(find.byType(AppBottomNav)).height;
+
+      expect(withIndicator - plain, 34 - AppSpacing.md);
+    });
+
+    testWidgets('keeps its designed height where there is no indicator', (tester) async {
+      await tester.pumpApp(bar());
+
+      final height = tester.getSize(find.byType(AppBottomNav)).height;
+
+      expect(height, greaterThanOrEqualTo(AppControlHeight.bottomNav));
+      expect(height, lessThan(AppControlHeight.bottomNav + AppSpacing.sm));
+    });
+
+    testWidgets('leaves the design gap above the glyphs', (tester) async {
+      // The items used to be stretched over whatever the safe-area inset left
+      // of the bar, which pinned the glyphs against its top border.
+      await tester.pumpApp(
+        MediaQuery(
+          data: const MediaQueryData(padding: EdgeInsets.only(bottom: 34)),
+          child: bar(),
+        ),
+      );
+
+      final navTop = tester.getRect(find.byType(AppBottomNav)).top;
+      final glyphTop = tester.getRect(find.byType(SvgPicture).first).top;
+
+      expect(glyphTop - navTop, AppSpacing.md);
     });
 
     testWidgets('fits a narrow screen at the largest text scale', (tester) async {

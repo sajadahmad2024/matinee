@@ -46,12 +46,20 @@ class AppBottomNav extends StatelessWidget {
     return Material(
       color: colors.background,
       shape: Border(top: BorderSide(color: colors.border)),
+      // The design pads the bar 12 above and below its items. The lower 12 and
+      // the home indicator's strip are the same gap rather than two: the frames
+      // draw no indicator, so `minimum` takes whichever is larger instead of
+      // stacking them. Taking the inset out of the bar's own height instead
+      // left only 30 for a 43-tall item, which pinned the glyphs to the top
+      // edge and left the strip below them empty.
       child: SafeArea(
         top: false,
-        // The bar is 64 tall. A minimum rather than a fixed height lets it grow
-        // instead of clipping the labels when the user has scaled text up.
+        minimum: const EdgeInsets.only(bottom: AppSpacing.md),
+        // A minimum, not a fixed height: the type scale raised nav labels from
+        // 9 to 10, and a user-scaled label has to grow the bar rather than be
+        // clipped.
         child: ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: AppControlHeight.bottomNav),
+          constraints: const BoxConstraints(minHeight: AppControlHeight.bottomNav - AppSpacing.md),
           // Every item is as tall as the bar, so the whole strip above a label
           // is tappable rather than just the glyph and the words.
           child: IntrinsicHeight(
@@ -101,8 +109,10 @@ class _NavItem extends StatelessWidget {
         onTap: onTap,
         borderRadius: const BorderRadius.all(Radius.circular(AppRadius.sm)),
         overlayColor: WidgetStatePropertyAll(colors.active.a10),
+        // The bar's 12 above its items sits inside the item, so the strip it
+        // covers is part of the tap target rather than dead space above one.
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+          padding: const EdgeInsets.only(top: AppSpacing.md, left: AppSpacing.md, right: AppSpacing.md),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             spacing: AppSpacing.xxs,
@@ -115,7 +125,7 @@ class _NavItem extends StatelessWidget {
               ),
               Column(
                 mainAxisSize: MainAxisSize.min,
-                spacing: AppSpacing.xs,
+                spacing: AppSpacing.xxs,
                 children: [
                   Text(
                     destination.label.toUpperCase(),
