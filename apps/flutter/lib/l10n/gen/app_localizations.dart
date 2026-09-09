@@ -97,11 +97,35 @@ abstract class AppLocalizations {
   /// **'Matinee'**
   String get appTitle;
 
-  /// No description provided for @homePlaceholder.
+  /// No description provided for @navHome.
   ///
   /// In en, this message translates to:
-  /// **'Replace this screen with the first feature.'**
-  String get homePlaceholder;
+  /// **'Home'**
+  String get navHome;
+
+  /// No description provided for @navP2p.
+  ///
+  /// In en, this message translates to:
+  /// **'P2P'**
+  String get navP2p;
+
+  /// No description provided for @navRewards.
+  ///
+  /// In en, this message translates to:
+  /// **'Rewards'**
+  String get navRewards;
+
+  /// No description provided for @navProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get navProfile;
+
+  /// Body of the stand-in screen behind a bottom-nav tab whose feature does not exist yet.
+  ///
+  /// In en, this message translates to:
+  /// **'{tab} is not built yet.'**
+  String tabPlaceholder(String tab);
 
   /// No description provided for @retry.
   ///

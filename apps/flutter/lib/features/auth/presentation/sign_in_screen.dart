@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:matinee/app/router/app_routes.dart';
+import 'package:matinee/core/assets/assets.dart';
 import 'package:matinee/core/l10n/l10n.dart';
 import 'package:matinee/core/theme/app_sizes.dart';
 import 'package:matinee/core/theme/app_spacing.dart';
@@ -36,7 +37,6 @@ const String _legalDocumentUrl = 'https://google.com';
 /// crisp at any size and keep the brand's exact colours; the icon font covers
 /// the single-colour glyphs.
 ///
-const String _googleMarkAsset = 'assets/icons/google.svg';
 
 ///
 /// The localised country name for an ISO code. A switch rather than a map so a
@@ -194,7 +194,7 @@ class _SignInViewState extends State<SignInView> {
               // step, skipping the code.
               AuthSocialButton(
                 icon: SvgPicture.asset(
-                  _googleMarkAsset,
+                  AppIconAssets.google,
                   width: AppIconSize.md,
                   height: AppIconSize.md,
                   excludeFromSemantics: true,

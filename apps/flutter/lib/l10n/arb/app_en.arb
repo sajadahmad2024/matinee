@@ -1,7 +1,17 @@
 {
   "@@locale": "en",
   "appTitle": "Matinee",
-  "homePlaceholder": "Replace this screen with the first feature.",
+  "navHome": "Home",
+  "navP2p": "P2P",
+  "navRewards": "Rewards",
+  "navProfile": "Profile",
+  "tabPlaceholder": "{tab} is not built yet.",
+  "@tabPlaceholder": {
+    "description": "Body of the stand-in screen behind a bottom-nav tab whose feature does not exist yet.",
+    "placeholders": {
+      "tab": { "type": "String" }
+    }
+  },
   "retry": "Retry",
   "goHome": "Go to home",
   "startupFailed": "The app could not start. Check your connection and try again.",

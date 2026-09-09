@@ -1,3 +1,4 @@
+import 'package:matinee/core/assets/assets.dart';
 import 'package:matinee/core/storage/preferences_service.dart';
 
 ///
@@ -46,8 +47,8 @@ typedef OnboardingSlideAssets = ({String image, List<String> emoji});
 ///
 abstract final class OnboardingSlideContent {
   static const List<OnboardingSlideAssets> slides = [
-    (image: 'assets/images/onboarding-1.jpg', emoji: ['🎬', '🌍', '✨']),
-    (image: 'assets/images/onboarding-2.jpg', emoji: ['🧠', '🔮', '🔥']),
-    (image: 'assets/images/onboarding-3.jpg', emoji: ['🎟️', '🤝', '💎']),
+    (image: AppImageAssets.onboardingSlide1, emoji: ['🎬', '🌍', '✨']),
+    (image: AppImageAssets.onboardingSlide2, emoji: ['🧠', '🔮', '🔥']),
+    (image: AppImageAssets.onboardingSlide3, emoji: ['🎟️', '🤝', '💎']),
   ];
 }

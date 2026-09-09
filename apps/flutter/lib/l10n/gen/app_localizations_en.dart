@@ -12,7 +12,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appTitle => 'Matinee';
 
   @override
-  String get homePlaceholder => 'Replace this screen with the first feature.';
+  String get navHome => 'Home';
+
+  @override
+  String get navP2p => 'P2P';
+
+  @override
+  String get navRewards => 'Rewards';
+
+  @override
+  String get navProfile => 'Profile';
+
+  @override
+  String tabPlaceholder(String tab) {
+    return '$tab is not built yet.';
+  }
 
   @override
   String get retry => 'Retry';

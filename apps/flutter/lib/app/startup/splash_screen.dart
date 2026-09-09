@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:matinee/app/startup/app_startup_cubit.dart';
 import 'package:matinee/app/startup/app_startup_state.dart';
+import 'package:matinee/core/assets/assets.dart';
 import 'package:matinee/core/l10n/l10n.dart';
 import 'package:matinee/core/theme/app_spacing.dart';
 import 'package:matinee/core/theme/extensions/build_context_extensions.dart';
@@ -51,7 +52,7 @@ class _SplashBody extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: AppScreenPadding.main),
         child: Image.asset(
-          'assets/images/splash-logo.png',
+          AppImageAssets.splashLogo,
           width: _logoWidth,
           fit: BoxFit.contain,
           semanticLabel: context.l10n.appTitle,

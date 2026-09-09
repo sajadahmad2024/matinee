@@ -583,6 +583,8 @@ Left to `ColorScheme.fromSeed(seedColor: {gold}, brightness: dark)` for now: lig
 
 Pipeline: Export each glyph frame from Figma at 24×24 (normalise all to a 24 grid, strokes outlined) → fantasticon / FlutterIcon → `MatineeIcons` IconData class; fonts are variable-tint so no per-state assets.
 
+Until that font exists, glyphs already needed ship as individual SVGs in `assets/icons/` and are tinted with a `colorFilter` — currently the four bottom-nav glyphs (`nav_home`, `nav_p2p`, `nav_rewards`, `nav_profile`, plus `_active` fills for the first two). Their paths are listed in `AppIconAssets`, so folding them into the font later is a change to that one class.
+
 Glyph inventory: home, p2p (puzzle), rewards (coins), profile, chevron-left, chevron-right, chevron-down, close, settings, like/heart (outline + filled), comment, info, share, send, ticket (points), star/badge, lock, check, play, fire (streak), trophy, calendar-prev/next, camera (edit avatar), logout, copy, clock, target, external-link. Multi-colour as SVG: Google G, brand discs (WhatsApp/Telegram/Instagram/Messages/X), app logo.
 
 Emoji (🔥 🎖️ 🏆 🎬 🌍 ✨ 🧠 🔮 🎟️ 🤝 💎 🔗) are used as icons on onboarding tiles, streak stats and modals — render with the platform emoji font or replace with glyphs; do not ship them as images.

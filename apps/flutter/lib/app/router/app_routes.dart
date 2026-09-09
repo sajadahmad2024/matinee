@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:matinee/app/shell/app_shell.dart';
 import 'package:matinee/app/startup/splash_screen.dart';
 import 'package:matinee/features/auth/presentation/create_account_screen.dart';
 import 'package:matinee/features/auth/presentation/sign_in_screen.dart';
@@ -7,6 +8,9 @@ import 'package:matinee/features/auth/presentation/subscribe_screen.dart';
 import 'package:matinee/features/auth/presentation/verify_otp_screen.dart';
 import 'package:matinee/features/home/presentation/home_screen.dart';
 import 'package:matinee/features/onboarding/presentation/onboarding_screen.dart';
+import 'package:matinee/features/p2p/presentation/p2p_screen.dart';
+import 'package:matinee/features/profile/presentation/profile_screen.dart';
+import 'package:matinee/features/rewards/presentation/rewards_screen.dart';
 
 part 'app_routes.g.dart';
 
@@ -21,12 +25,68 @@ class SplashRoute extends GoRouteData with $SplashRoute {
   Widget build(BuildContext context, GoRouterState state) => const SplashScreen();
 }
 
-@TypedGoRoute<HomeRoute>(path: '/')
+///
+/// The signed-in skeleton. Every tab is a branch with its own Navigator, so a
+/// screen pushed inside one is still there after a trip to another.
+///
+@TypedStatefulShellRoute<AppShellRoute>(
+  branches: [
+    TypedStatefulShellBranch<HomeBranch>(routes: [TypedGoRoute<HomeRoute>(path: '/')]),
+    TypedStatefulShellBranch<P2pBranch>(routes: [TypedGoRoute<P2pRoute>(path: '/p2p')]),
+    TypedStatefulShellBranch<RewardsBranch>(routes: [TypedGoRoute<RewardsRoute>(path: '/rewards')]),
+    TypedStatefulShellBranch<ProfileBranch>(routes: [TypedGoRoute<ProfileRoute>(path: '/profile')]),
+  ],
+)
+class AppShellRoute extends StatefulShellRouteData {
+  const AppShellRoute();
+
+  @override
+  Widget builder(BuildContext context, GoRouterState state, StatefulNavigationShell navigationShell) =>
+      AppShell(navigationShell: navigationShell);
+}
+
+class HomeBranch extends StatefulShellBranchData {
+  const HomeBranch();
+}
+
+class P2pBranch extends StatefulShellBranchData {
+  const P2pBranch();
+}
+
+class RewardsBranch extends StatefulShellBranchData {
+  const RewardsBranch();
+}
+
+class ProfileBranch extends StatefulShellBranchData {
+  const ProfileBranch();
+}
+
 class HomeRoute extends GoRouteData with $HomeRoute {
   const HomeRoute();
 
   @override
   Widget build(BuildContext context, GoRouterState state) => const HomeScreen();
+}
+
+class P2pRoute extends GoRouteData with $P2pRoute {
+  const P2pRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) => const P2pScreen();
+}
+
+class RewardsRoute extends GoRouteData with $RewardsRoute {
+  const RewardsRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) => const RewardsScreen();
+}
+
+class ProfileRoute extends GoRouteData with $ProfileRoute {
+  const ProfileRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) => const ProfileScreen();
 }
 
 @TypedGoRoute<OnboardingRoute>(path: '/onboarding')
