@@ -11,7 +11,7 @@ Turns a Figma frame into the `presentation/` widgets of a feature. Fidelity come
 
 ## Invariants
 
-`.claude/rules/presentation.md` applies to every widget written here. The Figma-specific rules on top of it:
+`.claude/rules/presentation.md` and `dart-style.md` apply to every widget written here — the second one's comment cap included, since a semantics or layout decision is where comments run long. The Figma-specific rules on top of it:
 
 - `docs/design/` is the source of truth (`README.md` there explains the files). The Figma file is evidence; values are not re-derived from it.
 - No widget is written before the mapping table exists (step 2) and has no unresolved row. A value or component that is not in `docs/design/` is a **stop**: report it with the template in [references/figma-mapping.md](references/figma-mapping.md) and wait for the user. Never substitute, never add to `lib/core/theme/` unconfirmed, never put a literal in the widget.
@@ -33,6 +33,7 @@ Turns a Figma frame into the `presentation/` widgets of a feature. Fidelity come
 
 - Mapping table in the task notes; every row resolved to a `docs/design/` entry; unresolved rows were raised with the user, not worked around
 - No `Color(`, `TextStyle(`, or raw spacing literal in the new widgets; no value that is not in `docs/design/`
+- No comment block over two lines: a decision that touches several arguments is explained on the line above each one, not in a paragraph above the `return`
 - Components taken from the catalogue spec and reused where an implementation exists
 - Screen renders on a phone and at an expanded width without overflow; `get_runtime_errors` empty
 - Widget test for non-trivial rendering; analyze and tests clean; `/code-review` findings addressed

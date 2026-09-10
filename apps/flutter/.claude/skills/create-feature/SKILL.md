@@ -69,6 +69,7 @@ Scaffold `features/<feature>/` end to end. The shapes in [references/templates.m
 - `app_routes.dart` gained one typed route; `app_routes.g.dart` regenerated
 - `app_en.arb` gained the screen's strings; `lib/l10n/gen` regenerated
 - Cubit test has a failure case for every method
+- No comment block over two lines; every comment carries a non-obvious *why*, not a restatement of the line below it
 - `flutter analyze --fatal-infos` and `flutter test` clean; `/code-review` findings addressed
 
 ## Follow-up once `lib/features/example` exists

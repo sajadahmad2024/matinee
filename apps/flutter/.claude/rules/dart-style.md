@@ -5,7 +5,11 @@ Applies to every `.dart` file, source and test alike. The analyzer enforces most
 ## Comments
 
 - Two delimiters only: `//` for inline comments, `///` for doc comments. No `/* */`, no `/** */`, no banner separators such as `// --- section ---` or `// ====`.
-- Doc comments on public API (top-level functions, classes, public methods) use the Flutter style: a blank `///` line above and below a body of a few lines. Names carry the *what*; comments carry the non-obvious *why*. If the name says it all, write no comment.
+- **Two lines is the cap, one is the target.** One paragraph runs to at most two lines; a doc comment is one or more such paragraphs separated by a blank `///`. A block of three or more consecutive lines is a review finding. Fenced code samples in a doc comment are exempt.
+- One comment per thing it explains: a paragraph covering three constructor arguments is three comments, each on the line above its own argument. Sitting there it need not name its subject, which is most of what keeps it to a line or two.
+- Doc comments on public API (top-level functions, classes, public methods) use the Flutter style: a blank `///` line above and below the body. A one-line body takes a plain `///` instead, because the banner turns one line into three.
+- Names carry the *what*; comments carry the non-obvious *why*. If the name says it all, write no comment, and never restate the line below — `// The alert role interrupts` over `role: SemanticsRole.alert` earns nothing.
+- Comments describe the code as it stands: not the implementation it replaced, not the measurement behind a value already visible beside them, not a bug that is fixed. Keep the reason the code is the way it is; drop the story of how it got there.
 - Inline comments go on their own line directly above the code they explain. Never suffix a comment to a line of code.
 - Never cite doc sections, ticket numbers, or decision IDs in comments or test names. Explain what the code does and why in plain prose.
 - Several short comments next to the code beat one header comment for a file. A class-level `///` states purpose and contract, not a method-by-method walkthrough.
@@ -24,6 +28,27 @@ Future<void> load() async {
     emit(ProfileFailure(e));
   }
 }
+```
+
+One paragraph explaining several arguments is the usual way a comment grows past two lines. Split it and each half fits:
+
+```dart
+// Wrong: one block above the call, naming each argument in turn.
+// The tab-bar role, so a screen reader says which of how many rather than
+// reading four unrelated buttons. `explicitChildNodes`, because the role
+// requires every child of this node to be a tab, and without it the items'
+// nodes can be folded into this one.
+return Semantics(
+  role: SemanticsRole.tabBar,
+  explicitChildNodes: true,
+
+// Right: one comment per argument, on the line above it.
+return Semantics(
+  // So a screen reader says which tab of how many, not four loose buttons.
+  role: SemanticsRole.tabBar,
+  // The role requires every child to be a tab; without this the items'
+  // nodes can be folded into this one.
+  explicitChildNodes: true,
 ```
 
 ## Rules that shape how code is written
