@@ -80,7 +80,6 @@ class _EditProfileViewState extends State<EditProfileView> {
                   bottom: AppSpacing.lg,
                 ),
                 child: Row(
-                  spacing: AppSpacing.md,
                   children: [
                     BackDiscButton(
                       tooltip: l10n.authBack,

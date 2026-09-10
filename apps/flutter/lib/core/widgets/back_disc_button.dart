@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:matinee/core/theme/app_color_roles.dart';
 import 'package:matinee/core/theme/app_radius.dart';
 import 'package:matinee/core/theme/app_sizes.dart';
 import 'package:matinee/core/theme/extensions/build_context_extensions.dart';
@@ -30,18 +31,26 @@ class BackDiscButton extends StatelessWidget {
   ///
   static const double leadingWidth = _tapTarget;
 
-  ///
-  /// How far the tap target overhangs the disc. An app bar wanting the disc on
-  /// the screen margin starts its leading padding this much earlier.
-  ///
-  static const double tapInset = _tapInset;
-
   final String tooltip;
   final VoidCallback? onPressed;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors.appBar;
+    // The 48 target is 6 wider than the disc on each side, so a disc laid on
+    // the screen margin paints 6 inside the content beneath it. The leading
+    // overhang is pulled back into the margin, where nothing else is drawn, so
+    // the disc's own edge lands on the margin and the target keeps its 48.
+    //
+    // A row that follows the disc with a label therefore needs no gap of its
+    // own: the trailing overhang is the 12 the design leaves between them.
+    return Transform.translate(
+      offset: Offset(Directionality.of(context) == TextDirection.rtl ? _tapInset : -_tapInset, 0),
+      child: _button(colors),
+    );
+  }
+
+  Widget _button(AppBarColors colors) {
     return IconButton(
       onPressed: onPressed,
       tooltip: tooltip,

@@ -45,11 +45,9 @@ class ExclusiveLibraryView extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         leading: Padding(
-          // Short of the screen margin by the tap target's overhang, so the
-          // disc itself lands on the margin the frame draws it against.
-          padding: const EdgeInsets.only(
-            left: AppScreenPadding.main - BackDiscButton.tapInset,
-          ),
+          // The screen margin exactly: the button pulls its own overhang back,
+          // so the disc lands on the margin the frame draws it against.
+          padding: const EdgeInsets.only(left: AppScreenPadding.main),
           // Left, not centred: the slot is wider than the target, and the
           // frame sets the disc against the margin rather than in the middle.
           child: Align(

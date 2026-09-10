@@ -69,7 +69,6 @@ class _Header extends StatelessWidget {
         bottom: AppSpacing.sm,
       ),
       child: Row(
-        spacing: AppSpacing.md,
         children: [
           ?leading,
           Expanded(
