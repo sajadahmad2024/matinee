@@ -10,6 +10,8 @@ import 'package:matinee/core/theme/app_text_styles.dart';
 import 'package:matinee/core/theme/extensions/build_context_extensions.dart';
 import 'package:matinee/core/widgets/back_disc_button.dart';
 import 'package:matinee/core/widgets/error_view.dart';
+import 'package:matinee/core/widgets/loading_view.dart';
+import 'package:matinee/core/widgets/screen_title.dart';
 import 'package:matinee/core/widgets/section_label.dart';
 import 'package:matinee/di/service_locator.dart';
 import 'package:matinee/features/rewards/data/models/auction.dart';
@@ -52,7 +54,7 @@ class AuctionView extends StatelessWidget {
         child: BlocBuilder<AuctionCubit, AuctionState>(
           builder: (context, state) => switch (state) {
             AuctionInitial() => const SizedBox.shrink(),
-            AuctionLoading() => const Center(child: CircularProgressIndicator()),
+            AuctionLoading() => const LoadingView(),
             AuctionFailure(:final error) => ErrorView(
               message: error.localizedMessage(l10n),
               onRetry: () => unawaited(context.read<AuctionCubit>().load()),
@@ -102,6 +104,16 @@ class _Body extends StatelessWidget {
                                 label: l10n.auctionTimeRemaining,
                                 endsAt: auction.endsAt,
                                 endedLabel: l10n.auctionEnded,
+                                // To the minute, so it is not re-read every
+                                // second; the last one is worded, not rounded.
+                                spokenRemaining: (remaining) => switch (remaining) {
+                                  Duration(inMinutes: < 1) => l10n.auctionTimeRemainingUnderMinute,
+                                  Duration(inHours: 0, inMinutes: final minutes) => l10n.auctionTimeRemainingMinutes(
+                                    minutes,
+                                  ),
+                                  Duration(inHours: final hours, inMinutes: final minutes) =>
+                                    l10n.auctionTimeRemainingValue(hours, minutes % 60),
+                                },
                               ),
                             ),
                           ],
@@ -120,6 +132,12 @@ class _Body extends StatelessWidget {
                           placedAt: _relative(context, bid.placedAt),
                           amount: l10n.auctionBidAmount(bid.amount),
                           isLeading: bid.isLeading,
+                          summaryLabel: l10n.auctionBidSummary(
+                            bid.bidderName,
+                            _relative(context, bid.placedAt),
+                            l10n.auctionBidAmount(bid.amount),
+                          ),
+                          leadingLabel: l10n.auctionLeadingBid,
                         ),
                       ),
                   ],
@@ -136,6 +154,7 @@ class _Body extends StatelessWidget {
           actionLabel: l10n.auctionBidAction,
           // The design writes these bare, without a thousands separator.
           incrementLabel: (amount) => l10n.auctionBidIncrement(amount.toString()),
+          incrementSemanticLabel: (amount) => l10n.auctionBidRaise(l10n.auctionBidIncrement(amount.toString())),
           onBid: (amount) => unawaited(_bid(context, amount)),
         ),
       ],
@@ -143,11 +162,8 @@ class _Body extends StatelessWidget {
   }
 
   ///
-  /// A bid under the lot's smallest raise cannot win, and one over the balance
-  /// cannot be honoured, so both are refused here rather than sent and
-  /// rejected. The server checks the balance again — this is the message, not
-  /// the rule. The confirmation waits for the bid to land, so a failure shows
-  /// its own state instead of a success message over it.
+  /// Refuses a bid under the smallest raise or over the balance rather than
+  /// sending it; the server checks again, so this is the message, not the rule.
   ///
   Future<void> _bid(BuildContext context, int amount) async {
     final l10n = context.l10n;
@@ -172,8 +188,7 @@ class _Body extends StatelessWidget {
 
   ///
   /// The design writes bid times as '2 minutes ago'. Flutter's localisations
-  /// carry no relative formatter, so the coarse units the rows actually use
-  /// are spelled out here.
+  /// carry no relative formatter, so the coarse units are spelled out here.
   ///
   static String _relative(BuildContext context, DateTime moment) {
     final elapsed = DateTime.now().difference(moment);
@@ -189,9 +204,7 @@ class _Body extends StatelessWidget {
 
 ///
 /// The still at the top, with the back button, the balance and the blurb over
-/// it. The frame runs the copy down into the image rather than stacking the
-/// two, so the still fills behind the whole block instead of taking a fixed
-/// height that would push everything below it.
+/// it. The copy runs down into the image, so the still fills behind it all.
 ///
 class _Hero extends StatelessWidget {
   const _Hero({required this.board});
@@ -200,10 +213,8 @@ class _Hero extends StatelessWidget {
   static const double _imageHeight = 229;
 
   ///
-  /// Where the frame starts the LIVE row, two thirds of the way down the
-  /// still. It is measured from the top of the screen, not from the bar above
-  /// it: the frame draws no status bar, so hanging the copy off the bar would
-  /// move it by whatever inset the device happens to have.
+  /// Where the frame starts the LIVE row, two thirds down the still. Measured
+  /// from the screen top: off the bar, it would shift with the device's inset.
   ///
   static const double _copyTop = 149;
 
@@ -215,24 +226,31 @@ class _Hero extends StatelessWidget {
     final colors = context.appColors;
     return Stack(
       children: [
-        // The frame draws the still 229 tall with the copy running down over
-        // its lower half, so it is pinned to that height rather than filling
-        // whatever the copy grows to.
+        // The frame draws the still 229 tall with the copy over its lower half,
+        // so it is pinned to that height, not to what the copy grows to.
         Positioned(
           top: 0,
           left: 0,
           right: 0,
           height: _imageHeight,
-          // A Container, not a DecoratedBox: the scrim is a second layer over
-          // the still, which only foregroundDecoration paints.
-          child: Container(
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage(board.auction.imageAsset),
-                fit: BoxFit.cover,
+          // A DecorationImage contributes nothing to the semantics tree, and
+          // this is the only picture of the lot, so it is named here.
+          child: Semantics(
+            image: true,
+            // The lot's own description would beat one built from its title,
+            // but the data carries none yet.
+            label: l10n.auctionLotImage(board.auction.title),
+            // A Container, not a DecoratedBox: the scrim is a second layer over
+            // the still, which only foregroundDecoration paints.
+            child: Container(
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage(board.auction.imageAsset),
+                  fit: BoxFit.cover,
+                ),
               ),
+              foregroundDecoration: BoxDecoration(gradient: colors.overlay.auctionHero),
             ),
-            foregroundDecoration: BoxDecoration(gradient: colors.overlay.auctionHero),
           ),
         ),
         // The copy is the child that sizes the stack; the bar floats over the
@@ -242,9 +260,8 @@ class _Hero extends StatelessWidget {
             top: _copyTop,
             left: AppScreenPadding.main,
             right: AppScreenPadding.main,
-            // The View More button keeps a 48 tap target around a label the
-            // frame draws 24 tall, so the gap under it is trimmed by what the
-            // target already adds.
+            // The View More button keeps a 48 tap target around a 24-tall
+            // label, so the gap under it is trimmed by what that adds.
             bottom: AppSpacing.xs,
           ),
           child: _Headline(auction: board.auction),
@@ -284,9 +301,8 @@ class _Hero extends StatelessWidget {
   }
 
   ///
-  /// A purchase changes the balance the header shows. The sheet can be swiped
-  /// away after one without returning a result, so the board is fetched again
-  /// whichever way it closes.
+  /// A purchase changes the balance the header shows, and the sheet can be
+  /// swiped away without a result, so the board is fetched again either way.
   ///
   static Future<void> _topUp(BuildContext context) async {
     final cubit = context.read<AuctionCubit>();
@@ -297,8 +313,7 @@ class _Hero extends StatelessWidget {
 
 ///
 /// The LIVE row, the eyebrow, the title and the blurb. The frame clamps the
-/// blurb to two lines with a View More under it, so the control expands the
-/// paragraph rather than sitting there inert.
+/// blurb to two lines with a View More under it, so the control expands it.
 ///
 class _Headline extends StatefulWidget {
   const _Headline({required this.auction});
@@ -339,9 +354,12 @@ class _HeadlineState extends State<_Headline> {
         ),
         Padding(
           padding: const EdgeInsets.only(top: AppSpacing.sm),
-          child: Text(
-            widget.auction.title,
-            style: theme.textTheme.headlineMedium?.copyWith(color: colors.text.primary),
+          child: ScreenTitle(
+            label: widget.auction.title,
+            child: Text(
+              widget.auction.title,
+              style: theme.textTheme.headlineMedium?.copyWith(color: colors.text.primary),
+            ),
           ),
         ),
         Padding(
@@ -353,18 +371,22 @@ class _HeadlineState extends State<_Headline> {
             style: theme.textTheme.bodySmall?.copyWith(color: colors.text.secondary),
           ),
         ),
-        // No padding above: the 48 tap target the button keeps around its
-        // 24-tall label already supplies the gap the frame draws.
+        // No padding above: the 48 tap target around the button's 24-tall label
+        // already supplies the gap the frame draws.
         TextButton(
           onPressed: () => setState(() => _expanded = !_expanded),
           style: TextButton.styleFrom(padding: EdgeInsets.zero),
-          child: Text(
-            _expanded ? l10n.auctionViewLess : l10n.auctionViewMore,
-            // The frame underlines this one control; nothing else on the
-            // screen is a link, so the rule is added to the button's own text
-            // role rather than kept as a style of its own.
-            style: theme.textTheme.labelMedium?.copyWith(
-              decoration: TextDecoration.underline,
+          // Inside the button, not around it: a button's node is a boundary, so
+          // an annotation above it makes a second, unlabelled node.
+          child: Semantics(
+            expanded: _expanded,
+            child: Text(
+              _expanded ? l10n.auctionViewLess : l10n.auctionViewMore,
+              // The frame underlines this one control, so the rule is added to
+              // the button's own text rather than kept as a style.
+              style: theme.textTheme.labelMedium?.copyWith(
+                decoration: TextDecoration.underline,
+              ),
             ),
           ),
         ),

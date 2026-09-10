@@ -5,21 +5,16 @@ import 'package:matinee/core/theme/app_text_styles.dart';
 import 'package:matinee/core/theme/extensions/build_context_extensions.dart';
 
 ///
-/// The navy points pill from the app-bar family: a flame glyph, the balance
-/// and its unit. Given [onTap] and no [value] it becomes the top-up control
-/// the auction draws beside the balance, which is the same pill with a plus.
+/// The navy points pill from the app-bar family: a flame glyph, the balance and
+/// its unit. With [onTap] and no [value] it becomes the top-up control.
 ///
 class PointsPill extends StatelessWidget {
-  ///
   /// The balance, as the app bar shows it.
-  ///
   const PointsPill({required this.tooltip, required this.value, required this.unit, super.key})
     : onTap = null,
       showsAdd = false;
 
-  ///
   /// The same pill with a plus and no figure: the control that opens top-up.
-  ///
   const PointsPill.topUp({required this.tooltip, required this.onTap, super.key})
     : value = null,
       unit = null,
@@ -38,10 +33,8 @@ class PointsPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors.pill;
-    // The stroke is a gradient, which BoxBorder cannot paint. It is stroked
-    // over the fill rather than laid under it: the fill is translucent, so a
-    // gradient-filled stadium behind it tinted the whole pill gold instead of
-    // just its edge.
+    // The stroke is a gradient, which BoxBorder cannot paint, and it goes over
+    // the translucent fill: behind it, the gradient tints the whole pill.
     final pill = CustomPaint(
       foregroundPainter: _GradientRing(colors.pointsBorder),
       child: Container(
@@ -63,9 +56,8 @@ class PointsPill extends StatelessWidget {
     if (onTap == null) {
       return Semantics(label: tooltip, child: pill);
     }
-    // The design draws the pill 28 tall, which is too small to hit. The disc
-    // keeps that height and the target grows around it, the way a button's own
-    // tap target does.
+    // The design draws the pill 28 tall, too small to hit, so it keeps that
+    // height and the tap target grows around it.
     return Tooltip(
       message: tooltip,
       child: InkWell(
@@ -82,9 +74,7 @@ class PointsPill extends StatelessWidget {
   }
 }
 
-///
 /// Strokes the pill's stadium edge with a gradient, which no BoxBorder can do.
-///
 class _GradientRing extends CustomPainter {
   const _GradientRing(this.gradient);
 

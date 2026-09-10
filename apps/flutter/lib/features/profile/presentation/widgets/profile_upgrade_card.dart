@@ -5,9 +5,7 @@ import 'package:matinee/core/theme/app_spacing.dart';
 import 'package:matinee/core/theme/app_text_styles.dart';
 import 'package:matinee/core/theme/extensions/build_context_extensions.dart';
 
-///
 /// The row between the counters and the menu that sells the paywall.
-///
 class ProfileUpgradeCard extends StatelessWidget {
   const ProfileUpgradeCard({
     required this.title,

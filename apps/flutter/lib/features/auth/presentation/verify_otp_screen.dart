@@ -139,6 +139,8 @@ class _VerifyOtpViewState extends State<VerifyOtpView> {
           ),
           OtpInput(
             length: AuthValidators.otpLength,
+            fieldLabel: l10n.authOtpFieldLabel,
+            fieldHint: l10n.authOtpFieldHint(AuthValidators.otpLength),
             onChanged: (code) => setState(() => _code = code),
             onCompleted: _submit,
           ),
@@ -181,12 +183,16 @@ class _ResendLink extends StatelessWidget {
   /// Null while a code is already on its way.
   final VoidCallback? onResend;
 
-  ///
   /// The remaining wait as m:ss, which is how the design writes it.
-  ///
   static String _countdown(int seconds) {
     return '${seconds ~/ 60}:${(seconds % 60).toString().padLeft(2, '0')}';
   }
+
+  ///
+  /// The wait to the nearest ten seconds, never rounded down to nothing while
+  /// the link is still locked.
+  ///
+  static int _roundedSeconds(int seconds) => seconds < 10 ? 10 : (seconds / 10).round() * 10;
 
   @override
   Widget build(BuildContext context) {
@@ -195,12 +201,22 @@ class _ResendLink extends StatelessWidget {
     if (secondsLeft > 0) {
       final countdown = '${_countdown(secondsLeft)}s';
       final base = Theme.of(context).textTheme.bodySmall?.copyWith(color: colors.auth.onSurfaceVariant);
-      return Text.rich(
-        TextSpan(
-          children: emphasise(l10n.authOtpResendIn(countdown), countdown, base?.copyWith(color: colors.text.link)),
+      // The line repaints every second, so announcing it as written would read
+      // it out every second; the name rounds and the digits stay visual.
+      return Semantics(
+        label: l10n.authOtpResendInCoarse(_roundedSeconds(secondsLeft)),
+        excludeSemantics: true,
+        child: Text.rich(
+          TextSpan(
+            children: emphasise(
+              l10n.authOtpResendIn(countdown),
+              countdown,
+              base?.copyWith(color: colors.text.link),
+            ),
+          ),
+          textAlign: TextAlign.center,
+          style: base,
         ),
-        textAlign: TextAlign.center,
-        style: base,
       );
     }
     return Center(

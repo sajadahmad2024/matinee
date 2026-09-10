@@ -1182,6 +1182,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'EXCLUSIVE CONTENT'**
   String get exclusiveTag;
+
+  /// Announced while a screen is fetching its content.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading'**
+  String get a11yLoading;
+
+  /// Accessible name of the one-time code field, which the design draws as unlabelled boxes.
+  ///
+  /// In en, this message translates to:
+  /// **'Verification code'**
+  String get authOtpFieldLabel;
+
+  /// Tells a screen reader how long the one-time code is.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the {length}-digit code'**
+  String authOtpFieldHint(int length);
+
+  /// What a quick-add button does, which its bare numeral does not say.
+  ///
+  /// In en, this message translates to:
+  /// **'Raise the bid by {amount}'**
+  String auctionBidRaise(String amount);
+
+  /// Marks the bid that currently holds the lot, which the design shows in gold alone.
+  ///
+  /// In en, this message translates to:
+  /// **'Leading bid'**
+  String get auctionLeadingBid;
+
+  /// One bid in the history, read as a single row.
+  ///
+  /// In en, this message translates to:
+  /// **'{bidder}, {placedAt}, {amount}'**
+  String auctionBidSummary(String bidder, String placedAt, String amount);
+
+  /// The countdown spelled out to the minute. The clock face reads poorly, and a value that changed every second would be re-announced every second to anyone resting on the card.
+  ///
+  /// In en, this message translates to:
+  /// **'about {hours}h {minutes}m'**
+  String auctionTimeRemainingValue(int hours, int minutes);
+
+  /// The countdown under an hour, so it is not read as 'about 0h 6m'.
+  ///
+  /// In en, this message translates to:
+  /// **'about {minutes}m'**
+  String auctionTimeRemainingMinutes(int minutes);
+
+  /// The countdown's last minute, which rounding to the minute would otherwise announce as zero.
+  ///
+  /// In en, this message translates to:
+  /// **'less than a minute'**
+  String get auctionTimeRemainingUnderMinute;
+
+  /// The resend wait, rounded so the announcement does not change every second.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend available in about {seconds} seconds'**
+  String authOtpResendInCoarse(int seconds);
+
+  /// Stands in for the lot photograph until the data carries its own description.
+  ///
+  /// In en, this message translates to:
+  /// **'Photograph of {title}'**
+  String auctionLotImage(String title);
+
+  /// Announced when the carousel moves.
+  ///
+  /// In en, this message translates to:
+  /// **'Slide {position} of {total}'**
+  String onboardingSlidePosition(int position, int total);
+
+  /// Names the portrait where no name sits beside it.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile photo of {name}'**
+  String profileAvatarLabel(String name);
+
+  /// One top-up pack read as a single option.
+  ///
+  /// In en, this message translates to:
+  /// **'{points} points for {price}'**
+  String topUpPackOption(String points, String price);
+
+  /// One profile counter read as a single figure with its unit.
+  ///
+  /// In en, this message translates to:
+  /// **'{value} {label}'**
+  String profileStatValue(String value, String label);
+
+  /// The points balance read as one figure.
+  ///
+  /// In en, this message translates to:
+  /// **'{label}: {value} {unit}'**
+  String rewardsBalanceSummary(String label, String value, String unit);
+
+  /// The badge standing read as one block.
+  ///
+  /// In en, this message translates to:
+  /// **'{label}: {name}. {caption}'**
+  String rewardsBadgeSummary(String label, String name, String caption);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

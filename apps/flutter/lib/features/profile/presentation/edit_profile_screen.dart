@@ -6,10 +6,11 @@ import 'package:matinee/core/l10n/app_exception_l10n.dart';
 import 'package:matinee/core/l10n/l10n.dart';
 import 'package:matinee/core/responsive/responsive.dart';
 import 'package:matinee/core/theme/app_spacing.dart';
-import 'package:matinee/core/theme/app_text_styles.dart';
-import 'package:matinee/core/theme/extensions/build_context_extensions.dart';
 import 'package:matinee/core/widgets/back_disc_button.dart';
 import 'package:matinee/core/widgets/error_view.dart';
+import 'package:matinee/core/widgets/loading_view.dart';
+import 'package:matinee/core/widgets/screen_title.dart';
+import 'package:matinee/core/widgets/section_label.dart';
 import 'package:matinee/di/service_locator.dart';
 import 'package:matinee/features/profile/data/models/profile.dart';
 import 'package:matinee/features/profile/data/profile_repository.dart';
@@ -45,9 +46,8 @@ class EditProfileView extends StatefulWidget {
 
 class _EditProfileViewState extends State<EditProfileView> {
   ///
-  /// The profile the form was built from, kept once it arrives. A save emits
-  /// loading and then success or failure, and rebuilding the body on any of
-  /// those would throw away what the user typed.
+  /// The profile the form was built from, kept once it arrives. Rebuilding the
+  /// body on the loading or success a save emits would lose what was typed.
   ///
   Profile? _loaded;
 
@@ -87,9 +87,12 @@ class _EditProfileViewState extends State<EditProfileView> {
                       onPressed: Navigator.of(context).pop,
                     ),
                     Expanded(
-                      child: Text(
-                        l10n.editProfileTitle,
-                        style: Theme.of(context).textTheme.titleMedium,
+                      child: ScreenTitle(
+                        label: l10n.editProfileTitle,
+                        child: Text(
+                          l10n.editProfileTitle,
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
                       ),
                     ),
                   ],
@@ -106,7 +109,7 @@ class _EditProfileViewState extends State<EditProfileView> {
                       return _Form(profile: profile);
                     }
                     return switch (state) {
-                      ProfileLoading() => const Center(child: CircularProgressIndicator()),
+                      ProfileLoading() => const LoadingView(),
                       ProfileFailure(:final error) => ErrorView(
                         message: error.localizedMessage(l10n),
                         onRetry: () => unawaited(context.read<ProfileCubit>().load()),
@@ -170,7 +173,6 @@ class _FormState extends State<_Form> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final colors = context.appColors;
     return BlocListener<ProfileCubit, ProfileState>(
       listenWhen: (previous, current) => previous is ProfileLoading,
       listener: (context, state) {
@@ -203,14 +205,16 @@ class _FormState extends State<_Form> {
                 name: widget.profile.name,
                 imageUrl: widget.profile.avatarUrl,
                 editBadge: true,
+                // Named here and not on the profile screen: there the name is
+                // printed directly under the portrait, here nothing is.
+                semanticLabel: l10n.profileAvatarLabel(widget.profile.name),
               ),
             ),
             Padding(
               padding: const EdgeInsets.only(top: AppSpacing.xxxl, bottom: AppSpacing.lg),
-              child: Text(
-                l10n.editProfileAboutYou.toUpperCase(),
-                style: AppTextStyle.overline.copyWith(color: colors.text.secondary),
-              ),
+              // The shared eyebrow, not a bare Text in the overline role: it
+              // carries the heading role that heading navigation needs.
+              child: SectionLabel(label: l10n.editProfileAboutYou.toUpperCase()),
             ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,

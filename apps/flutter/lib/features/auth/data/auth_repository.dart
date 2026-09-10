@@ -3,8 +3,7 @@ import 'package:matinee/features/auth/data/services/auth_api_service.dart';
 
 ///
 /// Source of truth for the sign-in and sign-up flow. Every method is one
-/// guardApi call, so once the mocked service is swapped for a real client a
-/// DioException still never leaves the data layer.
+/// guardApi call, so a DioException never leaves the data layer.
 ///
 class AuthRepository {
   const AuthRepository(this._api);

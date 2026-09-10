@@ -4,8 +4,7 @@ part 'exclusive_content.freezed.dart';
 
 ///
 /// One tile in the exclusive content grid. A locked item draws the lock and
-/// costs [unlockCost] points; an unlocked one shows its still, so every item
-/// carries one whether or not it is showing yet.
+/// costs [unlockCost]; every item carries a still, showing or not.
 ///
 @freezed
 abstract class ExclusiveItem with _$ExclusiveItem {

@@ -9,8 +9,7 @@ import 'package:matinee/features/auth/data/models/dial_code.dart';
 
 ///
 /// The dialling-code box beside the phone field, and the sheet it opens. The
-/// design draws the box as a chevron affordance without saying what it opens,
-/// so the menu follows the app's own bottom-sheet styling.
+/// design never drew the sheet, so it follows the app's own sheet styling.
 ///
 class DialCodePicker extends StatelessWidget {
   const DialCodePicker({

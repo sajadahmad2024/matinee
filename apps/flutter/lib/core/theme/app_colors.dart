@@ -3,10 +3,8 @@ import 'package:matinee/core/theme/app_color_roles.dart';
 import 'package:matinee/core/theme/app_palette.dart';
 
 ///
-/// The app colour roles ColorScheme has no place for: navigation, points pill,
-/// badge tiers, the warm auth palette, scrims and the gradients. Read through
-/// `context.appColors`; the groups keep the role names close to the design
-/// system's own grouping.
+/// The app roles ColorScheme has no place for — navigation, points pill, badge
+/// tiers, the auth palette, scrims, gradients — read via `context.appColors`.
 ///
 class AppColors extends ThemeExtension<AppColors> {
   const AppColors({

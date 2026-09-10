@@ -7,10 +7,8 @@ import 'package:matinee/core/theme/app_spacing.dart';
 import 'package:matinee/core/theme/app_text_styles.dart';
 
 ///
-/// The app's single ThemeData. Component themes are defined here once from
-/// tokens only, so widgets never style themselves. Components the design does
-/// not draw (toggles, snackbars, tabs) are left to the ColorScheme until it
-/// does.
+/// The app's single ThemeData: component themes defined once from tokens, so
+/// widgets never style themselves. What the design omits stays ColorScheme's.
 ///
 abstract final class AppTheme {
   static final ThemeData dark = _build(AppColorScheme.dark, AppColors.dark);

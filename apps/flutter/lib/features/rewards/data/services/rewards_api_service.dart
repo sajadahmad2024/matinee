@@ -7,10 +7,8 @@ import 'package:matinee/features/rewards/data/models/exclusive_content.dart';
 import 'package:matinee/features/rewards/data/models/rewards_summary.dart';
 
 ///
-/// Stands in for the rewards endpoints until the API exists. It answers after
-/// a short delay so the screens exercise their loading states, and holds the
-/// balance, the bids and the unlocked items in memory so spending points on
-/// one screen is visible on the next.
+/// Stands in for the rewards endpoints until the API exists. It answers after a
+/// delay, and holds the balance, bids and unlocks so spending carries across.
 ///
 class RewardsApiService {
   RewardsApiService();
@@ -26,10 +24,8 @@ class RewardsApiService {
   final DateTime _startedAt = DateTime.now();
 
   ///
-  /// The balance is the one value more than one screen shows, so a change to
-  /// it is broadcast rather than left for each screen to notice on its own.
-  /// The service is a lazy singleton that lives as long as the app, so the
-  /// controller is never closed.
+  /// The balance is the one value several screens show, so a change is
+  /// broadcast. The service outlives them all, so this is never closed.
   ///
   final StreamController<int> _pointsChanges = StreamController<int>.broadcast();
 
@@ -83,9 +79,8 @@ class RewardsApiService {
   ///
   Future<AuctionBoard> placeBid(int amount) async {
     await Future<void>.delayed(mockLatency);
-    // A bid commits the points even though it does not spend them until the
-    // lot is won, so one over the balance is refused the same way an unlock
-    // the user cannot afford is.
+    // A bid commits the points even before the lot is won, so one over the
+    // balance is refused like an unlock the user cannot afford.
     if (amount > _points) {
       throw const ValidationException(402);
     }
@@ -212,9 +207,8 @@ class RewardsApiService {
   static const List<String> _filters = [_defaultFilter, 'Horror', 'Thriller', 'New'];
 
   ///
-  /// The grid the design draws: nine tiles, five of them already open. Every
-  /// tile carries the copy the unlock screen shows, so opening one needs no
-  /// second fetch.
+  /// The grid the design draws: nine tiles, five already open. Each carries the
+  /// copy the unlock screen shows, so opening one needs no second fetch.
   ///
   static const List<ExclusiveItem> _catalogue = [
     ExclusiveItem(

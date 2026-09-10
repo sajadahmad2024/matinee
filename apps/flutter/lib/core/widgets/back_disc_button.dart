@@ -31,9 +31,8 @@ class BackDiscButton extends StatelessWidget {
   static const double leadingWidth = _tapTarget;
 
   ///
-  /// How far the tap target overhangs the disc. An app bar that wants the disc
-  /// on the screen's left margin starts its leading padding this much earlier,
-  /// so the disc lands on the margin and the target keeps its size.
+  /// How far the tap target overhangs the disc. An app bar wanting the disc on
+  /// the screen margin starts its leading padding this much earlier.
   ///
   static const double tapInset = _tapInset;
 

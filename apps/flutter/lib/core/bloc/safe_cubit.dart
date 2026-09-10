@@ -3,10 +3,8 @@ import 'dart:developer' as developer;
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 ///
-/// Emits after [close] are dropped instead of throwing, which is what
-/// `Bloc.on`'s emitter already does. Subscriptions, timers and cancel tokens
-/// the cubit owns must still be cancelled in [close]; this class does not do
-/// it.
+/// Emits after [close] are dropped instead of throwing, as `Bloc.on` already
+/// does. Subscriptions and timers are not covered; [close] still cancels them.
 ///
 abstract class SafeCubit<S> extends Cubit<S> {
   SafeCubit(super.initialState);

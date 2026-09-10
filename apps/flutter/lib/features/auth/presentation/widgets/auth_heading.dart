@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:matinee/core/theme/app_spacing.dart';
 import 'package:matinee/core/theme/extensions/build_context_extensions.dart';
+import 'package:matinee/core/widgets/screen_title.dart';
 
 ///
 /// Splits [sentence] around [emphasis] so that run can carry [emphasisStyle]
@@ -21,9 +22,7 @@ List<TextSpan> emphasise(String sentence, String? emphasis, TextStyle? emphasisS
   ];
 }
 
-///
 /// The title and supporting line every auth screen opens with.
-///
 class AuthHeading extends StatelessWidget {
   const AuthHeading({required this.title, required this.subtitle, super.key, this.subtitleEmphasis});
 
@@ -43,7 +42,10 @@ class AuthHeading extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       spacing: AppSpacing.sm,
       children: [
-        Text(title, style: textTheme.headlineMedium?.copyWith(color: colors.onSurface)),
+        ScreenTitle(
+          label: title,
+          child: Text(title, style: textTheme.headlineMedium?.copyWith(color: colors.onSurface)),
+        ),
         Text.rich(
           TextSpan(children: emphasise(subtitle, subtitleEmphasis, base?.copyWith(color: colors.onSurface))),
           style: base,

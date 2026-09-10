@@ -6,10 +6,8 @@ import 'package:matinee/app/startup/app_startup_cubit.dart';
 import 'package:matinee/app/startup/app_startup_state.dart';
 
 ///
-/// Built once by App. The redirect keeps every route behind the splash until
-/// startup succeeds, then returns to the location the user asked for.
-/// An auth guard, when a project adds one, is a second clause here reading
-/// the session repository.
+/// Built once by App. The redirect holds every route behind the splash until
+/// startup succeeds; an auth guard would be a second clause here.
 ///
 GoRouter createRouter(AppStartupCubit startup, {required Listenable refreshListenable}) {
   final splashPath = const SplashRoute().location;
@@ -23,9 +21,8 @@ GoRouter createRouter(AppStartupCubit startup, {required Listenable refreshListe
         return onSplash ? null : SplashRoute(from: state.uri.toString()).location;
       }
       if (onSplash) {
-        // TEMPORARY, FOR DEMOS: the intro is the landing screen every launch,
-        // so the whole flow is visible. This deliberately ignores the 'from'
-        // deep link too, which the real clause below must restore.
+        // TEMPORARY, FOR DEMOS: the intro lands every launch, so the whole flow
+        // is visible. Ignores the 'from' deep link the commented clause honours.
         return const OnboardingRoute().location;
         // return state.uri.queryParameters['from'] ?? const HomeRoute().location;
       }

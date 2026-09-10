@@ -1,21 +1,14 @@
 import 'package:flutter/material.dart';
 
 ///
-/// The type scale: 18 UI roles and 7 Oswald numeral roles, in four bundled
-/// families (DM Sans for UI, Poppins for the display voice, Inter for small
-/// print, Oswald for numerals). Widgets read the Material roles from
-/// `Theme.of(context).textTheme`; the four roles Material has no slot for
-/// (cardTitle, caption, overline, navLabel) and the numerals are read from
-/// here. Styles carry no colour: it comes from the ColorScheme or an
-/// AppColors role at the call site.
+/// The type scale: 18 UI roles and 7 Oswald numeral roles. Material's own come
+/// from `Theme.of(context).textTheme`, the four it lacks and the numerals here.
 ///
-/// Roles marked upper-case in the design (labelSmall, overline, navLabel) are
-/// not transformed here — the caller supplies upper-case text.
+/// No style carries a colour or an upper-case transform; both come from the
+/// call site.
 ///
-/// Every role sets `leadingDistribution: even`. Flutter's default splits the
-/// leading a line height adds unevenly, which pushes glyphs towards the top of
-/// their box — visible wherever text is vertically centred in a fixed-height
-/// control, such as an input or a button. Any style added here needs it too.
+/// Every role sets `leadingDistribution: even`, new ones included, or glyphs
+/// sit high in anything of fixed height.
 ///
 abstract final class AppTextStyle {
   static const String _dmSans = 'DM Sans';

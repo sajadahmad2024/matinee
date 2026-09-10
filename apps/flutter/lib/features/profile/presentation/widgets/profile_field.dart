@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:matinee/core/theme/app_radius.dart';
 import 'package:matinee/core/theme/app_spacing.dart';
 import 'package:matinee/core/theme/extensions/build_context_extensions.dart';
@@ -66,39 +67,50 @@ class _ProfileFieldState extends State<ProfileField> {
       crossAxisAlignment: CrossAxisAlignment.start,
       spacing: AppSpacing.labelToField,
       children: [
-        Text(
-          widget.label.toUpperCase(),
-          style: textTheme.labelMedium?.copyWith(color: colors.text.secondary),
+        // Excluded, not labelled: the field below takes the same text as its
+        // name, and the upper case stays a visual matter.
+        ExcludeSemantics(
+          child: Text(
+            widget.label.toUpperCase(),
+            style: textTheme.labelMedium?.copyWith(color: colors.text.secondary),
+          ),
         ),
         Focus(
           canRequestFocus: false,
           skipTraversal: true,
           onFocusChange: (focused) => _onFocusChange(focused: focused),
-          child: TextField(
-            controller: widget.controller,
-            keyboardType: widget.keyboardType,
-            textInputAction: widget.textInputAction,
-            textCapitalization: widget.textCapitalization,
-            autofillHints: widget.autofillHints,
-            onChanged: _onChanged,
-            onTapOutside: (_) => FocusScope.of(context).unfocus(),
-            style: textTheme.bodyLarge?.copyWith(color: colors.text.primary),
-            cursorColor: colors.text.link,
-            decoration: InputDecoration(
-              filled: true,
-              fillColor: colors.card.backgroundRaised,
-              errorText: error,
-              border: const OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(AppRadius.md)),
-                borderSide: BorderSide.none,
-              ),
-              enabledBorder: const OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(AppRadius.md)),
-                borderSide: BorderSide.none,
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: const BorderRadius.all(Radius.circular(AppRadius.md)),
-                borderSide: BorderSide(color: colors.input.focusBorder),
+          // Material puts errorText in the field's hint but never marks the
+          // field invalid, so the state is set here alongside the name.
+          child: Semantics(
+            // Never `textField: true`: it adds a second, unmergeable node.
+            label: widget.label,
+            validationResult: error == null ? SemanticsValidationResult.none : SemanticsValidationResult.invalid,
+            child: TextField(
+              controller: widget.controller,
+              keyboardType: widget.keyboardType,
+              textInputAction: widget.textInputAction,
+              textCapitalization: widget.textCapitalization,
+              autofillHints: widget.autofillHints,
+              onChanged: _onChanged,
+              onTapOutside: (_) => FocusScope.of(context).unfocus(),
+              style: textTheme.bodyLarge?.copyWith(color: colors.text.primary),
+              cursorColor: colors.text.link,
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: colors.card.backgroundRaised,
+                errorText: error,
+                border: const OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(AppRadius.md)),
+                  borderSide: BorderSide.none,
+                ),
+                enabledBorder: const OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(AppRadius.md)),
+                  borderSide: BorderSide.none,
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: const BorderRadius.all(Radius.circular(AppRadius.md)),
+                  borderSide: BorderSide(color: colors.input.focusBorder),
+                ),
               ),
             ),
           ),

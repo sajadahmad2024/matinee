@@ -4,13 +4,11 @@ import 'package:matinee/core/theme/app_spacing.dart';
 import 'package:matinee/core/theme/extensions/build_context_extensions.dart';
 
 ///
-/// The frame every auth screen shares: the warm surface, the back header the
-/// design puts above every form, and a scrolling content column inset by the
-/// auth side padding.
+/// The frame every auth screen shares: the warm surface, the back header, and a
+/// scrolling content column inset by the auth side padding.
 ///
-/// [footer] sits at the bottom of the viewport while the content is short,
-/// which is how the design places the legal paragraph, and follows the content
-/// down once it grows past a screenful.
+/// [footer] sits at the bottom of the viewport while the content is short, the
+/// way the design places the legal paragraph, and follows it down after that.
 ///
 class AuthScaffold extends StatelessWidget {
   const AuthScaffold({
@@ -106,8 +104,7 @@ class _Body extends StatelessWidget {
         ),
         child: ConstrainedBox(
           // The vertical padding comes off the viewport so the footer lands
-          // inside it; a viewport shorter than that padding would otherwise
-          // ask for a negative height.
+          // inside it; the clamp guards a viewport shorter than the padding.
           constraints: BoxConstraints(
             minHeight: (constraints.maxHeight - AppSpacing.xxl - bottom).clamp(0, double.infinity),
           ),

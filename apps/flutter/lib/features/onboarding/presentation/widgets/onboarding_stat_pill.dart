@@ -18,25 +18,31 @@ class OnboardingStatPill extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.appColors.onboarding;
     final textTheme = Theme.of(context).textTheme;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: colors.statPillBackground,
-        borderRadius: const BorderRadius.all(Radius.circular(AppRadius.sm)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          spacing: AppSpacing.sm,
-          children: [
-            Text(value, style: textTheme.labelLarge?.copyWith(color: colors.statPillValue)),
-            Flexible(
-              child: Text(
-                caption,
-                style: AppTextStyle.caption.copyWith(color: colors.statPillCaption),
+    // The figure and what it counts are one fact, not two stops.
+    return Semantics(
+      label: '$value $caption',
+      container: true,
+      excludeSemantics: true,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: colors.statPillBackground,
+          borderRadius: const BorderRadius.all(Radius.circular(AppRadius.sm)),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            spacing: AppSpacing.sm,
+            children: [
+              Text(value, style: textTheme.labelLarge?.copyWith(color: colors.statPillValue)),
+              Flexible(
+                child: Text(
+                  caption,
+                  style: AppTextStyle.caption.copyWith(color: colors.statPillCaption),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

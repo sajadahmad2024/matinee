@@ -1,10 +1,8 @@
 ///
 /// Paths of the icon files bundled with the app.
 ///
-/// The design system's plan is one icon font for the ~40 single-colour glyphs
-/// and SVG only for multi-colour marks. That font does not exist yet, so the
-/// single-colour glyphs below ship as individual SVGs and fold into the font
-/// when it is generated.
+/// The design system plans one icon font for the ~40 single-colour glyphs and
+/// SVG for multi-colour marks only. Until it exists, they all ship as SVG.
 ///
 abstract final class AppIconAssets {
   static const String google = 'assets/icons/google.svg';
@@ -15,9 +13,8 @@ abstract final class AppIconAssets {
   static const String navP2pActive = 'assets/icons/nav_p2p_active.svg';
 
   ///
-  /// Rewards and Profile have no filled counterpart: the design's nav
-  /// component never drew one. Their selected state reads from the gold tint,
-  /// the bolder label and the indicator instead.
+  /// Rewards and Profile have no filled counterpart; the design never drew one.
+  /// Their selected state reads from the tint, the bolder label and indicator.
   ///
   static const String navRewards = 'assets/icons/nav_rewards.svg';
   static const String navProfile = 'assets/icons/nav_profile.svg';

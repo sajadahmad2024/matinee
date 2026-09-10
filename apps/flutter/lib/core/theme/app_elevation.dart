@@ -15,9 +15,8 @@ abstract final class AppElevation {
   ];
 
   ///
-  /// The focus glow in the error colour. The design draws no input error
-  /// state, so this mirrors the focus geometry with the recorded error role
-  /// rather than inventing a shape of its own.
+  /// The focus glow in the error colour. The design draws no input error state,
+  /// so this reuses the focus geometry rather than inventing a shape.
   ///
   static final List<BoxShadow> glowError = [
     BoxShadow(color: AppPalette.error.a20, blurRadius: 16),
@@ -36,9 +35,8 @@ abstract final class AppElevation {
   ];
 
   ///
-  /// Cast upward from the auction bid bar, which sits over the content rather
-  /// than over the screen background, so it carries the gold glow the darker
-  /// [sheet] shadow would swallow.
+  /// Cast upward from the auction bid bar. It sits over content, not the screen
+  /// background, so it needs the gold glow that [sheet] would swallow.
   ///
   static final List<BoxShadow> glowBidBar = [
     BoxShadow(color: AppPalette.gold.a20, offset: const Offset(0, -3), blurRadius: 30),

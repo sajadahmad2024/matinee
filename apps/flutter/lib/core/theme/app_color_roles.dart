@@ -3,9 +3,8 @@ import 'package:matinee/core/theme/app_gradients.dart';
 import 'package:matinee/core/theme/app_palette.dart';
 
 ///
-/// The app colour roles, grouped the way the design system groups them. Each
-/// group is one immutable value with a single dark instance, composed into
-/// AppColors and read as `context.appColors.<group>.<role>`.
+/// The app colour roles, grouped as the design system groups them. Each group
+/// is one immutable dark instance, read as `context.appColors.<group>.<role>`.
 ///
 
 class AppTextColors {
@@ -268,8 +267,7 @@ class AppChipColors {
 
 ///
 /// The brand marks the refer sheet's share targets carry. They are the one
-/// place the app paints somebody else's colour, so they are named here rather
-/// than reached for out of the palette at the call site.
+/// place the app paints somebody else's colour, so they are named, not inlined.
 ///
 class AppShareColors {
   const AppShareColors({
@@ -362,7 +360,7 @@ class AppBadgeColors {
     neutralBackground: AppPalette.white.a10,
     neutralBorder: AppPalette.white.a10,
     neutralLabel: AppPalette.white.a60,
-    liveBackground: AppPalette.error,
+    liveBackground: AppPalette.errorDeep,
     liveLabel: AppPalette.white,
   );
 
@@ -500,9 +498,8 @@ class AppInputColors {
 }
 
 ///
-/// The warm palette scoped to auth and onboarding. It is a set of app roles,
-/// not a second ColorScheme: screens there read these instead of the surface
-/// and outline roles.
+/// The warm palette scoped to auth and onboarding: app roles, not a second
+/// ColorScheme, read instead of the surface and outline roles.
 ///
 class AppAuthColors {
   const AppAuthColors({
@@ -562,7 +559,7 @@ class AppOnboardingColors {
     statTileLabel: AppPalette.white.a80,
     statPillBackground: AppPalette.gold.a10,
     statPillValue: AppPalette.goldLight,
-    statPillCaption: AppPalette.authTextMuted,
+    statPillCaption: AppPalette.authTextSecondary,
   );
 
   final Color statTileBackground;
@@ -648,9 +645,8 @@ class AppSheetColors {
   final Color closeBackground;
 
   ///
-  /// What the route and scaffold behind a sheet that draws its own surface
-  /// paint. Those sheets hug their content and let the rest of the screen
-  /// show through, so anything painting behind them would cover it.
+  /// What the route and scaffold behind a self-drawing sheet paint. Those
+  /// sheets hug their content, so an opaque backdrop would cover the screen.
   ///
   final Color routeBackground;
 
@@ -662,10 +658,8 @@ class AppSheetColors {
 }
 
 ///
-/// Scrims painted over imagery, plus the two full-bleed background gradients
-/// ([header] and [splash]) that sit under a screen rather than over a still.
-/// [imageDimOnboarding] and [imageDimStreakIntro] are opacities applied to the
-/// image itself, not colours.
+/// Scrims over imagery, plus [header] and [splash], which sit under a screen
+/// rather than over a still. The two `imageDim` roles are opacities, not colours.
 ///
 class AppOverlayColors {
   const AppOverlayColors({

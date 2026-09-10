@@ -4,9 +4,7 @@ import 'package:matinee/core/theme/app_sizes.dart';
 import 'package:matinee/core/theme/app_spacing.dart';
 import 'package:matinee/core/theme/extensions/build_context_extensions.dart';
 
-///
 /// A 'Why Subscribe?' bullet: the gold check disc and the line it ticks off.
-///
 class SubscribeBenefitRow extends StatelessWidget {
   const SubscribeBenefitRow({required this.label, super.key});
 

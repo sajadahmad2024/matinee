@@ -3,8 +3,7 @@ import 'package:matinee/core/error/app_exception.dart';
 
 ///
 /// Runs one API call and converts any DioException into the matching
-/// AppException. Repositories wrap every client call in this, so the mapping
-/// lives, and is tested, in exactly one place.
+/// AppException, so the mapping lives and is tested in one place.
 ///
 Future<T> guardApi<T>(Future<T> Function() call) async {
   try {

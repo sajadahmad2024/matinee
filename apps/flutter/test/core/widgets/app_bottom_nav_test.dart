@@ -43,6 +43,43 @@ void main() {
     );
   }
 
+  group('AppBottomNav accessibility', () {
+    testWidgets('is a tab bar whose items are tabs', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpApp(bar(currentIndex: 2));
+
+      // Four loose buttons say nothing about being one set, and the selected
+      // one is drawn in gold under a rule, which no screen reader sees.
+      expect(
+        tester.getSemantics(find.bySemanticsLabel('Rewards')),
+        isSemantics(isSelected: true, hasTapAction: true),
+      );
+      expect(
+        tester.getSemantics(find.bySemanticsLabel('Home')),
+        isSemantics(isSelected: false, hasTapAction: true),
+      );
+      handle.dispose();
+    });
+
+    testWidgets('announces each label as written, not in upper case', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpApp(bar());
+
+      // 'P2P' upper case is spelled out letter by letter by several screen
+      // readers, so the name is the label and the capitals stay a drawing.
+      expect(find.bySemanticsLabel('P2P'), findsOne);
+      expect(find.bySemanticsLabel('HOME'), findsNothing);
+      handle.dispose();
+    });
+
+    testWidgets('meets the tap target and labelling guidelines', (tester) async {
+      usePhoneSurface(tester);
+      await tester.pumpApp(bar());
+
+      await expectMeetsGuidelines(tester);
+    });
+  });
+
   group('AppBottomNav', () {
     testWidgets('renders every label in upper case', (tester) async {
       await tester.pumpApp(bar());
@@ -158,8 +195,7 @@ void main() {
 
     testWidgets('fits a narrow screen at the largest text scale', (tester) async {
       // A small phone at the accessibility maximum: the four labels cannot all
-      // be drawn at full width, and the row has to absorb that rather than
-      // running off the side.
+      // be drawn full width, and the row has to absorb that.
       tester.view.physicalSize = const Size(360, 780);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);

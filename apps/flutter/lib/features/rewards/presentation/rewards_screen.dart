@@ -8,6 +8,7 @@ import 'package:matinee/core/l10n/l10n.dart';
 import 'package:matinee/core/responsive/responsive.dart';
 import 'package:matinee/core/theme/app_spacing.dart';
 import 'package:matinee/core/widgets/error_view.dart';
+import 'package:matinee/core/widgets/loading_view.dart';
 import 'package:matinee/core/widgets/section_label.dart';
 import 'package:matinee/di/service_locator.dart';
 import 'package:matinee/features/rewards/data/models/rewards_summary.dart';
@@ -41,15 +42,14 @@ class RewardsView extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     return Scaffold(
-      // No SafeArea around the body: the header block's fade runs from the
-      // screen top, so it takes the status bar inset itself. Only the states
-      // that render without it need one.
+      // No SafeArea around the body: the header's fade runs from the screen
+      // top and takes the status bar inset itself.
       body: ContentContainer(
         maxWidth: ContentContainer.reading,
         child: BlocBuilder<RewardsCubit, RewardsState>(
           builder: (context, state) => switch (state) {
             RewardsInitial() => const SizedBox.shrink(),
-            RewardsLoading() => const Center(child: CircularProgressIndicator()),
+            RewardsLoading() => const LoadingView(),
             RewardsFailure(:final error) => SafeArea(
               bottom: false,
               child: ErrorView(
@@ -85,6 +85,16 @@ class _Body extends StatelessWidget {
             nextBadgeCaption: l10n.rewardsNextBadge(
               summary.pointsToNextBadge,
               summary.nextBadgeName,
+            ),
+            balanceSummary: l10n.rewardsBalanceSummary(
+              l10n.rewardsTotalPoints,
+              context.decimalFormat.format(summary.totalPoints),
+              l10n.rewardsPointsUnit,
+            ),
+            badgeSummary: l10n.rewardsBadgeSummary(
+              l10n.rewardsBadgeLabel,
+              summary.badgeName,
+              l10n.rewardsNextBadge(summary.pointsToNextBadge, summary.nextBadgeName),
             ),
           ),
         ),

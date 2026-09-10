@@ -39,37 +39,42 @@ class _Tile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors.onboarding;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: colors.statTileBackground,
-        border: Border.all(color: colors.statTileBorder),
-        borderRadius: const BorderRadius.all(Radius.circular(AppRadius.md)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.md),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          spacing: AppSpacing.sm,
-          children: [
-            // The design system treats these as icons rendered in the platform
-            // emoji font, so they take an icon size rather than a text role.
-            // They draw as tofu on the iOS simulator, which ships no colour
-            // emoji font, and correctly on a real device.
-            Text(
-              highlight.emoji,
-              // Drawn at icon size rather than at a text size: it stands in
-              // the tile where a glyph would.
-              style: AppTextStyle.bodyLarge.copyWith(fontSize: AppIconSize.lg, height: 1),
-            ),
-            Text(
-              highlight.label,
-              textAlign: TextAlign.center,
-              style: AppTextStyle.caption.copyWith(
-                fontWeight: FontWeight.w600,
-                color: colors.statTileLabel,
+    // One node reading the label alone: the emoji stands where a glyph would, so
+    // announcing its name — 'clapper board, 500+ Trailers' — reads decoration.
+    return Semantics(
+      label: highlight.label,
+      container: true,
+      excludeSemantics: true,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: colors.statTileBackground,
+          border: Border.all(color: colors.statTileBorder),
+          borderRadius: const BorderRadius.all(Radius.circular(AppRadius.md)),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.md),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            spacing: AppSpacing.sm,
+            children: [
+              // These draw as tofu on the iOS simulator, which ships no colour
+              // emoji font, and correctly on a real device.
+              Text(
+                highlight.emoji,
+                // Drawn at icon size rather than at a text size: it stands in
+                // the tile where a glyph would.
+                style: AppTextStyle.bodyLarge.copyWith(fontSize: AppIconSize.lg, height: 1),
               ),
-            ),
-          ],
+              Text(
+                highlight.label,
+                textAlign: TextAlign.center,
+                style: AppTextStyle.caption.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: colors.statTileLabel,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

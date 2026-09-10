@@ -138,8 +138,7 @@ void main() {
     group('accessibility', () {
       testWidgets('labels every tappable thing on the screen', (tester) async {
         // Not the size guidelines: the frame draws the bid field 40 tall and
-        // the BID button 39, and matching it is the point of the bar. The two
-        // controls that are not fixed by the frame are checked below.
+        // the BID button 39, and matching it is the point of the bar.
         when(() => cubit.state).thenReturn(AuctionState.success(boardWith()));
         await pumpView(tester);
 

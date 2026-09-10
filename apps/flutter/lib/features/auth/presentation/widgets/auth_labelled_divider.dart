@@ -3,9 +3,7 @@ import 'package:matinee/core/theme/app_spacing.dart';
 import 'package:matinee/core/theme/app_text_styles.dart';
 import 'package:matinee/core/theme/extensions/build_context_extensions.dart';
 
-///
 /// The 'or continue with' rule: a hairline either side of a caption.
-///
 class AuthLabelledDivider extends StatelessWidget {
   const AuthLabelledDivider({required this.label, super.key});
 

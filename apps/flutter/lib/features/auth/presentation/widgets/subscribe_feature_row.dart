@@ -24,29 +24,36 @@ class SubscribeFeatureRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.appColors.auth;
     final textTheme = Theme.of(context).textTheme;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: colors.surfaceContainer,
-        border: Border.all(color: colors.outline),
-        borderRadius: const BorderRadius.all(Radius.circular(AppRadius.lg)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        child: Row(
-          spacing: AppSpacing.md,
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: AppSpacing.xxs,
-                children: [
-                  Text(title, style: textTheme.titleSmall?.copyWith(color: colors.onSurface)),
-                  Text(subtitle, style: AppTextStyle.caption.copyWith(color: colors.onSurfaceVariant)),
-                ],
+    // One node: the name, what it gives and the pill saying it is behind the
+    // subscription are one item, not three stops a swipe apart.
+    return Semantics(
+      label: '$title. $subtitle. $chipLabel',
+      container: true,
+      excludeSemantics: true,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: colors.surfaceContainer,
+          border: Border.all(color: colors.outline),
+          borderRadius: const BorderRadius.all(Radius.circular(AppRadius.lg)),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          child: Row(
+            spacing: AppSpacing.md,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: AppSpacing.xxs,
+                  children: [
+                    Text(title, style: textTheme.titleSmall?.copyWith(color: colors.onSurface)),
+                    Text(subtitle, style: AppTextStyle.caption.copyWith(color: colors.onSurfaceVariant)),
+                  ],
+                ),
               ),
-            ),
-            _UnlockPill(label: chipLabel),
-          ],
+              _UnlockPill(label: chipLabel),
+            ],
+          ),
         ),
       ),
     );

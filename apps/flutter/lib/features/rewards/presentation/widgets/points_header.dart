@@ -15,6 +15,8 @@ class PointsHeader extends StatelessWidget {
     required this.badgeLabel,
     required this.badgeName,
     required this.nextBadgeCaption,
+    required this.balanceSummary,
+    required this.badgeSummary,
     super.key,
   });
 
@@ -28,6 +30,15 @@ class PointsHeader extends StatelessWidget {
   final String badgeName;
   final String nextBadgeCaption;
 
+  ///
+  /// The balance as one sentence. The figure is split across a caption, a
+  /// masked numeral and its unit, which otherwise read as three stops.
+  ///
+  final String balanceSummary;
+
+  /// The badge standing as one sentence, for the same reason.
+  final String badgeSummary;
+
   @override
   Widget build(BuildContext context) {
     return DecoratedBox(
@@ -37,10 +48,8 @@ class PointsHeader extends StatelessWidget {
       child: SafeArea(
         bottom: false,
         child: Padding(
-          // The design pads the block 50 from the frame top, then leaves an
-          // empty eyebrow slot and a further gap above the balance, which is
-          // 35 below the status bar. Below, this closes the balance row only;
-          // the gap on to the section label belongs to the screen.
+          // The design pads the block 50 from the frame top, leaving the
+          // balance 35 below the status bar. The gap below is the screen's.
           padding: const EdgeInsets.only(
             left: AppScreenPadding.main,
             right: AppScreenPadding.main,
@@ -51,9 +60,19 @@ class PointsHeader extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Expanded(
-                child: _Balance(label: totalPointsLabel, value: totalPoints, unit: pointsUnit),
+                child: Semantics(
+                  label: balanceSummary,
+                  container: true,
+                  excludeSemantics: true,
+                  child: _Balance(label: totalPointsLabel, value: totalPoints, unit: pointsUnit),
+                ),
               ),
-              _Badge(label: badgeLabel, name: badgeName, caption: nextBadgeCaption),
+              Semantics(
+                label: badgeSummary,
+                container: true,
+                excludeSemantics: true,
+                child: _Badge(label: badgeLabel, name: badgeName, caption: nextBadgeCaption),
+              ),
             ],
           ),
         ),
@@ -78,8 +97,7 @@ class _Balance extends StatelessWidget {
         Text(label, style: AppTextStyle.caption.copyWith(color: colors.muted)),
         Padding(
           padding: const EdgeInsets.only(top: AppSpacing.xs),
-          // The balance grows with the user's points and with the text scale.
-          // Scaling the row keeps 'pts' on the numeral's baseline, which
+          // Scaling the whole row keeps 'pts' on the numeral's baseline, which
           // making the numeral alone flexible would break.
           child: FittedBox(
             fit: BoxFit.scaleDown,

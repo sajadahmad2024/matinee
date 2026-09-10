@@ -30,10 +30,12 @@ class ExclusiveTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.appColors;
     return Semantics(
-      // The tile's own content is a still or a glyph, so the label is the only
-      // thing a screen reader has to go on. The InkWell below keeps the tap
-      // action, which is why the subtree is not excluded wholesale.
+      // The tile's content is a still or a glyph, so this label is all a screen
+      // reader has; the subtree stays for the InkWell's tap action.
       label: isUnlocked ? title : '$title, $lockedLabel',
+      // Only a locked tile opens anything; an unlocked one has no player to go
+      // to yet, so it is content rather than a control.
+      button: onTap != null,
       child: Material(
         color: isUnlocked ? null : colors.card.backgroundLocked,
         borderRadius: const BorderRadius.all(Radius.circular(AppRadius.md)),

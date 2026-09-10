@@ -21,9 +21,8 @@ Future<void> loadUiFont() async {
 void main() {
   group(AppTheme, () {
     ///
-    /// A value that sits high in its box is the symptom of a decorator that
-    /// anchors text by baseline inside height a minHeight added. The guard is
-    /// that the space above and below a field's text stays equal.
+    /// A value sitting high in its box means the decorator anchored it by
+    /// baseline, so the guard is that the space above and below stays equal.
     ///
     group('centres the value inside an input', () {
       const hint = 'Hint text';

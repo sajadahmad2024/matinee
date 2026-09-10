@@ -5,9 +5,8 @@ import 'package:matinee/core/theme/app_spacing.dart';
 import 'package:matinee/core/theme/extensions/build_context_extensions.dart';
 
 ///
-/// A provider sign-in button: dark container, hairline outline, mark and
-/// label. The mark is supplied by the caller because Google's is a four-colour
-/// image while Apple's is a glyph.
+/// A provider sign-in button. The mark comes from the caller because Google's
+/// is a four-colour image while Apple's is a glyph.
 ///
 class AuthSocialButton extends StatelessWidget {
   const AuthSocialButton({required this.icon, required this.label, required this.onPressed, super.key});

@@ -1,7 +1,6 @@
 ///
 /// The closed set of failures the UI can react to. Repositories throw these
-/// and nothing else; cubits catch `on AppException` and emit a failure state.
-/// Programming errors are never wrapped in one.
+/// and nothing else; programming errors are never wrapped in one.
 ///
 sealed class AppException implements Exception {
   const AppException();

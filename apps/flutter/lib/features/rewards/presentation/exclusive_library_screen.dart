@@ -9,6 +9,8 @@ import 'package:matinee/core/responsive/responsive.dart';
 import 'package:matinee/core/theme/app_spacing.dart';
 import 'package:matinee/core/widgets/back_disc_button.dart';
 import 'package:matinee/core/widgets/error_view.dart';
+import 'package:matinee/core/widgets/loading_view.dart';
+import 'package:matinee/core/widgets/screen_title.dart';
 import 'package:matinee/di/service_locator.dart';
 import 'package:matinee/features/rewards/data/models/exclusive_content.dart';
 import 'package:matinee/features/rewards/data/rewards_repository.dart';
@@ -62,14 +64,17 @@ class ExclusiveLibraryView extends StatelessWidget {
         // The frame leaves 12 between the disc and the title, which the slot
         // already ends on; the default 16 would stack on top of it.
         titleSpacing: 0,
-        title: Text(l10n.exclusiveTitle),
+        title: ScreenTitle(
+          label: l10n.exclusiveTitle,
+          child: Text(l10n.exclusiveTitle),
+        ),
       ),
       body: ContentContainer(
         maxWidth: ContentContainer.reading,
         child: BlocBuilder<ExclusiveLibraryCubit, ExclusiveLibraryState>(
           builder: (context, state) => switch (state) {
             ExclusiveLibraryInitial() => const SizedBox.shrink(),
-            ExclusiveLibraryLoading() => const Center(child: CircularProgressIndicator()),
+            ExclusiveLibraryLoading() => const LoadingView(),
             ExclusiveLibraryFailure(:final error) => ErrorView(
               message: error.localizedMessage(l10n),
               onRetry: () => unawaited(context.read<ExclusiveLibraryCubit>().load()),
@@ -98,10 +103,8 @@ class _Body extends StatelessWidget {
       slivers: [
         SliverToBoxAdapter(
           child: Padding(
-            // The frame's header runs 13 deeper than the app bar's own height,
-            // and a chip paints 32 but lays out 48 to keep its tap target, so
-            // both gaps are set short of what the frame draws: 4 reads as the
-            // header's extra depth, 8 as the 16 above the grid.
+            // The frame's header runs 13 deeper than the app bar and a chip
+            // lays out 48 for its 32, so both gaps are set short of the frame.
             padding: const EdgeInsets.only(top: AppSpacing.xs, bottom: AppSpacing.sm),
             child: ContentFilterChips(
               filters: library.filters,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:matinee/core/theme/app_elevation.dart';
 import 'package:matinee/core/theme/app_radius.dart';
@@ -8,13 +9,11 @@ import 'package:matinee/core/theme/app_text_styles.dart';
 import 'package:matinee/core/theme/extensions/build_context_extensions.dart';
 
 ///
-/// One labelled field of the auth form: an upper-case label, the framed input
-/// the warm palette draws, and the error message underneath.
+/// One labelled field of the auth form: upper-case label, framed input, error
+/// message underneath.
 ///
-/// The field owns when its error is shown — nothing until the user has left it
-/// once, then on every keystroke — while the screen owns whether the form as a
-/// whole is submittable, so the CTA can be disabled before anything is typed
-/// without the fields turning red.
+/// The field decides when to show its error — once the user has left it, then
+/// on every keystroke; the screen decides whether the form can be submitted.
 ///
 class AuthField extends StatefulWidget {
   const AuthField({
@@ -82,39 +81,52 @@ class _AuthFieldState extends State<AuthField> {
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
+    final error = _error;
     final field = _AuthFieldFrame(
       focused: _focused,
-      hasError: _error != null,
-      child: TextField(
-        controller: widget.controller,
-        keyboardType: widget.keyboardType,
-        inputFormatters: widget.inputFormatters,
-        textInputAction: widget.textInputAction,
-        textCapitalization: widget.textCapitalization,
-        autofillHints: widget.autofillHints,
-        onChanged: _onChanged,
-        onSubmitted: (_) => widget.onSubmitted?.call(),
-        style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: colors.auth.onSurface),
-        cursorColor: colors.text.link,
-        // A tap anywhere else puts the keyboard away, which is otherwise
-        // one-way on a screen with no other focusable control.
-        onTapOutside: (_) => FocusScope.of(context).unfocus(),
-        decoration: InputDecoration(
-          // The frame around this field paints the fill and the border, so the
-          // Material decoration draws none of its own. Clearing `border` alone
-          // is not enough: the per-state borders fall back to the app-wide
-          // input theme and would paint a second ring inside the frame.
-          filled: false,
-          isCollapsed: true,
-          constraints: const BoxConstraints(),
-          border: InputBorder.none,
-          enabledBorder: InputBorder.none,
-          focusedBorder: InputBorder.none,
-          errorBorder: InputBorder.none,
-          focusedErrorBorder: InputBorder.none,
-          disabledBorder: InputBorder.none,
-          hintText: widget.hintText,
-          hintStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(color: colors.auth.inputPlaceholder),
+      hasError: error != null,
+      // The design draws the label outside the frame, so the field itself would
+      // reach a screen reader nameless.
+      child: Semantics(
+        // Never `textField: true`, which adds a second, unmergeable focus stop.
+        // The suffix is folded in: '(optional)' sits in the excluded row below.
+        label: switch (widget.labelSuffix) {
+          final suffix? => '${widget.label} $suffix',
+          null => widget.label,
+        },
+        // Carried the way a Material errorText would carry it.
+        hint: error,
+        // So the invalid state is exposed, not only its message.
+        validationResult: error == null ? SemanticsValidationResult.none : SemanticsValidationResult.invalid,
+        child: TextField(
+          controller: widget.controller,
+          keyboardType: widget.keyboardType,
+          inputFormatters: widget.inputFormatters,
+          textInputAction: widget.textInputAction,
+          textCapitalization: widget.textCapitalization,
+          autofillHints: widget.autofillHints,
+          onChanged: _onChanged,
+          onSubmitted: (_) => widget.onSubmitted?.call(),
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: colors.auth.onSurface),
+          cursorColor: colors.text.link,
+          // A tap anywhere else puts the keyboard away, which is otherwise
+          // one-way on a screen with no other focusable control.
+          onTapOutside: (_) => FocusScope.of(context).unfocus(),
+          decoration: InputDecoration(
+            // The frame paints the fill and the border. Clearing `border` alone
+            // is not enough: per-state borders fall back to the app-wide theme.
+            filled: false,
+            isCollapsed: true,
+            constraints: const BoxConstraints(),
+            border: InputBorder.none,
+            enabledBorder: InputBorder.none,
+            focusedBorder: InputBorder.none,
+            errorBorder: InputBorder.none,
+            focusedErrorBorder: InputBorder.none,
+            disabledBorder: InputBorder.none,
+            hintText: widget.hintText,
+            hintStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(color: colors.auth.inputPlaceholder),
+          ),
         ),
       ),
     );
@@ -122,18 +134,22 @@ class _AuthFieldState extends State<AuthField> {
       crossAxisAlignment: CrossAxisAlignment.start,
       spacing: AppSpacing.labelToField,
       children: [
-        Text.rich(
-          TextSpan(
-            text: widget.label.toUpperCase(),
-            children: [
-              if (widget.labelSuffix case final suffix?)
-                TextSpan(
-                  text: ' $suffix',
-                  style: AppTextStyle.caption.copyWith(color: colors.auth.onSurfaceMuted),
-                ),
-            ],
+        // Excluded, not labelled: the field carries this text as its own name,
+        // so leaving it here would announce the label twice.
+        ExcludeSemantics(
+          child: Text.rich(
+            TextSpan(
+              text: widget.label.toUpperCase(),
+              children: [
+                if (widget.labelSuffix case final suffix?)
+                  TextSpan(
+                    text: ' $suffix',
+                    style: AppTextStyle.caption.copyWith(color: colors.auth.onSurfaceMuted),
+                  ),
+              ],
+            ),
+            style: AppTextStyle.overline.copyWith(color: colors.auth.inputLabel),
           ),
-          style: AppTextStyle.overline.copyWith(color: colors.auth.inputLabel),
         ),
         Focus(
           canRequestFocus: false,
@@ -154,16 +170,21 @@ class _AuthFieldState extends State<AuthField> {
                   ),
                 ),
         ),
-        if (_error case final error?) Text(error, style: AppTextStyle.caption.copyWith(color: colors.text.error)),
+        // A polite live region, so an error appearing after the user has left
+        // the field is spoken rather than waiting to be found.
+        if (error != null)
+          Semantics(
+            role: SemanticsRole.status,
+            child: Text(error, style: AppTextStyle.caption.copyWith(color: colors.text.error)),
+          ),
       ],
     );
   }
 }
 
 ///
-/// The framed box every auth input sits in. The design draws no error state,
-/// so the error border reuses the recorded error role the way the design
-/// system's open item says derived rules should until one is drawn.
+/// The framed box every auth input sits in. The design draws no error state, so
+/// the error border reuses the recorded error role until one is drawn.
 ///
 class _AuthFieldFrame extends StatelessWidget {
   const _AuthFieldFrame({required this.focused, required this.hasError, required this.child});

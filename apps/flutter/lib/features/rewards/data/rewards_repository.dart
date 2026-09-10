@@ -10,9 +10,8 @@ class RewardsRepository {
   final RewardsApiService _service;
 
   ///
-  /// The balance, every time it changes. The tab keeps its state while other
-  /// tabs are on screen, so it watches this rather than refetching on a guess
-  /// about when spending happened elsewhere.
+  /// The balance, every time it changes. The tab keeps its state while others
+  /// are on screen, so it watches this rather than guessing when to refetch.
   ///
   Stream<int> get pointsChanges => _service.pointsChanges;
 

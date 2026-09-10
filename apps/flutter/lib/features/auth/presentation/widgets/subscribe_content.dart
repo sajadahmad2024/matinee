@@ -2,17 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:matinee/core/l10n/l10n.dart';
 import 'package:matinee/core/theme/app_sizes.dart';
 import 'package:matinee/core/theme/app_spacing.dart';
-import 'package:matinee/core/theme/app_text_styles.dart';
 import 'package:matinee/core/theme/extensions/build_context_extensions.dart';
+import 'package:matinee/core/widgets/screen_title.dart';
+import 'package:matinee/core/widgets/section_label.dart';
 import 'package:matinee/features/auth/presentation/widgets/subscribe_benefit_row.dart';
 import 'package:matinee/features/auth/presentation/widgets/subscribe_feature_row.dart';
 
 ///
-/// The gold 'PREMIUM ACCESS' line the paywall opens with.
-///
-/// Shared by the screen that closes sign-up and the sheet an upgrade action
-/// opens later, which frame it differently: the screen sets a skip action
-/// beside it, the sheet leaves the row to it alone.
+/// The gold 'PREMIUM ACCESS' line the paywall opens with. Shared by the sign-up
+/// screen, which sets a skip action beside it, and the later upgrade sheet.
 ///
 class SubscribeEyebrow extends StatelessWidget {
   const SubscribeEyebrow({super.key});
@@ -38,9 +36,8 @@ class SubscribeEyebrow extends StatelessWidget {
 }
 
 ///
-/// The offer itself: the headline, the three feature cards and the reasons to
-/// subscribe. Identical in the screen and the sheet, which differ only in the
-/// chrome around it.
+/// The offer itself: headline, three feature cards and reasons to subscribe.
+/// Identical in the screen and the sheet, which differ only in their chrome.
 ///
 class SubscribeBody extends StatelessWidget {
   const SubscribeBody({super.key});
@@ -55,9 +52,12 @@ class SubscribeBody extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.only(bottom: AppSpacing.xl),
-          child: Text(
-            l10n.subscribeTitle,
-            style: textTheme.headlineMedium?.copyWith(color: colors.onSurface),
+          child: ScreenTitle(
+            label: l10n.subscribeTitle,
+            child: Text(
+              l10n.subscribeTitle,
+              style: textTheme.headlineMedium?.copyWith(color: colors.onSurface),
+            ),
           ),
         ),
         Column(
@@ -87,10 +87,9 @@ class SubscribeBody extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             spacing: AppSpacing.lg,
             children: [
-              Text(
-                l10n.subscribeWhyTitle,
-                style: AppTextStyle.overline.copyWith(color: colors.onSurfaceVariant),
-              ),
+              // The shared eyebrow, not a bare Text in the overline role, so
+              // the section carries the heading role the rest of the app's do.
+              SectionLabel(label: l10n.subscribeWhyTitle),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 spacing: AppSpacing.md,

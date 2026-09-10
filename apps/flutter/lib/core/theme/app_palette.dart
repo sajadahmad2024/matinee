@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 
 ///
-/// The 26 colour primitives of the design system. Only the theme reads these:
-/// widgets go through the ColorScheme, AppColors or the gradients. A hex that
-/// is not here does not exist in the app.
+/// The 27 colour primitives of the design system. Only the theme reads these;
+/// a hex that is not here does not exist in the app.
 ///
 abstract final class AppPalette {
   static const Color surface = Color(0xFF0C0F16);
@@ -31,6 +30,10 @@ abstract final class AppPalette {
   static const Color yellow = Color(0xFFFFD700);
   static const Color success = Color(0xFF2ECC71);
   static const Color error = Color(0xFFEB5757);
+
+  /// `error` taken down until white body text on it clears 4.5:1; the frame's
+  /// own red carries the 10pt LIVE label at only 3.5:1.
+  static const Color errorDeep = Color(0xFFC43A3A);
   static const Color black = Color(0xFF000000);
 }
 
@@ -51,10 +54,8 @@ abstract final class AppBrandColors {
 }
 
 ///
-/// Opacity is applied to a primitive in 10% steps and never expressed as a new
-/// hex. `{gold@30%}` in the design docs is `AppPalette.gold.a30` here. The 25%
-/// and 85% steps exist for single gradient stops that the design draws off the
-/// 10% grid.
+/// Opacity is applied in 10% steps, never as a new hex: `{gold@30%}` is
+/// `AppPalette.gold.a30`. The 25% and 85% steps carry stops off that grid.
 ///
 extension AppAlpha on Color {
   Color get a10 => withValues(alpha: 0.10);

@@ -17,9 +17,7 @@ class OnboardingCubit extends SafeCubit<OnboardingState> {
     emit(OnboardingState.success(OnboardingData(slides: slides, index: 0)));
   }
 
-  ///
   /// Advances one slide, or completes the intro when the last one is confirmed.
-  ///
   Future<void> next() async {
     final current = state;
     if (current is! OnboardingSuccess) {
@@ -60,9 +58,8 @@ class OnboardingCubit extends SafeCubit<OnboardingState> {
   /// Marks the intro seen and flips [OnboardingData.finished] so the screen
   /// navigates away. Reached by Skip and by the last slide's CTA.
   ///
-  /// The write is not guarded: preferences throw PlatformException, which is a
-  /// programming or platform error and belongs on the global net, not in a
-  /// failure state the user would have to retry out of.
+  /// The write is unguarded: a preferences PlatformException belongs on the
+  /// global net, not in a failure state the user would have to retry out of.
   ///
   Future<void> complete() async {
     final current = state;

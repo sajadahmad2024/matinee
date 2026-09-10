@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:matinee/core/l10n/l10n.dart';
 import 'package:matinee/core/theme/app_spacing.dart';
 
@@ -13,6 +14,8 @@ class ErrorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Alert interrupts: this replaces the whole screen, so a user still hearing
+    // the spinner needs telling now rather than once it finishes.
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.xl),
@@ -20,7 +23,16 @@ class ErrorView extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           spacing: AppSpacing.lg,
           children: [
-            Text(message, textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodyLarge),
+            Semantics(
+              // The message alone, never the button: an assertive region that
+              // contains a control re-announces the control.
+              role: SemanticsRole.alert,
+              child: Text(
+                message,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
+            ),
             FilledButton(onPressed: onRetry, child: Text(actionLabel ?? context.l10n.retry)),
           ],
         ),

@@ -629,4 +629,81 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get exclusiveTag => 'EXCLUSIVE CONTENT';
+
+  @override
+  String get a11yLoading => 'Loading';
+
+  @override
+  String get authOtpFieldLabel => 'Verification code';
+
+  @override
+  String authOtpFieldHint(int length) {
+    return 'Enter the $length-digit code';
+  }
+
+  @override
+  String auctionBidRaise(String amount) {
+    return 'Raise the bid by $amount';
+  }
+
+  @override
+  String get auctionLeadingBid => 'Leading bid';
+
+  @override
+  String auctionBidSummary(String bidder, String placedAt, String amount) {
+    return '$bidder, $placedAt, $amount';
+  }
+
+  @override
+  String auctionTimeRemainingValue(int hours, int minutes) {
+    return 'about ${hours}h ${minutes}m';
+  }
+
+  @override
+  String auctionTimeRemainingMinutes(int minutes) {
+    return 'about ${minutes}m';
+  }
+
+  @override
+  String get auctionTimeRemainingUnderMinute => 'less than a minute';
+
+  @override
+  String authOtpResendInCoarse(int seconds) {
+    return 'Resend available in about $seconds seconds';
+  }
+
+  @override
+  String auctionLotImage(String title) {
+    return 'Photograph of $title';
+  }
+
+  @override
+  String onboardingSlidePosition(int position, int total) {
+    return 'Slide $position of $total';
+  }
+
+  @override
+  String profileAvatarLabel(String name) {
+    return 'Profile photo of $name';
+  }
+
+  @override
+  String topUpPackOption(String points, String price) {
+    return '$points points for $price';
+  }
+
+  @override
+  String profileStatValue(String value, String label) {
+    return '$value $label';
+  }
+
+  @override
+  String rewardsBalanceSummary(String label, String value, String unit) {
+    return '$label: $value $unit';
+  }
+
+  @override
+  String rewardsBadgeSummary(String label, String name, String caption) {
+    return '$label: $name. $caption';
+  }
 }

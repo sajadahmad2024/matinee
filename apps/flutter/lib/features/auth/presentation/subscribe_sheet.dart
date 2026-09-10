@@ -20,10 +20,8 @@ import 'package:matinee/features/auth/presentation/widgets/subscribe_content.dar
 /// Opens the paywall over whatever screen asked for it, and resolves true once
 /// the user has subscribed.
 ///
-/// The same offer as SubscribeScreen, which ends sign-up and sends the user on
-/// to the app. This is the form an upgrade action takes later — from the
-/// profile, say — where the user is mid-task and expects to land back where
-/// they were, so it closes rather than navigating.
+/// The same offer as SubscribeScreen, which ends sign-up; here the user is
+/// mid-task and expects to land back where they were, so it closes instead.
 ///
 Future<bool> showSubscribeSheet(BuildContext context) async {
   final subscribed = await showModalBottomSheet<bool>(
@@ -55,10 +53,8 @@ class SubscribeSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    // A messenger and a scaffold of the sheet's own. Without them a failure
-    // snackbar goes to the page underneath, where the scrim hides it, and the
-    // footer floats mid-sheet on a window taller than the offer instead of
-    // sitting under it.
+    // A messenger and a scaffold of the sheet's own: without them a failure
+    // snackbar goes behind the scrim and the footer floats mid-sheet.
     return ScaffoldMessenger(
       child: Scaffold(
         backgroundColor: context.appColors.sheet.routeBackground,

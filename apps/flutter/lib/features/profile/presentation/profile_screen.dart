@@ -11,6 +11,8 @@ import 'package:matinee/core/theme/app_spacing.dart';
 import 'package:matinee/core/theme/app_text_styles.dart';
 import 'package:matinee/core/theme/extensions/build_context_extensions.dart';
 import 'package:matinee/core/widgets/error_view.dart';
+import 'package:matinee/core/widgets/loading_view.dart';
+import 'package:matinee/core/widgets/screen_title.dart';
 import 'package:matinee/di/service_locator.dart';
 import 'package:matinee/features/auth/presentation/subscribe_sheet.dart';
 import 'package:matinee/features/profile/data/models/profile.dart';
@@ -55,7 +57,7 @@ class ProfileView extends StatelessWidget {
           child: BlocBuilder<ProfileCubit, ProfileState>(
             builder: (context, state) => switch (state) {
               ProfileInitial() => const SizedBox.shrink(),
-              ProfileLoading() => const Center(child: CircularProgressIndicator()),
+              ProfileLoading() => const LoadingView(),
               ProfileFailure(:final error) => ErrorView(
                 message: error.localizedMessage(l10n),
                 onRetry: () => unawaited(context.read<ProfileCubit>().load()),
@@ -72,9 +74,7 @@ class ProfileView extends StatelessWidget {
 class _Body extends StatelessWidget {
   const _Body({required this.profile});
 
-  ///
   /// The plan line the design writes as 'Pro plan expires Jun 30, 2026'.
-  ///
   static String _expiryDate(BuildContext context, DateTime date) {
     return '${MaterialLocalizations.of(context).formatShortMonthDay(date)}, ${date.year}';
   }
@@ -98,18 +98,30 @@ class _Body extends StatelessWidget {
                     child: ProfileStatCard(
                       value: context.decimalFormat.format(profile.totalPoints),
                       label: l10n.profileStatPoints,
+                      semanticLabel: l10n.profileStatValue(
+                        context.decimalFormat.format(profile.totalPoints),
+                        l10n.profileStatPoints,
+                      ),
                     ),
                   ),
                   Expanded(
                     child: ProfileStatCard(
                       value: context.decimalFormat.format(profile.streaks),
                       label: l10n.profileStatStreaks,
+                      semanticLabel: l10n.profileStatValue(
+                        context.decimalFormat.format(profile.streaks),
+                        l10n.profileStatStreaks,
+                      ),
                     ),
                   ),
                   Expanded(
                     child: ProfileStatCard(
                       value: '#${context.decimalFormat.format(profile.rank)}',
                       label: l10n.profileStatRank,
+                      semanticLabel: l10n.profileStatValue(
+                        '#${context.decimalFormat.format(profile.rank)}',
+                        l10n.profileStatRank,
+                      ),
                     ),
                   ),
                 ],
@@ -152,10 +164,8 @@ class _Header extends StatelessWidget {
     final colors = context.appColors;
     return Column(
       children: [
-        // No top padding: the frame leaves 11 between the status bar and the
-        // bell, and the bell's 48 tap target already carries 12 around its 24
-        // glyph. Adding a gap on top of that pushed the whole header 16 lower
-        // than the frame draws it.
+        // No top padding: the frame leaves 11 above the bell, and the bell's 48
+        // tap target already carries 12 around its 24 glyph.
         Padding(
           padding: const EdgeInsets.only(
             left: AppScreenPadding.main,
@@ -165,15 +175,17 @@ class _Header extends StatelessWidget {
           child: Row(
             children: [
               Expanded(
-                child: Text(
-                  l10n.profileTitle.toUpperCase(),
-                  style: AppTextStyle.overline.copyWith(color: colors.text.secondary),
+                child: ScreenTitle(
+                  label: l10n.profileTitle,
+                  child: Text(
+                    l10n.profileTitle.toUpperCase(),
+                    style: AppTextStyle.overline.copyWith(color: colors.text.secondary),
+                  ),
                 ),
               ),
               IconButton(
-                // The frame draws a bell here, whatever the component's name
-                // says. No notifications screen exists yet, so the control is
-                // disabled rather than silently doing nothing when tapped.
+                // The frame draws a bell whatever the component's name says. No
+                // notifications screen exists yet, so the control is disabled.
                 onPressed: null,
                 tooltip: l10n.profileMenuNotifications,
                 icon: const Icon(Icons.notifications_none),
@@ -189,9 +201,8 @@ class _Header extends StatelessWidget {
             style: Theme.of(context).textTheme.titleLarge?.copyWith(color: colors.text.primary),
           ),
         ),
-        // The design sets these two lines tight together. The button keeps its
-        // 48 tap target, which is taller than the label the design draws, so
-        // the gap around it is trimmed rather than the target.
+        // The design sets these two lines tight together, so the gap around the
+        // button is trimmed rather than its 48 tap target.
         TextButton(
           // Pushed, not gone to: this is a detail screen the user comes
           // back from, so the platform back gesture has to return here.

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:matinee/core/l10n/app_exception_l10n.dart';
 import 'package:matinee/core/l10n/l10n.dart';
@@ -12,6 +13,8 @@ import 'package:matinee/core/theme/app_spacing.dart';
 import 'package:matinee/core/theme/app_text_styles.dart';
 import 'package:matinee/core/theme/extensions/build_context_extensions.dart';
 import 'package:matinee/core/widgets/error_view.dart';
+import 'package:matinee/core/widgets/loading_view.dart';
+import 'package:matinee/core/widgets/screen_title.dart';
 import 'package:matinee/di/service_locator.dart';
 import 'package:matinee/features/rewards/data/models/auction.dart';
 import 'package:matinee/features/rewards/data/rewards_repository.dart';
@@ -19,9 +22,8 @@ import 'package:matinee/features/rewards/presentation/cubit/top_up_cubit.dart';
 import 'package:matinee/features/rewards/presentation/cubit/top_up_state.dart';
 
 ///
-/// Opens the top-up sheet over the auction. It reports nothing back: the
-/// sheet can be swiped away after a purchase as easily as after a cancel, so
-/// a caller that cares about the balance refetches it either way.
+/// Opens the top-up sheet over the auction. It reports nothing back: the sheet
+/// can be swiped away after a purchase, so a caller refetches the balance.
 ///
 Future<void> showTopUpSheet(BuildContext context) {
   return showModalBottomSheet<void>(
@@ -46,20 +48,16 @@ Future<void> showTopUpSheet(BuildContext context) {
 }
 
 ///
-/// The body of the sheet: a pack picker that becomes a receipt once the
-/// purchase lands. Choosing a payment method belongs to the gateway a later
-/// change hands off to, so nothing sits between the two.
+/// The body of the sheet: a pack picker that becomes a receipt once the purchase
+/// lands. Payment method belongs to the gateway, so nothing sits between.
 ///
 @visibleForTesting
 class TopUpSheet extends StatelessWidget {
   const TopUpSheet({super.key});
 
   ///
-  /// What the packs occupy once they arrive, which the states before them
-  /// reserve along with the CTA's slot, so the sheet never changes height on
-  /// load. It is content-sized, so anything that fills the height it is
-  /// offered instead opens the sheet at the full screen and drops it to a
-  /// third of that a moment later.
+  /// What the packs occupy once they arrive, reserved beforehand so the sheet
+  /// never changes height. Content-sized: a filling child opens it full screen.
   ///
   static const double _packsHeight = 155;
 
@@ -73,29 +71,32 @@ class TopUpSheet extends StatelessWidget {
       maxWidth: ContentContainer.form,
       alignment: Alignment.bottomCenter,
       shrinkWrapHeight: true,
-      // The packs arrive after the sheet is already up, and the receipt
-      // replaces them with a block of another height again, so the sheet
-      // settles into each rather than snapping.
-      child: AnimatedSize(
-        duration: MediaQuery.disableAnimationsOf(context) ? Duration.zero : _resize,
-        alignment: Alignment.bottomCenter,
-        curve: Curves.easeOut,
-        child: BlocBuilder<TopUpCubit, TopUpState>(
-          builder: (context, state) => switch (state) {
-            TopUpInitial() => const SizedBox.shrink(),
-            TopUpLoading() => const _Pending(
-              height: _packsHeight,
-              child: Center(child: CircularProgressIndicator()),
-            ),
-            TopUpFailure(:final error) => _Pending(
-              height: _packsHeight,
-              child: ErrorView(
-                message: error.localizedMessage(l10n),
-                onRetry: () => unawaited(context.read<TopUpCubit>().load()),
+      // Scrollable, because the sheet is content-sized: at a large text scale
+      // the packs and the CTA run past the bottom with no way to reach them.
+      child: SingleChildScrollView(
+        // The packs arrive after the sheet is up, and the receipt replaces them
+        // with another height again, so the sheet settles instead of snapping.
+        child: AnimatedSize(
+          duration: MediaQuery.disableAnimationsOf(context) ? Duration.zero : _resize,
+          alignment: Alignment.bottomCenter,
+          curve: Curves.easeOut,
+          child: BlocBuilder<TopUpCubit, TopUpState>(
+            builder: (context, state) => switch (state) {
+              TopUpInitial() => const SizedBox.shrink(),
+              TopUpLoading() => const _Pending(
+                height: _packsHeight,
+                child: LoadingView(),
               ),
-            ),
-            TopUpSuccess(:final data) => _Body(data: data),
-          },
+              TopUpFailure(:final error) => _Pending(
+                height: _packsHeight,
+                child: ErrorView(
+                  message: error.localizedMessage(l10n),
+                  onRetry: () => unawaited(context.read<TopUpCubit>().load()),
+                ),
+              ),
+              TopUpSuccess(:final data) => _Body(data: data),
+            },
+          ),
         ),
       ),
     );
@@ -103,9 +104,8 @@ class TopUpSheet extends StatelessWidget {
 }
 
 ///
-/// The sheet before its packs land: the same chrome and heading, with the row
-/// they will fill held open at its height. [child] is given exactly that box,
-/// so a widget that centres itself cannot stretch the sheet to the screen.
+/// The sheet before its packs land: the same chrome and heading, with their row
+/// held open. [child] gets exactly that box, so it cannot stretch the sheet.
 ///
 class _Pending extends StatelessWidget {
   const _Pending({required this.height, required this.child});
@@ -126,7 +126,12 @@ class _Pending extends StatelessWidget {
           const _Heading(),
           Padding(
             padding: const EdgeInsets.only(top: AppSpacing.xxl),
-            child: SizedBox(height: height, child: child),
+            // A minimum, not a fixed height: the slot keeps the sheet from
+            // jumping when packs land, but a failure message has to grow it.
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: height),
+              child: child,
+            ),
           ),
           // The CTA's slot is held open too, so the sheet opens at the height
           // it will keep and the packs drop into it without moving anything.
@@ -202,9 +207,8 @@ class _SheetHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.appColors.sheet;
     return Padding(
-      // The frame sets the row 20 below the sheet edge and 12 above the title.
-      // The close button paints the 32 it draws but lays out 48 to keep its
-      // tap target, so both gaps are set 8 short of that.
+      // The frame sets the row 20 below the sheet edge and 12 above the title;
+      // the close button lays out 48 for its 32, so both gaps are 8 short.
       padding: const EdgeInsets.only(top: AppSpacing.md, bottom: AppSpacing.xs),
       child: Stack(
         alignment: Alignment.center,
@@ -234,9 +238,7 @@ class _SheetHeader extends StatelessWidget {
   }
 }
 
-///
 /// The three packs, one of which is always selected.
-///
 class _Packs extends StatelessWidget {
   const _Packs({required this.data});
 
@@ -261,6 +263,10 @@ class _Packs extends StatelessWidget {
                     child: _PackCard(
                       pack: pack,
                       pointsLabel: l10n.topUpPointsLabel,
+                      optionLabel: l10n.topUpPackOption(
+                        context.decimalFormat.format(pack.points),
+                        pack.priceLabel,
+                      ),
                       isSelected: pack.id == data.selected.id,
                       onTap: () => unawaited(context.read<TopUpCubit>().selectPack(pack)),
                     ),
@@ -289,10 +295,13 @@ class _Heading extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
-          l10n.topUpTitle,
-          textAlign: TextAlign.center,
-          style: theme.textTheme.headlineSmall?.copyWith(color: colors.text.primary),
+        ScreenTitle(
+          label: l10n.topUpTitle,
+          child: Text(
+            l10n.topUpTitle,
+            textAlign: TextAlign.center,
+            style: theme.textTheme.headlineSmall?.copyWith(color: colors.text.primary),
+          ),
         ),
         Padding(
           padding: const EdgeInsets.only(top: AppSpacing.xs),
@@ -311,6 +320,7 @@ class _PackCard extends StatelessWidget {
   const _PackCard({
     required this.pack,
     required this.pointsLabel,
+    required this.optionLabel,
     required this.isSelected,
     required this.onTap,
   });
@@ -319,6 +329,10 @@ class _PackCard extends StatelessWidget {
 
   final PointsPack pack;
   final String pointsLabel;
+
+  /// The pack read as one option: what it gives and what it costs.
+  final String optionLabel;
+
   final bool isSelected;
   final VoidCallback onTap;
 
@@ -328,65 +342,73 @@ class _PackCard extends StatelessWidget {
     final theme = Theme.of(context);
     // A pack is a selectable option, so it takes the tab pill's chosen and
     // unchosen roles rather than a card's.
-    return Material(
-      color: isSelected ? colors.card.backgroundRaised : colors.card.background,
-      shape: RoundedRectangleBorder(
-        side: BorderSide(
-          color: isSelected ? colors.tab.activeBorder : colors.tab.inactiveBorder,
-          width: isSelected ? AppBorderWidth.emphasis : AppBorderWidth.hairline,
+    return Semantics(
+      // One node for the four texts: the design marks the chosen pack with a
+      // brighter, wider border, which no screen reader can see.
+      label: optionLabel,
+      selected: isSelected,
+      inMutuallyExclusiveGroup: true,
+      excludeSemantics: true,
+      child: Material(
+        color: isSelected ? colors.card.backgroundRaised : colors.card.background,
+        shape: RoundedRectangleBorder(
+          side: BorderSide(
+            color: isSelected ? colors.tab.activeBorder : colors.tab.inactiveBorder,
+            width: isSelected ? AppBorderWidth.emphasis : AppBorderWidth.hairline,
+          ),
+          borderRadius: const BorderRadius.all(Radius.circular(AppRadius.pill)),
         ),
-        borderRadius: const BorderRadius.all(Radius.circular(AppRadius.pill)),
-      ),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: const BorderRadius.all(Radius.circular(AppRadius.pill)),
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.lg),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: _discSize,
-                height: _discSize,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: isSelected ? colors.card.backgroundGoldTint : colors.card.backgroundRaised,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.monetization_on_outlined,
-                  size: AppIconSize.sm,
-                  color: isSelected ? colors.icon.accent : colors.icon.secondary,
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: AppSpacing.sm),
-                child: Text(
-                  context.decimalFormat.format(pack.points),
-                  style: theme.textTheme.titleMedium?.copyWith(color: colors.text.primary),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: AppSpacing.xxs),
-                child: Text(
-                  pointsLabel,
-                  style: AppTextStyle.labelSmall.copyWith(
-                    color: isSelected ? colors.text.link : colors.text.secondary,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: const BorderRadius.all(Radius.circular(AppRadius.pill)),
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.lg),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: _discSize,
+                  height: _discSize,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: isSelected ? colors.card.backgroundGoldTint : colors.card.backgroundRaised,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.monetization_on_outlined,
+                    size: AppIconSize.sm,
+                    color: isSelected ? colors.icon.accent : colors.icon.secondary,
                   ),
                 ),
-              ),
-              const Padding(
-                padding: EdgeInsets.only(top: AppSpacing.md),
-                child: Divider(height: 0),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: AppSpacing.sm),
-                child: Text(
-                  pack.priceLabel,
-                  style: theme.textTheme.titleSmall?.copyWith(color: colors.text.primary),
+                Padding(
+                  padding: const EdgeInsets.only(top: AppSpacing.sm),
+                  child: Text(
+                    context.decimalFormat.format(pack.points),
+                    style: theme.textTheme.titleMedium?.copyWith(color: colors.text.primary),
+                  ),
                 ),
-              ),
-            ],
+                Padding(
+                  padding: const EdgeInsets.only(top: AppSpacing.xxs),
+                  child: Text(
+                    pointsLabel,
+                    style: AppTextStyle.labelSmall.copyWith(
+                      color: isSelected ? colors.text.link : colors.text.secondary,
+                    ),
+                  ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.only(top: AppSpacing.md),
+                  child: Divider(height: 0),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: AppSpacing.sm),
+                  child: Text(
+                    pack.priceLabel,
+                    style: theme.textTheme.titleSmall?.copyWith(color: colors.text.primary),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -394,9 +416,7 @@ class _PackCard extends StatelessWidget {
   }
 }
 
-///
 /// What the sheet becomes once the purchase lands.
-///
 class _Receipt extends StatelessWidget {
   const _Receipt({required this.points});
 
@@ -407,53 +427,63 @@ class _Receipt extends StatelessWidget {
     final l10n = context.l10n;
     final colors = context.appColors;
     final theme = Theme.of(context);
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        const Padding(
-          padding: EdgeInsets.only(top: AppSpacing.xl),
-          child: _SuccessMark(),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(top: AppSpacing.xl),
-          child: Text(
-            l10n.topUpSuccessTitle,
-            textAlign: TextAlign.center,
-            style: theme.textTheme.headlineMedium?.copyWith(color: colors.text.primary),
+    // The picker becomes a receipt in place, with no route change and no focus
+    // move, so nothing else would say the money went through.
+    return Semantics(
+      role: SemanticsRole.alert,
+      label: '${l10n.topUpSuccessTitle}. ${l10n.topUpCredited(points)}',
+      // The whole block is one confirmation: left in the tree, the figure is
+      // read by the alert and then again as the pill below it.
+      container: true,
+      excludeSemantics: true,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(top: AppSpacing.xl),
+            child: _SuccessMark(),
           ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(top: AppSpacing.md),
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              color: colors.card.backgroundGoldTint,
-              border: Border.all(color: colors.card.borderHighlight),
-              borderRadius: const BorderRadius.all(Radius.circular(AppRadius.full)),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.lg,
-                vertical: AppSpacing.sm,
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                spacing: AppSpacing.sm,
-                children: [
-                  Icon(
-                    Icons.monetization_on,
-                    size: AppIconSize.sm,
-                    color: colors.icon.accent,
-                  ),
-                  Text(
-                    l10n.topUpCredited(points),
-                    style: theme.textTheme.titleSmall?.copyWith(color: colors.text.link),
-                  ),
-                ],
-              ),
+          Padding(
+            padding: const EdgeInsets.only(top: AppSpacing.xl),
+            child: Text(
+              l10n.topUpSuccessTitle,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.headlineMedium?.copyWith(color: colors.text.primary),
             ),
           ),
-        ),
-      ],
+          Padding(
+            padding: const EdgeInsets.only(top: AppSpacing.md),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: colors.card.backgroundGoldTint,
+                border: Border.all(color: colors.card.borderHighlight),
+                borderRadius: const BorderRadius.all(Radius.circular(AppRadius.full)),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.lg,
+                  vertical: AppSpacing.sm,
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  spacing: AppSpacing.sm,
+                  children: [
+                    Icon(
+                      Icons.monetization_on,
+                      size: AppIconSize.sm,
+                      color: colors.icon.accent,
+                    ),
+                    Text(
+                      l10n.topUpCredited(points),
+                      style: theme.textTheme.titleSmall?.copyWith(color: colors.text.link),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

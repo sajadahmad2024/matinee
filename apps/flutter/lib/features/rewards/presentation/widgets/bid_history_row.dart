@@ -17,6 +17,8 @@ class BidHistoryRow extends StatelessWidget {
     required this.placedAt,
     required this.amount,
     required this.isLeading,
+    required this.summaryLabel,
+    required this.leadingLabel,
     super.key,
   });
 
@@ -25,48 +27,62 @@ class BidHistoryRow extends StatelessWidget {
   final String amount;
   final bool isLeading;
 
+  /// The whole row as one sentence. Read instead of the four texts it is built
+  /// from, which a screen reader would otherwise offer as four separate stops.
+  final String summaryLabel;
+
+  /// Names the bid that holds the lot, which the design marks in gold alone.
+  final String leadingLabel;
+
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: isLeading ? null : colors.card.background,
-        border: Border.all(
-          color: isLeading ? colors.card.borderHighlight : colors.card.border,
+    // One node, not four: name, time and amount are one fact about one bid.
+    // Holding the lot is drawn in gold alone, so it is spelled out here.
+    return Semantics(
+      label: isLeading ? '$leadingLabel. $summaryLabel' : summaryLabel,
+      container: true,
+      excludeSemantics: true,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: isLeading ? null : colors.card.background,
+          border: Border.all(
+            color: isLeading ? colors.card.borderHighlight : colors.card.border,
+          ),
+          borderRadius: const BorderRadius.all(Radius.circular(AppRadius.md)),
+          boxShadow: isLeading ? AppElevation.glowCard : null,
         ),
-        borderRadius: const BorderRadius.all(Radius.circular(AppRadius.md)),
-        boxShadow: isLeading ? AppElevation.glowCard : null,
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.md),
-        child: Row(
-          spacing: AppSpacing.md,
-          children: [
-            _Avatar(name: bidderName),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    bidderName,
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      color: isLeading ? colors.text.link : colors.text.primary,
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.md),
+          child: Row(
+            spacing: AppSpacing.md,
+            children: [
+              _Avatar(name: bidderName),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      bidderName,
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        color: isLeading ? colors.text.link : colors.text.primary,
+                      ),
                     ),
-                  ),
-                  Text(
-                    placedAt,
-                    style: AppTextStyle.caption.copyWith(color: colors.text.muted),
-                  ),
-                ],
+                    Text(
+                      placedAt,
+                      style: AppTextStyle.caption.copyWith(color: colors.text.muted),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            Text(
-              amount,
-              style: AppTextStyle.numeralPill.copyWith(
-                color: isLeading ? colors.text.numeral : colors.text.secondary,
+              Text(
+                amount,
+                style: AppTextStyle.numeralPill.copyWith(
+                  color: isLeading ? colors.text.numeral : colors.text.secondary,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

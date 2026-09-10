@@ -4,9 +4,7 @@ import 'package:matinee/core/theme/app_spacing.dart';
 import 'package:matinee/core/theme/app_text_styles.dart';
 import 'package:matinee/core/theme/extensions/build_context_extensions.dart';
 
-///
 /// The red LIVE badge above the auction title, dot and all.
-///
 class LiveBadge extends StatelessWidget {
   const LiveBadge({required this.label, super.key});
 

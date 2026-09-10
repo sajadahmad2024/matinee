@@ -3,29 +3,24 @@ import 'package:matinee/core/responsive/responsive.dart';
 import 'package:matinee/core/theme/app_sizes.dart';
 import 'package:matinee/core/theme/app_spacing.dart';
 import 'package:matinee/core/theme/extensions/build_context_extensions.dart';
+import 'package:matinee/core/widgets/screen_title.dart';
 import 'package:matinee/features/onboarding/data/models/onboarding_slide.dart';
 import 'package:matinee/features/onboarding/presentation/widgets/onboarding_eyebrow.dart';
 import 'package:matinee/features/onboarding/presentation/widgets/onboarding_highlight_tiles.dart';
 import 'package:matinee/features/onboarding/presentation/widgets/onboarding_stat_pill.dart';
 
-///
 /// The gap the design leaves between the copy and the CTA below it.
-///
 const double _ctaGap = AppSpacing.xl;
 
 ///
-/// The vertical room the floating CTA needs: its own height, the gap above it,
-/// and the clearance beneath it. The last term is the device's, so this has to
-/// be read per build rather than fixed as a constant — and it has to match
-/// what the CTA itself uses, or the copy and the button drift apart.
+/// The vertical room the floating CTA needs. The clearance term is the device's,
+/// so it is read per build, and it has to match what the CTA itself uses.
 ///
 double _ctaReserve(BuildContext context) => AppControlHeight.cta + _ctaGap + context.bottomInset(AppSpacing.xxl);
 
 ///
-/// One intro slide: the dimmed still with its two scrims, bleeding to every
-/// edge, and the copy block inset over it. The design anchors the copy to the
-/// bottom of the frame with the CTA below it, so the column sits at the bottom
-/// rather than at a fixed y.
+/// One intro slide: the dimmed still bleeding to every edge, and the copy block
+/// inset over it. The design anchors the copy to the bottom, not a fixed y.
 ///
 class OnboardingSlideView extends StatelessWidget {
   const OnboardingSlideView({required this.slide, super.key});
@@ -52,8 +47,7 @@ class OnboardingSlideView extends StatelessWidget {
         DecoratedBox(decoration: BoxDecoration(gradient: overlay.onboarding)),
         DecoratedBox(decoration: BoxDecoration(gradient: overlay.onboardingVignette)),
         // The CTA floats over the slide inside the same safe area, so the copy
-        // reserves the button height plus the gaps the design leaves above and
-        // below it.
+        // reserves its height plus the gaps the design leaves around it.
         SafeArea(
           bottom: false,
           child: Padding(
@@ -93,9 +87,12 @@ class _Content extends StatelessWidget {
             spacing: AppSpacing.md,
             children: [
               OnboardingEyebrow(label: slide.eyebrow),
-              Text(
-                slide.heading,
-                style: textTheme.displayLarge?.copyWith(color: colors.onSurface),
+              ScreenTitle(
+                label: slide.heading,
+                child: Text(
+                  slide.heading,
+                  style: textTheme.displayLarge?.copyWith(color: colors.onSurface),
+                ),
               ),
               Text(
                 slide.body,

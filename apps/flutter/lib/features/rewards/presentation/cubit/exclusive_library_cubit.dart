@@ -13,9 +13,7 @@ class ExclusiveLibraryCubit extends SafeCubit<ExclusiveLibraryState> {
 
   ///
   /// The chip moves at once and the grid follows. Going through loading would
-  /// take the chip row off screen for the length of the fetch and reset the
-  /// grid's scroll position, which reads as the screen reloading rather than
-  /// as a filter being applied.
+  /// take the chips off screen and reset the grid's scroll position.
   ///
   Future<void> selectFilter(String filter) async {
     if (state case ExclusiveLibrarySuccess(:final library)) {

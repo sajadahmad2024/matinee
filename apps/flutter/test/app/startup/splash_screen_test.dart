@@ -85,5 +85,35 @@ void main() {
         verify(cubit.retry).called(1);
       });
     });
+
+    ///
+    /// The splash carries a status role, and a role is only checked once the
+    /// semantics tree is flushed — which needs something listening.
+    ///
+    group('with a screen reader running', () {
+      testWidgets('the progress state raises nothing', (tester) async {
+        final handle = tester.ensureSemantics();
+        when(() => cubit.state).thenReturn(const StartupInProgress());
+
+        await pumpSplash(tester);
+        await pumpAnnouncement(tester);
+
+        expect(find.byType(Image), findsOneWidget);
+        expect(tester.takeException(), isNull);
+        handle.dispose();
+      });
+
+      testWidgets('the failure state raises nothing', (tester) async {
+        final handle = tester.ensureSemantics();
+        when(() => cubit.state).thenReturn(const StartupFailure('boom'));
+
+        await pumpSplash(tester);
+        await pumpAnnouncement(tester);
+
+        expect(find.byType(ErrorView), findsOneWidget);
+        expect(tester.takeException(), isNull);
+        handle.dispose();
+      });
+    });
   });
 }

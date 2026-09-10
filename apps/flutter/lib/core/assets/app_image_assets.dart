@@ -1,6 +1,4 @@
-///
 /// Paths of the raster images bundled with the app.
-///
 abstract final class AppImageAssets {
   static const String splashLogo = 'assets/images/splash-logo.png';
 

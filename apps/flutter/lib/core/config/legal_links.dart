@@ -1,10 +1,8 @@
 ///
 /// Where the Terms and Privacy rows go.
 ///
-/// PLACEHOLDER. The documents are not published yet, so both point at the same
-/// stand-in. They are named here rather than written into the two screens that
-/// link to them, so replacing them is one edit and so that grepping for a
-/// placeholder finds one place instead of two string literals.
+/// PLACEHOLDER: the documents are not published, so both point at one stand-in.
+/// Naming them here keeps the replacement to a single edit, and greppable.
 ///
 abstract final class AppLegalLinks {
   static final Uri terms = Uri.parse(_placeholder);

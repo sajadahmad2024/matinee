@@ -1,10 +1,8 @@
 import 'package:flutter/foundation.dart';
 
 ///
-/// A country the sign-in form accepts a number for. The design draws only +91
-/// behind a chevron, so which countries the menu offers is a product decision
-/// rather than a design one; [digits] is what the number's length is validated
-/// against once the country is chosen.
+/// A country the sign-in form accepts a number for. The design draws only +91,
+/// so the menu's contents are a product decision; [digits] validates length.
 ///
 @immutable
 class DialCode {

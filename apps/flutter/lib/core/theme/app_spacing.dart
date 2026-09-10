@@ -1,9 +1,8 @@
 import 'package:flutter/widgets.dart';
 
 ///
-/// Every gap, padding and margin in the app is one of these. A raw number in a
-/// widget is a review finding; a value that is not on the scale is a design
-/// question, not a new constant.
+/// Every gap, padding and margin in the app is one of these. A value that is
+/// not on the scale is a design question, not a new constant.
 ///
 abstract final class AppSpacing {
   static const double xxs = 2;
@@ -16,12 +15,10 @@ abstract final class AppSpacing {
   static const double xxxl = 32;
 
   ///
-  /// The clearance below the last element on a screen, home indicator included.
+  /// The clearance below the last element on a screen, home indicator included,
+  /// off the design's full-height frames (CTA 42, Subscribe 46, legal line 32).
   ///
-  /// Measured off the design's frames, which are the full screen height: the
-  /// Create Account CTA leaves 42 to the frame bottom, Subscribe 46, the Sign
-  /// In legal line 32. Screens apply it through `context.bottomInset`, never as
-  /// a padding stacked on a bottom SafeArea.
+  /// Applied through `context.bottomInset`, never stacked on a bottom SafeArea.
   ///
   static const double screenBottom = 40;
 
@@ -37,11 +34,8 @@ abstract final class AppSpacing {
   static const EdgeInsets cardPadding = EdgeInsets.symmetric(horizontal: lg, vertical: 14);
 
   ///
-  /// The inset that centres a value inside a 52-tall input. The height cannot
-  /// come from a minHeight alone: the decorator anchors its text by baseline
-  /// inside whatever extra height a minHeight adds, which leaves the value
-  /// sitting high. Padding it to nearly the full height and letting minHeight
-  /// make up the last pixel keeps the value centred.
+  /// Centres a value inside a 52-tall input. A minHeight alone leaves it high,
+  /// so this pads to nearly 52 and lets minHeight cover the last pixel.
   ///
   static const EdgeInsets inputContent = EdgeInsets.symmetric(horizontal: lg, vertical: 14);
 

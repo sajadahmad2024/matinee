@@ -13,9 +13,8 @@ sealed class TopUpState with _$TopUpState {
 }
 
 ///
-/// The sheet's two faces in one shape: a pack picker until [purchased], and
-/// the payment-successful panel after it. What was credited is the selected
-/// pack's own size, so it is not carried a second time.
+/// The sheet's two faces in one shape: a pack picker until [purchased], the
+/// success panel after it. What was credited is the selected pack's own size.
 ///
 @freezed
 abstract class TopUpData with _$TopUpData {

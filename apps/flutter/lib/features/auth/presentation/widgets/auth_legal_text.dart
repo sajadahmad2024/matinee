@@ -5,8 +5,7 @@ import 'package:matinee/core/theme/extensions/build_context_extensions.dart';
 
 ///
 /// The small print at the foot of the auth screens. The two document names are
-/// gold and tappable the way the design draws them; the caller decides where
-/// each one leads.
+/// gold and tappable as drawn; the caller decides where each one leads.
 ///
 class AuthLegalText extends StatefulWidget {
   const AuthLegalText({
@@ -61,7 +60,13 @@ class _AuthLegalTextState extends State<AuthLegalText> {
   Widget build(BuildContext context) {
     final colors = context.appColors;
     final base = AppTextStyle.caption.copyWith(color: colors.auth.onSurfaceVariant);
-    final link = base.copyWith(color: colors.text.link);
+    // Underlined as well as gold: a link set apart by colour alone fails the
+    // use-of-colour rule, and these two are the only links on the screen.
+    final link = base.copyWith(
+      color: colors.text.link,
+      decoration: TextDecoration.underline,
+      decorationColor: colors.text.link,
+    );
     final spans = <InlineSpan>[];
     var cursor = 0;
     for (final match in _marker.allMatches(widget.sentence)) {
@@ -69,6 +74,8 @@ class _AuthLegalTextState extends State<AuthLegalText> {
         spans.add(TextSpan(text: widget.sentence.substring(cursor, match.start)));
       }
       final isTerms = match[1] == 'terms';
+      // A span with a recognizer already reaches a screen reader as a link
+      // with a tap action, so only the visual cue was missing.
       spans.add(
         TextSpan(
           text: isTerms ? widget.termsLabel : widget.privacyLabel,

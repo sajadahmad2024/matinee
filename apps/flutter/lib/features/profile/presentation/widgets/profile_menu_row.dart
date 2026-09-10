@@ -4,9 +4,8 @@ import 'package:matinee/core/theme/app_spacing.dart';
 import 'package:matinee/core/theme/extensions/build_context_extensions.dart';
 
 ///
-/// One row of the profile's menu list: a label, a chevron, and a hairline
-/// under it. The destructive variant drops the chevron and the hairline for a
-/// leading icon, and paints label and icon in the error colour.
+/// One row of the profile's menu list: label, chevron, hairline. The
+/// destructive variant swaps both for a leading icon, and paints in error.
 ///
 class ProfileMenuRow extends StatelessWidget {
   const ProfileMenuRow({
@@ -32,29 +31,36 @@ class ProfileMenuRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.appColors;
     final foreground = isDestructive ? colors.text.error : colors.text.primary;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        border: isDestructive ? null : Border(bottom: BorderSide(color: colors.divider)),
-      ),
-      child: InkWell(
-        onTap: onTap,
-        // A minimum, not a fixed height: a label that wraps at a large text
-        // scale has to grow the row. A SizedBox clips it, and silently — the
-        // overflow is vertical inside a Row, so nothing is reported.
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: AppControlHeight.listRow),
-          child: Row(
-            spacing: AppSpacing.sm,
-            children: [
-              if (icon case final icon?) Icon(icon, size: AppIconSize.md, color: foreground),
-              Expanded(
-                child: Text(
-                  label,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: foreground),
+    // A button, and one that says when it is inert: without the flags a row
+    // with no destination yet reads exactly like a live one.
+    return Semantics(
+      button: true,
+      enabled: onTap != null,
+      label: label,
+      excludeSemantics: true,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          border: isDestructive ? null : Border(bottom: BorderSide(color: colors.divider)),
+        ),
+        child: InkWell(
+          onTap: onTap,
+          // A minimum, not a fixed height: a label wrapped at a large text
+          // scale has to grow the row, and a SizedBox would clip it silently.
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: AppControlHeight.listRow),
+            child: Row(
+              spacing: AppSpacing.sm,
+              children: [
+                if (icon case final icon?) Icon(icon, size: AppIconSize.md, color: foreground),
+                Expanded(
+                  child: Text(
+                    label,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: foreground),
+                  ),
                 ),
-              ),
-              if (!isDestructive) Icon(Icons.chevron_right, size: AppIconSize.sm, color: colors.icon.muted),
-            ],
+                if (!isDestructive) Icon(Icons.chevron_right, size: AppIconSize.sm, color: colors.icon.muted),
+              ],
+            ),
           ),
         ),
       ),

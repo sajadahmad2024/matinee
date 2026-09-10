@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:matinee/core/theme/app_palette.dart';
 
 ///
-/// The one ColorScheme of the app. The design is dark-only, so there is no
-/// light scheme and no palette to select. Roles the design never drew
-/// (info, surfaceDim/Bright, inverse*, fixed variants) stay as
-/// ColorScheme.fromSeed derives them from the brand gold.
+/// The one ColorScheme of the app; the design is dark-only, so there is no
+/// light scheme. Roles it never drew stay as fromSeed derives them from gold.
 ///
 abstract final class AppColorScheme {
   static final ColorScheme dark =

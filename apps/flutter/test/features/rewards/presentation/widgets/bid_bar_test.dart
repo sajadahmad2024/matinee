@@ -22,6 +22,7 @@ void main() {
                 fieldLabel: 'Bid amount',
                 actionLabel: 'BID',
                 incrementLabel: (amount) => '+$amount',
+                incrementSemanticLabel: (amount) => 'Raise the bid by +$amount',
                 onBid: (_) {},
               ),
             ),
@@ -32,11 +33,8 @@ void main() {
 
     group('accessibility', () {
       testWidgets('grows the bid value with the text scale', (tester) async {
-        // Padding the editor out to the row's height enlarges the tap target,
-        // but a constant inset comes out of a box that does not grow, so the
-        // value ends up the same height at every scale and is clipped at 200%.
-        // Nothing throws when that happens: the editor is simply given less
-        // room than it asked for, so only a measurement catches it.
+        // A constant inset comes out of a box that does not grow, so the value
+        // stays the same height at every scale. Only a measurement catches it.
         await pumpBar(tester);
         final atDefault = tester.getSize(find.byType(EditableText)).height;
 
@@ -52,6 +50,31 @@ void main() {
 
         expect(tester.takeException(), isNull);
       });
+    });
+
+    ///
+    /// The row stretches its children so the action fills the field's border,
+    /// and a field stretched with them renders its value against the top.
+    ///
+    testWidgets('centres the value in the field, not against the top', (tester) async {
+      await pumpBar(tester);
+
+      final row = tester.renderObject<RenderBox>(
+        find.ancestor(of: find.byType(TextField), matching: find.byType(Row)).first,
+      );
+      final editable = tester.renderObject<RenderBox>(find.byType(EditableText));
+      final above = editable.localToGlobal(Offset.zero).dy - row.localToGlobal(Offset.zero).dy;
+      final below = row.size.height - editable.size.height - above;
+
+      expect(above, moreOrLessEquals(below, epsilon: 0.5));
+    });
+
+    testWidgets('keeps the action at a full tap target', (tester) async {
+      await pumpBar(tester);
+
+      final action = tester.getSize(find.byType(FilledButton));
+
+      expect(action.height, greaterThanOrEqualTo(kMinInteractiveDimension));
     });
   });
 }

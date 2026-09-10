@@ -81,8 +81,7 @@ void main() {
           await cubit.selectFilter('Horror');
         },
         // The chip moves on the second success and the grid follows on the
-        // third, with no loading between them: going through it would take the
-        // chip row off screen and reset the grid's scroll position.
+        // third, with no loading between them to reset the grid's scroll.
         expect: () => const [
           ExclusiveLibraryState.loading(),
           ExclusiveLibraryState.success(library),

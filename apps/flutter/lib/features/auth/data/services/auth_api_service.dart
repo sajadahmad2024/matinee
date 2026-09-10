@@ -1,9 +1,6 @@
 ///
-/// Stands in for the auth API until there is one. It keeps the shape the real
-/// service will have — futures that speak in domain arguments and can fail —
-/// and answers from memory after a short delay so the demo flow feels like a
-/// network call. Replace the body of each method with a Dio call and nothing
-/// above this file changes.
+/// Stands in for the auth API until there is one, keeping the shape the real
+/// service will have. Replace each body with a Dio call; nothing above moves.
 ///
 class AuthApiService {
   const AuthApiService();

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:matinee/app/startup/app_startup_cubit.dart';
 import 'package:matinee/app/startup/app_startup_state.dart';
@@ -28,7 +29,13 @@ class SplashScreen extends StatelessWidget {
         decoration: BoxDecoration(gradient: context.appColors.overlay.splash),
         child: BlocBuilder<AppStartupCubit, AppStartupState>(
           builder: (context, state) => switch (state) {
-            StartupInProgress() || StartupSuccess() => const _SplashBody(),
+            // The screen draws nothing that moves, so without a status region
+            // nothing tells a screen reader the app is starting, not stuck.
+            StartupInProgress() || StartupSuccess() => Semantics(
+              role: SemanticsRole.status,
+              label: context.l10n.a11yLoading,
+              child: const _SplashBody(),
+            ),
             StartupFailure() => ErrorView(
               message: context.l10n.startupFailed,
               onRetry: context.read<AppStartupCubit>().retry,
@@ -40,9 +47,7 @@ class SplashScreen extends StatelessWidget {
   }
 }
 
-///
 /// The design centres the logo in the frame and draws nothing else.
-///
 class _SplashBody extends StatelessWidget {
   const _SplashBody();
 

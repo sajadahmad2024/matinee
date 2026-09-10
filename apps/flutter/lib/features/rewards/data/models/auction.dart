@@ -4,8 +4,7 @@ part 'auction.freezed.dart';
 
 ///
 /// The auction screen's two subjects: the lot, and the balance the bid bar
-/// spends from. They travel together so the header and the bar cannot show
-/// figures fetched a moment apart.
+/// spends from. They travel together so the two cannot disagree.
 ///
 @freezed
 abstract class AuctionBoard with _$AuctionBoard {
@@ -17,8 +16,7 @@ abstract class AuctionBoard with _$AuctionBoard {
 
 ///
 /// A live auction lot with the bids placed on it so far. [endsAt] drives the
-/// countdown, so the screen formats a remaining duration rather than showing a
-/// timestamp the server baked in.
+/// countdown, so the screen formats the remaining time itself.
 ///
 @freezed
 abstract class Auction with _$Auction {

@@ -19,9 +19,8 @@ class _MockAuthCubit extends MockCubit<AuthState> implements AuthCubit {}
 
 void main() {
   ///
-  /// Exercises the entry point itself rather than the sheet widget: the sheet
-  /// reaches the root navigator, keeps its warm surface, and hands back what
-  /// the caller acts on.
+  /// Exercises the entry point rather than the sheet widget: it reaches the
+  /// root navigator, keeps its warm surface, and hands back a result.
   ///
   group('showSubscribeSheet', () {
     setUp(registerAuthDependencies);

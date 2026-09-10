@@ -22,10 +22,8 @@ class _MockOnboardingRepository extends Mock implements OnboardingRepository {}
 void main() {
   group('createRouter', () {
     testWidgets('shows $SplashScreen until startup succeeds, then $OnboardingScreen', (tester) async {
-      // OnboardingScreen resolves its repository from the composition root, so
-      // the landing route needs one registered before the router builds it. It
-      // is mocked because the real one reaches SharedPreferences, which has no
-      // platform binding under test.
+      // The landing route resolves its repository from the composition root,
+      // mocked because the real one needs a SharedPreferences binding.
       getIt.registerLazySingleton<OnboardingRepository>(_MockOnboardingRepository.new);
       addTearDown(getIt.reset);
 

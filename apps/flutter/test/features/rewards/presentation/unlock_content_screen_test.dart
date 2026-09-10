@@ -92,10 +92,8 @@ void main() {
       });
 
       testWidgets('nowhere when an already-open item is merely loaded', (tester) async {
-        // Opening the screen on an item bought earlier must not read as a
-        // fresh unlock and throw the user out to Home. The state has to move
-        // for listenWhen to run at all, so this drives the same transition
-        // load() makes rather than parking on a single state.
+        // Opening on an item bought earlier must not read as a fresh unlock.
+        // The state has to move for listenWhen to run, hence the transition.
         whenListen(
           cubit,
           Stream<UnlockContentState>.fromIterable([

@@ -7,11 +7,8 @@ import 'package:matinee/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:matinee/features/auth/presentation/cubit/auth_state.dart';
 
 ///
-/// Turns the cubit's one-shot outcomes into screen effects.
-///
-/// The auth screens are forms, not fetches, so a failure surfaces as a message
-/// over the form the user already filled in rather than as the ErrorView that
-/// would replace it and lose their input.
+/// Turns the cubit's one-shot outcomes into screen effects. These are forms,
+/// not fetches, so a failure surfaces over the form rather than replacing it.
 ///
 class AuthFlowListener extends StatelessWidget {
   const AuthFlowListener({required this.onSuccess, required this.child, super.key});

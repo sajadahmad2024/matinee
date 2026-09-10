@@ -2,9 +2,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'rewards_summary.freezed.dart';
 
-///
 /// The Rewards tab: the points header and the cards under REDEEM REWARDS.
-///
 @freezed
 abstract class RewardsSummary with _$RewardsSummary {
   const factory RewardsSummary({

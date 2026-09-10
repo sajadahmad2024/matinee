@@ -3,10 +3,8 @@ import 'dart:async';
 import 'package:matinee/core/error/report.dart';
 
 ///
-/// Post-init. Fired once by App when startup succeeds. Nothing here may block
-/// the UI, and every task is guarded so a failure degrades silently.
-///
-/// Add one line per task:
+/// Fired once by App when startup succeeds. Nothing here may block the UI, and
+/// every task is guarded so a failure degrades silently.
 ///
 /// ```dart
 /// unawaited(guardPostInit(() => getIt<FeedRepository>().prefetch()));

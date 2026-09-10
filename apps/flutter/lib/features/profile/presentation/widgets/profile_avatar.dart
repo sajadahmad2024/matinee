@@ -6,13 +6,17 @@ import 'package:matinee/core/utils/initials.dart';
 ///
 /// The circular portrait the profile screens open with.
 ///
-/// The mock has no photo yet, and a real one can fail to load, so the initials
-/// stand in rather than an empty disc. [editBadge] adds the camera disc the
-/// edit screen draws at the lower right, which is decoration: there is no
-/// picker to open, so it is drawn rather than made tappable.
+/// The mock has no photo and a real one can fail, so the initials stand in
+/// rather than an empty disc. [editBadge] adds the edit screen's camera disc.
 ///
 class ProfileAvatar extends StatelessWidget {
-  const ProfileAvatar({required this.name, super.key, this.imageUrl, this.editBadge = false});
+  const ProfileAvatar({
+    required this.name,
+    super.key,
+    this.imageUrl,
+    this.editBadge = false,
+    this.semanticLabel,
+  });
 
   static const double _badgeSize = 24;
 
@@ -20,11 +24,17 @@ class ProfileAvatar extends StatelessWidget {
   final String? imageUrl;
   final bool editBadge;
 
+  ///
+  /// Names the portrait. The profile screen prints the name right beneath it
+  /// and passes nothing; the edit form has none, so the disc would be silent.
+  ///
+  final String? semanticLabel;
+
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
     final url = imageUrl;
-    return SizedBox.square(
+    final avatar = SizedBox.square(
       dimension: AppAvatarSize.profile,
       child: Stack(
         children: [
@@ -54,14 +64,16 @@ class ProfileAvatar extends StatelessWidget {
         ],
       ),
     );
+    if (semanticLabel case final label?) {
+      return Semantics(image: true, label: label, child: avatar);
+    }
+    return avatar;
   }
 }
 
 ///
-/// The gold disc at the avatar's lower right. It is drawn, not tapped: there
-/// is no avatar picker to open yet, and an inert 24dp button would be both a
-/// false affordance and under the tap-target baseline. It is hidden from
-/// screen readers for the same reason.
+/// The gold disc at the avatar's lower right. Drawn, not tapped, and hidden
+/// from screen readers: there is no picker yet, and 24dp is under the target.
 ///
 class _EditBadge extends StatelessWidget {
   const _EditBadge();

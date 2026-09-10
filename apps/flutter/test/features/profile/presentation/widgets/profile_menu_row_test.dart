@@ -17,9 +17,8 @@ void main() {
 
     group('accessibility', () {
       testWidgets('grows for a label that wraps at a 2.0 text scale', (tester) async {
-        // A fixed row height clips a wrapped label without reporting anything:
-        // the overflow is vertical inside a Row, so nothing throws and the
-        // second line is simply not drawn.
+        // A fixed row height clips a wrapped label silently: the overflow is
+        // vertical inside a Row, so nothing throws.
         const label = 'Allgemeine Geschaftsbedingungen';
         await pumpRow(tester, label, textScale: 2);
 

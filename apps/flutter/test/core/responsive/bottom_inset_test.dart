@@ -8,9 +8,8 @@ import '../../helpers/helpers.dart';
 
 void main() {
   ///
-  /// A phone with a home indicator. The design's frames are the whole screen
-  /// and draw no indicator of their own, so a screen that keeps its design gap
-  /// *and* a bottom SafeArea reserves this twice over.
+  /// A phone with a home indicator. The design's gap already covers it, so a
+  /// screen keeping both that and a bottom SafeArea reserves this twice.
   ///
   const homeIndicator = 34.0;
 

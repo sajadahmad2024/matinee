@@ -10,16 +10,28 @@ import 'package:matinee/core/theme/extensions/build_context_extensions.dart';
 ///
 /// The row of single-digit boxes the verification screen is built around.
 ///
-/// One hidden field holds the whole code and the boxes only draw it. A field
-/// per box would have to hand focus along as digits arrive, which drops
-/// characters when they come faster than focus moves — from a paste, an
-/// autofilled SMS code, or simply quick typing — and makes backspace a special
-/// case. Here the platform handles all three.
+/// One hidden field holds the whole code; the boxes only draw it. A field per
+/// box drops pasted or autofilled digits arriving faster than focus moves.
 ///
 class OtpInput extends StatefulWidget {
-  const OtpInput({required this.length, required this.onChanged, super.key, this.onCompleted});
+  const OtpInput({
+    required this.length,
+    required this.fieldLabel,
+    required this.fieldHint,
+    required this.onChanged,
+    super.key,
+    this.onCompleted,
+  });
 
   final int length;
+
+  /// The field's accessible name. The design draws the row unlabelled, so
+  /// nothing else names the control.
+  final String fieldLabel;
+
+  /// Says how long the code is, which the boxes show and the field cannot.
+  final String fieldHint;
+
   final ValueChanged<String> onChanged;
   final VoidCallback? onCompleted;
 
@@ -53,8 +65,7 @@ class _OtpInputState extends State<OtpInput> {
 
   ///
   /// Auto-submit fires on the keystroke that completes the row and not again,
-  /// so correcting a digit of a rejected code does not send a half-corrected
-  /// one straight back.
+  /// so correcting a rejected code does not resend it half-corrected.
   ///
   void _onChanged(String code) {
     setState(() {});
@@ -72,42 +83,52 @@ class _OtpInputState extends State<OtpInput> {
     return Stack(
       alignment: Alignment.center,
       children: [
-        // The field is invisible but takes the taps and the keyboard; the
-        // boxes above it are decoration and let pointers through.
+        // The field is invisible but takes the taps and the keyboard; the boxes
+        // above it are decoration and let pointers through.
         Opacity(
           opacity: 0,
+          // A fully transparent Opacity drops its subtree from the semantics
+          // tree, leaving no field for a screen reader to type the code into.
+          alwaysIncludeSemantics: true,
           child: SizedBox(
             height: AppControlHeight.otpBox,
-            child: TextField(
-              controller: _controller,
-              focusNode: _focusNode,
-              onChanged: _onChanged,
-              onTapOutside: (_) => FocusScope.of(context).unfocus(),
-              autofocus: true,
-              showCursor: false,
-              enableInteractiveSelection: false,
-              keyboardType: TextInputType.number,
-              textInputAction: TextInputAction.done,
-              autofillHints: const [AutofillHints.oneTimeCode],
-              inputFormatters: [
-                FilteringTextInputFormatter.digitsOnly,
-                LengthLimitingTextInputFormatter(widget.length),
-              ],
-              decoration: const InputDecoration(border: InputBorder.none, counterText: ''),
+            child: Semantics(
+              label: widget.fieldLabel,
+              hint: widget.fieldHint,
+              child: TextField(
+                controller: _controller,
+                focusNode: _focusNode,
+                onChanged: _onChanged,
+                onTapOutside: (_) => FocusScope.of(context).unfocus(),
+                autofocus: true,
+                showCursor: false,
+                keyboardType: TextInputType.number,
+                textInputAction: TextInputAction.done,
+                autofillHints: const [AutofillHints.oneTimeCode],
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(widget.length),
+                ],
+                decoration: const InputDecoration(border: InputBorder.none, counterText: ''),
+              ),
             ),
           ),
         ),
-        IgnorePointer(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            spacing: AppSpacing.md,
-            children: [
-              for (var index = 0; index < widget.length; index++)
-                _OtpBox(
-                  digit: index < code.length ? code[index] : '',
-                  isNext: index == code.length && _focusNode.hasFocus,
-                ),
-            ],
+        // Excluded as well as ignored: the boxes only draw the code the field
+        // already carries, so in the tree they read as six loose digits.
+        ExcludeSemantics(
+          child: IgnorePointer(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              spacing: AppSpacing.md,
+              children: [
+                for (var index = 0; index < widget.length; index++)
+                  _OtpBox(
+                    digit: index < code.length ? code[index] : '',
+                    isNext: index == code.length && _focusNode.hasFocus,
+                  ),
+              ],
+            ),
           ),
         ),
       ],

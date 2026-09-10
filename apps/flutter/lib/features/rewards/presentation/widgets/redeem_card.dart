@@ -9,8 +9,7 @@ import 'package:matinee/features/rewards/presentation/widgets/category_tag.dart'
 
 ///
 /// The image card the Rewards and P2P lists are built from: a still under two
-/// scrims, a category tag, a title and a subtitle, and a disc that reads as
-/// the forward chevron.
+/// scrims, a category tag, a title and subtitle, and a forward disc.
 ///
 class RedeemCard extends StatelessWidget {
   const RedeemCard({
@@ -52,9 +51,8 @@ class RedeemCard extends StatelessWidget {
             child: ConstrainedBox(
               constraints: const BoxConstraints(minHeight: AppControlHeight.gameCard),
               child: Stack(
-                // The copy is the child that sizes the stack, so it decides
-                // where it sits once the minimum height makes the card taller
-                // than it; without this it is pinned to the top corner.
+                // The copy sizes the stack, so it decides where it sits once
+                // the minimum makes the card taller than it.
                 alignment: AlignmentDirectional.centerStart,
                 children: [
                   // The still and its scrims fill whatever the copy sizes the

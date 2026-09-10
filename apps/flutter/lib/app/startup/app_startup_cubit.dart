@@ -4,9 +4,8 @@ import 'package:matinee/core/bloc/safe_cubit.dart';
 import 'package:matinee/core/error/report.dart';
 
 ///
-/// Main-init orchestrator. It sequences and maps to state; the actual work
-/// lives in the services registered by registerStartupDependencies. Provided
-/// by BlocProvider at the root, never registered in get_it.
+/// Main-init orchestrator: it sequences and maps to state, while the work lives
+/// in the services registerStartupDependencies registers. BlocProvider owns it.
 ///
 class AppStartupCubit extends SafeCubit<AppStartupState> {
   AppStartupCubit(this._locator, this._registerStartup) : super(const StartupInProgress());

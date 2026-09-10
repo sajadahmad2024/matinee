@@ -42,15 +42,26 @@ paths:
 
 ## Accessibility baseline
 
-- Tap targets are `InkWell`, `IconButton`, `FilledButton`, `TextButton`; never a bare `GestureDetector` for actions. Minimum 48x48 dp.
-- Every `Image` has `semanticLabel` or `excludeFromSemantics: true`; every icon-only button has a `tooltip`.
-- Colour is never the only signal; pair with text or an icon.
-- Text containers have no fixed height. Animations check `MediaQuery.disableAnimationsOf(context)`.
+The app targets WCAG 2.2 AA on mobile; `docs/decisions/accessibility.md` records why, and the Flutter behaviours these rules exist because of.
+
+- Tap targets are `InkWell`, `IconButton`, `FilledButton`, `TextButton`; never a bare `GestureDetector` for actions. Minimum 48x48 dp. A control the design draws smaller keeps the 48 in layout and paints the smaller box inside it; the difference comes off the surrounding gap.
+- Every `Image` has `semanticLabel` or `excludeFromSemantics: true`; every icon-only button has a `tooltip`, which is a valid accessible name. A `DecorationImage` contributes nothing to the tree, so a meaningful one is wrapped in `Semantics(image: true, label:)`.
+- Colour is never the only signal; pair with text, an icon, or a semantics flag (`selected`, `enabled`, `expanded`).
+- Text containers have no fixed height, and every screen and sheet scrolls **only once its content does not fit**. A scroll view lays its `padding` out around the child, so a `minHeight` of the full viewport must have that padding subtracted or the screen is permanently scrollable by exactly that gap — which also clips any glow the last child paints outside its box. A flexible child cannot live in a shrink-wrapping column: use `mainAxisAlignment: spaceBetween`, not `Expanded`, inside a scroll view. `ContentContainer` takes `shrinkWrapHeight: true` inside a sheet.
+- A field in a row stretched to give a neighbouring control full height needs `expands: true`, `maxLines: null` and `textAlignVertical: center` together, or its value sits against the top edge. Sizing the field to its text instead centres the value but shrinks its tap target to the text's height.
+- Animations check `MediaQuery.disableAnimationsOf(context)` — page controllers included, where the gate is `jumpToPage`.
+- One `ScreenTitle` per screen, `SectionLabel` for the sections under it. Both read their label from the semantics, because the design sets titles and eyebrows in upper case and screen readers spell short capitalised runs out.
+- Loading is `LoadingView` and failure is `ErrorView`; Flutter announces neither on its own. Snackbars need nothing — `SnackBar` and `InputDecoration`'s error text are already live regions.
+- Never put `SemanticsRole.alert` or `SemanticsRole.status` on a widget the framework already marks live (`SnackBar`, `InputDecoration` error and counter, `MaterialBanner`, `ExpansionTile`, `CalendarDatePicker`): a node cannot hold both, and the assertion only fires with a screen reader running. Read the widget's source before adding a role.
+- A flow that shows a message or swaps a screen in place needs a test with `ensureSemantics()` and `pumpAnnouncement(tester)`; without semantics enabled, no role or live-region defect is visible at all.
+- A field whose label the design draws outside its frame takes `Semantics(label:)` and **never** `textField: true`, which splits it into two focus stops. It sets its own `validationResult`; `errorText` does not.
+- A `Semantics` block that groups several texts into one label and is not itself a control needs `container: true`, or it merges into its ancestor along with its siblings.
+- Guideline checks are necessary, not sufficient: `labeledTapTargetGuideline` skips text fields, so a field's name needs its own assertion. Every screen test ends with `expectMeetsGuidelines(tester)` from `test/helpers`.
 
 Run `/accessibility` for a WCAG-level audit before a release.
 
 ## State in widgets
 
-- Screens are `BlocProvider` + a private view widget. The view switches exhaustively on the sealed state: `Initial` renders `SizedBox.shrink()`, `Loading` a `CircularProgressIndicator`, `Failure` an `ErrorView` with a retry.
+- Screens are `BlocProvider` + a private view widget. The view switches exhaustively on the sealed state: `Initial` renders `SizedBox.shrink()`, `Loading` a `LoadingView`, `Failure` an `ErrorView` with a retry.
 - `BlocBuilder` for rendering, `BlocListener` for one-shot effects (snackbars, navigation). No business logic in `build`.
 - The `GoRouter` is built once in `_AppViewState.initState` and never inside `build`; `BlocBuilder<ThemeCubit>` passes theme properties into the existing `MaterialApp.router`, it never returns a new one.

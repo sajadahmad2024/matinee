@@ -3,16 +3,14 @@ import 'package:matinee/core/storage/preferences_service.dart';
 
 ///
 /// Remembers whether the intro has been seen. The slide copy is localised, so
-/// it is not stored here; this repository owns the completion flag and the
-/// per-slide assets, which localisation does not touch.
+/// only the completion flag and the per-slide assets live here.
 ///
 class OnboardingRepository {
   const OnboardingRepository(this._preferences);
 
   ///
-  /// TEMPORARY, FOR DEMOS. While true the intro opens on every launch: the
-  /// stored flag is ignored and never written. Set it to false to restore
-  /// normal behaviour, then delete it and these two branches.
+  /// TEMPORARY, FOR DEMOS. While true the intro opens every launch and the
+  /// stored flag is ignored. Set it false, then delete it and its branches.
   ///
   static const bool alwaysShowIntro = true;
 
@@ -36,15 +34,12 @@ class OnboardingRepository {
 }
 
 ///
-/// The per-slide values the design fixes and localisation does not: the
-/// background image and the three tile emoji, kept together so a slide cannot
-/// be given an image without its emoji.
+/// The per-slide values localisation does not touch, kept together so a slide
+/// cannot be given an image without its emoji.
 ///
 typedef OnboardingSlideAssets = ({String image, List<String> emoji});
 
-///
 /// The three slides' assets in the order the design shows them.
-///
 abstract final class OnboardingSlideContent {
   static const List<OnboardingSlideAssets> slides = [
     (image: AppImageAssets.onboardingSlide1, emoji: ['🎬', '🌍', '✨']),

@@ -1,7 +1,6 @@
 ///
 /// Hand-written rather than freezed: two variants carry no fields, so const
-/// canonicalisation already gives value equality, and boot does not depend on
-/// build_runner output.
+/// canonicalisation already gives value equality without build_runner.
 ///
 sealed class AppStartupState {
   const AppStartupState();

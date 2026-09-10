@@ -18,15 +18,8 @@ extension ResponsiveContext on BuildContext {
   bool get isExpanded => windowSize == WindowSize.expanded;
 
   ///
-  /// The clearance the last element on a screen needs above the bottom edge.
-  ///
-  /// The design's frames are the whole device screen and draw no separate home
-  /// indicator, so the gap one leaves under a CTA already contains it. Wrapping
-  /// the screen in a bottom SafeArea *and* keeping that gap stacks the two and
-  /// lifts the content well off the bottom. A screen passes the design's gap
-  /// here instead and drops `bottom` from its SafeArea: on a device with an
-  /// indicator the inset wins when it is the larger of the two, and on one
-  /// without, the design's gap still applies.
+  /// The clearance the last element needs above the bottom edge. The design's
+  /// gap already contains the home indicator, so a screen drops `bottom`.
   ///
   /// Reads `padding`, not `viewPadding`, so an open keyboard — which consumes
   /// the inset itself — leaves only the design's gap.

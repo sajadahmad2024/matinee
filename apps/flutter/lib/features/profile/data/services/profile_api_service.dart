@@ -3,9 +3,8 @@ import 'dart:async';
 import 'package:matinee/features/profile/data/models/profile.dart';
 
 ///
-/// Stands in for the profile endpoints until the API exists. It answers after
-/// a short delay so the screens exercise their loading states, and holds the
-/// edits in memory so a save is visible on the way back to the profile.
+/// Stands in for the profile endpoints until the API exists. It answers after a
+/// delay so screens exercise their loading states, and holds edits in memory.
 ///
 class ProfileApiService {
   ProfileApiService();
@@ -16,8 +15,7 @@ class ProfileApiService {
 
   ///
   /// The stored profile, every time it changes. Edit and profile are separate
-  /// screens with a cubit each, so the one behind has to hear about a save
-  /// rather than hold what it fetched before it.
+  /// screens with a cubit each, so the one behind has to hear about a save.
   ///
   Stream<Profile> get changes => _changes.stream;
 

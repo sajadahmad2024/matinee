@@ -2,8 +2,7 @@ import 'package:flutter/widgets.dart';
 
 ///
 /// Constrains content width on wide windows so pages do not stretch edge to
-/// edge. The three widths the design uses are [form], [reading] and
-/// [general]; dashboards pass `double.infinity`.
+/// edge. [form], [reading] and [general] are the design's three widths.
 ///
 class ContentContainer extends StatelessWidget {
   const ContentContainer({
@@ -28,8 +27,7 @@ class ContentContainer extends StatelessWidget {
 
   ///
   /// Sizes to the child's height instead of filling what is offered. A page
-  /// wants the fill; a bottom sheet does not, because a scroll-controlled one
-  /// is offered the whole screen and would stand full height.
+  /// wants the fill; a scroll-controlled sheet would stand full height.
   ///
   final bool shrinkWrapHeight;
 

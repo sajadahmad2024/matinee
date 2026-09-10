@@ -2,7 +2,7 @@
 
 > Source: Figma `vVGHTFgrIRYQBTZaRZCYe0`, page **Visuals** (`3:1066`, 71 frames) only. Dark-only app. Units: Flutter logical px. Colour syntax: `{primitive}` or `{primitive@NN%}` (opacity applied to a primitive — there are no extra hexes); `gradient.<name>`. Machine-readable twin: `design-system.json`. Extracted values were simplified on 2026-09-03 per the decisions log at the end.
 
-## 1. Colour primitives (26)
+## 1. Colour primitives (27)
 | Token | Hex | Meaning | Evidence |
 |---|---|---|---|
 | `surface` | `#0C0F16` | Screen background; also ink on gold (onPrimary) | HomeScreen#25:2953, RewardsSubscribedScreen#414:12372 |
@@ -29,7 +29,8 @@
 | `goldLevel1` | `#A8874A` | Level-1 streak tint (calendar, LV1 badge) | LV 1#416:15833 |
 | `yellow` | `#FFD700` | Streak/level accent, warning, YES vote | 2/7#397:9127, LV 2#416:15663 |
 | `success` | `#2ECC71` | Done / claimed / won / correct | +12 wk#376:3290, CLAIMED#429:23264 |
-| `error` | `#EB5757` | Destructive (logout), incorrect, NO, LIVE | Logout#429:23433, INCORRECT#429:22624 |
+| `error` | `#EB5757` | Destructive (logout), incorrect, NO | Logout#429:23433, INCORRECT#429:22624 |
+| `errorDeep` | `#C43A3A` | Solid red carrying white text: the LIVE badge | derived from `error` for contrast |
 | `black` | `#000000` | Shadow base only | Container#35:4628 shadow |
 
 Brand constants (third-party, not theme tokens): whatsapp `#25D366`, telegram `#0088CC`, instagram `#E1306C`, messages `#34B7F1`, twitter `#1DA1F2`, googleBlue `#4285F4`, googleGreen `#34A853`, googleYellow `#FBBC05`, googleRed `#EA4335`
@@ -173,7 +174,7 @@ Dark-only. Roles not listed here (surfaceDim/Bright, inverse*, info, fixed/dim v
 | `badge.neutral.background` | `{white@10%}` |
 | `badge.neutral.border` | `{white@10%}` |
 | `badge.neutral.label` | `{white@60%}` |
-| `badge.live.background` | `{error}` |
+| `badge.live.background` | `{errorDeep}` |
 | `badge.live.label` | `{white}` |
 | `pill.points.background` | `{pointsPillBg@70%}` |
 | `pill.points.border` | `gradient.pointsPillStroke` |
@@ -217,7 +218,7 @@ Dark-only. Roles not listed here (surfaceDim/Bright, inverse*, info, fixed/dim v
 | `onboarding.statTile.label` | `{white@80%}` |
 | `onboarding.statPill.background` | `{gold@10%}` |
 | `onboarding.statPill.value` | `{goldLight}` |
-| `onboarding.statPill.caption` | `{authTextMuted}` |
+| `onboarding.statPill.caption` | `{authTextSecondary}` |
 | `progress.track` | `{outline}` |
 | `progress.fill` | `gradient.progressGold` |
 | `progress.fill.success` | `{success}` |
@@ -608,11 +609,11 @@ Emoji (🔥 🎖️ 🏆 🎬 🌍 ✨ 🧠 🔮 🎟️ 🤝 💎 🔗) are use
 | **Bottom nav** | Library Nav Bar colours kept per client preference (bg #0D1C25, hairline #112532, active #B99C48, inactive #67899E). Hand-built nav on Rewards/Profile/Badges/Unlock screens is restyled to them; structure/auto-layout from the library component; indicator colour normalised to goldCta. |
 | **Fonts** | Four families kept: Poppins (display voice), DM Sans (UI), Inter (small print), Oswald (numerals). Dropped Sora (3-letter 'PTS' only), Golos Text (Auction concept), Plus Jakarta Sans (Success concept) — each was one font file for ≤26 glyph instances. |
 | **Type scale** | 174 design combinations → 18 text roles + 7 numeral roles. Poppins is confined to display/headline/CTA; every 13–14px title becomes DM Sans SemiBold 14; every caption becomes Inter 11; auth headings 26→24 (the design already uses 24 on Sign In (Filled)); auth screen headers 16→18 to share the app-bar title role. |
-| **Accessibility** | 8px and 9px text raised to 10 (labels/overlines/nav) and 11 (captions). Nothing under 10sp remains. |
+| **Accessibility** | 8px and 9px text raised to 10 (labels/overlines/nav) and 11 (captions). Nothing under 10sp remains. Two colour pairs measured under WCAG AA's 4.5:1 for normal-size text and were moved: the LIVE badge's white-on-`error` gave 3.5:1, so the badge alone takes `errorDeep` #C43A3A (5.2:1) while `error` keeps the frame's red everywhere it carries no white text; the onboarding stat caption's `authTextMuted` on the gold-tinted pill gave 3.3:1, so it takes the adjacent `authTextSecondary` (6.2:1) rather than a new colour. |
 | **Secondary text** | Two greys: textSecondary #8FA0B3 and textMuted #7A93AB. #C8D4E0 (prediction questions) promoted to white; #B0BEC8/#A3B1C1/#8A9AB0 → textSecondary; #848F99 → textMuted. Auth: authTextSecondary #A8998A (absorbs #9A8878, #A0907E) and authTextMuted #7A6A58 (absorbs #867159). |
 | **Dark surfaces** | Navy: surface #0C0F16, surfaceCard #13171F, surfaceRaised #1A1F2B, outline #1F2535 — 4 tokens replace 20 hexes (#0F1117 modal → surfaceCard; #292828 vote buttons → surfaceRaised; #232938/#2A3040/#1C2A38 → outline). Warm: authSurface #0D0B08, authContainer #141008, authOutline #2A2018 (#1D170C back-button disc → authContainer). |
 | **Gold family** | gold #C9A24B (brand/primary), goldCta #FFDC78 (fills; absorbs #FFD966), goldLight #E6CB86 (numerals), goldDeep #B99C48 (nav active), goldLevel1 #A8874A (absorbs #8B6914, #635025), yellow #FFD700 (absorbs #FFD54F, #F2CA14). #D2AE5D/#BF9A49/#997D3D/#957B30 → gold; #514730 avatar ring → gold@30%. |
-| **Status** | success #2ECC71 (absorbs #6FCF97, #3D8C5F); error #EB5757 (absorbs #FF4444 logout, #E05252, #FF3333 LIVE, #7A3030). Warning = yellow. Info = seed-derived. |
+| **Status** | success #2ECC71 (absorbs #6FCF97, #3D8C5F); error #EB5757 (absorbs #FF4444 logout, #E05252, #FF3333 LIVE, #7A3030). errorDeep #C43A3A is `error` darkened for the one place white text sits on solid red. Warning = yellow. Info = seed-derived. |
 | **Alpha** | Design alphas snapped to 10% steps; conventions: tint fill 10/20%, tint border 30/40%, disabled 30/50%, glow 40/20/50%, scrim 80%, placeholder 50%, on-image text 60%, hairline 10%. |
 | **onPrimary** | #0C0F16 (surface) on all gold — the design split 13 large CTAs (#0D0B08) vs 17 small buttons (#0C0F16); one ink is enough and matches the app surface. |
 | **Gradients** | 10 kept, re-expressed in final tokens; per-screen unique gradients on Auction/Success/Streak-intro collapsed into heroScrim / onboardingScrim / headerFade. Points-pill stroke approximated goldCta→goldLevel1 (design #FFD067→#635025). splashBg added 2026-09-08: the splash frame's 12-stop ramp into gold is normalised to surface→surfaceCard→surfaceRaised because the gold stops sit below the 800dp viewport and never render. |
@@ -629,3 +630,4 @@ Emoji (🔥 🎖️ 🏆 🎬 🌍 ✨ 🧠 🔮 🎟️ 🤝 💎 🔗) are use
 - Splash screen is a screenshot placeholder — needs a design. Built 2026-09-08 from the normalised `splashBg` gradient plus a supplied `assets/images/splash-logo.png` wordmark; the wordmark and tagline still have no text roles, so a vector logo and a real layout are outstanding.
 - Input error state, toggles/checkbox/radio, toast, empty/loading/error screens, Notifications screen — not designed; seed/derived rules apply until they are.
 - Confirm the points-pill stroke gradient approximation and the 8/9px → 10/11px size bumps with design.
+- Confirm the two contrast moves with design: the LIVE badge's fill (`error` #EB5757 → `errorDeep` #C43A3A) and the onboarding stat caption's colour (`authTextMuted` → `authTextSecondary`). Both were forced by WCAG AA at the sizes the frames draw; a redesign that enlarges the LIVE label to 14pt semibold or heavier would let it keep the frame's red at the 3:1 large-text ratio.

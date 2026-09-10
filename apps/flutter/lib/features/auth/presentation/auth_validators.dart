@@ -1,9 +1,8 @@
 import 'package:matinee/l10n/gen/app_localizations.dart';
 
 ///
-/// The rules the mocked API would otherwise enforce. Each returns null when
-/// the value is acceptable and a localised message when it is not, so the same
-/// function drives both the field's error text and whether the CTA is enabled.
+/// The rules the mocked API would otherwise enforce. Each returns null when the
+/// value is acceptable, so one function drives both the error and the CTA.
 ///
 abstract final class AuthValidators {
   static const int otpLength = 4;

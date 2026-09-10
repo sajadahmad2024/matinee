@@ -19,14 +19,14 @@ class BidBar extends StatefulWidget {
     required this.fieldLabel,
     required this.actionLabel,
     required this.incrementLabel,
+    required this.incrementSemanticLabel,
     required this.onBid,
     super.key,
   });
 
   ///
   /// What the field starts on: the standing bid plus the minimum raise. A bid
-  /// takes the screen through a loading state, so the bar is rebuilt from
-  /// scratch afterwards and the field opens on the new floor.
+  /// rebuilds the bar, so the field reopens on the new floor.
   ///
   final int openingBid;
 
@@ -37,6 +37,12 @@ class BidBar extends StatefulWidget {
   /// Formats one quick-add button's caption from its amount.
   final String Function(int amount) incrementLabel;
 
+  ///
+  /// Names what a quick-add does. Its caption is a bare numeral, which a screen
+  /// reader can only read as a number sitting on a button.
+  ///
+  final String Function(int amount) incrementSemanticLabel;
+
   final ValueChanged<int> onBid;
 
   @override
@@ -44,14 +50,17 @@ class BidBar extends StatefulWidget {
 }
 
 class _BidBarState extends State<BidBar> {
-  /// The frame's bid field is 40 tall with an 85-wide action sitting in it.
-  static const double _fieldHeight = 40;
+  ///
+  /// The frame draws the field 40 tall, leaving the action inside it 36 — under
+  /// the 48 it has to be hittable at. The 10 this adds comes off the gap above.
+  ///
+  static const double _fieldHeight = kMinInteractiveDimension + 2 * AppBorderWidth.hairline;
+  static const double _rowGapAbove = AppSpacing.md + AppSpacing.xxs;
   static const double _actionWidth = 85;
 
   ///
-  /// A quick-add paints the 32 the frame draws but lays out 48, so it keeps a
-  /// full tap target. That adds 8 above and below the row, which the gaps
-  /// around it give back: 4 here reads as the frame's 12.
+  /// A quick-add paints the 32 the frame draws but lays out 48. The 8 that adds
+  /// above and below comes off the gaps: 4 here reads as the frame's 12.
   ///
   static const double _chipRowGap = AppSpacing.xs;
 
@@ -73,9 +82,8 @@ class _BidBarState extends State<BidBar> {
   }
 
   ///
-  /// Setting `text` alone collapses the selection to nothing and drops the
-  /// caret, so the value is written with the caret placed after it — a
-  /// quick-add is a nudge to what is being typed, not a replacement for it.
+  /// Setting `text` alone drops the caret, so the value is written with the
+  /// caret after it: a quick-add nudges what is typed, it does not replace it.
   ///
   void _addIncrement(int increment) {
     final current = int.tryParse(_controller.text) ?? widget.openingBid;
@@ -100,7 +108,7 @@ class _BidBarState extends State<BidBar> {
         padding: EdgeInsets.only(
           left: AppScreenPadding.main,
           right: AppScreenPadding.main,
-          top: AppSpacing.xxl,
+          top: _rowGapAbove,
           bottom: context.bottomInset(AppSpacing.xxl),
         ),
         child: Column(
@@ -109,70 +117,81 @@ class _BidBarState extends State<BidBar> {
           children: [
             // The frame draws the action inside the field's own border rather
             // than beside it, so the two read as one control.
-            Container(
-              // The frame draws this 40 tall. The input theme's own 52 is the
-              // full-width form field's height, so the row is sized here and
-              // the field's constraints are cleared below to match.
-              height: _fieldHeight,
-              decoration: BoxDecoration(
-                color: colors.input.background,
-                border: Border.all(color: colors.input.border),
-                borderRadius: const BorderRadius.all(Radius.circular(AppRadius.sm)),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
-                      // The frame draws no label and the field opens
-                      // prefilled, so the hint never renders; the name has to
-                      // come from the semantics instead.
-                      //
-                      // The content padding stays zero. Padding the editor out
-                      // to the row's height enlarges the tap target, but a
-                      // constant inset is taken out of a box that does not
-                      // grow, so the text is left the same 16 at every text
-                      // scale and is cut in half at 200%. A small target is
-                      // not a WCAG 2.1 AA failure; clipped text is.
-                      child: Semantics(
-                        textField: true,
-                        label: widget.fieldLabel,
-                        child: TextField(
-                          controller: _controller,
-                          keyboardType: TextInputType.number,
-                          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                          onSubmitted: (_) => _bid(),
-                          style: AppTextStyle.numeralSm.copyWith(color: colors.input.text),
-                          decoration: const InputDecoration(
-                            isDense: true,
-                            filled: false,
-                            constraints: BoxConstraints(),
-                            border: InputBorder.none,
-                            enabledBorder: InputBorder.none,
-                            focusedBorder: InputBorder.none,
-                            contentPadding: EdgeInsets.zero,
+            ConstrainedBox(
+              // A minimum, not a fixed height: the input theme's 52 is the
+              // full-width field's height, so the row is sized here instead.
+              constraints: const BoxConstraints(minHeight: _fieldHeight),
+              // Tightens the row's height, which the stretch below needs.
+              child: IntrinsicHeight(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: colors.input.background,
+                    border: Border.all(color: colors.input.border),
+                    borderRadius: const BorderRadius.all(Radius.circular(AppRadius.sm)),
+                  ),
+                  child: Row(
+                    // So the field and the action fill the row's height rather
+                    // than asking for an unbounded one of their own.
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
+                          // The frame draws no label and the field opens
+                          // prefilled, so the hint never renders.
+                          child: Semantics(
+                            // Never `textField: true`: the extra node cannot
+                            // merge, splitting name and value across two stops.
+                            label: widget.fieldLabel,
+                            child: TextField(
+                              controller: _controller,
+                              // Centres the value. Sizing the field to its
+                              // text pins it high and drops the target to 18.
+                              textAlignVertical: TextAlignVertical.center,
+                              // With a null maxLines, lets the editor fill the
+                              // box so the alignment above has room to work.
+                              expands: true,
+                              maxLines: null,
+                              keyboardType: TextInputType.number,
+                              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                              onSubmitted: (_) => _bid(),
+                              style: AppTextStyle.numeralSm.copyWith(color: colors.input.text),
+                              decoration: const InputDecoration(
+                                // Collapsed, as the auth frame does it: a dense
+                                // decoration anchors its editor to the top.
+                                isCollapsed: true,
+                                filled: false,
+                                constraints: BoxConstraints(minHeight: _fieldHeight),
+                                border: InputBorder.none,
+                                enabledBorder: InputBorder.none,
+                                focusedBorder: InputBorder.none,
+                                // Zero: a constant inset out of a box that
+                                // grows with the text scale would clip at 200%.
+                                contentPadding: EdgeInsets.zero,
+                              ),
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(AppBorderWidth.hairline),
-                    child: FilledButton.icon(
-                      onPressed: _bid,
-                      style: FilledButton.styleFrom(
-                        minimumSize: const Size(_actionWidth, double.infinity),
-                        padding: EdgeInsets.zero,
-                        iconAlignment: IconAlignment.end,
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(AppRadius.xs)),
+                      Padding(
+                        padding: const EdgeInsets.all(AppBorderWidth.hairline),
+                        child: FilledButton.icon(
+                          onPressed: _bid,
+                          style: FilledButton.styleFrom(
+                            minimumSize: const Size(_actionWidth, 0),
+                            padding: EdgeInsets.zero,
+                            iconAlignment: IconAlignment.end,
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(AppRadius.xs)),
+                            ),
+                          ),
+                          icon: const Icon(Icons.bolt, size: AppIconSize.sm),
+                          label: Text(widget.actionLabel),
                         ),
                       ),
-                      icon: const Icon(Icons.bolt, size: AppIconSize.sm),
-                      label: Text(widget.actionLabel),
-                    ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
             Row(
@@ -180,16 +199,22 @@ class _BidBarState extends State<BidBar> {
               children: [
                 for (final increment in widget.increments)
                   Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => _addIncrement(increment),
-                      // Zero padding, so four quick-adds fit the row; the
-                      // height comes from the outlined-button theme. The
-                      // amounts are numerals, not a button label.
-                      style: OutlinedButton.styleFrom(
-                        padding: EdgeInsets.zero,
-                        textStyle: AppTextStyle.numeralPill,
+                    // The caption is a bare numeral, so the name spells the
+                    // action out and keeps that numeral inside it.
+                    child: Semantics(
+                      label: widget.incrementSemanticLabel(increment),
+                      excludeSemantics: true,
+                      button: true,
+                      child: OutlinedButton(
+                        onPressed: () => _addIncrement(increment),
+                        // Zero padding, so four quick-adds fit the row; the
+                        // height comes from the outlined-button theme.
+                        style: OutlinedButton.styleFrom(
+                          padding: EdgeInsets.zero,
+                          textStyle: AppTextStyle.numeralPill,
+                        ),
+                        child: Text(widget.incrementLabel(increment)),
                       ),
-                      child: Text(widget.incrementLabel(increment)),
                     ),
                   ),
               ],

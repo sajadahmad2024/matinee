@@ -286,5 +286,78 @@
   "exclusivePreview": "PREVIEW",
   "exclusiveCastAndCrew": "CAST & CREW",
   "exclusiveUnlockCta": "Unlock Now",
-  "exclusiveTag": "EXCLUSIVE CONTENT"
+  "exclusiveTag": "EXCLUSIVE CONTENT",
+  "a11yLoading": "Loading",
+  "@a11yLoading": { "description": "Announced while a screen is fetching its content." },
+  "authOtpFieldLabel": "Verification code",
+  "@authOtpFieldLabel": { "description": "Accessible name of the one-time code field, which the design draws as unlabelled boxes." },
+  "authOtpFieldHint": "Enter the {length}-digit code",
+  "@authOtpFieldHint": {
+    "description": "Tells a screen reader how long the one-time code is.",
+    "placeholders": { "length": { "type": "int" } }
+  },
+  "auctionBidRaise": "Raise the bid by {amount}",
+  "@auctionBidRaise": {
+    "description": "What a quick-add button does, which its bare numeral does not say.",
+    "placeholders": { "amount": { "type": "String" } }
+  },
+  "auctionLeadingBid": "Leading bid",
+  "@auctionLeadingBid": { "description": "Marks the bid that currently holds the lot, which the design shows in gold alone." },
+  "auctionBidSummary": "{bidder}, {placedAt}, {amount}",
+  "@auctionBidSummary": {
+    "description": "One bid in the history, read as a single row.",
+    "placeholders": { "bidder": { "type": "String" }, "placedAt": { "type": "String" }, "amount": { "type": "String" } }
+  },
+  "auctionTimeRemainingValue": "about {hours}h {minutes}m",
+  "@auctionTimeRemainingValue": {
+    "description": "The countdown spelled out to the minute. The clock face reads poorly, and a value that changed every second would be re-announced every second to anyone resting on the card.",
+    "placeholders": { "hours": { "type": "int" }, "minutes": { "type": "int" } }
+  },
+  "auctionTimeRemainingMinutes": "about {minutes}m",
+  "@auctionTimeRemainingMinutes": {
+    "description": "The countdown under an hour, so it is not read as 'about 0h 6m'.",
+    "placeholders": { "minutes": { "type": "int" } }
+  },
+  "auctionTimeRemainingUnderMinute": "less than a minute",
+  "@auctionTimeRemainingUnderMinute": { "description": "The countdown's last minute, which rounding to the minute would otherwise announce as zero." },
+  "authOtpResendInCoarse": "Resend available in about {seconds} seconds",
+  "@authOtpResendInCoarse": {
+    "description": "The resend wait, rounded so the announcement does not change every second.",
+    "placeholders": { "seconds": { "type": "int" } }
+  },
+  "auctionLotImage": "Photograph of {title}",
+  "@auctionLotImage": {
+    "description": "Stands in for the lot photograph until the data carries its own description.",
+    "placeholders": { "title": { "type": "String" } }
+  },
+  "onboardingSlidePosition": "Slide {position} of {total}",
+  "@onboardingSlidePosition": {
+    "description": "Announced when the carousel moves.",
+    "placeholders": { "position": { "type": "int" }, "total": { "type": "int" } }
+  },
+  "profileAvatarLabel": "Profile photo of {name}",
+  "@profileAvatarLabel": {
+    "description": "Names the portrait where no name sits beside it.",
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "topUpPackOption": "{points} points for {price}",
+  "@topUpPackOption": {
+    "description": "One top-up pack read as a single option.",
+    "placeholders": { "points": { "type": "String" }, "price": { "type": "String" } }
+  },
+  "profileStatValue": "{value} {label}",
+  "@profileStatValue": {
+    "description": "One profile counter read as a single figure with its unit.",
+    "placeholders": { "value": { "type": "String" }, "label": { "type": "String" } }
+  },
+  "rewardsBalanceSummary": "{label}: {value} {unit}",
+  "@rewardsBalanceSummary": {
+    "description": "The points balance read as one figure.",
+    "placeholders": { "label": { "type": "String" }, "value": { "type": "String" }, "unit": { "type": "String" } }
+  },
+  "rewardsBadgeSummary": "{label}: {name}. {caption}",
+  "@rewardsBadgeSummary": {
+    "description": "The badge standing read as one block.",
+    "placeholders": { "label": { "type": "String" }, "name": { "type": "String" }, "caption": { "type": "String" } }
+  }
 }

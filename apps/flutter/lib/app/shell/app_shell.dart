@@ -5,10 +5,8 @@ import 'package:matinee/core/l10n/l10n.dart';
 import 'package:matinee/core/widgets/app_bottom_nav.dart';
 
 ///
-/// The signed-in skeleton: the four tabs and the bar that switches them.
-///
-/// The shell keeps one Navigator per tab, so a screen pushed inside a tab is
-/// still there after a trip to another tab, and the bar stays put over it.
+/// The signed-in skeleton: the four tabs and the bar that switches them. One
+/// Navigator per tab, so a screen pushed inside one survives a trip away.
 ///
 class AppShell extends StatelessWidget {
   const AppShell({required this.navigationShell, super.key});

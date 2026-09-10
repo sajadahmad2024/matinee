@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:matinee/app/router/app_routes.dart';
 import 'package:matinee/core/l10n/l10n.dart';
@@ -36,9 +37,8 @@ class OnboardingScreen extends StatelessWidget {
 }
 
 ///
-/// The intro copy, assembled from the localised strings and the assets the
-/// data layer owns. It lives here because the slides are presentation content
-/// the data layer cannot translate.
+/// The intro copy, assembled from the localised strings and the assets the data
+/// layer owns. It lives here because the data layer cannot translate.
 ///
 List<OnboardingSlide> buildOnboardingSlides(AppLocalizations l10n) {
   final copy = [
@@ -111,9 +111,8 @@ class _OnboardingViewState extends State<OnboardingView> {
   final PageController _pager = PageController();
 
   ///
-  /// The page the pager was last told to show. Comparing against the live
-  /// animated position instead would drop a second tap that lands while the
-  /// first animation is still running.
+  /// The page the pager was last told to show. The live animated position would
+  /// drop a second tap landing while the first animation still runs.
   ///
   int _requestedPage = 0;
 
@@ -141,6 +140,12 @@ class _OnboardingViewState extends State<OnboardingView> {
       return;
     }
     _requestedPage = index;
+    // A jump, not an animation, when the platform asks for reduced motion: the
+    // slide travel is the largest movement in the app.
+    if (MediaQuery.disableAnimationsOf(context)) {
+      _pager.jumpToPage(index);
+      return;
+    }
     _pager.animateToPage(index, duration: Durations.medium2, curve: Curves.easeOut);
   }
 
@@ -177,17 +182,44 @@ class _Slides extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        PageView.builder(
-          controller: pager,
-          itemCount: data.slides.length,
-          onPageChanged: onPageChanged,
-          itemBuilder: (context, index) => OnboardingSlideView(slide: data.slides[index]),
-        ),
-        Positioned(top: 0, left: 0, right: 0, child: _TopBar(isFirstSlide: data.index == 0)),
-        const Positioned(bottom: 0, left: 0, right: 0, child: _Cta()),
-      ],
+    // The bar and the CTA are painted over the slide, so in tree order they come
+    // after it; the sort keys put traversal back into layout order.
+    return FocusTraversalGroup(
+      policy: OrderedTraversalPolicy(),
+      child: Stack(
+        children: [
+          Semantics(
+            sortKey: const OrdinalSortKey(1),
+            // Says which slide of how many, which the carousel shows only by
+            // what is on screen.
+            label: context.l10n.onboardingSlidePosition(
+              data.index + 1,
+              data.slides.length,
+            ),
+            child: PageView.builder(
+              controller: pager,
+              itemCount: data.slides.length,
+              onPageChanged: onPageChanged,
+              itemBuilder: (context, index) => OnboardingSlideView(slide: data.slides[index]),
+            ),
+          ),
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: Semantics(
+              sortKey: const OrdinalSortKey(0),
+              child: _TopBar(isFirstSlide: data.index == 0),
+            ),
+          ),
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Semantics(sortKey: const OrdinalSortKey(2), child: const _Cta()),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -215,9 +247,16 @@ class _TopBar extends StatelessWidget {
                 tooltip: l10n.onboardingBack,
                 onPressed: isFirstSlide ? null : () => unawaited(cubit.previous()),
               ),
-              TextButton(
-                onPressed: () => unawaited(cubit.complete()),
-                child: Text(l10n.onboardingSkip.toUpperCase()),
+              // Announced from here: the label is upper case, and screen readers
+              // spell a short capitalised run out letter by letter.
+              Semantics(
+                label: l10n.onboardingSkip,
+                button: true,
+                excludeSemantics: true,
+                child: TextButton(
+                  onPressed: () => unawaited(cubit.complete()),
+                  child: Text(l10n.onboardingSkip.toUpperCase()),
+                ),
               ),
             ],
           ),

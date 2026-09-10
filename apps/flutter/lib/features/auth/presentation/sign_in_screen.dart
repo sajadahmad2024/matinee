@@ -29,9 +29,8 @@ import 'package:matinee/l10n/gen/app_localizations.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 ///
-/// The four-colour Google mark. Multi-colour marks ship as SVG so they stay
-/// crisp at any size and keep the brand's exact colours; the icon font covers
-/// the single-colour glyphs.
+/// The four-colour Google mark. Multi-colour marks ship as SVG to keep the
+/// brand's exact colours; the icon font covers the single-colour glyphs.
 ///
 
 ///
@@ -76,9 +75,8 @@ class _SignInViewState extends State<SignInView> {
   DialCode _dialCode = DialCodes.india;
 
   ///
-  /// The number the code actually went to. The field stays editable while the
-  /// request is in flight, so the verify screen has to be handed the number
-  /// that was sent rather than whatever the field holds when the reply lands.
+  /// The number the code actually went to. The field stays editable in flight,
+  /// so the verify screen takes the number sent, not what the field now holds.
   ///
   String _requestedNumber = '';
 
@@ -95,9 +93,8 @@ class _SignInViewState extends State<SignInView> {
   }
 
   ///
-  /// Opens the legal document. The failure a launch can report is a platform
-  /// one, so it is left to the global net rather than caught into a message
-  /// the user could do nothing with.
+  /// Opens the legal document. A launch failure is a platform one, so it goes
+  /// to the global net rather than a message the user could not act on.
   ///
   Future<void> _openLegalDocument() async {
     await launchUrl(AppLegalLinks.terms, mode: LaunchMode.externalApplication);
@@ -192,8 +189,7 @@ class _SignInViewState extends State<SignInView> {
             spacing: AppSpacing.md,
             children: [
               // No provider SDK is wired up, so the mocked social paths land
-              // where a verified provider account would: straight at the name
-              // step, skipping the code.
+              // where a verified account would: the name step, past the code.
               AuthSocialButton(
                 icon: SvgPicture.asset(
                   AppIconAssets.google,

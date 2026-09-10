@@ -10,18 +10,15 @@ import 'package:matinee/core/theme/app_sizes.dart';
 import 'package:matinee/core/theme/app_spacing.dart';
 import 'package:matinee/core/theme/app_text_styles.dart';
 import 'package:matinee/core/theme/extensions/build_context_extensions.dart';
+import 'package:matinee/core/widgets/screen_title.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-///
 /// Opens the refer-a-friend sheet over the profile.
-///
 Future<void> showReferSheet(BuildContext context, {required String referralCode}) {
   return showModalBottomSheet<void>(
     context: context,
     // The route covers the screen while only the block at the bottom is
-    // painted. A sheet sized to its content would put the copy confirmation
-    // behind itself, because the snackbar belongs to whatever scaffold is
-    // underneath; this way the sheet carries its own.
+    // painted, so the sheet can carry the messenger its copy toast needs.
     isScrollControlled: true,
     useRootNavigator: true,
     backgroundColor: context.appColors.sheet.routeBackground,
@@ -31,11 +28,8 @@ Future<void> showReferSheet(BuildContext context, {required String referralCode}
 }
 
 ///
-/// The referral code, the four ways to pass it on, and the share action.
-///
-/// The design draws the share targets as coloured discs carrying a letter
-/// rather than the brand marks, which is what this renders; the marks
-/// themselves are on the design system's list of SVGs still to be exported.
+/// The referral code, the four ways to pass it on, and the share action. The
+/// targets are lettered discs: the brand marks are not exported yet.
 ///
 @visibleForTesting
 class ReferSheet extends StatelessWidget {
@@ -53,9 +47,8 @@ class ReferSheet extends StatelessWidget {
   }
 
   ///
-  /// Hands the code to an app that takes a shared message from a link, and
-  /// falls back to the clipboard when the app is not installed. A launch that
-  /// fails for a platform reason is left to the global net, as elsewhere.
+  /// Hands the code to an app that takes a shared message from a link, falling
+  /// back to the clipboard when that app is not installed.
   ///
   Future<void> _shareVia(BuildContext context, Uri uri) async {
     if (await canLaunchUrl(uri)) {
@@ -86,117 +79,127 @@ class ReferSheet extends StatelessWidget {
     return ScaffoldMessenger(
       child: Scaffold(
         backgroundColor: colors.sheet.routeBackground,
-        // A context below the messenger and the scaffold above: the build
-        // context is outside both, so a snackbar asked for with it would go to
-        // the page underneath and never be seen.
+        // A context below the messenger: the build context is outside both, so
+        // a snackbar asked for with it would go to the page underneath.
         body: Builder(
-          builder: (context) => Column(
-            children: [
-              // The uncovered part of the screen still dismisses the sheet,
-              // which the modal barrier would do if this route were not
-              // painting over it. It carries the barrier's semantics too: a
-              // bare gesture area announces nothing, which would leave the
-              // close button as the only way out that a screen reader finds.
-              Expanded(
-                child: Semantics(
-                  button: true,
-                  label: l10n.referClose,
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: Navigator.of(context).pop,
-                    child: const SizedBox.expand(),
+          // Capped at the sheet's own height and scrolling inside it, so it hugs
+          // short content and fills the screen once the copy outgrows it.
+          builder: (context) => LayoutBuilder(
+            builder: (context, constraints) => Column(
+              children: [
+                // Dismisses the sheet the way the modal barrier would, and says
+                // so: a bare gesture area announces nothing at all.
+                Expanded(
+                  child: Semantics(
+                    button: true,
+                    label: l10n.referClose,
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: Navigator.of(context).pop,
+                      child: const SizedBox.expand(),
+                    ),
                   ),
                 ),
-              ),
-              _Surface(
-                child: ContentContainer(
-                  maxWidth: ContentContainer.form,
-                  child: Padding(
-                    padding: EdgeInsets.only(
-                      left: AppScreenPadding.sheet,
-                      right: AppScreenPadding.sheet,
-                      bottom: context.bottomInset(AppSpacing.xxxl),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Row(
+                ConstrainedBox(
+                  constraints: BoxConstraints(maxHeight: constraints.maxHeight),
+                  child: _Surface(
+                    child: ContentContainer(
+                      maxWidth: ContentContainer.form,
+                      // Hugging, not filling: the cap above offers the whole
+                      // screen, and an Align would stand the sheet full height.
+                      shrinkWrapHeight: true,
+                      child: SingleChildScrollView(
+                        padding: EdgeInsets.only(
+                          left: AppScreenPadding.sheet,
+                          right: AppScreenPadding.sheet,
+                          bottom: context.bottomInset(AppSpacing.xxxl),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            Expanded(
-                              child: Text(
-                                l10n.referTitle,
-                                style: textTheme.titleMedium?.copyWith(color: colors.text.primary),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: ScreenTitle(
+                                    label: l10n.referTitle,
+                                    child: Text(
+                                      l10n.referTitle,
+                                      style: textTheme.titleMedium?.copyWith(
+                                        color: colors.text.primary,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                IconButton(
+                                  onPressed: Navigator.of(context).pop,
+                                  tooltip: l10n.referClose,
+                                  icon: const Icon(Icons.close, size: AppIconSize.md),
+                                ),
+                              ],
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(top: AppSpacing.lg),
+                              child: _CodeCard(code: referralCode, onCopy: () => _copyCode(context)),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: AppSpacing.xl),
+                              child: Row(
+                                // An even share each, so a long or scaled-up
+                                // label ellipsises inside its own column.
+                                children: [
+                                  Expanded(
+                                    child: _ShareTarget(
+                                      letter: 'W',
+                                      label: l10n.referShareWhatsapp,
+                                      color: colors.share.whatsapp,
+                                      onTap: () => _shareVia(
+                                        context,
+                                        Uri.https('wa.me', '/', {'text': referralCode}),
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: _ShareTarget(
+                                      letter: 'T',
+                                      label: l10n.referShareTelegram,
+                                      color: colors.share.telegram,
+                                      onTap: () => _shareVia(
+                                        context,
+                                        Uri.https('t.me', '/share/url', {'url': referralCode}),
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: _ShareTarget(
+                                      letter: 'I',
+                                      label: l10n.referShareInstagram,
+                                      color: colors.share.instagram,
+                                      onTap: () => _copyForInstagram(context),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: _ShareTarget(
+                                      letter: '#',
+                                      label: l10n.referShareCopy,
+                                      color: colors.icon.muted,
+                                      onTap: () => _copyCode(context),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                            IconButton(
-                              onPressed: Navigator.of(context).pop,
-                              tooltip: l10n.referClose,
-                              icon: const Icon(Icons.close, size: AppIconSize.md),
+                            FilledButton(
+                              onPressed: () => _copyCode(context),
+                              child: Text(l10n.referCta),
                             ),
                           ],
                         ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: AppSpacing.lg),
-                          child: _CodeCard(code: referralCode, onCopy: () => _copyCode(context)),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: AppSpacing.xl),
-                          child: Row(
-                            // An even share each, so a long label or a scaled-up
-                            // one ellipsises inside its own column rather than
-                            // pushing the row past the sheet.
-                            children: [
-                              Expanded(
-                                child: _ShareTarget(
-                                  letter: 'W',
-                                  label: l10n.referShareWhatsapp,
-                                  color: colors.share.whatsapp,
-                                  onTap: () => _shareVia(
-                                    context,
-                                    Uri.https('wa.me', '/', {'text': referralCode}),
-                                  ),
-                                ),
-                              ),
-                              Expanded(
-                                child: _ShareTarget(
-                                  letter: 'T',
-                                  label: l10n.referShareTelegram,
-                                  color: colors.share.telegram,
-                                  onTap: () => _shareVia(
-                                    context,
-                                    Uri.https('t.me', '/share/url', {'url': referralCode}),
-                                  ),
-                                ),
-                              ),
-                              Expanded(
-                                child: _ShareTarget(
-                                  letter: 'I',
-                                  label: l10n.referShareInstagram,
-                                  color: colors.share.instagram,
-                                  onTap: () => _copyForInstagram(context),
-                                ),
-                              ),
-                              Expanded(
-                                child: _ShareTarget(
-                                  letter: '#',
-                                  label: l10n.referShareCopy,
-                                  color: colors.icon.muted,
-                                  onTap: () => _copyCode(context),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        FilledButton(
-                          onPressed: () => _copyCode(context),
-                          child: Text(l10n.referCta),
-                        ),
-                      ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -230,6 +233,7 @@ class _Surface extends StatelessWidget {
             padding: const EdgeInsets.only(top: AppSpacing.md, bottom: AppSpacing.sm),
             child: SizedBox.fromSize(
               size: AppControlHeight.sheetHandle,
+
               child: DecoratedBox(
                 decoration: BoxDecoration(
                   color: colors.handle,
@@ -238,7 +242,9 @@ class _Surface extends StatelessWidget {
               ),
             ),
           ),
-          child,
+          // Flexible, so the block below gets the height left after the grab
+          // handle rather than the whole cap as well.
+          Flexible(child: child),
         ],
       ),
     );
@@ -306,35 +312,42 @@ class _ShareTarget extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.appColors;
     final textTheme = Theme.of(context).textTheme;
-    return InkWell(
-      onTap: () => unawaited(onTap()),
-      borderRadius: const BorderRadius.all(Radius.circular(AppRadius.sm)),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs, vertical: AppSpacing.xs),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          spacing: AppSpacing.sm,
-          children: [
-            SizedBox.square(
-              dimension: ReferSheet._discSize,
-              child: DecoratedBox(
-                decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-                child: Center(
-                  child: Text(
-                    letter,
-                    style: textTheme.titleMedium?.copyWith(color: colors.text.primary),
+    // The letter stands in for a brand mark not yet exported, so it is drawing:
+    // left in the tree it makes the target announce 'W, WhatsApp'.
+    return Semantics(
+      label: label,
+      button: true,
+      excludeSemantics: true,
+      child: InkWell(
+        onTap: () => unawaited(onTap()),
+        borderRadius: const BorderRadius.all(Radius.circular(AppRadius.sm)),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs, vertical: AppSpacing.xs),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            spacing: AppSpacing.sm,
+            children: [
+              SizedBox.square(
+                dimension: ReferSheet._discSize,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+                  child: Center(
+                    child: Text(
+                      letter,
+                      style: textTheme.titleMedium?.copyWith(color: colors.text.primary),
+                    ),
                   ),
                 ),
               ),
-            ),
-            Text(
-              label,
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: AppTextStyle.caption.copyWith(color: colors.text.secondary),
-            ),
-          ],
+              Text(
+                label,
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyle.caption.copyWith(color: colors.text.secondary),
+              ),
+            ],
+          ),
         ),
       ),
     );

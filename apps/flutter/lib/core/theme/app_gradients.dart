@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:matinee/core/theme/app_palette.dart';
 
 ///
-/// The gradients of the design system, built once from the primitives.
-/// Widgets reach them through `context.appColors` roles (overlay, card, sheet,
-/// progress, segmented, pill, calendar); stops are never rewritten at a call
-/// site.
+/// The gradients of the design system, built once from the primitives and read
+/// through `context.appColors`; stops are never rewritten at a call site.
 ///
 abstract final class AppGradients {
   /// Over a full-bleed video or poster on Home.
@@ -36,11 +34,11 @@ abstract final class AppGradients {
   );
 
   ///
-  /// Base layer over game and reward card images. It runs across the card,
-  /// not down it: the copy sits on the left, so that is the side the scrim
-  /// holds down while the image stays readable on the right.
+  /// Base layer over game and reward card images. It runs across the card, not
+  /// down it, so the scrim holds down the left where the copy sits.
   ///
   /// Left to right is LinearGradient's default, so no begin or end is set.
+  ///
   static final LinearGradient gameCardScrim = LinearGradient(
     colors: [AppPalette.surface.a90, AppPalette.surface.a25],
     stops: const [0.3, 1],
@@ -97,10 +95,8 @@ abstract final class AppGradients {
   );
 
   ///
-  /// The scrim over the auction still. Unlike [heroScrim], which opens a clear
-  /// band in the middle for a video to read through, this one only ever
-  /// darkens, so the pills and the copy stay legible over the brightest part
-  /// of the curtain.
+  /// The scrim over the auction still. Unlike [heroScrim] it only ever darkens,
+  /// with no clear band, so pills and copy stay legible over the curtain.
   ///
   static final LinearGradient auctionHeroScrim = LinearGradient(
     begin: Alignment.topCenter,
@@ -115,10 +111,8 @@ abstract final class AppGradients {
   );
 
   ///
-  /// Fill of the two auction bid cards: a gold wash off the top-left corner
-  /// falling away into the card surface. The design runs it at 152 degrees;
-  /// corner to corner is the nearest thing expressible without a per-card
-  /// alignment, and reads the same at this size.
+  /// Fill of the two auction bid cards, a gold wash off the top-left corner.
+  /// The design's 152 degrees needs a per-card alignment; this reads the same.
   ///
   static final LinearGradient auctionBidCard = LinearGradient(
     begin: Alignment.topLeft,
@@ -133,9 +127,8 @@ abstract final class AppGradients {
   );
 
   ///
-  /// The auction bid bar. The design runs the ramp to 210% of the bar, so only
-  /// its first half is ever on screen: the bar warms as it falls without
-  /// reaching the raised tone. The end alignment carries that overshoot.
+  /// The auction bid bar. The design ramps to 210% of its height, so the bar
+  /// warms as it falls without reaching the raised tone; hence the overshoot.
   ///
   static final LinearGradient auctionBidBar = LinearGradient(
     begin: Alignment.topCenter,
@@ -150,9 +143,8 @@ abstract final class AppGradients {
     colors: [AppPalette.surfaceCard, AppPalette.surface],
   );
 
-  /// Full-screen splash background. The design ramps 12 stops into gold, but
-  /// only the first fifth of that ramp falls inside an 800dp frame, so the
-  /// visible band is normalised onto the three dark surface tokens.
+  /// Only the first fifth of the design's 12-stop gold ramp falls inside an
+  /// 800dp frame, so the splash background is normalised onto three darks.
   static const LinearGradient splashBg = LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,

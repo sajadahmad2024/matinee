@@ -94,9 +94,8 @@ class ProfileRoute extends GoRouteData with $ProfileRoute {
 }
 
 ///
-/// Outside the shell, not under the profile branch: the frame draws no bottom
-/// nav, so the screen covers it. The path still nests so the URL and the back
-/// affordance read the way they should.
+/// Outside the shell, not under the profile branch, because the frame draws no
+/// bottom nav. The path still nests so the URL and back affordance read right.
 ///
 @TypedGoRoute<EditProfileRoute>(path: '/profile/edit')
 class EditProfileRoute extends GoRouteData with $EditProfileRoute {

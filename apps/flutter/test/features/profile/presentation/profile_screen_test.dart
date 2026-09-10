@@ -46,8 +46,7 @@ void main() {
 
     testWidgets('lifts the avatar to the height the frame draws it at', (tester) async {
       // The frame puts the avatar 72 below the status bar, the header row and
-      // its 24 of clearance. A gap above the bell's own 48 tap target pushed
-      // everything 16 lower than that.
+      // its 24 of clearance; a gap above the bell's 48 pushed it 16 lower.
       when(() => cubit.state).thenReturn(ProfileState.success(profile));
       tester.view.physicalSize = const Size(1170, 2532);
       tester.view.devicePixelRatio = 3;
