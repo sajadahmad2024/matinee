@@ -203,6 +203,8 @@ class _BidBarState extends State<BidBar> {
                     // action out and keeps that numeral inside it.
                     child: Semantics(
                       label: widget.incrementSemanticLabel(increment),
+                      // Excluding the subtree takes the button's tap with it.
+                      onTap: () => _addIncrement(increment),
                       excludeSemantics: true,
                       button: true,
                       child: OutlinedButton(

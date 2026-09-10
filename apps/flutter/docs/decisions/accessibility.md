@@ -58,3 +58,47 @@ The caption took the adjacent documented role, `authTextSecondary`, which measur
 - **The onboarding carousel announces its position but is still a swipe.** The Continue and Back buttons are the single-pointer alternative 2.5.1 requires, so this passes; a page-dot control would be better.
 - **Level AAA contrast (1.4.6, 7:1) is not met** and was not attempted. Several gold-on-dark pairs would have to move.
 - **Desktop and web were not audited.** See the Target section for what they would add.
+
+## The excluded-subtree defect, found by review
+
+`Semantics(..., excludeSemantics: true)` is used throughout this pass to collapse a group of texts
+into one spoken node. Over a **control** it also drops the child's tap action, leaving a node that
+announces itself as a button and cannot be activated. Six shipped controls were in that state: every
+profile menu row, the onboarding Skip, the four refer-sheet share targets, the auction's four
+quick-add chips and the top-up packs. Each now forwards `onTap:` on the `Semantics` as well, which
+`app_bottom_nav` had been doing all along because a `tab` role without a tap trips an assertion.
+
+None of the three tap-target or labelling guidelines catch it: every one of them only visits nodes
+that already carry a tap or long-press action, so an 8x8 excluded button passes all three. That is
+why the original pass added tests and still shipped the defect. `expectControlsAreActivatable` in
+`test/helpers/accessibility.dart` walks the tree for nodes that claim to be a control — `button`,
+`link`, a `tab` role, or a chosen-or-not option — are enabled, and carry no tap action. It runs
+inside `expectMeetsGuidelines`, so every screen already asserts it.
+
+## Second AA audit — My Earns & Badges, and a second blind guideline
+
+Two contrast failures shipped behind a green suite, for the same reason the excluded-subtree defect
+did. `textContrastGuideline` walks the **semantics** tree, so text inside `excludeSemantics: true`
+is invisible to it — and that is how every card in this app composes its texts into one spoken
+node. Proven both ways: the same 2.38:1 label fails the guideline when visible and passes when
+excluded. Twenty-two sites use the pattern, so contrast was effectively unverified across most of
+the UI.
+
+- **The locked badge tile's name was 2.38:1** (`textDisabled` on `surfaceCard`; AA 1.4.3 needs
+  4.5:1) and **its padlock 2.19:1** (1.4.11 needs 3:1). Both moved to the muted tone. A locked badge
+  is content, not an inactive control, so it takes no exemption. Recorded in `docs/design/` with an
+  open item, because the frame deliberately knocks the name back below its own caption and that
+  ordering cannot survive the minimum.
+- **Contrast is now asserted against the theme**, not the screen: `test/core/theme/contrast_test.dart`
+  measures every text role against every surface it can sit on at 4.5:1, and every icon role at 3:1.
+  It fails immediately on the tone that shipped. Testing the roles rather than a rendered widget is
+  also the right level, since a contrast failure is a theme finding.
+
+Structure, from the same pass: the badge grid's tiles were siblings inside one sliver child, so they
+had neither indexes nor a list role — TalkBack read four names with no position. The grid is now a
+`list` of `listItem`s. Both tab bars gained the `tabPanel` they control, the segmented one through
+`SliverSemantics` so the earn rows keep the per-row indexes a box wrapper would have collapsed. The
+empty filter state is a `status`, so choosing a filter that holds nothing is announced.
+
+Traversal order was checked with `simulatedAccessibilityTraversal()` rather than inferred from the
+node tree — the tree order looked wrong and the real order was correct in both segments.

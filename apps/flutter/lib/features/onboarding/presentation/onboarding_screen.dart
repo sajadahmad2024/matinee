@@ -252,6 +252,8 @@ class _TopBar extends StatelessWidget {
               Semantics(
                 label: l10n.onboardingSkip,
                 button: true,
+                // Excluding the subtree takes the button's tap action with it.
+                onTap: () => unawaited(cubit.complete()),
                 excludeSemantics: true,
                 child: TextButton(
                   onPressed: () => unawaited(cubit.complete()),

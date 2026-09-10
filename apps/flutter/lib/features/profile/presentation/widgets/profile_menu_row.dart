@@ -37,6 +37,9 @@ class ProfileMenuRow extends StatelessWidget {
       button: true,
       enabled: onTap != null,
       label: label,
+      // Excluding the subtree takes the InkWell's tap action with it, leaving a
+      // row a screen reader can reach and cannot activate.
+      onTap: onTap,
       excludeSemantics: true,
       child: DecoratedBox(
         decoration: BoxDecoration(

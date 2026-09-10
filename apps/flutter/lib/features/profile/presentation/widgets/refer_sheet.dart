@@ -317,6 +317,8 @@ class _ShareTarget extends StatelessWidget {
     return Semantics(
       label: label,
       button: true,
+      // Excluding the subtree takes the InkWell's tap action with it.
+      onTap: () => unawaited(onTap()),
       excludeSemantics: true,
       child: InkWell(
         onTap: () => unawaited(onTap()),

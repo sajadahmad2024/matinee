@@ -348,6 +348,9 @@ class _PackCard extends StatelessWidget {
       label: optionLabel,
       selected: isSelected,
       inMutuallyExclusiveGroup: true,
+      // Excluding the subtree takes the InkWell's tap action with it, leaving a
+      // pack a screen reader can read and cannot choose.
+      onTap: onTap,
       excludeSemantics: true,
       child: Material(
         color: isSelected ? colors.card.backgroundRaised : colors.card.background,
