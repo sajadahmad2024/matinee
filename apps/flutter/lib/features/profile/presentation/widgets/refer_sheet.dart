@@ -1,14 +1,16 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:matinee/core/l10n/l10n.dart';
 import 'package:matinee/core/responsive/responsive.dart';
 import 'package:matinee/core/theme/app_elevation.dart';
-import 'package:matinee/core/theme/app_palette.dart';
 import 'package:matinee/core/theme/app_radius.dart';
 import 'package:matinee/core/theme/app_sizes.dart';
 import 'package:matinee/core/theme/app_spacing.dart';
 import 'package:matinee/core/theme/app_text_styles.dart';
 import 'package:matinee/core/theme/extensions/build_context_extensions.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 ///
 /// Opens the refer-a-friend sheet over the profile.
@@ -22,7 +24,7 @@ Future<void> showReferSheet(BuildContext context, {required String referralCode}
     // underneath; this way the sheet carries its own.
     isScrollControlled: true,
     useRootNavigator: true,
-    backgroundColor: Colors.transparent,
+    backgroundColor: context.appColors.sheet.routeBackground,
     showDragHandle: false,
     builder: (_) => ReferSheet(referralCode: referralCode),
   );
@@ -39,7 +41,6 @@ Future<void> showReferSheet(BuildContext context, {required String referralCode}
 class ReferSheet extends StatelessWidget {
   const ReferSheet({required this.referralCode, super.key});
 
-  static const double _contentMaxWidth = 560;
   static const double _discSize = 48;
 
   final String referralCode;
@@ -51,6 +52,32 @@ class ReferSheet extends StatelessWidget {
     messenger.showSnackBar(SnackBar(content: Text(l10n.referCopied)));
   }
 
+  ///
+  /// Hands the code to an app that takes a shared message from a link, and
+  /// falls back to the clipboard when the app is not installed. A launch that
+  /// fails for a platform reason is left to the global net, as elsewhere.
+  ///
+  Future<void> _shareVia(BuildContext context, Uri uri) async {
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+      return;
+    }
+    if (context.mounted) {
+      await _copyCode(context);
+    }
+  }
+
+  ///
+  /// Instagram has no link that opens a share with text in it, so the code
+  /// goes to the clipboard and the message says where to paste it.
+  ///
+  Future<void> _copyForInstagram(BuildContext context) async {
+    final l10n = context.l10n;
+    final messenger = ScaffoldMessenger.of(context);
+    await Clipboard.setData(ClipboardData(text: referralCode));
+    messenger.showSnackBar(SnackBar(content: Text(l10n.referCopiedForInstagram)));
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
@@ -58,7 +85,7 @@ class ReferSheet extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     return ScaffoldMessenger(
       child: Scaffold(
-        backgroundColor: Colors.transparent,
+        backgroundColor: colors.sheet.routeBackground,
         // A context below the messenger and the scaffold above: the build
         // context is outside both, so a snackbar asked for with it would go to
         // the page underneath and never be seen.
@@ -77,7 +104,7 @@ class ReferSheet extends StatelessWidget {
               ),
               _Surface(
                 child: ContentContainer(
-                  maxWidth: _contentMaxWidth,
+                  maxWidth: ContentContainer.form,
                   child: Padding(
                     padding: EdgeInsets.only(
                       left: AppScreenPadding.sheet,
@@ -117,24 +144,30 @@ class ReferSheet extends StatelessWidget {
                                 child: _ShareTarget(
                                   letter: 'W',
                                   label: l10n.referShareWhatsapp,
-                                  color: AppBrandColors.whatsapp,
-                                  onTap: () => _copyCode(context),
+                                  color: colors.share.whatsapp,
+                                  onTap: () => _shareVia(
+                                    context,
+                                    Uri.https('wa.me', '/', {'text': referralCode}),
+                                  ),
                                 ),
                               ),
                               Expanded(
                                 child: _ShareTarget(
                                   letter: 'T',
                                   label: l10n.referShareTelegram,
-                                  color: AppBrandColors.telegram,
-                                  onTap: () => _copyCode(context),
+                                  color: colors.share.telegram,
+                                  onTap: () => _shareVia(
+                                    context,
+                                    Uri.https('t.me', '/share/url', {'url': referralCode}),
+                                  ),
                                 ),
                               ),
                               Expanded(
                                 child: _ShareTarget(
                                   letter: 'I',
                                   label: l10n.referShareInstagram,
-                                  color: AppBrandColors.instagram,
-                                  onTap: () => _copyCode(context),
+                                  color: colors.share.instagram,
+                                  onTap: () => _copyForInstagram(context),
                                 ),
                               ),
                               Expanded(
@@ -261,14 +294,14 @@ class _ShareTarget extends StatelessWidget {
   final String letter;
   final String label;
   final Color color;
-  final VoidCallback onTap;
+  final Future<void> Function() onTap;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
     final textTheme = Theme.of(context).textTheme;
     return InkWell(
-      onTap: onTap,
+      onTap: () => unawaited(onTap()),
       borderRadius: const BorderRadius.all(Radius.circular(AppRadius.sm)),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs, vertical: AppSpacing.xs),

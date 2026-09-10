@@ -37,7 +37,9 @@ class RedeemCard extends StatelessWidget {
       child: Semantics(
         button: true,
         child: Material(
-          color: Colors.transparent,
+          // The still covers this, so it only shows if the image fails to
+          // load — the card surface, not nothing.
+          color: colors.card.background,
           shape: RoundedRectangleBorder(
             side: BorderSide(color: colors.card.border),
             borderRadius: const BorderRadius.all(Radius.circular(AppRadius.lg)),

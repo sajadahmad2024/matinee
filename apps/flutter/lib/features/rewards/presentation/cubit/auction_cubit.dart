@@ -1,10 +1,10 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:matinee/core/bloc/safe_cubit.dart';
 import 'package:matinee/core/error/app_exception.dart';
 import 'package:matinee/features/rewards/data/models/auction.dart';
 import 'package:matinee/features/rewards/data/rewards_repository.dart';
 import 'package:matinee/features/rewards/presentation/cubit/auction_state.dart';
 
-class AuctionCubit extends Cubit<AuctionState> {
+class AuctionCubit extends SafeCubit<AuctionState> {
   AuctionCubit(this._repository) : super(const AuctionState.initial());
 
   final RewardsRepository _repository;

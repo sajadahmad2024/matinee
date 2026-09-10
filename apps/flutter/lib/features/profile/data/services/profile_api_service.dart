@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:matinee/features/profile/data/models/profile.dart';
 
 ///
@@ -9,6 +11,15 @@ class ProfileApiService {
   ProfileApiService();
 
   static const Duration mockLatency = Duration(milliseconds: 600);
+
+  final StreamController<Profile> _changes = StreamController<Profile>.broadcast();
+
+  ///
+  /// The stored profile, every time it changes. Edit and profile are separate
+  /// screens with a cubit each, so the one behind has to hear about a save
+  /// rather than hold what it fetched before it.
+  ///
+  Stream<Profile> get changes => _changes.stream;
 
   Profile _profile = Profile(
     name: 'Sarah Smith',
@@ -33,6 +44,8 @@ class ProfileApiService {
     required String phoneNumber,
   }) async {
     await Future<void>.delayed(mockLatency);
-    return _profile = _profile.copyWith(name: name, email: email, phoneNumber: phoneNumber);
+    _profile = _profile.copyWith(name: name, email: email, phoneNumber: phoneNumber);
+    _changes.add(_profile);
+    return _profile;
   }
 }

@@ -205,7 +205,7 @@ class _TopBar extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: AppScreenPadding.onboarding),
         child: ContentContainer(
-          maxWidth: 560,
+          maxWidth: ContentContainer.form,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -241,7 +241,7 @@ class _Cta extends StatelessWidget {
           bottom: context.bottomInset(AppSpacing.xxl),
         ),
         child: ContentContainer(
-          maxWidth: 560,
+          maxWidth: ContentContainer.form,
           child: SizedBox(
             width: double.infinity,
             child: FilledButton.icon(

@@ -101,6 +101,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get referCopied => 'Referral code copied.';
 
   @override
+  String get referCopiedForInstagram => 'Code copied — paste it into Instagram.';
+
+  @override
   String get referShareWhatsapp => 'WhatsApp';
 
   @override
@@ -523,6 +526,14 @@ class AppLocalizationsEn extends AppLocalizations {
     final String amountString = amountNumberFormat.format(amount);
 
     return 'Bids start at $amountString CP.';
+  }
+
+  @override
+  String auctionBidOverBalance(int amount) {
+    final intl.NumberFormat amountNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String amountString = amountNumberFormat.format(amount);
+
+    return 'You have $amountString CP to bid with.';
   }
 
   @override

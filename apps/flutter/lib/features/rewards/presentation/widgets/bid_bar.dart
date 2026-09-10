@@ -72,9 +72,18 @@ class _BidBarState extends State<BidBar> {
     }
   }
 
+  ///
+  /// Setting `text` alone collapses the selection to nothing and drops the
+  /// caret, so the value is written with the caret placed after it — a
+  /// quick-add is a nudge to what is being typed, not a replacement for it.
+  ///
   void _addIncrement(int increment) {
     final current = int.tryParse(_controller.text) ?? widget.openingBid;
-    _controller.text = (current + increment).toString();
+    final raised = (current + increment).toString();
+    _controller.value = TextEditingValue(
+      text: raised,
+      selection: TextSelection.collapsed(offset: raised.length),
+    );
   }
 
   @override

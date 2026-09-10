@@ -17,10 +17,10 @@ void main() {
   group(AuctionView, () {
     late AuctionCubit cubit;
 
-    AuctionBoard boardWith({int currentBid = 10500}) {
+    AuctionBoard boardWith({int currentBid = 10500, int pointsBalance = 20000}) {
       final now = DateTime.now();
       return AuctionBoard(
-        pointsBalance: 7082,
+        pointsBalance: pointsBalance,
         auction: Auction(
           id: 'auction-1',
           title: 'Exclusive Premiere Pass',
@@ -68,7 +68,7 @@ void main() {
         await pumpView(tester);
 
         expect(find.text('Exclusive Premiere Pass'), findsOneWidget);
-        expect(find.text('7,082'), findsOneWidget);
+        expect(find.text('20,000'), findsOneWidget);
         expect(find.text('1,204 watching'), findsOneWidget);
         // Only the leading row is above the bid bar; the rest scroll under it.
         expect(find.byType(BidHistoryRow), findsWidgets);
@@ -118,6 +118,19 @@ void main() {
 
         verifyNever(() => cubit.placeBid(any()));
         expect(find.text('Bids start at 10,600 CP.'), findsOneWidget);
+      });
+
+      testWidgets('never for a bid the balance cannot cover', (tester) async {
+        when(() => cubit.state).thenReturn(
+          AuctionState.success(boardWith(pointsBalance: 7082)),
+        );
+        await pumpView(tester);
+
+        await tester.tap(find.text('BID'));
+        await tester.pump();
+
+        verifyNever(() => cubit.placeBid(any()));
+        expect(find.text('You have 7,082 CP to bid with.'), findsOneWidget);
       });
     });
   });

@@ -1,6 +1,6 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:matinee/app/startup/app_startup_state.dart';
+import 'package:matinee/core/bloc/safe_cubit.dart';
 import 'package:matinee/core/error/report.dart';
 
 ///
@@ -8,7 +8,7 @@ import 'package:matinee/core/error/report.dart';
 /// lives in the services registered by registerStartupDependencies. Provided
 /// by BlocProvider at the root, never registered in get_it.
 ///
-class AppStartupCubit extends Cubit<AppStartupState> {
+class AppStartupCubit extends SafeCubit<AppStartupState> {
   AppStartupCubit(this._locator, this._registerStartup) : super(const StartupInProgress());
 
   static const _scope = 'startup';

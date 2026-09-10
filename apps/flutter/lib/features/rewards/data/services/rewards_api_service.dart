@@ -83,6 +83,12 @@ class RewardsApiService {
   ///
   Future<AuctionBoard> placeBid(int amount) async {
     await Future<void>.delayed(mockLatency);
+    // A bid commits the points even though it does not spend them until the
+    // lot is won, so one over the balance is refused the same way an unlock
+    // the user cannot afford is.
+    if (amount > _points) {
+      throw const ValidationException(402);
+    }
     _bids = [
       AuctionBid(bidderName: 'You', amount: amount, placedAt: DateTime.now(), isLeading: true),
       for (final bid in _bids) bid.copyWith(isLeading: false),

@@ -8,23 +8,17 @@ import 'package:matinee/core/utils/initials.dart';
 ///
 /// The mock has no photo yet, and a real one can fail to load, so the initials
 /// stand in rather than an empty disc. [editBadge] adds the camera disc the
-/// edit screen draws at the lower right.
+/// edit screen draws at the lower right, which is decoration: there is no
+/// picker to open, so it is drawn rather than made tappable.
 ///
 class ProfileAvatar extends StatelessWidget {
-  const ProfileAvatar({
-    required this.name,
-    super.key,
-    this.imageUrl,
-    this.editBadge = false,
-    this.onEdit,
-  });
+  const ProfileAvatar({required this.name, super.key, this.imageUrl, this.editBadge = false});
 
   static const double _badgeSize = 24;
 
   final String name;
   final String? imageUrl;
   final bool editBadge;
-  final VoidCallback? onEdit;
 
   @override
   Widget build(BuildContext context) {
@@ -52,32 +46,28 @@ class ProfileAvatar extends StatelessWidget {
                   : null,
             ),
           ),
-          if (editBadge)
-            PositionedDirectional(
-              end: 0,
-              bottom: 0,
-              child: _EditBadge(onTap: onEdit),
-            ),
+          if (editBadge) const PositionedDirectional(end: 0, bottom: 0, child: _EditBadge()),
         ],
       ),
     );
   }
 }
 
+///
+/// The gold disc at the avatar's lower right. It is drawn, not tapped: there
+/// is no avatar picker to open yet, and an inert 24dp button would be both a
+/// false affordance and under the tap-target baseline. It is hidden from
+/// screen readers for the same reason.
+///
 class _EditBadge extends StatelessWidget {
-  const _EditBadge({required this.onTap});
-
-  final VoidCallback? onTap;
+  const _EditBadge();
 
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
-    return Material(
-      color: colors.icon.accent,
-      shape: const CircleBorder(),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
+    return ExcludeSemantics(
+      child: DecoratedBox(
+        decoration: BoxDecoration(color: colors.icon.accent, shape: BoxShape.circle),
         child: SizedBox.square(
           dimension: ProfileAvatar._badgeSize,
           child: Icon(

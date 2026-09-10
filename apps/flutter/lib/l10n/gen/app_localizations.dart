@@ -271,6 +271,12 @@ abstract class AppLocalizations {
   /// **'Referral code copied.'**
   String get referCopied;
 
+  /// Shown after the Instagram share target copies the referral code, because Instagram takes no shared text from a link.
+  ///
+  /// In en, this message translates to:
+  /// **'Code copied — paste it into Instagram.'**
+  String get referCopiedForInstagram;
+
   /// No description provided for @referShareWhatsapp.
   ///
   /// In en, this message translates to:
@@ -1038,6 +1044,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Bids start at {amount} CP.'**
   String auctionBidTooLow(int amount);
+
+  /// Shown when the typed bid is more than the balance the user holds.
+  ///
+  /// In en, this message translates to:
+  /// **'You have {amount} CP to bid with.'**
+  String auctionBidOverBalance(int amount);
 
   /// No description provided for @auctionBidPlaced.
   ///

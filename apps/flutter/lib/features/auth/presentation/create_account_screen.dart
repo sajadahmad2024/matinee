@@ -49,15 +49,22 @@ class _CreateAccountViewState extends State<CreateAccountView> {
     super.dispose();
   }
 
+  ///
+  /// The keyboard's Done submits as well as the button, so a second press
+  /// while the first request is still running must not start another one.
+  ///
   void _submit() {
     final l10n = context.l10n;
+    final cubit = context.read<AuthCubit>();
     final name = _name.text.trim();
     final referralCode = _referralCode.text.trim();
-    if (AuthValidators.name(name, l10n) != null || AuthValidators.referralCode(referralCode, l10n) != null) {
+    if (cubit.state is AuthLoading ||
+        AuthValidators.name(name, l10n) != null ||
+        AuthValidators.referralCode(referralCode, l10n) != null) {
       return;
     }
     unawaited(
-      context.read<AuthCubit>().createAccount(
+      cubit.createAccount(
         name: name,
         referralCode: referralCode.isEmpty ? null : referralCode,
       ),

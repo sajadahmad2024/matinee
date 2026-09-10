@@ -28,6 +28,7 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.progress,
     required this.avatar,
     required this.sheet,
+    required this.share,
     required this.overlay,
     required this.status,
     required this.voteBar,
@@ -55,6 +56,7 @@ class AppColors extends ThemeExtension<AppColors> {
     progress: AppProgressColors.dark,
     avatar: AppAvatarColors.dark,
     sheet: AppSheetColors.dark,
+    share: AppShareColors.dark,
     overlay: AppOverlayColors.dark,
     status: AppStatusColors.dark,
     voteBar: AppVoteBarColors.dark,
@@ -81,6 +83,7 @@ class AppColors extends ThemeExtension<AppColors> {
   final AppProgressColors progress;
   final AppAvatarColors avatar;
   final AppSheetColors sheet;
+  final AppShareColors share;
   final AppOverlayColors overlay;
   final AppStatusColors status;
   final AppVoteBarColors voteBar;
@@ -108,6 +111,7 @@ class AppColors extends ThemeExtension<AppColors> {
     AppProgressColors? progress,
     AppAvatarColors? avatar,
     AppSheetColors? sheet,
+    AppShareColors? share,
     AppOverlayColors? overlay,
     AppStatusColors? status,
     AppVoteBarColors? voteBar,
@@ -134,6 +138,7 @@ class AppColors extends ThemeExtension<AppColors> {
       progress: progress ?? this.progress,
       avatar: avatar ?? this.avatar,
       sheet: sheet ?? this.sheet,
+      share: share ?? this.share,
       overlay: overlay ?? this.overlay,
       status: status ?? this.status,
       voteBar: voteBar ?? this.voteBar,

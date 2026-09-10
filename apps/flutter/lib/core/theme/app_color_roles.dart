@@ -266,6 +266,29 @@ class AppChipColors {
   final Color filterInactiveLabel;
 }
 
+///
+/// The brand marks the refer sheet's share targets carry. They are the one
+/// place the app paints somebody else's colour, so they are named here rather
+/// than reached for out of the palette at the call site.
+///
+class AppShareColors {
+  const AppShareColors({
+    required this.whatsapp,
+    required this.telegram,
+    required this.instagram,
+  });
+
+  static const AppShareColors dark = AppShareColors(
+    whatsapp: AppBrandColors.whatsapp,
+    telegram: AppBrandColors.telegram,
+    instagram: AppBrandColors.instagram,
+  );
+
+  final Color whatsapp;
+  final Color telegram;
+  final Color instagram;
+}
+
 class AppTagColors {
   const AppTagColors({
     required this.genreBackground,
@@ -596,6 +619,7 @@ class AppSheetColors {
     required this.handle,
     required this.handleModal,
     required this.closeBackground,
+    required this.routeBackground,
     required this.shadow,
     required this.scrim,
     required this.auctionBidBar,
@@ -607,6 +631,7 @@ class AppSheetColors {
     handle: AppPalette.textMuted,
     handleModal: AppPalette.outline,
     closeBackground: AppPalette.surfaceRaised.a60,
+    routeBackground: Colors.transparent,
     shadow: AppPalette.black.a60,
     scrim: AppPalette.surface.a80,
     auctionBidBar: AppGradients.auctionBidBar,
@@ -621,6 +646,13 @@ class AppSheetColors {
 
   /// The disc behind a modal sheet's close button.
   final Color closeBackground;
+
+  ///
+  /// What the route and scaffold behind a sheet that draws its own surface
+  /// paint. Those sheets hug their content and let the rest of the screen
+  /// show through, so anything painting behind them would cover it.
+  ///
+  final Color routeBackground;
 
   final Color shadow;
   final Color scrim;

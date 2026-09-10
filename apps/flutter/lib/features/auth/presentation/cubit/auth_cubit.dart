@@ -1,4 +1,4 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:matinee/core/bloc/safe_cubit.dart';
 import 'package:matinee/core/error/app_exception.dart';
 import 'package:matinee/features/auth/data/auth_repository.dart';
 import 'package:matinee/features/auth/data/models/auth_outcome.dart';
@@ -9,7 +9,7 @@ import 'package:matinee/features/auth/presentation/cubit/auth_state.dart';
 /// the single method it owns, so the success it listens for can only be the
 /// one it asked for.
 ///
-class AuthCubit extends Cubit<AuthState> {
+class AuthCubit extends SafeCubit<AuthState> {
   AuthCubit(this._repository) : super(const AuthState.initial());
 
   final AuthRepository _repository;

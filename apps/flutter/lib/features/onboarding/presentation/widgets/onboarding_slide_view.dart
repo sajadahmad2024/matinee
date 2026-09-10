@@ -61,7 +61,7 @@ class OnboardingSlideView extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: AppScreenPadding.onboarding),
               child: ContentContainer(
-                maxWidth: 560,
+                maxWidth: ContentContainer.form,
                 child: _Content(slide: slide),
               ),
             ),

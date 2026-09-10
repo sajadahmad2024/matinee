@@ -37,6 +37,8 @@
   "referCodeLabel": "Your Referral Code",
   "referCopyCode": "Copy Code",
   "referCopied": "Referral code copied.",
+  "referCopiedForInstagram": "Code copied — paste it into Instagram.",
+  "@referCopiedForInstagram": { "description": "Shown after the Instagram share target copies the referral code, because Instagram takes no shared text from a link." },
   "referShareWhatsapp": "WhatsApp",
   "referShareTelegram": "Telegram",
   "referShareInstagram": "Instagram",
@@ -236,6 +238,11 @@
   "auctionBidTooLow": "Bids start at {amount} CP.",
   "@auctionBidTooLow": {
     "description": "Shown when the typed bid is under the smallest raise the lot accepts.",
+    "placeholders": { "amount": { "type": "int", "format": "decimalPattern" } }
+  },
+  "auctionBidOverBalance": "You have {amount} CP to bid with.",
+  "@auctionBidOverBalance": {
+    "description": "Shown when the typed bid is more than the balance the user holds.",
     "placeholders": { "amount": { "type": "int", "format": "decimalPattern" } }
   },
   "auctionBidPlaced": "Your bid is in.",

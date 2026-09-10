@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:matinee/app/router/app_routes.dart';
 import 'package:matinee/core/assets/assets.dart';
+import 'package:matinee/core/config/legal_links.dart';
 import 'package:matinee/core/l10n/l10n.dart';
 import 'package:matinee/core/theme/app_sizes.dart';
 import 'package:matinee/core/theme/app_spacing.dart';
@@ -26,11 +27,6 @@ import 'package:matinee/features/auth/presentation/widgets/auth_submit_button.da
 import 'package:matinee/features/auth/presentation/widgets/dial_code_picker.dart';
 import 'package:matinee/l10n/gen/app_localizations.dart';
 import 'package:url_launcher/url_launcher.dart';
-
-///
-/// PLACEHOLDER. Both legal documents point here until the real pages exist.
-///
-const String _legalDocumentUrl = 'https://google.com';
 
 ///
 /// The four-colour Google mark. Multi-colour marks ship as SVG so they stay
@@ -104,17 +100,23 @@ class _SignInViewState extends State<SignInView> {
   /// the user could do nothing with.
   ///
   Future<void> _openLegalDocument() async {
-    await launchUrl(Uri.parse(_legalDocumentUrl), mode: LaunchMode.externalApplication);
+    await launchUrl(AppLegalLinks.terms, mode: LaunchMode.externalApplication);
   }
 
+  ///
+  /// The keyboard's Done submits as well as the button, so a second press
+  /// while the first request is still running must not start another one.
+  ///
   void _submit() {
+    final cubit = context.read<AuthCubit>();
     final phoneNumber = _phone.text.trim();
-    if (AuthValidators.phoneNumber(phoneNumber, context.l10n, digits: _dialCode.digits) != null) {
+    if (cubit.state is AuthLoading ||
+        AuthValidators.phoneNumber(phoneNumber, context.l10n, digits: _dialCode.digits) != null) {
       return;
     }
     _requestedNumber = phoneNumber;
     _requestedDialCode = _dialCode;
-    unawaited(context.read<AuthCubit>().requestOtp('${_dialCode.code}$phoneNumber'));
+    unawaited(cubit.requestOtp('${_dialCode.code}$phoneNumber'));
   }
 
   ///

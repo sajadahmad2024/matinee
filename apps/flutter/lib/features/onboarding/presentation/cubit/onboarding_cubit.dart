@@ -1,9 +1,9 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:matinee/core/bloc/safe_cubit.dart';
 import 'package:matinee/features/onboarding/data/models/onboarding_slide.dart';
 import 'package:matinee/features/onboarding/data/onboarding_repository.dart';
 import 'package:matinee/features/onboarding/presentation/cubit/onboarding_state.dart';
 
-class OnboardingCubit extends Cubit<OnboardingState> {
+class OnboardingCubit extends SafeCubit<OnboardingState> {
   OnboardingCubit(this._repository) : super(const OnboardingState.initial());
 
   final OnboardingRepository _repository;

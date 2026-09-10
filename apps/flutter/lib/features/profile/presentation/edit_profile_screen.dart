@@ -44,8 +44,6 @@ class EditProfileView extends StatefulWidget {
 }
 
 class _EditProfileViewState extends State<EditProfileView> {
-  static const double _contentMaxWidth = 560;
-
   ///
   /// The profile the form was built from, kept once it arrives. A save emits
   /// loading and then success or failure, and rebuilding the body on any of
@@ -71,15 +69,15 @@ class _EditProfileViewState extends State<EditProfileView> {
       body: SafeArea(
         bottom: false,
         child: ContentContainer(
-          maxWidth: _contentMaxWidth,
+          maxWidth: ContentContainer.form,
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  AppScreenPadding.main,
-                  AppSpacing.sm,
-                  AppScreenPadding.main,
-                  AppSpacing.lg,
+                padding: const EdgeInsets.only(
+                  left: AppScreenPadding.main,
+                  top: AppSpacing.sm,
+                  right: AppScreenPadding.main,
+                  bottom: AppSpacing.lg,
                 ),
                 child: Row(
                   spacing: AppSpacing.md,

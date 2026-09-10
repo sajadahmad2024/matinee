@@ -89,12 +89,12 @@ sealed class ProfileState with _$ProfileState {
 ## `presentation/cubit/profile_cubit.dart`
 
 ```dart
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:matinee/core/bloc/safe_cubit.dart';
 import 'package:matinee/core/error/app_exception.dart';
 import 'package:matinee/features/profile/data/profile_repository.dart';
 import 'package:matinee/features/profile/presentation/cubit/profile_state.dart';
 
-class ProfileCubit extends Cubit<ProfileState> {
+class ProfileCubit extends SafeCubit<ProfileState> {
   ProfileCubit(this._repository) : super(const ProfileState.initial());
 
   final ProfileRepository _repository;

@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 import 'package:matinee/app/router/app_routes.dart';
+import 'package:matinee/core/config/legal_links.dart';
 import 'package:matinee/core/l10n/app_exception_l10n.dart';
 import 'package:matinee/core/l10n/l10n.dart';
 import 'package:matinee/core/responsive/responsive.dart';
@@ -44,8 +44,6 @@ class ProfileScreen extends StatelessWidget {
 class ProfileView extends StatelessWidget {
   const ProfileView({super.key});
 
-  static const double _contentMaxWidth = 720;
-
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
@@ -53,7 +51,7 @@ class ProfileView extends StatelessWidget {
       body: SafeArea(
         bottom: false,
         child: ContentContainer(
-          maxWidth: _contentMaxWidth,
+          maxWidth: ContentContainer.reading,
           child: BlocBuilder<ProfileCubit, ProfileState>(
             builder: (context, state) => switch (state) {
               ProfileInitial() => const SizedBox.shrink(),
@@ -73,13 +71,6 @@ class ProfileView extends StatelessWidget {
 
 class _Body extends StatelessWidget {
   const _Body({required this.profile});
-
-  ///
-  /// The counters carry a thousands separator, as '2,500' in the design does.
-  ///
-  static NumberFormat _decimal(BuildContext context) {
-    return NumberFormat.decimalPattern(Localizations.localeOf(context).toLanguageTag());
-  }
 
   ///
   /// The plan line the design writes as 'Pro plan expires Jun 30, 2026'.
@@ -105,19 +96,19 @@ class _Body extends StatelessWidget {
                 children: [
                   Expanded(
                     child: ProfileStatCard(
-                      value: _decimal(context).format(profile.totalPoints),
+                      value: context.decimalFormat.format(profile.totalPoints),
                       label: l10n.profileStatPoints,
                     ),
                   ),
                   Expanded(
                     child: ProfileStatCard(
-                      value: _decimal(context).format(profile.streaks),
+                      value: context.decimalFormat.format(profile.streaks),
                       label: l10n.profileStatStreaks,
                     ),
                   ),
                   Expanded(
                     child: ProfileStatCard(
-                      value: '#${_decimal(context).format(profile.rank)}',
+                      value: '#${context.decimalFormat.format(profile.rank)}',
                       label: l10n.profileStatRank,
                     ),
                   ),
@@ -217,12 +208,6 @@ class _Header extends StatelessWidget {
 class _Menu extends StatelessWidget {
   const _Menu({required this.referralCode});
 
-  ///
-  /// Placeholder destinations for the legal rows until the real documents are
-  /// published, matching what the sign-in screen links to.
-  ///
-  static final Uri _legalDocument = Uri.parse('https://google.com');
-
   final String referralCode;
 
   @override
@@ -240,11 +225,11 @@ class _Menu extends StatelessWidget {
         ProfileMenuRow(label: l10n.profileMenuNotifications, onTap: null),
         ProfileMenuRow(
           label: l10n.profileMenuTerms,
-          onTap: () => unawaited(launchUrl(_legalDocument)),
+          onTap: () => unawaited(launchUrl(AppLegalLinks.terms)),
         ),
         ProfileMenuRow(
           label: l10n.profileMenuPrivacy,
-          onTap: () => unawaited(launchUrl(_legalDocument)),
+          onTap: () => unawaited(launchUrl(AppLegalLinks.privacy)),
         ),
         ProfileMenuRow(
           label: l10n.profileMenuLogout,

@@ -1,10 +1,10 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:matinee/core/bloc/safe_cubit.dart';
 import 'package:matinee/core/error/app_exception.dart';
 import 'package:matinee/features/rewards/data/models/exclusive_content.dart';
 import 'package:matinee/features/rewards/data/rewards_repository.dart';
 import 'package:matinee/features/rewards/presentation/cubit/unlock_content_state.dart';
 
-class UnlockContentCubit extends Cubit<UnlockContentState> {
+class UnlockContentCubit extends SafeCubit<UnlockContentState> {
   UnlockContentCubit(this._repository, this._itemId) : super(const UnlockContentState.initial());
 
   final RewardsRepository _repository;

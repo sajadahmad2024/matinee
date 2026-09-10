@@ -143,10 +143,11 @@ class _Body extends StatelessWidget {
   }
 
   ///
-  /// A bid under the lot's smallest raise cannot win, so it is refused here
-  /// rather than sent and rejected. The confirmation waits for the bid to
-  /// land, so a failure shows its own state instead of a success message over
-  /// it.
+  /// A bid under the lot's smallest raise cannot win, and one over the balance
+  /// cannot be honoured, so both are refused here rather than sent and
+  /// rejected. The server checks the balance again — this is the message, not
+  /// the rule. The confirmation waits for the bid to land, so a failure shows
+  /// its own state instead of a success message over it.
   ///
   Future<void> _bid(BuildContext context, int amount) async {
     final l10n = context.l10n;
@@ -155,6 +156,12 @@ class _Body extends StatelessWidget {
     final floor = auction.currentBid + auction.minimumIncrement;
     if (amount < floor) {
       messenger.showSnackBar(SnackBar(content: Text(l10n.auctionBidTooLow(floor))));
+      return;
+    }
+    if (amount > board.pointsBalance) {
+      messenger.showSnackBar(
+        SnackBar(content: Text(l10n.auctionBidOverBalance(board.pointsBalance))),
+      );
       return;
     }
     await cubit.placeBid(amount);
@@ -354,8 +361,11 @@ class _HeadlineState extends State<_Headline> {
           child: Text(
             _expanded ? l10n.auctionViewLess : l10n.auctionViewMore,
             // The frame underlines this one control; nothing else on the
-            // screen is a link, so the rule stays local to it.
-            style: const TextStyle(decoration: TextDecoration.underline),
+            // screen is a link, so the rule is added to the button's own text
+            // role rather than kept as a style of its own.
+            style: theme.textTheme.labelMedium?.copyWith(
+              decoration: TextDecoration.underline,
+            ),
           ),
         ),
       ],

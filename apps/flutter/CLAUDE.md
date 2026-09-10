@@ -54,6 +54,7 @@ Each is checkable in review. Rationale in `docs/decisions/`.
 - **Feature-first layout.** `features/<feature>/{data,domain?,presentation}` plus `<feature>_di.dart`. `core/` has no business logic; `shared/` holds business logic two or more features need. Promote on the second use; never copy.
 - **Concrete unless a second implementation exists now.** No speculative interfaces.
 - **Cubits never in `get_it`.** `BlocProvider` owns the lifecycle. Cubit methods return `Future<void>`; callers use `unawaited`.
+- **Cubits extend `SafeCubit`.** Emits after `close()` are dropped, not thrown; `close()` still cancels what the cubit owns. See `dart-style.md`.
 - **Freezed for data classes and states.** `AppStartupState` is the one hand-written sealed class.
 - **Errors have one shape.** Repositories call `guardApi`; cubits `try`, emit success, `on AppException catch` emit failure; nothing else is caught. Programming errors reach Sentry.
 - **Failure path is mandatory.** Every cubit method has a `blocTest` where the repository throws.

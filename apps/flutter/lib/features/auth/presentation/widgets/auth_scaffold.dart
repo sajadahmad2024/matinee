@@ -22,8 +22,6 @@ class AuthScaffold extends StatelessWidget {
     this.footer,
   });
 
-  static const double _contentMaxWidth = 560;
-
   final String title;
   final List<Widget> children;
 
@@ -42,7 +40,7 @@ class AuthScaffold extends StatelessWidget {
       body: SafeArea(
         bottom: false,
         child: ContentContainer(
-          maxWidth: _contentMaxWidth,
+          maxWidth: ContentContainer.form,
           child: Column(
             children: [
               _Header(title: title, leading: leading),

@@ -2,9 +2,9 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:matinee/app/app.dart';
 import 'package:matinee/app/bootstrap_error_app.dart';
+import 'package:matinee/core/bloc/app_bloc_observer.dart';
 import 'package:matinee/core/config/env.dart';
 import 'package:matinee/core/error/report.dart';
-import 'package:matinee/core/observer/app_bloc_observer.dart';
 import 'package:matinee/di/service_locator.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 

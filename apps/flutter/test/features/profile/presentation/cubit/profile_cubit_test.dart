@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:matinee/core/error/app_exception.dart';
@@ -25,7 +27,42 @@ void main() {
       planExpiresOn: DateTime.utc(2026, 6, 30),
     );
 
-    setUp(() => repository = _MockProfileRepository());
+    setUp(() {
+      repository = _MockProfileRepository();
+      when(() => repository.profileChanges).thenAnswer((_) => const Stream<Profile>.empty());
+    });
+
+    group('profileChanges', () {
+      late StreamController<Profile> changes;
+
+      setUp(() {
+        changes = StreamController<Profile>.broadcast();
+        when(() => repository.profileChanges).thenAnswer((_) => changes.stream);
+        addTearDown(changes.close);
+      });
+
+      blocTest<ProfileCubit, ProfileState>(
+        'replaces the loaded profile when the edit screen saves one',
+        setUp: () => when(repository.fetchProfile).thenAnswer((_) async => profile),
+        build: () => ProfileCubit(repository),
+        act: (cubit) async {
+          await cubit.load();
+          changes.add(profile.copyWith(name: 'Sarah Jones'));
+        },
+        expect: () => [
+          const ProfileState.loading(),
+          ProfileState.success(profile),
+          ProfileState.success(profile.copyWith(name: 'Sarah Jones')),
+        ],
+      );
+
+      blocTest<ProfileCubit, ProfileState>(
+        'ignores a save that lands before anything has been loaded',
+        build: () => ProfileCubit(repository),
+        act: (cubit) => changes.add(profile),
+        expect: () => <ProfileState>[],
+      );
+    });
 
     group('load', () {
       blocTest<ProfileCubit, ProfileState>(

@@ -137,7 +137,7 @@ void report(Object error, StackTrace? stack) {
 }
 ```
 
-## `lib/core/observer/app_bloc_observer.dart`
+## `lib/core/bloc/app_bloc_observer.dart`
 
 ```dart
 import 'package:flutter_bloc/flutter_bloc.dart';

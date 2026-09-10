@@ -35,8 +35,6 @@ class SubscribeScreen extends StatelessWidget {
 class SubscribeView extends StatelessWidget {
   const SubscribeView({super.key});
 
-  static const double _contentMaxWidth = 560;
-
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
@@ -47,7 +45,7 @@ class SubscribeView extends StatelessWidget {
         body: SafeArea(
           bottom: false,
           child: ContentContainer(
-            maxWidth: _contentMaxWidth,
+            maxWidth: ContentContainer.form,
             child: Column(
               children: [
                 const Padding(

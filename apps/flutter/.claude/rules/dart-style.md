@@ -47,6 +47,8 @@ Future<void> load() async {
 
 - Repositories throw only `AppException`, through `guardApi()`. Nothing outside `core/network` catches `DioException`.
 - Cubits and Blocs are created by `BlocProvider`, never registered in `get_it`.
+- Cubits extend `SafeCubit`, never `Cubit` directly.
+- `close()` must cancel every `StreamSubscription`, `Timer` and Dio `CancelToken` the cubit owns; `SafeCubit` covers the unawaited-await case only.
 - Concrete classes by default. An abstract interface appears only when a second implementation exists now. Classes that tests mock (repositories, services, clients, cubits) are plain `class`, not `final class`, because `implements` across libraries is illegal on a `final` class.
 - Freezed for every data class and every state that carries data. `AppStartupState` is the one hand-written sealed class.
 - Programming errors (null dereference, bad cast, `StateError`) are never caught into a state. They reach Sentry.

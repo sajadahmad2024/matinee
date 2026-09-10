@@ -1,11 +1,11 @@
 import 'dart:async';
 
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:matinee/core/bloc/safe_cubit.dart';
 import 'package:matinee/core/error/app_exception.dart';
 import 'package:matinee/features/rewards/data/rewards_repository.dart';
 import 'package:matinee/features/rewards/presentation/cubit/rewards_state.dart';
 
-class RewardsCubit extends Cubit<RewardsState> {
+class RewardsCubit extends SafeCubit<RewardsState> {
   RewardsCubit(this._repository) : super(const RewardsState.initial()) {
     _points = _repository.pointsChanges.listen(_onPointsChanged);
   }

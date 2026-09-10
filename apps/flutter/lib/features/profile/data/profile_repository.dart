@@ -7,6 +7,13 @@ class ProfileRepository {
 
   final ProfileApiService _service;
 
+  ///
+  /// The profile, every time it changes. Editing is its own screen with its
+  /// own cubit, so the profile behind it observes this instead of keeping the
+  /// copy it fetched on the way in.
+  ///
+  Stream<Profile> get profileChanges => _service.changes;
+
   Future<Profile> fetchProfile() => guardApi(_service.fetchProfile);
 
   Future<Profile> updateProfile({

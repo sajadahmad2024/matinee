@@ -52,8 +52,6 @@ Future<bool> showSubscribeSheet(BuildContext context) async {
 class SubscribeSheet extends StatelessWidget {
   const SubscribeSheet({super.key});
 
-  static const double _contentMaxWidth = 560;
-
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
@@ -63,7 +61,7 @@ class SubscribeSheet extends StatelessWidget {
     // sitting under it.
     return ScaffoldMessenger(
       child: Scaffold(
-        backgroundColor: Colors.transparent,
+        backgroundColor: context.appColors.sheet.routeBackground,
         body: AuthFlowListener(
           onSuccess: (outcome) {
             if (outcome == AuthOutcome.subscribed) {
@@ -71,7 +69,7 @@ class SubscribeSheet extends StatelessWidget {
             }
           },
           child: ContentContainer(
-            maxWidth: _contentMaxWidth,
+            maxWidth: ContentContainer.form,
             child: Column(
               children: [
                 const Padding(

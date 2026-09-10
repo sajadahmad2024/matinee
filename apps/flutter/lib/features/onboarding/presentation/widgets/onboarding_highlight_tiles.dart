@@ -55,7 +55,12 @@ class _Tile extends StatelessWidget {
             // emoji font, so they take an icon size rather than a text role.
             // They draw as tofu on the iOS simulator, which ships no colour
             // emoji font, and correctly on a real device.
-            Text(highlight.emoji, style: const TextStyle(fontSize: AppIconSize.lg, height: 1)),
+            Text(
+              highlight.emoji,
+              // Drawn at icon size rather than at a text size: it stands in
+              // the tile where a glyph would.
+              style: AppTextStyle.bodyLarge.copyWith(fontSize: AppIconSize.lg, height: 1),
+            ),
             Text(
               highlight.label,
               textAlign: TextAlign.center,

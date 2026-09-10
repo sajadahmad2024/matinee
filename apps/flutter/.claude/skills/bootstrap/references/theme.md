@@ -238,7 +238,7 @@ abstract class ThemeState with _$ThemeState {
 
 ```dart
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:matinee/core/bloc/safe_cubit.dart';
 import 'package:matinee/core/theme/app_color_scheme.dart';
 import 'package:matinee/core/theme/cubit/theme_state.dart';
 
@@ -246,7 +246,7 @@ import 'package:matinee/core/theme/cubit/theme_state.dart';
 /// Holds the active scheme and mode. Persisting the choice is a per-project
 /// addition: inject PreferencesService and load in a start() method.
 ///
-class ThemeCubit extends Cubit<ThemeState> {
+class ThemeCubit extends SafeCubit<ThemeState> {
   ThemeCubit() : super(const ThemeState());
 
   void setColorScheme(AppColorScheme scheme) => emit(state.copyWith(colorScheme: scheme));
