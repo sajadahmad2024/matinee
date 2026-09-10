@@ -35,6 +35,15 @@ abstract final class AppElevation {
     BoxShadow(color: AppPalette.gold.a10, offset: const Offset(0, 2), blurRadius: 8),
   ];
 
+  ///
+  /// Cast upward from the auction bid bar, which sits over the content rather
+  /// than over the screen background, so it carries the gold glow the darker
+  /// [sheet] shadow would swallow.
+  ///
+  static final List<BoxShadow> glowBidBar = [
+    BoxShadow(color: AppPalette.gold.a20, offset: const Offset(0, -3), blurRadius: 30),
+  ];
+
   static final List<BoxShadow> sheet = [
     BoxShadow(color: AppPalette.black.a60, offset: const Offset(0, -18), blurRadius: 28),
   ];

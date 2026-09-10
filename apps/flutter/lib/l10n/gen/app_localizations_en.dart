@@ -442,4 +442,180 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get subscribeCta => 'Subscribe Now';
+
+  @override
+  String get rewardsTotalPoints => 'Total Points';
+
+  @override
+  String get rewardsPointsUnit => 'pts';
+
+  @override
+  String get rewardsBadgeLabel => 'Badge';
+
+  @override
+  String rewardsNextBadge(int points, String badge) {
+    final intl.NumberFormat pointsNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String pointsString = pointsNumberFormat.format(points);
+
+    return '$pointsString pts to $badge';
+  }
+
+  @override
+  String get rewardsRedeemSection => 'REDEEM REWARDS';
+
+  @override
+  String get rewardsPointsPillTooltip => 'Your points balance';
+
+  @override
+  String get auctionEyebrow => 'LIVE AUCTION';
+
+  @override
+  String get auctionLiveBadge => 'LIVE';
+
+  @override
+  String auctionWatching(int count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return '$countString watching';
+  }
+
+  @override
+  String get auctionViewMore => 'View More';
+
+  @override
+  String get auctionViewLess => 'View Less';
+
+  @override
+  String get auctionCurrentBid => 'CURRENT BID';
+
+  @override
+  String get auctionTimeRemaining => 'TIME REMAINING';
+
+  @override
+  String get auctionEnded => 'ENDED';
+
+  @override
+  String get auctionBidHistory => 'BID HISTORY';
+
+  @override
+  String auctionBidAmount(int amount) {
+    final intl.NumberFormat amountNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String amountString = amountNumberFormat.format(amount);
+
+    return '$amountString CP';
+  }
+
+  @override
+  String get auctionBidFieldLabel => 'Your bid';
+
+  @override
+  String get auctionBidAction => 'BID';
+
+  @override
+  String auctionBidIncrement(String amount) {
+    return '+$amount';
+  }
+
+  @override
+  String auctionBidTooLow(int amount) {
+    final intl.NumberFormat amountNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String amountString = amountNumberFormat.format(amount);
+
+    return 'Bids start at $amountString CP.';
+  }
+
+  @override
+  String get auctionBidPlaced => 'Your bid is in.';
+
+  @override
+  String get auctionBidJustNow => 'Just now';
+
+  @override
+  String auctionBidMinutesAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count minutes ago',
+      one: '1 minute ago',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String auctionBidHoursAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count hours ago',
+      one: '1 hour ago',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get auctionBack => 'Back to rewards';
+
+  @override
+  String get topUpTooltip => 'Top up points';
+
+  @override
+  String get topUpTitle => 'Top Up Points';
+
+  @override
+  String get topUpSubtitle => 'Select a pack to stake on predictions.';
+
+  @override
+  String get topUpPointsLabel => 'POINTS';
+
+  @override
+  String topUpCta(String price) {
+    return 'Continue to Pay $price';
+  }
+
+  @override
+  String get topUpClose => 'Close';
+
+  @override
+  String get topUpSuccessTitle => 'Payment Successful';
+
+  @override
+  String topUpCredited(int points) {
+    final intl.NumberFormat pointsNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String pointsString = pointsNumberFormat.format(points);
+
+    return '+$pointsString PTS Credited';
+  }
+
+  @override
+  String get topUpDone => 'Done';
+
+  @override
+  String get exclusiveTitle => 'Exclusive Content';
+
+  @override
+  String get exclusiveLocked => 'Locked';
+
+  @override
+  String get exclusiveUnlocksFor => 'Unlocks for';
+
+  @override
+  String exclusivePointsCost(int points) {
+    final intl.NumberFormat pointsNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String pointsString = pointsNumberFormat.format(points);
+
+    return '$pointsString POINTS';
+  }
+
+  @override
+  String get exclusivePreview => 'PREVIEW';
+
+  @override
+  String get exclusiveCastAndCrew => 'CAST & CREW';
+
+  @override
+  String get exclusiveUnlockCta => 'Unlock Now';
+
+  @override
+  String get exclusiveTag => 'EXCLUSIVE CONTENT';
 }

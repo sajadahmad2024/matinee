@@ -95,6 +95,7 @@ Dark-only. Roles not listed here (surfaceDim/Bright, inverse*, info, fixed/dim v
 | `text.inverse` | `{surface}` |
 | `text.link` | `{gold}` |
 | `text.numeral` | `{goldLight}` |
+| `text.numeralGradient` | `gradient.goldNumeral` |
 | `text.onImageSubtitle` | `{white@60%}` |
 | `text.success` | `{success}` |
 | `text.warning` | `{yellow}` |
@@ -121,6 +122,7 @@ Dark-only. Roles not listed here (surfaceDim/Bright, inverse*, info, fixed/dim v
 | `card.border.success` | `{success@30%}` |
 | `card.background.raised` | `{surfaceRaised}` |
 | `card.background.goldTint` | `{gold@10%}` |
+| `card.background.locked` | `{outline}` |
 | `card.imageHairline` | `{white@10%}` |
 | `button.primary.background` | `{goldCta}` |
 | `button.primary.label` | `{surface}` |
@@ -228,11 +230,14 @@ Dark-only. Roles not listed here (surfaceDim/Bright, inverse*, info, fixed/dim v
 | `sheet.background` | `{surfaceCard}` |
 | `sheet.border` | `{outline}` |
 | `sheet.handle` | `{textMuted}` |
+| `sheet.handleModal` | `{outline}` |
+| `sheet.closeBackground` | `{surfaceRaised@60%}` |
 | `sheet.shadow` | `{black@60%}` |
 | `sheet.scrim` | `{surface@80%}` |
 | `overlay.hero` | `gradient.heroScrim` |
 | `overlay.topBar` | `gradient.topBarScrim` |
 | `overlay.gameCard` | `gradient.gameCardScrim` |
+| `overlay.gameCardBottom` | `gradient.gameCardScrimBottom` |
 | `overlay.onboarding` | `gradient.onboardingScrim` |
 | `overlay.imageDim` | `opacity 0.30 (onboarding bg) / 0.50 (streak intro bg)` |
 | `status.success` | `{success}` |
@@ -248,22 +253,27 @@ Dark-only. Roles not listed here (surfaceDim/Bright, inverse*, info, fixed/dim v
 | `calendar.day.future` | `transparent` |
 | `calendar.day.today` | `{gold@10%} + border {gold@40%}` |
 
-## 4. Gradients (10)
+## 4. Gradients (13)
 | Name | Type | Stops | Use | Evidence |
 |---|---|---|---|---|
 | `heroScrim` | linear top→bottom | `{goldCta@10%}`@0, `{surface@30%}`@0.2, `{surface@0%}`@0.4, `{surface@40%}`@0.6, `{surface@85%}`@0.85, `{surface}`@1 | over full-bleed video/poster on Home | Container#25:2956 |
 | `topBarScrim` | linear top→bottom | `{surface}`@0, `{surface@50%}`@0.52, `{surface@0%}`@1 | behind the over-video top bar (95dp) | Container#25:2957 |
-| `gameCardScrim` | linear (two layers)  | `{surface@90%}`@0.3, `{surface@25%}`@1 + layer 2: `{surface@60%}`@0, `{surface@0%}`@0.5 | over game/reward card images | Container#376:3339 + #376:3340 |
+| `gameCardScrim` / `gameCardScrimBottom` | linear, two layers: `gameCardScrim` left→right, `gameCardScrimBottom` bottom→top | `{surface@90%}`@0.3, `{surface@25%}`@1 + layer 2: `{surface@60%}`@0, `{surface@0%}`@0.5 | over game/reward card images | Container#376:3339 + #376:3340 |
 | `onboardingScrim` | linear + radial vignette  | `{authSurface@30%}`@0, `{authSurface@50%}`@0.33, `{authSurface}`@0.56 + radial: `{authSurface@0%}`@0.4, `{authSurface@70%}`@1 | onboarding background | Container#85:1667, #85:1668 |
 | `progressGold` | linear left→right | `{gold}`@0, `{yellow}`@1 | progress fills, level-2 calendar tiles, nav indicator variant | Container#165:1959 |
 | `goldSegment` | linear  | `{goldLight}`@0, `{gold}`@1 | segmented-control active item, badge discs, gradient CTA variant | Button#414:12380 |
 | `pointsPillStroke` | linear top→bottom | `{goldCta}`@0, `{goldLevel1}`@1 | 1px stroke of the points pill (design: #FFD067→#635025; approximated to kept tokens) | Background+Border#25:3071 |
-| `goldNumeral` | linear  | `{yellow}`@0, `{gold}`@1 | hero total-points numeral text fill | 7,082#429:20868 |
-| `headerFade` | linear top→bottom | `{surfaceCard}`@0, `{surface}`@1 | P2P/Rewards/Badges header block background | Container#414:12373 (#376:3275 used a warm start #131008 → normalised) |
+| `goldNumeral` | linear  | `{yellow}`@0, `{gold}`@1 | hero total-points numeral text fill; reached through the `text.numeralGradient` role | 7,082#429:20868 |
+| `auctionHeroScrim` | linear top→bottom | `{surface@20%}`@0.02, `{surface@50%}`@0.44, `{surface@85%}`@0.69, `{surface}`@0.98 | over the auction still — darkens throughout, where `heroScrim` clears a band for video | Container#418:18054 (first stop 15% snapped to 20%) |
+| `auctionBidCard` | linear top-left→bottom-right | `{goldLight@10%}`@0, `{surfaceRaised@70%}`@0.4, `{surfaceCard@90%}`@0.5, `{surfaceCard}`@1 | fill of the auction's two bid cards | Container#418:18079 (design runs it at 152°; corner to corner is the nearest angle expressible without a per-card alignment) |
+| `auctionBidBar` | linear top→bottom, running to 210% of the box | `{surfaceCard}`@0, `{surfaceRaised@60%}`@1 | fill of the auction's pinned bid bar | Container#418:18131 (design end `#423F36@56%`; the warm tone normalises to `surfaceRaised`, so the bar lightens where the design also warms) |
+| `headerFade` | linear top→bottom | `{surfaceCard}`@0, `{surface}`@1 | P2P/Rewards/Badges header block background, painted from the screen top | Container#414:12373, Container#429:20695 (both warm-start #131008 frames → normalised) |
 | `splashBg` | linear top→bottom | `{surface}`@0, `{surfaceCard}`@0.62, `{surfaceRaised}`@1 | splash screen background (design: 12 stops #0C0E16→#F6D471 running to 467%; only the first fifth renders inside an 800dp frame, so the visible band is normalised onto the surface tokens) | Frame#36:5658 |
 
 ### Design hex → token map
 `#0C0F16`→`surface`, `#0C0E16`→`surface`, `#0A1119`→`surface`, `#0A0E14`→`surface`, `#131008`→`surface`, `#0D0E10`→`surface`, `#080B10`→`surface`, `#101419`→`surface`, `#241A00`→`surface`, `#162D29`→`surface`, `#0E141E`→`surface`, `#0F1419`→`surface`, `#0F1117`→`surfaceCard`, `#101923`→`surfaceCard`, `#13171F`→`surfaceCard`, `#13161E`→`surfaceCard`, `#111B27`→`surfaceCard`, `#0F1820`→`surfaceCard`, `#111A24`→`surfaceCard`, `#14171F`→`surfaceCard`, `#1A1F2B`→`surfaceRaised`, `#292828`→`surfaceRaised`, `#161920`→`surfaceRaised`, `#181C21`→`surfaceRaised`, `#3C3E3A`→`surfaceRaised`, `#423F36`→`surfaceRaised`, `#1E252B`→`surfaceRaised`, `#282D2E`→`surfaceRaised`, `#313432`→`surfaceRaised`, `#1F2535`→`outline`, `#232938`→`outline`, `#2A3040`→`outline`, `#1C2A38`→`outline`, `#31353B`→`outline`, `#4D4634`→`outline`, `#3D3D3D`→`outline`, `#3A4050`→`textDisabled`, `#4A5568`→`textDisabled`, `#0F2D44`→`pointsPillBg`, `#0D1C25`→`navBar`, `#112532`→`navBarOutline`, `#67899E`→`navInactive`, `#FFFFFF`→`white`, `#FEFEFF`→`white`, `#C8D4E0`→`white`, `#FFF5E1`→`white`, `#8FA0B3`→`textSecondary`, `#B0BEC8`→`textSecondary`, `#A3B1C1`→`textSecondary`, `#8A9AB0`→`textSecondary`, `#D0C6AE`→`textSecondary`, `#C6C6C9`→`textSecondary`, `#CACACA`→`textSecondary`, `#7A93AB`→`textMuted`, `#848F99`→`textMuted`, `#9B8D6D`→`textMuted`, `#0D0B08`→`authSurface`, `#141008`→`authContainer`, `#1D170C`→`authContainer`, `#3F392C`→`authContainer`, `#2A2018`→`authOutline`, `#5D5032`→`authOutline`, `#514730`→`gold@30`, `#4C3B16`→`gold`, `#A8998A`→`authTextSecondary`, `#9A8878`→`authTextSecondary`, `#A0907E`→`authTextSecondary`, `#7A6A58`→`authTextMuted`, `#867159`→`authTextMuted`, `#C9A24B`→`gold`, `#D2AE5D`→`gold`, `#BF9A49`→`gold`, `#997D3D`→`gold`, `#957B30`→`gold`, `#D8B76A`→`gold`, `#DAB96D`→`gold`, `#564D33`→`gold`, `#7B6C41`→`gold`, `#95824B`→`gold`, `#B69E58`→`gold`, `#D6B964`→`gold`, `#F6D471`→`goldLight`, `#99823D`→`goldDeep`, `#B99C48`→`goldDeep`, `#FFDC78`→`goldCta`, `#FFD966`→`goldCta`, `#FFD067`→`goldCta`, `#E6CB86`→`goldLight`, `#FFD700`→`yellow`, `#FFD54F`→`yellow`, `#F2CA14`→`yellow`, `#A8874A`→`goldLevel1`, `#8B6914`→`goldLevel1`, `#635025`→`goldLevel1`, `#2ECC71`→`success`, `#6FCF97`→`success`, `#3D8C5F`→`success`, `#1B4D38`→`success@30`, `#FF4444`→`error`, `#EB5757`→`error`, `#E05252`→`error`, `#FF3333`→`error`, `#7A3030`→`error`, `#000000`→`black`, `#25D366`→`brand.whatsapp`, `#0088CC`→`brand.telegram`, `#E1306C`→`brand.instagram`, `#34B7F1`→`brand.messages`, `#1DA1F2`→`brand.twitter`, `#4285F4`→`brand.googleBlue`, `#34A853`→`brand.googleGreen`, `#FBBC05`→`brand.googleYellow`, `#EA4335`→`brand.googleRed`
+
+Added 2026-09-10 while revalidating the auction against its frame: `auctionHeroScrim`, `auctionBidCard`, `auctionBidBar` and `glow.bidBar`. The first extraction dropped all four as per-screen one-offs, but every stop in them resolves to a kept token, so what was lost was the composition, not any colour. Without them the auction reads flat: the still stayed bright enough to turn the points pill olive, and the bid cards and bid bar lost the warmth the frame gives them.
 
 Dropped: #0D1019 (canvas labels); #0A0A0A (emoji glyph fill); #444444 (hidden frame remnants); library variables not painted on Visuals (61 of 67 (only 6 were bound; their rendered values are covered by navBar/navBarOutline/goldDeep/navInactive/gold)); Success-state & Auction one-off hexes (mapped to nearest kept token (concept screens))
 
@@ -551,6 +561,7 @@ Screen padding: main 16, auth 24, onboarding 20, sheet 20, modal 24
 | `glow.navIndicator` | [0, 1] | 6 | `{goldCta@50%}` |
 | `glow.card` | [0, 4] | 24 | `{gold@10%}` |
 | `glow.smallButton` | [0, 2] | 8 | `{gold@10%}` |
+| `glow.bidBar` | [0, -3] | 30 | `{gold@20%}` |
 | `sheet` | [0, -18] | 28 | `{black@60%}` |
 
 Backdrop blur 4. Modal shadow (0,-8,32 @50%) merged into sheet; success-state blurs dropped with the concept screen.

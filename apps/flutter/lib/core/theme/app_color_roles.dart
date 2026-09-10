@@ -17,6 +17,7 @@ class AppTextColors {
     required this.inverse,
     required this.link,
     required this.numeral,
+    required this.numeralGradient,
     required this.onImageSubtitle,
     required this.success,
     required this.warning,
@@ -31,6 +32,7 @@ class AppTextColors {
     inverse: AppPalette.surface,
     link: AppPalette.gold,
     numeral: AppPalette.goldLight,
+    numeralGradient: AppGradients.goldNumeral,
     onImageSubtitle: AppPalette.white.a60,
     success: AppPalette.success,
     warning: AppPalette.yellow,
@@ -44,6 +46,10 @@ class AppTextColors {
   final Color inverse;
   final Color link;
   final Color numeral;
+
+  /// Fills the hero total-points numeral, the one gradient-filled text role.
+  final LinearGradient numeralGradient;
+
   final Color onImageSubtitle;
   final Color success;
   final Color warning;
@@ -133,6 +139,8 @@ class AppCardColors {
     required this.borderSuccess,
     required this.backgroundRaised,
     required this.backgroundGoldTint,
+    required this.backgroundLocked,
+    required this.auctionStat,
     required this.imageHairline,
   });
 
@@ -143,6 +151,8 @@ class AppCardColors {
     borderSuccess: AppPalette.success.a30,
     backgroundRaised: AppPalette.surfaceRaised,
     backgroundGoldTint: AppPalette.gold.a10,
+    backgroundLocked: AppPalette.outline,
+    auctionStat: AppGradients.auctionBidCard,
     imageHairline: AppPalette.white.a10,
   );
 
@@ -152,6 +162,14 @@ class AppCardColors {
   final Color borderSuccess;
   final Color backgroundRaised;
   final Color backgroundGoldTint;
+
+  /// Fill of a locked exclusive-content tile, which the design paints in the
+  /// outline tone rather than the raised one.
+  final Color backgroundLocked;
+
+  /// Fill of the auction's two bid cards, which are washed rather than flat.
+  final LinearGradient auctionStat;
+
   final Color imageHairline;
 }
 
@@ -356,7 +374,7 @@ class AppPillColors {
   });
 
   static final AppPillColors dark = AppPillColors(
-    pointsBackground: AppPalette.pointsPillBg.a70,
+    pointsBackground: AppPalette.pointsPillBg.a80,
     pointsBorder: AppGradients.pointsPillStroke,
     pointsIcon: AppPalette.gold,
     pointsValue: AppPalette.white,
@@ -576,37 +594,57 @@ class AppSheetColors {
     required this.background,
     required this.border,
     required this.handle,
+    required this.handleModal,
+    required this.closeBackground,
     required this.shadow,
     required this.scrim,
+    required this.auctionBidBar,
   });
 
   static final AppSheetColors dark = AppSheetColors(
     background: AppPalette.surfaceCard,
     border: AppPalette.outline,
     handle: AppPalette.textMuted,
+    handleModal: AppPalette.outline,
+    closeBackground: AppPalette.surfaceRaised.a60,
     shadow: AppPalette.black.a60,
     scrim: AppPalette.surface.a80,
+    auctionBidBar: AppGradients.auctionBidBar,
   );
 
   final Color background;
   final Color border;
   final Color handle;
+
+  /// The dimmer handle a modal sheet draws, where the sheet is the whole view.
+  final Color handleModal;
+
+  /// The disc behind a modal sheet's close button.
+  final Color closeBackground;
+
   final Color shadow;
   final Color scrim;
+
+  /// Fill of the auction's pinned bid bar, which warms as it falls.
+  final LinearGradient auctionBidBar;
 }
 
 ///
-/// Scrims painted over imagery. [imageDimOnboarding] and [imageDimStreakIntro]
-/// are opacities applied to the image itself, not colours.
+/// Scrims painted over imagery, plus the two full-bleed background gradients
+/// ([header] and [splash]) that sit under a screen rather than over a still.
+/// [imageDimOnboarding] and [imageDimStreakIntro] are opacities applied to the
+/// image itself, not colours.
 ///
 class AppOverlayColors {
   const AppOverlayColors({
     required this.hero,
     required this.topBar,
     required this.gameCard,
-    required this.gameCardTop,
+    required this.gameCardBottom,
     required this.onboarding,
     required this.onboardingVignette,
+    required this.auctionHero,
+    required this.header,
     required this.splash,
     required this.imageDimOnboarding,
     required this.imageDimStreakIntro,
@@ -616,9 +654,11 @@ class AppOverlayColors {
     hero: AppGradients.heroScrim,
     topBar: AppGradients.topBarScrim,
     gameCard: AppGradients.gameCardScrim,
-    gameCardTop: AppGradients.gameCardScrimTop,
+    gameCardBottom: AppGradients.gameCardScrimBottom,
     onboarding: AppGradients.onboardingScrim,
     onboardingVignette: AppGradients.onboardingVignette,
+    auctionHero: AppGradients.auctionHeroScrim,
+    header: AppGradients.headerFade,
     splash: AppGradients.splashBg,
     imageDimOnboarding: 0.30,
     imageDimStreakIntro: 0.50,
@@ -627,9 +667,17 @@ class AppOverlayColors {
   final LinearGradient hero;
   final LinearGradient topBar;
   final LinearGradient gameCard;
-  final LinearGradient gameCardTop;
+  final LinearGradient gameCardBottom;
   final LinearGradient onboarding;
   final RadialGradient onboardingVignette;
+
+  /// Over the auction still. Darkens throughout, where [hero] clears a band.
+  final LinearGradient auctionHero;
+
+  /// Fills the header block on Rewards, P2P and Badges, from the screen top
+  /// down past the balance row.
+  final LinearGradient header;
+
   final LinearGradient splash;
   final double imageDimOnboarding;
   final double imageDimStreakIntro;

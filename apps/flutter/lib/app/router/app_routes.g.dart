@@ -10,6 +10,8 @@ List<RouteBase> get $appRoutes => [
   $splashRoute,
   $appShellRoute,
   $editProfileRoute,
+  $auctionRoute,
+  $exclusiveLibraryRoute,
   $onboardingRoute,
   $signInRoute,
   $subscribeRoute,
@@ -178,6 +180,87 @@ mixin $EditProfileRoute on GoRouteData {
 
   @override
   String get location => GoRouteData.$location('/profile/edit');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) => context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+RouteBase get $auctionRoute => GoRouteData.$route(
+  path: '/rewards/auction',
+  hasOverriddenOnExit: false,
+  factory: $AuctionRoute._fromState,
+);
+
+mixin $AuctionRoute on GoRouteData {
+  static AuctionRoute _fromState(GoRouterState state) => const AuctionRoute();
+
+  @override
+  String get location => GoRouteData.$location('/rewards/auction');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) => context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+RouteBase get $exclusiveLibraryRoute => GoRouteData.$route(
+  path: '/rewards/exclusive',
+  hasOverriddenOnExit: false,
+  factory: $ExclusiveLibraryRoute._fromState,
+  routes: [
+    GoRouteData.$route(
+      path: ':itemId/unlock',
+      hasOverriddenOnExit: false,
+      factory: $UnlockContentRoute._fromState,
+    ),
+  ],
+);
+
+mixin $ExclusiveLibraryRoute on GoRouteData {
+  static ExclusiveLibraryRoute _fromState(GoRouterState state) => const ExclusiveLibraryRoute();
+
+  @override
+  String get location => GoRouteData.$location('/rewards/exclusive');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) => context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin $UnlockContentRoute on GoRouteData {
+  static UnlockContentRoute _fromState(GoRouterState state) =>
+      UnlockContentRoute(itemId: state.pathParameters['itemId']!);
+
+  UnlockContentRoute get _self => this as UnlockContentRoute;
+
+  @override
+  String get location => GoRouteData.$location(
+    '/rewards/exclusive/${Uri.encodeComponent(_self.itemId)}/unlock',
+  );
 
   @override
   void go(BuildContext context) => context.go(location);

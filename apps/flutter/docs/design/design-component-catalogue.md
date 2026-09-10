@@ -2,7 +2,7 @@
 
 > Source: Figma `vVGHTFgrIRYQBTZaRZCYe0`, page **Visuals** (`3:1066`, 71 frames) only. Dark-only app. Units: Flutter logical px. Colour syntax: `{primitive}` or `{primitive@NN%}` (opacity applied to a primitive — there are no extra hexes); `gradient.<name>`. Machine-readable twin: `design-system.json`. Extracted values were simplified on 2026-09-03 per the decisions log at the end.
 
-81 components (69 reusable). Colours and type are expressed in final tokens/roles from `design-system.md`; **evidence** strings keep the raw Figma values so anything can be traced back to a node.
+82 components (70 reusable). Colours and type are expressed in final tokens/roles from `design-system.md`; **evidence** strings keep the raw Figma values so anything can be traced back to a node.
 
 ## Index
 | id | Name | Category | Reusable | Screens | Instances |
@@ -86,6 +86,7 @@
 | `successDrawer` | Success drawer (7-day ritual) — OFF-SYSTEM | pattern | no | 1 | 1 |
 | `unlockOverlay` | Exclusive-content unlock overlay (Home) | pattern | yes | 4 | 4 |
 | `exclusiveLibrary` | Exclusive content library | pattern | yes | 2 | 2 |
+| `topUpSheet` | Top-up points sheet (pack picker + receipt) | pattern | yes | 2 | 2 |
 | `auctionScreen` | Live auction screen — ONE-OFF concept | pattern | no | 1 | 1 |
 | `splash` | Splash (placeholder only) | pattern | no | 1 | 1 |
 
@@ -515,7 +516,7 @@
 
 **Anatomy**
 1. Background+Border H center gap 8 p6/16
-1. Icon container 12×14 (gold ticket icon)
+1. Icon container 12×14 (gold flame icon)
 1. Paragraph (NOT auto-layout): '540 ' {numeralPill} + 'PTS' {labelSmall} at (28,5)
 
 **Tokens**
@@ -1108,7 +1109,9 @@
 **Evidence:** `Button#376:3336`, `Button#429:20756`
 
 **Notes**
-- Uses the BACK-button disc as a forward chevron (same asset, same glyph direction 6×9 — check the arrow points right).
+- Uses the BACK-button disc as a forward chevron (same asset, same glyph direction 6×9 — check the arrow points right). Built 2026-09-09 as `ForwardDisc` beside `BackDiscButton`, with the row carrying the tap so the disc is decorative.
+- The two scrims run in different directions, which the gradient table did not record until the card was built: `gameCardScrim` goes left to right, holding down the side the copy sits on, and `gameCardScrimBottom` goes bottom to top. Painting both downwards left the still bright under the title and dark where the design keeps it visible. The second was named `…Top` until it was built; the name now says which edge it holds.
+- Radius 14 and the 10 list gap take the documented snaps, 14→16 and 10→12.
 
 **Screens:** 376:3272 (P2P), 384:7013 (P2P), 407:10456 (P2P), 378:4464 (P2P), 429:20692 (Rewards), 429:23472 (Rewards), 432:23866 (Rewards)
 
@@ -1335,7 +1338,7 @@
 *composite · reusable · 5 screen(s) · 5 instance(s)*
 
 **Anatomy**
-1. Header block gradient {surfaceCard}→{surface} (Rewards: {surface}→{surface}) bottom hairline {outline}, P50/16/0/16 gap 18
+1. Header block gradient {surfaceCard}→{surface} (headerFade) bottom hairline {outline}, P50/16/0/16 gap 18
 1. Top row SB: eyebrow 'Rewards' {overline} {textMuted} + segmented (Badges) — Rewards has empty paragraph slot
 1. Points row P14/0/16/0 SB max-align: [Total Points Inter 11 {textMuted}; 7,082 {numeralDisplay} gradient {yellow}→{gold} + 'pts' Inter 12 {textMuted}] / right-aligned [Badge Inter 10; Expert {titleSmall} {gold}; 918 pts to Loyalist Inter 10]
 1. (Badges) progress.linear h3 r0 fill {gold}→{yellow} full width
@@ -1344,6 +1347,15 @@
 - topPadding: 50
 
 **Evidence:** `Container#429:20695`, `Container#414:12373`
+
+**Implementation**
+- The block paints `overlay.header` and takes the status bar inset itself, so the fade starts at the screen top as the design draws it; the screen around it carries no top SafeArea.
+- Rewards was first read as a flat {surface}→{surface} block because the hex map collapses both of the frame's stops onto `surface`. The frame does fade, so it uses `headerFade` like P2P and Badges — with the warm start (#131008) normalised to `surfaceCard`, which trades the design's warm tint for a cool one at the same lightness.
+- The design's 50 top pad plus its empty eyebrow slot leaves 35 above the balance, snapped to 32. Below it, the 16 that closes the balance row belongs to the header and the 12 that opens the section belongs to the screen.
+
+**Notes**
+- Built 2026-09-09 for the Rewards tab. The 50 top padding is measured from the frame edge and is mostly the 44 status bar, so under a safe area only the remainder plus the empty eyebrow slot is left; the block takes 24 and lands where the frame draws it.
+- The Rewards variant's header gradient runs `{surface}`→`{surface}`, so it is painted as the flat scaffold background rather than a gradient.
 
 **Screens:** 429:20692 (Rewards), 429:23472 (Rewards), 432:23866 (Rewards), 414:12370 (Badges / Earned), 414:12502 (Badges / Locked)
 
@@ -1638,6 +1650,15 @@
 
 **Evidence:** `Container#432:24117`, `ExclusiveUnlockSheet#432:24260`
 
+**Notes**
+- Built 2026-09-09 as a pushed screen off the exclusive library rather than an overlay: the Home copy the design dims behind it does not exist yet. When Home is built this becomes a transparent route over it and the scrim goes back on top.
+- The overlay's own gradient is not in the gradient table; the frame's 0.81 dim is what the recorded `sheet.scrim` `{surface@80%}` amounts to.
+- Revalidated 2026-09-10. The screen was painting that scrim as its own background, which composites 80% of `{surface}` over black and comes out *darker* than the app's surface, not lighter — the opposite of a dimmed image. With nothing behind it, it now paints plain `{surface}`.
+- The exclusive tag was drawn as an outline with no fill and half the height: the frame fills it `{gold@20%}` and sets it 32 tall, which is 8 of vertical padding around the label, not 4. Its stroke is `tag.gold.border` `{gold@40%}`, the nearest kept alpha to the `{gold@50%}` the frame draws.
+- 'Unlock Now' is a large `btn.primary`, so it carries `elevation.glow.cta`. It had none. That glow cannot go in the button theme — a Material elevation is not this shape — so it is a `DecoratedBox` around the button, as on the auth CTA. Three screens now do this; a shared gold-CTA widget is worth extracting.
+- The frame's preview paragraph is `#B0BEC8`, a lighter grey than the `#8FA0B3` the palette keeps for `{textSecondary}`. Both fold to that one token, so the built card reads dimmer than the frame. Left as the token, since `{textSecondary}` is app-wide.
+- The confirm variant is not built. Unlocking goes straight from this screen to Home, which is the flow the product asked for.
+
 **Screens:** 432:24098 (Home (unlock overlay)), 92:4615 (Home (unlock overlay)), 432:24224 (Home (unlock confirm)), 92:4740 (Home (unlock confirm))
 
 ### `exclusiveLibrary` — Exclusive content library
@@ -1656,8 +1677,38 @@
 
 **Notes**
 - Grid has 4px outer inset instead of the app's 16 — likely unfinished.
+- **Open question.** The frame's lock glyph is the warm `#9B8D6D`, which the hex map folds onto `{textMuted}` `#7A93AB`. That is a cool blue-grey, and against the navy tile the difference reads clearly. The warm muted tones the system kept all sit in the auth palette (`authTextMuted`), which does not belong on this screen. Left on `{textMuted}` pending a decision.
+- Built 2026-09-09. The 4 inset is kept as drawn; only a locked tile is tappable, because the player an open one would start does not exist yet.
+- Revalidated 2026-09-10. A locked tile was built on `surfaceRaised`, against the `{outline}` in the anatomy above; it is now `card.background.locked` and matches the frame exactly. The glyph is the filled padlock the frame draws, not an outlined one.
+- The header's back disc sat 12 right of the margin and the title 28 right of the disc, where the frame leaves 12. An icon button lays out its 48 tap target around the 36 disc, so the leading padding now starts 6 short of the margin and the slot is sized on the target rather than a rounded-up 60; `titleSpacing` is zeroed because the slot already ends where the title starts.
+- The frame's header runs 69 below the status bar against the app bar's 56, and a filter chip paints 32 while laying out 48. Both gaps around the chip row are set short of the frame's numbers to land on them: 4 above, 8 below.
 
 **Screens:** 429:23676 (Exclusive content), 432:23967 (Exclusive content)
+
+### `topUpSheet` — Top-up points sheet (pack picker + receipt)
+*pattern · reusable · 2 screen(s) · 2 instance(s)*
+
+**Anatomy**
+1. `sheet.bottom` container over the auction, sized to its content (h395 of 812), P21 → screen padding 20
+1. Top row 32 tall, pt21→20 pb12: sheetHandle centred (modal variant, `sheet.handleModal`) + close button level with it — a 32 disc `sheet.closeBackground` around a 10.5→12 glyph
+1. Title {headlineSmall} {white} centred; subtitle pt3→4 {bodySmall} {textSecondary} centred; pb24
+1. Pack row gap 10→12: 3 equal cards r20 P14→16 (unselected {surfaceCard} stroke {outline}; selected {surfaceRaised} stroke `tab.activeBorder` 2), each a disc 32 ({surfaceRaised}, selected {gold@10%}) + icon 16; value pt8 {titleMedium} {white}; 'POINTS' pt2 {labelSmall} ({textSecondary}, selected {gold}); divider pt12; price pt9→8 {titleSmall} {white}. pb24
+1. `btn.primary` h50→52 r12 'Continue to Pay {price}' with a trailing 12 arrow
+
+**Variants**
+- **receipt** — replaces the picker with a 128 radial wash → `elevation.glow.cta`, an 80 ring {gold@10%} stroke {gold@30%}, a 56 disc filled `gradient.goldSegment` and a check 32 {surface}; 'Payment Successful' pt20 {headlineMedium} {white}; credited pill pt12 {gold@10%} stroke {gold@30%} r-pill with icon 16 {gold} + {titleSmall} {gold}; the action becomes 'Done'
+
+**Evidence:** `OPTION 1 - Auction#760:1611`, `OPTION 1 - Auction#760:1948`
+
+**Notes**
+- Added to this catalogue on 2026-09-09, when it was built. The two frames sit outside the Visuals page the rest of the system was extracted from, so no entry existed; every value above is a kept token, and none was invented for it.
+- The frames put a payment-method screen (`760:1240`) between the picker and the receipt. It is deliberately not built: a third-party gateway takes that step, so the sheet goes straight from the pack to the receipt.
+- Both frames draw 'Continue to Pay ₹79' on the receipt's button, which is a copy oversight in the frame; the built receipt says 'Done', since the payment is finished by then.
+- The sheet sizes to its content. `ContentContainer` cannot wrap it: its `Align` fills the height it is offered, and a scroll-controlled sheet is offered the whole screen, which stands the sheet full height instead of stopping under the CTA. The same trap catches anything inside it that centres: a bare `Center` around the loading spinner, and the `Center` inside `ErrorView`, each opened the sheet at the full screen and dropped it to a third of that when the packs landed.
+- Revalidated 2026-09-10. The states before the packs now draw the real chrome — handle, close, title, subtitle — and hold both the pack row (155) and the CTA's slot open, so the sheet opens at the height it keeps and the packs drop in without moving anything. `AnimatedSize` covers the one height change left, from the picker to the receipt.
+- The receipt stands its CTA further off than the picker does (the frame leaves 52 where the picker leaves 24), which keeps the two variants close to the same height. The scale stops at 32, so that is what it uses; the remaining slack is free space in a frame with no auto-layout.
+- A pack is a selectable option, so it takes the `tab` roles for chosen and unchosen rather than a card's.
+- **Open question.** These two frames introduce four hexes the extraction never saw: `#F5C518` (selected border, 'POINTS', the receipt's check disc and credited pill), `#1F242C` (selected card), `#21262D` (close disc) and `#2D333B` (handle, divider). The last three land on `surfaceRaised` and `outline` within a few units and are used as such. `#F5C518` does not: it is a saturated yellow, and the nearest kept token in use here, `{gold}` `#C9A24B`, reads visibly duller — `{yellow}` `#FFD700` is far closer. Changing it means either re-pointing `tab.activeBorder`, which is shared, or giving the pack card accent roles of its own. Left on `{gold}` pending that decision.
 
 ### `auctionScreen` — Live auction screen — ONE-OFF concept
 *pattern · one-off · 1 screen(s) · 1 instance(s)*
@@ -1674,6 +1725,13 @@
 
 **Notes**
 - Labelled 'OPTION 1' — exploratory. Mixed fonts (Golos), unique gradients, absolute positioning. Do not tokenize beyond what is shared (back button, points pill, LIVE badge).
+- Built 2026-09-09 under the decisions-log rule that this screen's one-off hexes and gradients map onto kept tokens. The background is flat `{surface}` (all four of its stops map there). Golos becomes its DM Sans equivalent, and the title's -1 tracking is dropped because no text role carries tracking of its own.
+- Revalidated 2026-09-10 against the frame. Three of the gradients were wrongly given up as having nowhere to land: every stop in the hero scrim, the bid-card wash and the bid-bar fill resolves to a kept token, so they are now `auctionHeroScrim`, `auctionBidCard` and `auctionBidBar` in the system. Substituting `heroScrim` for the first was the costliest of the three — it opens a clear band at 40% for a video to read through, which left the still bright behind the points pill and, because that pill's fill is translucent, turned the pill olive.
+- The bid bar is laid out as a pinned footer rather than at an absolute y, and the bid field takes a hint so it has an accessible name the frame's bare box does not give it. The action sits inside the field's own border, as the frame draws it, rather than beside it.
+- The still is pinned to its 229 with the copy running down over its lower half, which is how the frame stacks them: the LIVE row starts at y149, inside the image. Laying the still out as a block above the copy pushed everything a tenth of a screen down and squeezed the bid history to one row. That y149 is measured from the top of the screen and set as one: the frame draws no status bar, so stacking the copy under the top bar instead moved it by whatever inset the device happened to have — 22 points up on a 47-point bar.
+- The frame's own y-offsets (LIVE 149, eyebrow 195, title 218, cards 341) are not reproducible on the spacing scale, and this screen is a one-off with no auto-layout, so the copy is set on the scale (LIVE→eyebrow 24, eyebrow→title 8, title→blurb 4, blurb→View More 16) and lands within a few points of each.
+- The bid field is the frame's 40, not the input theme's 52: that height is the full-width form field's, and the theme applies it through a minimum the field has to clear explicitly. A quick-add paints the frame's 32 but lays out 48 to keep its tap target, so the gap above the row is set 8 short to read as the 12 the frame draws.
+- View More is underlined, which the frame draws on this one control and nothing else on the screen. It expands the blurb, which is clamped to the two lines the frame draws. The frame's copy happens to fit in two, so an inert control would have looked broken for no reason.
 
 **Screens:** 418:18052 (OPTION 1 - Auction)
 
@@ -1723,6 +1781,8 @@
 | `406:9862` Prediction Game listing | `btn.tonal`, `btn.icon.back`, `badge.status`, `pill.pointsOverImage`, `pill.multiplier`, `progress.linear`, `appBar.back`, `predictionCard` |
 | `408:10663` Prediction game | `btn.tonal`, `btn.icon.back`, `predictionDetail` |
 | `418:18052` OPTION 1 - Auction | `btn.outline`, `btn.text`, `btn.icon.back`, `badge.status`, `pill.points`, `avatar`, `auctionScreen` |
+| `760:1611` Auction (top up points) | `btn.primary`, `btn.icon.close`, `sheet.bottom`, `divider`, `auctionScreen`, `topUpSheet` |
+| `760:1948` Auction (payment successful) | `btn.primary`, `btn.icon.close`, `sheet.bottom`, `auctionScreen`, `topUpSheet` |
 | `97:5251` Sign In | `btn.social`, `btn.icon.back`, `input.text`, `divider`, `authForm` |
 | `429:23362` Router (Profile) | `btn.text`, `btn.icon.settings`, `avatar`, `appBar.profile`, `bottomNav`, `statCard`, `profileScreen`, `menuRow` |
 | `427:20440` Profile | `btn.text`, `btn.icon.settings`, `avatar`, `appBar.profile`, `bottomNav`, `statCard`, `profileScreen`, `menuRow` |

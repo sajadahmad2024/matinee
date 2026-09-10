@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:matinee/core/theme/app_sizes.dart';
 import 'package:matinee/core/theme/extensions/build_context_extensions.dart';
+import 'package:matinee/core/utils/initials.dart';
 
 ///
 /// The circular portrait the profile screens open with.
@@ -24,15 +25,6 @@ class ProfileAvatar extends StatelessWidget {
   final String? imageUrl;
   final bool editBadge;
   final VoidCallback? onEdit;
-
-  ///
-  /// The first letter of each of the first two words, which is what a name
-  /// without a photo shows.
-  ///
-  static String initialsOf(String name) {
-    final words = name.trim().split(RegExp(r'\s+')).where((word) => word.isNotEmpty);
-    return words.take(2).map((word) => word[0].toUpperCase()).join();
-  }
 
   @override
   Widget build(BuildContext context) {

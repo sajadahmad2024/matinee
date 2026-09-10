@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:matinee/core/theme/app_palette.dart';
 
 ///
-/// The nine gradients of the design system, built once from the primitives.
-/// Widgets reach them through `context.appColors` roles (overlay, progress,
-/// segmented, pill, calendar); stops are never rewritten at a call site.
+/// The gradients of the design system, built once from the primitives.
+/// Widgets reach them through `context.appColors` roles (overlay, card, sheet,
+/// progress, segmented, pill, calendar); stops are never rewritten at a call
+/// site.
 ///
 abstract final class AppGradients {
   /// Over a full-bleed video or poster on Home.
@@ -34,18 +35,21 @@ abstract final class AppGradients {
     stops: const [0, 0.52, 1],
   );
 
-  /// Base layer over game and reward card images.
+  ///
+  /// Base layer over game and reward card images. It runs across the card,
+  /// not down it: the copy sits on the left, so that is the side the scrim
+  /// holds down while the image stays readable on the right.
+  ///
+  /// Left to right is LinearGradient's default, so no begin or end is set.
   static final LinearGradient gameCardScrim = LinearGradient(
-    begin: Alignment.topCenter,
-    end: Alignment.bottomCenter,
     colors: [AppPalette.surface.a90, AppPalette.surface.a25],
     stops: const [0.3, 1],
   );
 
-  /// Painted on top of [gameCardScrim] so the card's top edge stays legible.
-  static final LinearGradient gameCardScrimTop = LinearGradient(
-    begin: Alignment.topCenter,
-    end: Alignment.bottomCenter,
+  /// Painted over [gameCardScrim] so the card's lower edge stays legible.
+  static final LinearGradient gameCardScrimBottom = LinearGradient(
+    begin: Alignment.bottomCenter,
+    end: Alignment.topCenter,
     colors: [AppPalette.surface.a60, AppPalette.surface.withValues(alpha: 0)],
     stops: const [0, 0.5],
   );
@@ -90,6 +94,53 @@ abstract final class AppGradients {
   /// Fill of the hero total-points numeral.
   static const LinearGradient goldNumeral = LinearGradient(
     colors: [AppPalette.yellow, AppPalette.gold],
+  );
+
+  ///
+  /// The scrim over the auction still. Unlike [heroScrim], which opens a clear
+  /// band in the middle for a video to read through, this one only ever
+  /// darkens, so the pills and the copy stay legible over the brightest part
+  /// of the curtain.
+  ///
+  static final LinearGradient auctionHeroScrim = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [
+      AppPalette.surface.a20,
+      AppPalette.surface.a50,
+      AppPalette.surface.a85,
+      AppPalette.surface,
+    ],
+    stops: const [0.02, 0.44, 0.69, 0.98],
+  );
+
+  ///
+  /// Fill of the two auction bid cards: a gold wash off the top-left corner
+  /// falling away into the card surface. The design runs it at 152 degrees;
+  /// corner to corner is the nearest thing expressible without a per-card
+  /// alignment, and reads the same at this size.
+  ///
+  static final LinearGradient auctionBidCard = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [
+      AppPalette.goldLight.a10,
+      AppPalette.surfaceRaised.a70,
+      AppPalette.surfaceCard.a90,
+      AppPalette.surfaceCard,
+    ],
+    stops: const [0, 0.4, 0.5, 1],
+  );
+
+  ///
+  /// The auction bid bar. The design runs the ramp to 210% of the bar, so only
+  /// its first half is ever on screen: the bar warms as it falls without
+  /// reaching the raised tone. The end alignment carries that overshoot.
+  ///
+  static final LinearGradient auctionBidBar = LinearGradient(
+    begin: Alignment.topCenter,
+    end: const Alignment(0, 3.2),
+    colors: [AppPalette.surfaceCard, AppPalette.surfaceRaised.a60],
   );
 
   /// Header block behind P2P, Rewards and Badges.

@@ -194,5 +194,90 @@
   "subscribeBenefit3": "Priority access to Live Auctions",
   "subscribeBenefit4": "Monthly badge unlocks and collectibles",
   "subscribeBenefit5": "Ad-free premium content experience",
-  "subscribeCta": "Subscribe Now"
+  "subscribeCta": "Subscribe Now",
+  "rewardsTotalPoints": "Total Points",
+  "rewardsPointsUnit": "pts",
+  "rewardsBadgeLabel": "Badge",
+  "rewardsNextBadge": "{points} pts to {badge}",
+  "@rewardsNextBadge": {
+    "description": "How far the user is from the next badge tier, under their current one.",
+    "placeholders": {
+      "points": { "type": "int", "format": "decimalPattern" },
+      "badge": { "type": "String" }
+    }
+  },
+  "rewardsRedeemSection": "REDEEM REWARDS",
+  "rewardsPointsPillTooltip": "Your points balance",
+  "auctionEyebrow": "LIVE AUCTION",
+  "auctionLiveBadge": "LIVE",
+  "auctionWatching": "{count} watching",
+  "@auctionWatching": {
+    "description": "How many people are watching the auction right now.",
+    "placeholders": { "count": { "type": "int", "format": "decimalPattern" } }
+  },
+  "auctionViewMore": "View More",
+  "auctionViewLess": "View Less",
+  "auctionCurrentBid": "CURRENT BID",
+  "auctionTimeRemaining": "TIME REMAINING",
+  "auctionEnded": "ENDED",
+  "auctionBidHistory": "BID HISTORY",
+  "auctionBidAmount": "{amount} CP",
+  "@auctionBidAmount": {
+    "description": "A bid in cinema points, the auction's own currency.",
+    "placeholders": { "amount": { "type": "int", "format": "decimalPattern" } }
+  },
+  "auctionBidFieldLabel": "Your bid",
+  "auctionBidAction": "BID",
+  "auctionBidIncrement": "+{amount}",
+  "@auctionBidIncrement": {
+    "description": "A quick-add button that raises the bid by a fixed amount.",
+    "placeholders": { "amount": { "type": "String" } }
+  },
+  "auctionBidTooLow": "Bids start at {amount} CP.",
+  "@auctionBidTooLow": {
+    "description": "Shown when the typed bid is under the smallest raise the lot accepts.",
+    "placeholders": { "amount": { "type": "int", "format": "decimalPattern" } }
+  },
+  "auctionBidPlaced": "Your bid is in.",
+  "auctionBidJustNow": "Just now",
+  "auctionBidMinutesAgo": "{count, plural, =1{1 minute ago} other{{count} minutes ago}}",
+  "@auctionBidMinutesAgo": {
+    "description": "How long ago a bid was placed, for bids under an hour old.",
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "auctionBidHoursAgo": "{count, plural, =1{1 hour ago} other{{count} hours ago}}",
+  "@auctionBidHoursAgo": {
+    "description": "How long ago a bid was placed, for bids under a day old.",
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "auctionBack": "Back to rewards",
+  "topUpTooltip": "Top up points",
+  "topUpTitle": "Top Up Points",
+  "topUpSubtitle": "Select a pack to stake on predictions.",
+  "topUpPointsLabel": "POINTS",
+  "topUpCta": "Continue to Pay {price}",
+  "@topUpCta": {
+    "description": "Buys the selected pack; the price carries its own currency symbol.",
+    "placeholders": { "price": { "type": "String" } }
+  },
+  "topUpClose": "Close",
+  "topUpSuccessTitle": "Payment Successful",
+  "topUpCredited": "+{points} PTS Credited",
+  "@topUpCredited": {
+    "description": "Confirms how many points the purchase added.",
+    "placeholders": { "points": { "type": "int", "format": "decimalPattern" } }
+  },
+  "topUpDone": "Done",
+  "exclusiveTitle": "Exclusive Content",
+  "exclusiveLocked": "Locked",
+  "exclusiveUnlocksFor": "Unlocks for",
+  "exclusivePointsCost": "{points} POINTS",
+  "@exclusivePointsCost": {
+    "description": "What unlocking a piece of exclusive content costs.",
+    "placeholders": { "points": { "type": "int", "format": "decimalPattern" } }
+  },
+  "exclusivePreview": "PREVIEW",
+  "exclusiveCastAndCrew": "CAST & CREW",
+  "exclusiveUnlockCta": "Unlock Now",
+  "exclusiveTag": "EXCLUSIVE CONTENT"
 }

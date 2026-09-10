@@ -918,6 +918,258 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Subscribe Now'**
   String get subscribeCta;
+
+  /// No description provided for @rewardsTotalPoints.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Points'**
+  String get rewardsTotalPoints;
+
+  /// No description provided for @rewardsPointsUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'pts'**
+  String get rewardsPointsUnit;
+
+  /// No description provided for @rewardsBadgeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Badge'**
+  String get rewardsBadgeLabel;
+
+  /// How far the user is from the next badge tier, under their current one.
+  ///
+  /// In en, this message translates to:
+  /// **'{points} pts to {badge}'**
+  String rewardsNextBadge(int points, String badge);
+
+  /// No description provided for @rewardsRedeemSection.
+  ///
+  /// In en, this message translates to:
+  /// **'REDEEM REWARDS'**
+  String get rewardsRedeemSection;
+
+  /// No description provided for @rewardsPointsPillTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Your points balance'**
+  String get rewardsPointsPillTooltip;
+
+  /// No description provided for @auctionEyebrow.
+  ///
+  /// In en, this message translates to:
+  /// **'LIVE AUCTION'**
+  String get auctionEyebrow;
+
+  /// No description provided for @auctionLiveBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'LIVE'**
+  String get auctionLiveBadge;
+
+  /// How many people are watching the auction right now.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} watching'**
+  String auctionWatching(int count);
+
+  /// No description provided for @auctionViewMore.
+  ///
+  /// In en, this message translates to:
+  /// **'View More'**
+  String get auctionViewMore;
+
+  /// No description provided for @auctionViewLess.
+  ///
+  /// In en, this message translates to:
+  /// **'View Less'**
+  String get auctionViewLess;
+
+  /// No description provided for @auctionCurrentBid.
+  ///
+  /// In en, this message translates to:
+  /// **'CURRENT BID'**
+  String get auctionCurrentBid;
+
+  /// No description provided for @auctionTimeRemaining.
+  ///
+  /// In en, this message translates to:
+  /// **'TIME REMAINING'**
+  String get auctionTimeRemaining;
+
+  /// No description provided for @auctionEnded.
+  ///
+  /// In en, this message translates to:
+  /// **'ENDED'**
+  String get auctionEnded;
+
+  /// No description provided for @auctionBidHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'BID HISTORY'**
+  String get auctionBidHistory;
+
+  /// A bid in cinema points, the auction's own currency.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} CP'**
+  String auctionBidAmount(int amount);
+
+  /// No description provided for @auctionBidFieldLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Your bid'**
+  String get auctionBidFieldLabel;
+
+  /// No description provided for @auctionBidAction.
+  ///
+  /// In en, this message translates to:
+  /// **'BID'**
+  String get auctionBidAction;
+
+  /// A quick-add button that raises the bid by a fixed amount.
+  ///
+  /// In en, this message translates to:
+  /// **'+{amount}'**
+  String auctionBidIncrement(String amount);
+
+  /// Shown when the typed bid is under the smallest raise the lot accepts.
+  ///
+  /// In en, this message translates to:
+  /// **'Bids start at {amount} CP.'**
+  String auctionBidTooLow(int amount);
+
+  /// No description provided for @auctionBidPlaced.
+  ///
+  /// In en, this message translates to:
+  /// **'Your bid is in.'**
+  String get auctionBidPlaced;
+
+  /// No description provided for @auctionBidJustNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Just now'**
+  String get auctionBidJustNow;
+
+  /// How long ago a bid was placed, for bids under an hour old.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 minute ago} other{{count} minutes ago}}'**
+  String auctionBidMinutesAgo(int count);
+
+  /// How long ago a bid was placed, for bids under a day old.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 hour ago} other{{count} hours ago}}'**
+  String auctionBidHoursAgo(int count);
+
+  /// No description provided for @auctionBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to rewards'**
+  String get auctionBack;
+
+  /// No description provided for @topUpTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Top up points'**
+  String get topUpTooltip;
+
+  /// No description provided for @topUpTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Top Up Points'**
+  String get topUpTitle;
+
+  /// No description provided for @topUpSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a pack to stake on predictions.'**
+  String get topUpSubtitle;
+
+  /// No description provided for @topUpPointsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'POINTS'**
+  String get topUpPointsLabel;
+
+  /// Buys the selected pack; the price carries its own currency symbol.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue to Pay {price}'**
+  String topUpCta(String price);
+
+  /// No description provided for @topUpClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get topUpClose;
+
+  /// No description provided for @topUpSuccessTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment Successful'**
+  String get topUpSuccessTitle;
+
+  /// Confirms how many points the purchase added.
+  ///
+  /// In en, this message translates to:
+  /// **'+{points} PTS Credited'**
+  String topUpCredited(int points);
+
+  /// No description provided for @topUpDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get topUpDone;
+
+  /// No description provided for @exclusiveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Exclusive Content'**
+  String get exclusiveTitle;
+
+  /// No description provided for @exclusiveLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Locked'**
+  String get exclusiveLocked;
+
+  /// No description provided for @exclusiveUnlocksFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlocks for'**
+  String get exclusiveUnlocksFor;
+
+  /// What unlocking a piece of exclusive content costs.
+  ///
+  /// In en, this message translates to:
+  /// **'{points} POINTS'**
+  String exclusivePointsCost(int points);
+
+  /// No description provided for @exclusivePreview.
+  ///
+  /// In en, this message translates to:
+  /// **'PREVIEW'**
+  String get exclusivePreview;
+
+  /// No description provided for @exclusiveCastAndCrew.
+  ///
+  /// In en, this message translates to:
+  /// **'CAST & CREW'**
+  String get exclusiveCastAndCrew;
+
+  /// No description provided for @exclusiveUnlockCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock Now'**
+  String get exclusiveUnlockCta;
+
+  /// No description provided for @exclusiveTag.
+  ///
+  /// In en, this message translates to:
+  /// **'EXCLUSIVE CONTENT'**
+  String get exclusiveTag;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

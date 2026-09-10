@@ -11,7 +11,10 @@ import 'package:matinee/features/onboarding/presentation/onboarding_screen.dart'
 import 'package:matinee/features/p2p/presentation/p2p_screen.dart';
 import 'package:matinee/features/profile/presentation/edit_profile_screen.dart';
 import 'package:matinee/features/profile/presentation/profile_screen.dart';
+import 'package:matinee/features/rewards/presentation/auction_screen.dart';
+import 'package:matinee/features/rewards/presentation/exclusive_library_screen.dart';
 import 'package:matinee/features/rewards/presentation/rewards_screen.dart';
+import 'package:matinee/features/rewards/presentation/unlock_content_screen.dart';
 
 part 'app_routes.g.dart';
 
@@ -101,6 +104,38 @@ class EditProfileRoute extends GoRouteData with $EditProfileRoute {
 
   @override
   Widget build(BuildContext context, GoRouterState state) => const EditProfileScreen();
+}
+
+///
+/// The rewards detail screens, outside the shell for the same reason edit
+/// profile is: their frames draw no bottom nav, so they cover it.
+///
+@TypedGoRoute<AuctionRoute>(path: '/rewards/auction')
+class AuctionRoute extends GoRouteData with $AuctionRoute {
+  const AuctionRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) => const AuctionScreen();
+}
+
+@TypedGoRoute<ExclusiveLibraryRoute>(
+  path: '/rewards/exclusive',
+  routes: [TypedGoRoute<UnlockContentRoute>(path: ':itemId/unlock')],
+)
+class ExclusiveLibraryRoute extends GoRouteData with $ExclusiveLibraryRoute {
+  const ExclusiveLibraryRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) => const ExclusiveLibraryScreen();
+}
+
+class UnlockContentRoute extends GoRouteData with $UnlockContentRoute {
+  const UnlockContentRoute({required this.itemId});
+
+  final String itemId;
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) => UnlockContentScreen(itemId: itemId);
 }
 
 @TypedGoRoute<OnboardingRoute>(path: '/onboarding')
