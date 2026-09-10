@@ -6,6 +6,8 @@ import 'package:matinee/features/auth/presentation/create_account_screen.dart';
 import 'package:matinee/features/auth/presentation/sign_in_screen.dart';
 import 'package:matinee/features/auth/presentation/subscribe_screen.dart';
 import 'package:matinee/features/auth/presentation/verify_otp_screen.dart';
+import 'package:matinee/features/earns/data/models/earn_source.dart';
+import 'package:matinee/features/earns/presentation/earn_detail_screen.dart';
 import 'package:matinee/features/earns/presentation/earns_screen.dart';
 import 'package:matinee/features/home/presentation/home_screen.dart';
 import 'package:matinee/features/onboarding/presentation/onboarding_screen.dart';
@@ -110,6 +112,45 @@ class EarnsRoute extends GoRouteData with $EarnsRoute {
 
   @override
   Widget build(BuildContext context, GoRouterState state) => const EarnsScreen();
+}
+
+///
+/// The four My Earns history screens. Outside the shell, unlike My Earns
+/// itself: their frames draw no bottom nav, so they cover it.
+///
+/// One screen behind all four, so each route is only a path and a source.
+///
+@TypedGoRoute<StreakHistoryRoute>(path: '/profile/earns/streaks')
+class StreakHistoryRoute extends GoRouteData with $StreakHistoryRoute {
+  const StreakHistoryRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) => const EarnDetailScreen(kind: EarnSourceKind.dailyStreaks);
+}
+
+@TypedGoRoute<AuctionWinsRoute>(path: '/profile/earns/auction-wins')
+class AuctionWinsRoute extends GoRouteData with $AuctionWinsRoute {
+  const AuctionWinsRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) => const EarnDetailScreen(kind: EarnSourceKind.auctionWins);
+}
+
+@TypedGoRoute<PredictionHistoryRoute>(path: '/profile/earns/predictions')
+class PredictionHistoryRoute extends GoRouteData with $PredictionHistoryRoute {
+  const PredictionHistoryRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      const EarnDetailScreen(kind: EarnSourceKind.predictionGames);
+}
+
+@TypedGoRoute<QuestHistoryRoute>(path: '/profile/earns/quests')
+class QuestHistoryRoute extends GoRouteData with $QuestHistoryRoute {
+  const QuestHistoryRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) => const EarnDetailScreen(kind: EarnSourceKind.weeklyQuests);
 }
 
 ///

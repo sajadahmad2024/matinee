@@ -101,6 +101,15 @@ void main() {
         expect(find.text('pts · 7%'), findsOneWidget);
       });
 
+      testWidgets('every earn row as a control, since each opens its own history', (tester) async {
+        when(() => cubit.state).thenReturn(const EarnsState.success(_overview));
+        await pumpView(tester);
+
+        final rows = tester.widgetList<EarnRow>(find.byType(EarnRow));
+        expect(rows, hasLength(2));
+        expect(rows.every((row) => row.onTap != null), isTrue);
+      });
+
       testWidgets('the earns half without the balance the badges half carries', (tester) async {
         when(() => cubit.state).thenReturn(const EarnsState.success(_overview));
         await pumpView(tester);

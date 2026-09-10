@@ -772,4 +772,246 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get earnsNoLockedBadges => 'Every badge is earned.';
+
+  @override
+  String get earnsStreaksTitle => 'Daily Streaks';
+
+  @override
+  String get earnsAuctionTitle => 'Live Auctions';
+
+  @override
+  String get earnsPredictionsTitle => 'Prediction Games';
+
+  @override
+  String get earnsQuestsTitle => 'Weekly Quest';
+
+  @override
+  String get earnsStreaksEyebrow => 'DAILY STREAKS';
+
+  @override
+  String get earnsAuctionEyebrow => 'AUCTION WINS';
+
+  @override
+  String get earnsPredictionsEyebrow => 'PREDICTION GAMES';
+
+  @override
+  String get earnsDetailPointsEarned => 'pts earned';
+
+  @override
+  String earnsDetailTotalSummary(String title, String points, String unit) {
+    return '$title: $points $unit earned';
+  }
+
+  @override
+  String earnsDetailStatSummary(String label, String value, String caption) {
+    return '$label: $value. $caption';
+  }
+
+  @override
+  String get earnsStreaksStatLabel => 'Active days';
+
+  @override
+  String get earnsAuctionStatLabel => 'Total wins';
+
+  @override
+  String get earnsPredictionsStatLabel => 'Accuracy';
+
+  @override
+  String get earnsQuestsStatLabel => 'Completed';
+
+  @override
+  String earnsPredictionsAccuracy(int percent) {
+    return '$percent%';
+  }
+
+  @override
+  String earnsPredictionsAccuracyCaption(int correct, int total) {
+    return '$correct/$total correct';
+  }
+
+  @override
+  String earnsQuestsCompleted(int completed, int total) {
+    return '$completed/$total';
+  }
+
+  @override
+  String get earnsActivityLog => 'ACTIVITY LOG';
+
+  @override
+  String get earnsWinHistory => 'WIN HISTORY';
+
+  @override
+  String get earnsPredictionHistory => 'PREDICTION HISTORY';
+
+  @override
+  String get earnsQuestHistory => 'QUEST HISTORY';
+
+  @override
+  String earnsStreakLevelChip(int level, int minutes) {
+    return 'Lv $level · $minutes min';
+  }
+
+  @override
+  String earnsStreakLevelReached(int level, int minutes) {
+    return 'Lv $level, $minutes minutes a day, reached';
+  }
+
+  @override
+  String earnsStreakLevelLocked(int level, int minutes) {
+    return 'Lv $level, $minutes minutes a day, not reached yet';
+  }
+
+  @override
+  String earnsStreakLevelBadge(int level) {
+    return 'LV $level';
+  }
+
+  @override
+  String earnsStreakDayCount(int days) {
+    return '${days}d';
+  }
+
+  @override
+  String earnsStreakMinutes(int minutes) {
+    return '$minutes min watched';
+  }
+
+  @override
+  String earnsStreakBadgeUnlocked(String name) {
+    return 'Badge unlocked: $name';
+  }
+
+  @override
+  String earnsStreakDaySummary(String date, int dayCount, int minutes, String award, String level, String badge) {
+    return '$date, day $dayCount of the streak. $minutes minutes watched, $award. $level $badge';
+  }
+
+  @override
+  String get earnsPointsAwarded => 'pts awarded';
+
+  @override
+  String earnsPointsAdded(String points) {
+    return '+$points';
+  }
+
+  @override
+  String get earnsNoPoints => '—';
+
+  @override
+  String earnsAwardSummary(String points, String unit) {
+    return '$points $unit awarded';
+  }
+
+  @override
+  String get earnsNoAwardSummary => 'no points awarded';
+
+  @override
+  String earnsBadgeAwardSummary(String name) {
+    return 'Badge earned: $name.';
+  }
+
+  @override
+  String get earnsStatusWon => 'WON';
+
+  @override
+  String get earnsStatusCorrect => 'CORRECT';
+
+  @override
+  String get earnsStatusIncorrect => 'INCORRECT';
+
+  @override
+  String get earnsStatusClaimed => 'CLAIMED';
+
+  @override
+  String get earnsStatusPartial => 'PARTIAL';
+
+  @override
+  String get earnsLotMemorabilia => 'MEMORABILIA';
+
+  @override
+  String get earnsLotExperience => 'EXPERIENCE';
+
+  @override
+  String get earnsLotTicket => 'TICKET';
+
+  @override
+  String get earnsLotContent => 'CONTENT';
+
+  @override
+  String get earnsWinningBidLabel => 'Winning bid: ';
+
+  @override
+  String earnsWinningBidValue(String bid) {
+    return '$bid CP';
+  }
+
+  @override
+  String earnsWinSummary(String title, String kind, String date, String bid, String award, String badge) {
+    return '$title, $kind, won $date. Winning bid $bid. $award. $badge';
+  }
+
+  @override
+  String earnsPredictionMultiplier(int multiplier) {
+    return '${multiplier}X';
+  }
+
+  @override
+  String get earnsPredictionYourVote => 'YOUR VOTE';
+
+  @override
+  String get earnsPredictionOutcome => 'RESULT';
+
+  @override
+  String get earnsVoteYes => 'YES';
+
+  @override
+  String get earnsVoteNo => 'NO';
+
+  @override
+  String earnsPredictionSummary(
+    String title,
+    String status,
+    String question,
+    String vote,
+    String outcome,
+    String award,
+    String badge,
+  ) {
+    return '$title, $status. $question Your vote: $vote. Result: $outcome. $award. $badge';
+  }
+
+  @override
+  String earnsQuestRange(String start, String end) {
+    return '$start – $end';
+  }
+
+  @override
+  String earnsQuestProgress(int completed, int total, String date) {
+    return '$completed of $total actions completed · Done $date';
+  }
+
+  @override
+  String earnsQuestSummary(String title, String status, String range, String progress, String award, String badge) {
+    return '$title, $status, $range. $progress. $award. $badge';
+  }
+
+  @override
+  String get earnsRowOpen => 'See its history';
+
+  @override
+  String earnsStreakLevelSummary(int level) {
+    return 'Level $level reached.';
+  }
+
+  @override
+  String get earnsNoStreakDays => 'No streak days logged yet.';
+
+  @override
+  String get earnsNoWins => 'No auction wins yet.';
+
+  @override
+  String get earnsNoPredictions => 'No settled predictions yet.';
+
+  @override
+  String get earnsNoQuests => 'No quest weeks yet.';
 }

@@ -54,9 +54,9 @@ class PointsHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return HeaderBlock(
-      // With nothing above it the balance stands where the design's empty
-      // eyebrow slot leaves it; a real top row starts at the frame's own 50.
-      topPadding: top == null ? AppSpacing.xxxl : AppSpacing.sm,
+      // Nothing above it leaves the balance where the design's empty eyebrow
+      // slot does; a top row brings the back disc, whose target holds 6 itself.
+      topPadding: top == null ? AppSpacing.xxxl : AppSpacing.xs,
       // The bar is drawn on the closing hairline, so it takes the gap that
       // would otherwise sit under it.
       bottomPadding: bottom == null ? AppSpacing.lg : 0,

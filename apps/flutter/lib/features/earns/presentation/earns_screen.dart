@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:matinee/app/router/app_routes.dart';
 import 'package:matinee/core/l10n/app_exception_l10n.dart';
 import 'package:matinee/core/l10n/l10n.dart';
 import 'package:matinee/core/responsive/responsive.dart';
@@ -19,6 +21,7 @@ import 'package:matinee/core/widgets/screen_title.dart';
 import 'package:matinee/core/widgets/section_label.dart';
 import 'package:matinee/di/service_locator.dart';
 import 'package:matinee/features/earns/data/earns_repository.dart';
+import 'package:matinee/features/earns/data/models/earn_source.dart';
 import 'package:matinee/features/earns/data/models/earned_badge.dart';
 import 'package:matinee/features/earns/data/models/earns_overview.dart';
 import 'package:matinee/features/earns/presentation/cubit/earns_cubit.dart';
@@ -170,9 +173,23 @@ class _Body extends StatelessWidget {
               overview.shareOf(source),
               source.activity,
             ),
+            openHint: l10n.earnsRowOpen,
+            // Pushed, not gone to: these are detail screens the user comes
+            // back from, so the platform back gesture has to return here.
+            onTap: () => unawaited(_historyRoute(source.kind).push<void>(context)),
           ),
         ),
     ];
+  }
+
+  /// Where a row's history lives, one screen per source.
+  static GoRouteData _historyRoute(EarnSourceKind kind) {
+    return switch (kind) {
+      EarnSourceKind.dailyStreaks => const StreakHistoryRoute(),
+      EarnSourceKind.auctionWins => const AuctionWinsRoute(),
+      EarnSourceKind.predictionGames => const PredictionHistoryRoute(),
+      EarnSourceKind.weeklyQuests => const QuestHistoryRoute(),
+    };
   }
 
   List<Widget> _badges(BuildContext context) {
@@ -238,7 +255,9 @@ class _Header extends StatelessWidget {
     // Only the badges segment carries the balance; the earns segment is the
     // title row alone, as the design draws it.
     if (segment == EarnsSegment.earns) {
-      return HeaderBlock(child: top);
+      // Four, not the block's default eight: the back disc's 48 tap target
+      // already holds 6 above its 36 disc, which is the rest of the gap.
+      return HeaderBlock(topPadding: AppSpacing.xs, child: top);
     }
     return PointsHeader(
       top: top,

@@ -9,6 +9,10 @@ part of 'app_routes.dart';
 List<RouteBase> get $appRoutes => [
   $splashRoute,
   $appShellRoute,
+  $streakHistoryRoute,
+  $auctionWinsRoute,
+  $predictionHistoryRoute,
+  $questHistoryRoute,
   $editProfileRoute,
   $auctionRoute,
   $exclusiveLibraryRoute,
@@ -181,6 +185,106 @@ mixin $EarnsRoute on GoRouteData {
 
   @override
   String get location => GoRouteData.$location('/profile/earns');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) => context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+RouteBase get $streakHistoryRoute => GoRouteData.$route(
+  path: '/profile/earns/streaks',
+  hasOverriddenOnExit: false,
+  factory: $StreakHistoryRoute._fromState,
+);
+
+mixin $StreakHistoryRoute on GoRouteData {
+  static StreakHistoryRoute _fromState(GoRouterState state) => const StreakHistoryRoute();
+
+  @override
+  String get location => GoRouteData.$location('/profile/earns/streaks');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) => context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+RouteBase get $auctionWinsRoute => GoRouteData.$route(
+  path: '/profile/earns/auction-wins',
+  hasOverriddenOnExit: false,
+  factory: $AuctionWinsRoute._fromState,
+);
+
+mixin $AuctionWinsRoute on GoRouteData {
+  static AuctionWinsRoute _fromState(GoRouterState state) => const AuctionWinsRoute();
+
+  @override
+  String get location => GoRouteData.$location('/profile/earns/auction-wins');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) => context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+RouteBase get $predictionHistoryRoute => GoRouteData.$route(
+  path: '/profile/earns/predictions',
+  hasOverriddenOnExit: false,
+  factory: $PredictionHistoryRoute._fromState,
+);
+
+mixin $PredictionHistoryRoute on GoRouteData {
+  static PredictionHistoryRoute _fromState(GoRouterState state) => const PredictionHistoryRoute();
+
+  @override
+  String get location => GoRouteData.$location('/profile/earns/predictions');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) => context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+RouteBase get $questHistoryRoute => GoRouteData.$route(
+  path: '/profile/earns/quests',
+  hasOverriddenOnExit: false,
+  factory: $QuestHistoryRoute._fromState,
+);
+
+mixin $QuestHistoryRoute on GoRouteData {
+  static QuestHistoryRoute _fromState(GoRouterState state) => const QuestHistoryRoute();
+
+  @override
+  String get location => GoRouteData.$location('/profile/earns/quests');
 
   @override
   void go(BuildContext context) => context.go(location);

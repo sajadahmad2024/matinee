@@ -34,4 +34,8 @@ abstract final class AppIconAssets {
   static const String trophyMedal = 'assets/icons/trophy_medal.svg';
   static const String check = 'assets/icons/check.svg';
   static const String lock = 'assets/icons/lock.svg';
+
+  /// The status badges and badge chips of the My Earns history screens.
+  static const String star = 'assets/icons/star.svg';
+  static const String close = 'assets/icons/close.svg';
 }

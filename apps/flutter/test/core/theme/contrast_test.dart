@@ -86,6 +86,34 @@ void main() {
     }
   });
 
+  ///
+  /// A tinted pill's label sits on its own tint, not on the card, so the tint
+  /// is composited first. The neutral pill is left out: it names a lot over a
+  /// still, where the on-image convention applies and no ground is fixed.
+  ///
+  group('a tinted pill clears AA 4.5:1 against its own tint', () {
+    final pills = <String, (Color, Color)>{
+      'badge.success': (colors.badge.successLabel, colors.badge.successBackground),
+      'badge.error': (colors.badge.errorLabel, colors.badge.errorBackground),
+      'badge.level1': (colors.badge.level1Label, colors.badge.level1Background),
+      'badge.level2': (colors.badge.level2Label, colors.badge.level2Background),
+      'tag.goldSubtle': (colors.tag.goldSubtleLabel, colors.tag.goldSubtleBackground),
+    };
+
+    for (final pill in pills.entries) {
+      test('${pill.key} on a card', () {
+        final ground = Color.alphaBlend(pill.value.$2, colors.card.background);
+        expect(
+          contrastRatio(pill.value.$1, ground),
+          greaterThanOrEqualTo(4.5),
+          reason:
+              '${pill.key} reads below the 4.5:1 WCAG 1.4.3 minimum once its tint is '
+              'composited over the card it sits on.',
+        );
+      });
+    }
+  });
+
   group('the disabled roles are exempt, and only because they label a dead control', () {
     test('text.disabled would fail as content, which is why nothing uses it there', () {
       // WCAG 1.4.3 exempts an inactive component's own label. The moment this

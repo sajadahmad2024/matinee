@@ -11,8 +11,12 @@
   "@profileUpgradeSubtitle": {
     "description": "Line under the upgrade row naming the current plan and when it lapses.",
     "placeholders": {
-      "plan": { "type": "String" },
-      "date": { "type": "String" }
+      "plan": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
     }
   },
   "profileUpgradeCta": "Upgrade",
@@ -38,7 +42,9 @@
   "referCopyCode": "Copy Code",
   "referCopied": "Referral code copied.",
   "referCopiedForInstagram": "Code copied — paste it into Instagram.",
-  "@referCopiedForInstagram": { "description": "Shown after the Instagram share target copies the referral code, because Instagram takes no shared text from a link." },
+  "@referCopiedForInstagram": {
+    "description": "Shown after the Instagram share target copies the referral code, because Instagram takes no shared text from a link."
+  },
   "referShareWhatsapp": "WhatsApp",
   "referShareTelegram": "Telegram",
   "referShareInstagram": "Instagram",
@@ -52,7 +58,9 @@
   "@tabPlaceholder": {
     "description": "Body of the stand-in screen behind a bottom-nav tab whose feature does not exist yet.",
     "placeholders": {
-      "tab": { "type": "String" }
+      "tab": {
+        "type": "String"
+      }
     }
   },
   "retry": "Retry",
@@ -61,7 +69,9 @@
   "pageNotFound": "There is nothing at {path}.",
   "@pageNotFound": {
     "placeholders": {
-      "path": { "type": "String" }
+      "path": {
+        "type": "String"
+      }
     }
   },
   "onboardingSkip": "Skip",
@@ -86,7 +96,7 @@
   "onboardingSlide3Eyebrow": "EARN",
   "onboardingSlide3Heading": "Win Real points Rewards",
   "onboardingSlide3Body": "Redeem points for premieres, exclusive content, and once-in-a-lifetime experiences.",
-  "onboardingSlide3StatValue": "\u20b950K+",
+  "onboardingSlide3StatValue": "₹50K+",
   "onboardingSlide3StatCaption": "in prizes monthly",
   "onboardingSlide3Highlight1": "Premieres",
   "onboardingSlide3Highlight2": "Meet Stars",
@@ -119,8 +129,12 @@
   "@authLegal": {
     "description": "Legal line under the auth forms. The markers are replaced by gold document names.",
     "placeholders": {
-      "terms": { "type": "String" },
-      "privacy": { "type": "String" }
+      "terms": {
+        "type": "String"
+      },
+      "privacy": {
+        "type": "String"
+      }
     }
   },
   "authLegalTerms": "Terms of Service",
@@ -130,7 +144,9 @@
   "authPhoneInvalid": "Enter the {length} digits of your number, without the dialling code.",
   "@authPhoneInvalid": {
     "placeholders": {
-      "length": { "type": "int" }
+      "length": {
+        "type": "int"
+      }
     }
   },
   "authVerifyHeader": "Verify OTP",
@@ -138,14 +154,20 @@
   "authVerifySubtitle": "We''ve sent a {length}-digit OTP to {phoneNumber}",
   "@authVerifySubtitle": {
     "placeholders": {
-      "length": { "type": "int" },
-      "phoneNumber": { "type": "String" }
+      "length": {
+        "type": "int"
+      },
+      "phoneNumber": {
+        "type": "String"
+      }
     }
   },
   "authOtpIncomplete": "Enter all {length} digits of the code.",
   "@authOtpIncomplete": {
     "placeholders": {
-      "length": { "type": "int" }
+      "length": {
+        "type": "int"
+      }
     }
   },
   "authOtpResend": "Resend Code",
@@ -153,7 +175,9 @@
   "@authOtpResendIn": {
     "description": "The resend countdown. countdown arrives already formatted, as 0:59s.",
     "placeholders": {
-      "countdown": { "type": "String" }
+      "countdown": {
+        "type": "String"
+      }
     }
   },
   "authOtpResent": "We sent a new code.",
@@ -166,13 +190,17 @@
   "authNameTooShort": "Use at least {length} characters.",
   "@authNameTooShort": {
     "placeholders": {
-      "length": { "type": "int" }
+      "length": {
+        "type": "int"
+      }
     }
   },
   "authNameTooLong": "Use no more than {length} characters.",
   "@authNameTooLong": {
     "placeholders": {
-      "length": { "type": "int" }
+      "length": {
+        "type": "int"
+      }
     }
   },
   "authReferralLabel": "Referral Code",
@@ -204,8 +232,13 @@
   "@rewardsNextBadge": {
     "description": "How far the user is from the next badge tier, under their current one.",
     "placeholders": {
-      "points": { "type": "int", "format": "decimalPattern" },
-      "badge": { "type": "String" }
+      "points": {
+        "type": "int",
+        "format": "decimalPattern"
+      },
+      "badge": {
+        "type": "String"
+      }
     }
   },
   "rewardsRedeemSection": "REDEEM REWARDS",
@@ -215,7 +248,12 @@
   "auctionWatching": "{count} watching",
   "@auctionWatching": {
     "description": "How many people are watching the auction right now.",
-    "placeholders": { "count": { "type": "int", "format": "decimalPattern" } }
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
   },
   "auctionViewMore": "View More",
   "auctionViewLess": "View Less",
@@ -226,36 +264,63 @@
   "auctionBidAmount": "{amount} CP",
   "@auctionBidAmount": {
     "description": "A bid in cinema points, the auction's own currency.",
-    "placeholders": { "amount": { "type": "int", "format": "decimalPattern" } }
+    "placeholders": {
+      "amount": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
   },
   "auctionBidFieldLabel": "Your bid",
   "auctionBidAction": "BID",
   "auctionBidIncrement": "+{amount}",
   "@auctionBidIncrement": {
     "description": "A quick-add button that raises the bid by a fixed amount.",
-    "placeholders": { "amount": { "type": "String" } }
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
   },
   "auctionBidTooLow": "Bids start at {amount} CP.",
   "@auctionBidTooLow": {
     "description": "Shown when the typed bid is under the smallest raise the lot accepts.",
-    "placeholders": { "amount": { "type": "int", "format": "decimalPattern" } }
+    "placeholders": {
+      "amount": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
   },
   "auctionBidOverBalance": "You have {amount} CP to bid with.",
   "@auctionBidOverBalance": {
     "description": "Shown when the typed bid is more than the balance the user holds.",
-    "placeholders": { "amount": { "type": "int", "format": "decimalPattern" } }
+    "placeholders": {
+      "amount": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
   },
   "auctionBidPlaced": "Your bid is in.",
   "auctionBidJustNow": "Just now",
   "auctionBidMinutesAgo": "{count, plural, =1{1 minute ago} other{{count} minutes ago}}",
   "@auctionBidMinutesAgo": {
     "description": "How long ago a bid was placed, for bids under an hour old.",
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "auctionBidHoursAgo": "{count, plural, =1{1 hour ago} other{{count} hours ago}}",
   "@auctionBidHoursAgo": {
     "description": "How long ago a bid was placed, for bids under a day old.",
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "auctionBack": "Back to rewards",
   "topUpTooltip": "Top up points",
@@ -265,14 +330,23 @@
   "topUpCta": "Continue to Pay {price}",
   "@topUpCta": {
     "description": "Buys the selected pack; the price carries its own currency symbol.",
-    "placeholders": { "price": { "type": "String" } }
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
   },
   "topUpClose": "Close",
   "topUpSuccessTitle": "Payment Successful",
   "topUpCredited": "+{points} PTS Credited",
   "@topUpCredited": {
     "description": "Confirms how many points the purchase added.",
-    "placeholders": { "points": { "type": "int", "format": "decimalPattern" } }
+    "placeholders": {
+      "points": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
   },
   "topUpDone": "Done",
   "exclusiveTitle": "Exclusive Content",
@@ -281,113 +355,237 @@
   "exclusivePointsCost": "{points} POINTS",
   "@exclusivePointsCost": {
     "description": "What unlocking a piece of exclusive content costs.",
-    "placeholders": { "points": { "type": "int", "format": "decimalPattern" } }
+    "placeholders": {
+      "points": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
   },
   "exclusivePreview": "PREVIEW",
   "exclusiveCastAndCrew": "CAST & CREW",
   "exclusiveUnlockCta": "Unlock Now",
   "exclusiveTag": "EXCLUSIVE CONTENT",
   "a11yLoading": "Loading",
-  "@a11yLoading": { "description": "Announced while a screen is fetching its content." },
+  "@a11yLoading": {
+    "description": "Announced while a screen is fetching its content."
+  },
   "authOtpFieldLabel": "Verification code",
-  "@authOtpFieldLabel": { "description": "Accessible name of the one-time code field, which the design draws as unlabelled boxes." },
+  "@authOtpFieldLabel": {
+    "description": "Accessible name of the one-time code field, which the design draws as unlabelled boxes."
+  },
   "authOtpFieldHint": "Enter the {length}-digit code",
   "@authOtpFieldHint": {
     "description": "Tells a screen reader how long the one-time code is.",
-    "placeholders": { "length": { "type": "int" } }
+    "placeholders": {
+      "length": {
+        "type": "int"
+      }
+    }
   },
   "auctionBidRaise": "Raise the bid by {amount}",
   "@auctionBidRaise": {
     "description": "What a quick-add button does, which its bare numeral does not say.",
-    "placeholders": { "amount": { "type": "String" } }
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
   },
   "auctionLeadingBid": "Leading bid",
-  "@auctionLeadingBid": { "description": "Marks the bid that currently holds the lot, which the design shows in gold alone." },
+  "@auctionLeadingBid": {
+    "description": "Marks the bid that currently holds the lot, which the design shows in gold alone."
+  },
   "auctionBidSummary": "{bidder}, {placedAt}, {amount}",
   "@auctionBidSummary": {
     "description": "One bid in the history, read as a single row.",
-    "placeholders": { "bidder": { "type": "String" }, "placedAt": { "type": "String" }, "amount": { "type": "String" } }
+    "placeholders": {
+      "bidder": {
+        "type": "String"
+      },
+      "placedAt": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
   },
   "auctionTimeRemainingValue": "about {hours}h {minutes}m",
   "@auctionTimeRemainingValue": {
     "description": "The countdown spelled out to the minute. The clock face reads poorly, and a value that changed every second would be re-announced every second to anyone resting on the card.",
-    "placeholders": { "hours": { "type": "int" }, "minutes": { "type": "int" } }
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
   },
   "auctionTimeRemainingMinutes": "about {minutes}m",
   "@auctionTimeRemainingMinutes": {
     "description": "The countdown under an hour, so it is not read as 'about 0h 6m'.",
-    "placeholders": { "minutes": { "type": "int" } }
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
   },
   "auctionTimeRemainingUnderMinute": "less than a minute",
-  "@auctionTimeRemainingUnderMinute": { "description": "The countdown's last minute, which rounding to the minute would otherwise announce as zero." },
+  "@auctionTimeRemainingUnderMinute": {
+    "description": "The countdown's last minute, which rounding to the minute would otherwise announce as zero."
+  },
   "authOtpResendInCoarse": "Resend available in about {seconds} seconds",
   "@authOtpResendInCoarse": {
     "description": "The resend wait, rounded so the announcement does not change every second.",
-    "placeholders": { "seconds": { "type": "int" } }
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
   },
   "auctionLotImage": "Photograph of {title}",
   "@auctionLotImage": {
     "description": "Stands in for the lot photograph until the data carries its own description.",
-    "placeholders": { "title": { "type": "String" } }
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
   },
   "onboardingSlidePosition": "Slide {position} of {total}",
   "@onboardingSlidePosition": {
     "description": "Announced when the carousel moves.",
-    "placeholders": { "position": { "type": "int" }, "total": { "type": "int" } }
+    "placeholders": {
+      "position": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
   },
   "profileAvatarLabel": "Profile photo of {name}",
   "@profileAvatarLabel": {
     "description": "Names the portrait where no name sits beside it.",
-    "placeholders": { "name": { "type": "String" } }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
   "topUpPackOption": "{points} points for {price}",
   "@topUpPackOption": {
     "description": "One top-up pack read as a single option.",
-    "placeholders": { "points": { "type": "String" }, "price": { "type": "String" } }
+    "placeholders": {
+      "points": {
+        "type": "String"
+      },
+      "price": {
+        "type": "String"
+      }
+    }
   },
   "profileStatValue": "{value} {label}",
   "@profileStatValue": {
     "description": "One profile counter read as a single figure with its unit.",
-    "placeholders": { "value": { "type": "String" }, "label": { "type": "String" } }
+    "placeholders": {
+      "value": {
+        "type": "String"
+      },
+      "label": {
+        "type": "String"
+      }
+    }
   },
   "rewardsBalanceSummary": "{label}: {value} {unit}",
   "@rewardsBalanceSummary": {
     "description": "The points balance read as one figure.",
-    "placeholders": { "label": { "type": "String" }, "value": { "type": "String" }, "unit": { "type": "String" } }
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
   },
   "rewardsBadgeSummary": "{label}: {name}. {caption}",
   "@rewardsBadgeSummary": {
     "description": "The badge standing read as one block.",
-    "placeholders": { "label": { "type": "String" }, "name": { "type": "String" }, "caption": { "type": "String" } }
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      },
+      "caption": {
+        "type": "String"
+      }
+    }
   },
   "earnsTitle": "My Earns",
   "earnsBack": "Back to profile",
   "earnsSegmentEarns": "Earns",
   "earnsSegmentBadges": "Badges",
-  "earnsShareCaption": "{unit} \u00b7 {share}",
+  "earnsShareCaption": "{unit} · {share}",
   "@earnsShareCaption": {
     "description": "The unit and the share of the balance an earn row accounts for, under its value.",
     "placeholders": {
-      "unit": { "type": "String" },
-      "share": { "type": "double", "format": "percentPattern", "optionalParameters": { "decimalDigits": 0 } }
+      "unit": {
+        "type": "String"
+      },
+      "share": {
+        "type": "double",
+        "format": "percentPattern",
+        "optionalParameters": {
+          "decimalDigits": 0
+        }
+      }
     }
   },
   "earnsRowSummary": "{title}: {points} {unit}, {share} of your points. {activity}",
   "@earnsRowSummary": {
     "description": "One earn row read as a single sentence, since its bar repeats the share.",
     "placeholders": {
-      "title": { "type": "String" },
-      "points": { "type": "String" },
-      "unit": { "type": "String" },
-      "share": { "type": "double", "format": "percentPattern", "optionalParameters": { "decimalDigits": 0 } },
-      "activity": { "type": "String" }
+      "title": {
+        "type": "String"
+      },
+      "points": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      },
+      "share": {
+        "type": "double",
+        "format": "percentPattern",
+        "optionalParameters": {
+          "decimalDigits": 0
+        }
+      },
+      "activity": {
+        "type": "String"
+      }
     }
   },
   "earnsCurrentBadge": "CURRENT BADGE",
   "earnsCurrentBadgeSummary": "Current badge: {name}. {caption}",
   "@earnsCurrentBadgeSummary": {
     "description": "The current-badge card read as one block.",
-    "placeholders": { "name": { "type": "String" }, "caption": { "type": "String" } }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "caption": {
+        "type": "String"
+      }
+    }
   },
   "earnsAllBadges": "ALL BADGES",
   "earnsFilterEarned": "Earned",
@@ -395,18 +593,404 @@
   "earnsBadgeEarnedSummary": "{name}, earned. {requirement}",
   "@earnsBadgeEarnedSummary": {
     "description": "An earned badge tile, whose state the design shows only as a tick.",
-    "placeholders": { "name": { "type": "String" }, "requirement": { "type": "String" } }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "requirement": {
+        "type": "String"
+      }
+    }
   },
   "earnsBadgeCurrentSummary": "{name}, your current badge. {requirement}",
   "@earnsBadgeCurrentSummary": {
     "description": "The tile of the badge the balance currently sits on.",
-    "placeholders": { "name": { "type": "String" }, "requirement": { "type": "String" } }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "requirement": {
+        "type": "String"
+      }
+    }
   },
   "earnsBadgeLockedSummary": "{name}, locked. {requirement}",
   "@earnsBadgeLockedSummary": {
     "description": "A locked badge tile, whose state the design shows only as a padlock and a grey.",
-    "placeholders": { "name": { "type": "String" }, "requirement": { "type": "String" } }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "requirement": {
+        "type": "String"
+      }
+    }
   },
   "earnsNoEarnedBadges": "No badges earned yet.",
-  "earnsNoLockedBadges": "Every badge is earned."
+  "earnsNoLockedBadges": "Every badge is earned.",
+  "earnsStreaksTitle": "Daily Streaks",
+  "earnsAuctionTitle": "Live Auctions",
+  "earnsPredictionsTitle": "Prediction Games",
+  "earnsQuestsTitle": "Weekly Quest",
+  "earnsStreaksEyebrow": "DAILY STREAKS",
+  "earnsAuctionEyebrow": "AUCTION WINS",
+  "earnsPredictionsEyebrow": "PREDICTION GAMES",
+  "earnsDetailPointsEarned": "pts earned",
+  "earnsDetailTotalSummary": "{title}: {points} {unit} earned",
+  "@earnsDetailTotalSummary": {
+    "description": "The total a source has paid, read as one sentence rather than three stops.",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "points": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "earnsDetailStatSummary": "{label}: {value}. {caption}",
+  "@earnsDetailStatSummary": {
+    "description": "The stat beside the total. The caption is empty on the screens that draw none.",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      },
+      "caption": {
+        "type": "String"
+      }
+    }
+  },
+  "earnsStreaksStatLabel": "Active days",
+  "earnsAuctionStatLabel": "Total wins",
+  "earnsPredictionsStatLabel": "Accuracy",
+  "earnsQuestsStatLabel": "Completed",
+  "earnsPredictionsAccuracy": "{percent}%",
+  "@earnsPredictionsAccuracy": {
+    "description": "The share of settled predictions that were right.",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "earnsPredictionsAccuracyCaption": "{correct}/{total} correct",
+  "@earnsPredictionsAccuracyCaption": {
+    "description": "How the accuracy was reached.",
+    "placeholders": {
+      "correct": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "earnsQuestsCompleted": "{completed}/{total}",
+  "@earnsQuestsCompleted": {
+    "description": "Weeks claimed out of the weeks in the history.",
+    "placeholders": {
+      "completed": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "earnsActivityLog": "ACTIVITY LOG",
+  "earnsWinHistory": "WIN HISTORY",
+  "earnsPredictionHistory": "PREDICTION HISTORY",
+  "earnsQuestHistory": "QUEST HISTORY",
+  "earnsStreakLevelChip": "Lv {level} · {minutes} min",
+  "@earnsStreakLevelChip": {
+    "description": "One rung of the watch-time ladder.",
+    "placeholders": {
+      "level": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "earnsStreakLevelReached": "Lv {level}, {minutes} minutes a day, reached",
+  "@earnsStreakLevelReached": {
+    "description": "A ladder rung the log has met, which the design shows only as a coloured dot.",
+    "placeholders": {
+      "level": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "earnsStreakLevelLocked": "Lv {level}, {minutes} minutes a day, not reached yet",
+  "@earnsStreakLevelLocked": {
+    "description": "A ladder rung the log has not met, which the design shows only as a grey.",
+    "placeholders": {
+      "level": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "earnsStreakLevelBadge": "LV {level}",
+  "@earnsStreakLevelBadge": {
+    "description": "The level pill beside a log entry.",
+    "placeholders": {
+      "level": {
+        "type": "int"
+      }
+    }
+  },
+  "earnsStreakDayCount": "{days}d",
+  "@earnsStreakDayCount": {
+    "description": "The streak length on a log entry tile.",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "earnsStreakMinutes": "{minutes} min watched",
+  "@earnsStreakMinutes": {
+    "description": "What the day earned its points for.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "earnsStreakBadgeUnlocked": "Badge unlocked: {name}",
+  "@earnsStreakBadgeUnlocked": {
+    "description": "The badge a streak day reached.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "earnsStreakDaySummary": "{date}, day {dayCount} of the streak. {minutes} minutes watched, {award}. {level} {badge}",
+  "@earnsStreakDaySummary": {
+    "description": "One streak log entry as a single sentence; its tile, pill and glyph say none of this.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "dayCount": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      },
+      "award": {
+        "type": "String"
+      },
+      "level": {
+        "type": "String"
+      },
+      "badge": {
+        "type": "String"
+      }
+    }
+  },
+  "earnsPointsAwarded": "pts awarded",
+  "earnsPointsAdded": "+{points}",
+  "@earnsPointsAdded": {
+    "description": "A points award, which the design always writes signed.",
+    "placeholders": {
+      "points": {
+        "type": "String"
+      }
+    }
+  },
+  "earnsNoPoints": "—",
+  "@earnsNoPoints": {
+    "description": "Stands in for the award on an entry that paid nothing."
+  },
+  "earnsAwardSummary": "{points} {unit} awarded",
+  "@earnsAwardSummary": {
+    "description": "An award read aloud.",
+    "placeholders": {
+      "points": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "earnsNoAwardSummary": "no points awarded",
+  "@earnsNoAwardSummary": {
+    "description": "Read in place of the dash the design draws."
+  },
+  "earnsBadgeAwardSummary": "Badge earned: {name}.",
+  "@earnsBadgeAwardSummary": {
+    "description": "The badge chip on a history card.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "earnsStatusWon": "WON",
+  "earnsStatusCorrect": "CORRECT",
+  "earnsStatusIncorrect": "INCORRECT",
+  "earnsStatusClaimed": "CLAIMED",
+  "earnsStatusPartial": "PARTIAL",
+  "earnsLotMemorabilia": "MEMORABILIA",
+  "earnsLotExperience": "EXPERIENCE",
+  "earnsLotTicket": "TICKET",
+  "earnsLotContent": "CONTENT",
+  "earnsWinningBidLabel": "Winning bid: ",
+  "earnsWinningBidValue": "{bid} CP",
+  "@earnsWinningBidValue": {
+    "description": "The bid that won the lot, in the auction currency.",
+    "placeholders": {
+      "bid": {
+        "type": "String"
+      }
+    }
+  },
+  "earnsWinSummary": "{title}, {kind}, won {date}. Winning bid {bid}. {award}. {badge}",
+  "@earnsWinSummary": {
+    "description": "One auction win as a single sentence; the card splits it over an image and two rows.",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "kind": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      },
+      "bid": {
+        "type": "String"
+      },
+      "award": {
+        "type": "String"
+      },
+      "badge": {
+        "type": "String"
+      }
+    }
+  },
+  "earnsPredictionMultiplier": "{multiplier}X",
+  "@earnsPredictionMultiplier": {
+    "description": "The stake a prediction game ran at.",
+    "placeholders": {
+      "multiplier": {
+        "type": "int"
+      }
+    }
+  },
+  "earnsPredictionYourVote": "YOUR VOTE",
+  "earnsPredictionOutcome": "RESULT",
+  "earnsVoteYes": "YES",
+  "earnsVoteNo": "NO",
+  "earnsPredictionSummary": "{title}, {status}. {question} Your vote: {vote}. Result: {outcome}. {award}. {badge}",
+  "@earnsPredictionSummary": {
+    "description": "One settled prediction as a single sentence; the card colours the result rather than saying it.",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "status": {
+        "type": "String"
+      },
+      "question": {
+        "type": "String"
+      },
+      "vote": {
+        "type": "String"
+      },
+      "outcome": {
+        "type": "String"
+      },
+      "award": {
+        "type": "String"
+      },
+      "badge": {
+        "type": "String"
+      }
+    }
+  },
+  "earnsQuestRange": "{start} – {end}",
+  "@earnsQuestRange": {
+    "description": "The week a quest ran.",
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "earnsQuestProgress": "{completed} of {total} actions completed · Done {date}",
+  "@earnsQuestProgress": {
+    "description": "How much of the week the user finished.",
+    "placeholders": {
+      "completed": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "earnsQuestSummary": "{title}, {status}, {range}. {progress}. {award}. {badge}",
+  "@earnsQuestSummary": {
+    "description": "One quest week as a single sentence.",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "status": {
+        "type": "String"
+      },
+      "range": {
+        "type": "String"
+      },
+      "progress": {
+        "type": "String"
+      },
+      "award": {
+        "type": "String"
+      },
+      "badge": {
+        "type": "String"
+      }
+    }
+  },
+  "earnsRowOpen": "See its history",
+  "@earnsRowOpen": {
+    "description": "What tapping an earn row does, which the design shows with no chevron."
+  },
+  "earnsStreakLevelSummary": "Level {level} reached.",
+  "@earnsStreakLevelSummary": {
+    "description": "The level a streak day reached, empty on a day that reached none.",
+    "placeholders": {
+      "level": {
+        "type": "int"
+      }
+    }
+  },
+  "earnsNoStreakDays": "No streak days logged yet.",
+  "earnsNoWins": "No auction wins yet.",
+  "earnsNoPredictions": "No settled predictions yet.",
+  "earnsNoQuests": "No quest weeks yet."
 }

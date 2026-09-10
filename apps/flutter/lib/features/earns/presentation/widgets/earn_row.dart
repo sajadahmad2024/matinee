@@ -21,7 +21,9 @@ class EarnRow extends StatelessWidget {
     required this.share,
     required this.shareCaption,
     required this.semanticLabel,
+    required this.openHint,
     required this.kind,
+    required this.onTap,
     super.key,
   });
 
@@ -42,7 +44,13 @@ class EarnRow extends StatelessWidget {
   ///
   final String semanticLabel;
 
+  /// What opening the row does; the design draws no chevron to say so.
+  final String openHint;
+
   final EarnSourceKind kind;
+
+  /// Null leaves the row inert, as a source with no history screen would be.
+  final VoidCallback? onTap;
 
   ///
   /// The glyph the frame draws for this source. Weekly Quests really is a
@@ -63,59 +71,71 @@ class EarnRow extends StatelessWidget {
     final text = Theme.of(context).textTheme;
     return Semantics(
       label: semanticLabel,
+      hint: openHint,
+      button: true,
+      enabled: onTap != null,
+      // Excluding the subtree takes the InkWell's tap action with it, leaving a
+      // row a screen reader can reach and cannot activate.
+      onTap: onTap,
       container: true,
       excludeSemantics: true,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: colors.card.background,
-          border: Border.all(color: colors.card.border),
+      // A Material rather than a DecoratedBox, so the ink is clipped to the
+      // card's own corners instead of washing over them.
+      child: Material(
+        color: colors.card.background,
+        shape: RoundedRectangleBorder(
+          side: BorderSide(color: colors.card.border),
           borderRadius: BorderRadius.circular(AppRadius.lg),
         ),
-        child: Padding(
-          padding: AppSpacing.cardPadding,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: AppSpacing.md,
-            children: [
-              Row(
-                spacing: AppSpacing.md,
-                children: [
-                  SvgIcon(_glyph(kind), size: AppIconSize.lg, color: colors.icon.accent),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: Padding(
+            padding: AppSpacing.cardPadding,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: AppSpacing.md,
+              children: [
+                Row(
+                  spacing: AppSpacing.md,
+                  children: [
+                    SvgIcon(_glyph(kind), size: AppIconSize.lg, color: colors.icon.accent),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(title, style: text.titleSmall?.copyWith(color: colors.text.primary)),
+                          Padding(
+                            padding: const EdgeInsets.only(top: AppSpacing.xxs),
+                            child: Text(
+                              activity,
+                              style: AppTextStyle.caption.copyWith(color: colors.text.muted),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Text(title, style: text.titleSmall?.copyWith(color: colors.text.primary)),
+                        Text(
+                          points,
+                          style: AppTextStyle.numeralSm.copyWith(color: colors.text.numeral),
+                        ),
                         Padding(
                           padding: const EdgeInsets.only(top: AppSpacing.xxs),
                           child: Text(
-                            activity,
+                            shareCaption,
                             style: AppTextStyle.caption.copyWith(color: colors.text.muted),
                           ),
                         ),
                       ],
                     ),
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        points,
-                        style: AppTextStyle.numeralSm.copyWith(color: colors.text.numeral),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: AppSpacing.xxs),
-                        child: Text(
-                          shareCaption,
-                          style: AppTextStyle.caption.copyWith(color: colors.text.muted),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              ProgressBar(value: share, tone: ProgressTone.soft, isRaised: true),
-            ],
+                  ],
+                ),
+                ProgressBar(value: share, tone: ProgressTone.soft, isRaised: true),
+              ],
+            ),
           ),
         ),
       ),

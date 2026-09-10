@@ -490,6 +490,11 @@
 **Notes**
 - 4 different success greens/tints for the same 'done' meaning ({success} vs {success}; 0x1F vs 0x14 fills).
 
+**Implementation**
+- One `StatusBadge` with four tones covers this and `chip.badgeEarned`, which the frames draw with the same tokens. The gold tone maps to `tag.goldSubtle` — the existing role for a gold@10% fill with a gold label — so its border takes the alpha scale's 30% rather than the frame's 20%.
+- The naming pill (`neutral`) keeps the tighter 2/8 padding the frame gives it; the tinted tones take 4/12.
+- Every label-on-tint pair is asserted in `test/core/theme/contrast_test.dart` with the tint composited over the card. The tightest is the error pill at 4.65:1. The neutral pill is exempt: it sits over a still, under the on-image convention.
+
 **Screens:** 165:1931 (Weekly Quest listing), 378:4290 (Weekly Quest listing), 377:3922 (Weekly quest track progress), 406:9862 (Prediction Game listing), 429:21790 (Rewards / Live auction), 429:22526 (Rewards / Prediction Games), 429:23212 (Weekly Quest Rewards), 379:4980 (Completed weekly quest details), 418:18052 (OPTION 1 - Auction), 382:6636 (WeeklyQuestProgressScreen)
 
 ### `badge.level` — Badge / Level (LV 1 / LV 2)
@@ -508,6 +513,9 @@
 - **lv1** — fill {goldLevel1@10%} stroke {goldLevel1@20%} label {goldLevel1}
 
 **Evidence:** `Container#416:15662`, `Container#416:15832`
+
+**Implementation**
+- Drawn inside `ActivityRow` from the same tints as its tile, so the pill and the square can never disagree about a day's level.
 
 **Screens:** 416:15593 (Daily streaks rewards)
 
@@ -641,6 +649,11 @@
 - stroke: {outline} 1
 
 **Evidence:** `Container#416:15634`
+
+**Implementation**
+- `StreakLevelChips` lays the three rungs out in a `Wrap`: they fill the width at the design's text size, so a scaled-up label has to be able to take a second line.
+- Reached is a colour in the design and nothing else, so each chip carries a composed label saying 'reached' or 'not reached yet'. The unreached label steps from `{textDisabled}` to `text.muted`, which is legible.
+- Whether a rung is reached is derived, not stored: it is true once one day in the log met its watch time.
 
 **Screens:** 416:15593 (Daily streaks rewards)
 
@@ -1388,6 +1401,12 @@
 
 **Evidence:** `Container#416:15651`, `Container#416:15676`, `Container#416:15821`
 
+**Implementation**
+- The 42 tile is a minimum rather than a fixed square. Fixed, it clipped the day count at a 1.3 text scale; the glyph and the count now push it wider instead.
+- The date and its level pill sit in a `Wrap`, so a scaled-up date drops the pill to its own line rather than squeezing it off the row.
+- Level 1 takes `badge.level1`, every level above it `badge.level2`; the design draws no third tint. The 🔥 the frame sets on the level-1 tile is the `fire` glyph tinted, per §8's rule against shipping emoji as images.
+- The whole row is one semantics stop: five texts and a tile otherwise read as six, and the tile only repeats the day count.
+
 **Screens:** 416:15593 (Daily streaks rewards)
 
 ### `summaryHeader` — Summary header (rewards detail screens)
@@ -1399,6 +1418,14 @@
 1. (Daily streaks) legend row pt12 gap 8: 3× chip.legend
 
 **Evidence:** `Container#416:15619`, `Container#429:21819`, `Container#429:22552`, `Container#429:23238`
+
+**Implementation**
+- The block sits under a real `AppBar` at the theme's 56 toolbar, which centres the back button's 48
+  tap target 4 below the status inset — the same place the other back-header screens put it, and
+  within half a pixel of the frames. My Earns above it was padding 8 and had to come down to match.
+- One `SummaryHeader` behind all four screens. Both blocks are `Flexible` under `spaceBetween`, so the leftover width falls between them instead of being handed to the total; the total scales down as a whole, keeping 'pts earned' on the numeral's baseline.
+- The eyebrow is a plain `Text`, not a `SectionLabel`: it repeats the app-bar title, and ranking it as a heading would give a screen reader two of them. Weekly Quest passes none, as the frame leaves the slot empty.
+- The stat's accent is a tone rather than a colour: `warning` for the streak and win counts, `success` for accuracy and completion. Both blocks are one semantics stop each.
 
 **Screens:** 416:15593 (Daily streaks rewards), 429:21790 (Rewards / Live auction), 429:22526 (Rewards / Prediction Games), 429:23212 (Weekly Quest Rewards)
 
@@ -1415,6 +1442,11 @@
 - listGap: 10
 
 **Evidence:** `Container#429:21838`
+
+**Implementation**
+- One scrim, not two. Stacking `overlay.gameCard` and `overlay.gameCardBottom` read visibly darker than the frame; the card takes only the first, which darkens the end the lot's name sits on and leaves the still visible at the other.
+- The 80 image band is a minimum height, so a scaled-up lot name grows it instead of clipping.
+- The bid is one `Text.rich`: the design colours the figure `{gold}` and leaves its label muted, and splitting them into two widgets would let the pair break apart.
 
 **Screens:** 429:21790 (Rewards / Live auction)
 
@@ -1434,6 +1466,11 @@
 
 **Evidence:** `Container#429:22575`
 
+**Implementation**
+- The two panels are stretched inside an `IntrinsicHeight`, so they match the taller of them. Without it, a `Row` asked to stretch inside a `Column` has no height to fill.
+- The panels' 'YOUR VOTE' and 'RESULT' carry their case in the string: Figma applies `uppercase` as a style and the `overline` role has no transform.
+- A prediction that paid nothing shows the design's dash, stepped from `{textDisabled}` to `text.muted` so it is legible; the composed label says 'no points awarded' outright.
+
 **Screens:** 429:22526 (Rewards / Prediction Games)
 
 ### `questHistoryCard` — Quest history card
@@ -1450,6 +1487,10 @@
 - listGap: 10
 
 **Evidence:** `Container#429:23256`
+
+**Implementation**
+- A part-finished week takes the gold pill rather than the error one: unclaimed is not failed, which is how the frame tints it. Its glyph is `star`, the simpler five-point star the frame draws there.
+- Claimed is derived from the actions, not stored: `actionsCompleted >= actionsTotal`. The header's 4/5 is the count of claimed weeks in the list.
 
 **Screens:** 429:23212 (Weekly Quest Rewards)
 

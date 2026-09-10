@@ -1380,6 +1380,386 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Every badge is earned.'**
   String get earnsNoLockedBadges;
+
+  /// No description provided for @earnsStreaksTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Streaks'**
+  String get earnsStreaksTitle;
+
+  /// No description provided for @earnsAuctionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Live Auctions'**
+  String get earnsAuctionTitle;
+
+  /// No description provided for @earnsPredictionsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Prediction Games'**
+  String get earnsPredictionsTitle;
+
+  /// No description provided for @earnsQuestsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly Quest'**
+  String get earnsQuestsTitle;
+
+  /// No description provided for @earnsStreaksEyebrow.
+  ///
+  /// In en, this message translates to:
+  /// **'DAILY STREAKS'**
+  String get earnsStreaksEyebrow;
+
+  /// No description provided for @earnsAuctionEyebrow.
+  ///
+  /// In en, this message translates to:
+  /// **'AUCTION WINS'**
+  String get earnsAuctionEyebrow;
+
+  /// No description provided for @earnsPredictionsEyebrow.
+  ///
+  /// In en, this message translates to:
+  /// **'PREDICTION GAMES'**
+  String get earnsPredictionsEyebrow;
+
+  /// No description provided for @earnsDetailPointsEarned.
+  ///
+  /// In en, this message translates to:
+  /// **'pts earned'**
+  String get earnsDetailPointsEarned;
+
+  /// The total a source has paid, read as one sentence rather than three stops.
+  ///
+  /// In en, this message translates to:
+  /// **'{title}: {points} {unit} earned'**
+  String earnsDetailTotalSummary(String title, String points, String unit);
+
+  /// The stat beside the total. The caption is empty on the screens that draw none.
+  ///
+  /// In en, this message translates to:
+  /// **'{label}: {value}. {caption}'**
+  String earnsDetailStatSummary(String label, String value, String caption);
+
+  /// No description provided for @earnsStreaksStatLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Active days'**
+  String get earnsStreaksStatLabel;
+
+  /// No description provided for @earnsAuctionStatLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Total wins'**
+  String get earnsAuctionStatLabel;
+
+  /// No description provided for @earnsPredictionsStatLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Accuracy'**
+  String get earnsPredictionsStatLabel;
+
+  /// No description provided for @earnsQuestsStatLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get earnsQuestsStatLabel;
+
+  /// The share of settled predictions that were right.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}%'**
+  String earnsPredictionsAccuracy(int percent);
+
+  /// How the accuracy was reached.
+  ///
+  /// In en, this message translates to:
+  /// **'{correct}/{total} correct'**
+  String earnsPredictionsAccuracyCaption(int correct, int total);
+
+  /// Weeks claimed out of the weeks in the history.
+  ///
+  /// In en, this message translates to:
+  /// **'{completed}/{total}'**
+  String earnsQuestsCompleted(int completed, int total);
+
+  /// No description provided for @earnsActivityLog.
+  ///
+  /// In en, this message translates to:
+  /// **'ACTIVITY LOG'**
+  String get earnsActivityLog;
+
+  /// No description provided for @earnsWinHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'WIN HISTORY'**
+  String get earnsWinHistory;
+
+  /// No description provided for @earnsPredictionHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'PREDICTION HISTORY'**
+  String get earnsPredictionHistory;
+
+  /// No description provided for @earnsQuestHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'QUEST HISTORY'**
+  String get earnsQuestHistory;
+
+  /// One rung of the watch-time ladder.
+  ///
+  /// In en, this message translates to:
+  /// **'Lv {level} · {minutes} min'**
+  String earnsStreakLevelChip(int level, int minutes);
+
+  /// A ladder rung the log has met, which the design shows only as a coloured dot.
+  ///
+  /// In en, this message translates to:
+  /// **'Lv {level}, {minutes} minutes a day, reached'**
+  String earnsStreakLevelReached(int level, int minutes);
+
+  /// A ladder rung the log has not met, which the design shows only as a grey.
+  ///
+  /// In en, this message translates to:
+  /// **'Lv {level}, {minutes} minutes a day, not reached yet'**
+  String earnsStreakLevelLocked(int level, int minutes);
+
+  /// The level pill beside a log entry.
+  ///
+  /// In en, this message translates to:
+  /// **'LV {level}'**
+  String earnsStreakLevelBadge(int level);
+
+  /// The streak length on a log entry tile.
+  ///
+  /// In en, this message translates to:
+  /// **'{days}d'**
+  String earnsStreakDayCount(int days);
+
+  /// What the day earned its points for.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min watched'**
+  String earnsStreakMinutes(int minutes);
+
+  /// The badge a streak day reached.
+  ///
+  /// In en, this message translates to:
+  /// **'Badge unlocked: {name}'**
+  String earnsStreakBadgeUnlocked(String name);
+
+  /// One streak log entry as a single sentence; its tile, pill and glyph say none of this.
+  ///
+  /// In en, this message translates to:
+  /// **'{date}, day {dayCount} of the streak. {minutes} minutes watched, {award}. {level} {badge}'**
+  String earnsStreakDaySummary(String date, int dayCount, int minutes, String award, String level, String badge);
+
+  /// No description provided for @earnsPointsAwarded.
+  ///
+  /// In en, this message translates to:
+  /// **'pts awarded'**
+  String get earnsPointsAwarded;
+
+  /// A points award, which the design always writes signed.
+  ///
+  /// In en, this message translates to:
+  /// **'+{points}'**
+  String earnsPointsAdded(String points);
+
+  /// Stands in for the award on an entry that paid nothing.
+  ///
+  /// In en, this message translates to:
+  /// **'—'**
+  String get earnsNoPoints;
+
+  /// An award read aloud.
+  ///
+  /// In en, this message translates to:
+  /// **'{points} {unit} awarded'**
+  String earnsAwardSummary(String points, String unit);
+
+  /// Read in place of the dash the design draws.
+  ///
+  /// In en, this message translates to:
+  /// **'no points awarded'**
+  String get earnsNoAwardSummary;
+
+  /// The badge chip on a history card.
+  ///
+  /// In en, this message translates to:
+  /// **'Badge earned: {name}.'**
+  String earnsBadgeAwardSummary(String name);
+
+  /// No description provided for @earnsStatusWon.
+  ///
+  /// In en, this message translates to:
+  /// **'WON'**
+  String get earnsStatusWon;
+
+  /// No description provided for @earnsStatusCorrect.
+  ///
+  /// In en, this message translates to:
+  /// **'CORRECT'**
+  String get earnsStatusCorrect;
+
+  /// No description provided for @earnsStatusIncorrect.
+  ///
+  /// In en, this message translates to:
+  /// **'INCORRECT'**
+  String get earnsStatusIncorrect;
+
+  /// No description provided for @earnsStatusClaimed.
+  ///
+  /// In en, this message translates to:
+  /// **'CLAIMED'**
+  String get earnsStatusClaimed;
+
+  /// No description provided for @earnsStatusPartial.
+  ///
+  /// In en, this message translates to:
+  /// **'PARTIAL'**
+  String get earnsStatusPartial;
+
+  /// No description provided for @earnsLotMemorabilia.
+  ///
+  /// In en, this message translates to:
+  /// **'MEMORABILIA'**
+  String get earnsLotMemorabilia;
+
+  /// No description provided for @earnsLotExperience.
+  ///
+  /// In en, this message translates to:
+  /// **'EXPERIENCE'**
+  String get earnsLotExperience;
+
+  /// No description provided for @earnsLotTicket.
+  ///
+  /// In en, this message translates to:
+  /// **'TICKET'**
+  String get earnsLotTicket;
+
+  /// No description provided for @earnsLotContent.
+  ///
+  /// In en, this message translates to:
+  /// **'CONTENT'**
+  String get earnsLotContent;
+
+  /// No description provided for @earnsWinningBidLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Winning bid: '**
+  String get earnsWinningBidLabel;
+
+  /// The bid that won the lot, in the auction currency.
+  ///
+  /// In en, this message translates to:
+  /// **'{bid} CP'**
+  String earnsWinningBidValue(String bid);
+
+  /// One auction win as a single sentence; the card splits it over an image and two rows.
+  ///
+  /// In en, this message translates to:
+  /// **'{title}, {kind}, won {date}. Winning bid {bid}. {award}. {badge}'**
+  String earnsWinSummary(String title, String kind, String date, String bid, String award, String badge);
+
+  /// The stake a prediction game ran at.
+  ///
+  /// In en, this message translates to:
+  /// **'{multiplier}X'**
+  String earnsPredictionMultiplier(int multiplier);
+
+  /// No description provided for @earnsPredictionYourVote.
+  ///
+  /// In en, this message translates to:
+  /// **'YOUR VOTE'**
+  String get earnsPredictionYourVote;
+
+  /// No description provided for @earnsPredictionOutcome.
+  ///
+  /// In en, this message translates to:
+  /// **'RESULT'**
+  String get earnsPredictionOutcome;
+
+  /// No description provided for @earnsVoteYes.
+  ///
+  /// In en, this message translates to:
+  /// **'YES'**
+  String get earnsVoteYes;
+
+  /// No description provided for @earnsVoteNo.
+  ///
+  /// In en, this message translates to:
+  /// **'NO'**
+  String get earnsVoteNo;
+
+  /// One settled prediction as a single sentence; the card colours the result rather than saying it.
+  ///
+  /// In en, this message translates to:
+  /// **'{title}, {status}. {question} Your vote: {vote}. Result: {outcome}. {award}. {badge}'**
+  String earnsPredictionSummary(
+    String title,
+    String status,
+    String question,
+    String vote,
+    String outcome,
+    String award,
+    String badge,
+  );
+
+  /// The week a quest ran.
+  ///
+  /// In en, this message translates to:
+  /// **'{start} – {end}'**
+  String earnsQuestRange(String start, String end);
+
+  /// How much of the week the user finished.
+  ///
+  /// In en, this message translates to:
+  /// **'{completed} of {total} actions completed · Done {date}'**
+  String earnsQuestProgress(int completed, int total, String date);
+
+  /// One quest week as a single sentence.
+  ///
+  /// In en, this message translates to:
+  /// **'{title}, {status}, {range}. {progress}. {award}. {badge}'**
+  String earnsQuestSummary(String title, String status, String range, String progress, String award, String badge);
+
+  /// What tapping an earn row does, which the design shows with no chevron.
+  ///
+  /// In en, this message translates to:
+  /// **'See its history'**
+  String get earnsRowOpen;
+
+  /// The level a streak day reached, empty on a day that reached none.
+  ///
+  /// In en, this message translates to:
+  /// **'Level {level} reached.'**
+  String earnsStreakLevelSummary(int level);
+
+  /// No description provided for @earnsNoStreakDays.
+  ///
+  /// In en, this message translates to:
+  /// **'No streak days logged yet.'**
+  String get earnsNoStreakDays;
+
+  /// No description provided for @earnsNoWins.
+  ///
+  /// In en, this message translates to:
+  /// **'No auction wins yet.'**
+  String get earnsNoWins;
+
+  /// No description provided for @earnsNoPredictions.
+  ///
+  /// In en, this message translates to:
+  /// **'No settled predictions yet.'**
+  String get earnsNoPredictions;
+
+  /// No description provided for @earnsNoQuests.
+  ///
+  /// In en, this message translates to:
+  /// **'No quest weeks yet.'**
+  String get earnsNoQuests;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
