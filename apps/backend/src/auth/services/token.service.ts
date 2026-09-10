@@ -122,23 +122,23 @@ export class TokenService implements OnModuleInit {
     );
   }
 
-  /** Sign the OAuth `state` so it can't be tampered with (guest-token injection / redirect tampering). */
-  signOAuthState(payload: { guestToken?: string | undefined; redirect?: string | undefined }): string {
+  /** Sign the OAuth `state` so it can't be tampered with (redirect tampering). */
+  signOAuthState(payload: { redirect?: string | undefined }): string {
     return this.jwt.sign(
-      { typ: 'oauth_state', gt: payload.guestToken, rd: payload.redirect },
+      { typ: 'oauth_state', rd: payload.redirect },
       { secret: this.accessSecret, expiresIn: OTP_CHALLENGE_TTL, jwtid: randomUUID() },
     );
   }
 
-  verifyOAuthState(token: string): { guestToken?: string | undefined; redirect?: string | undefined } {
-    const p = this.jwt.verify<{ typ: string; gt?: string; rd?: string }>(token, {
+  verifyOAuthState(token: string): { redirect?: string | undefined } {
+    const p = this.jwt.verify<{ typ: string; rd?: string }>(token, {
       secret: this.accessSecret,
       algorithms: ['HS256'],
     });
     if (p.typ !== 'oauth_state') {
       throw new Error('Not an OAuth state token');
     }
-    return { guestToken: p.gt, redirect: p.rd };
+    return { redirect: p.rd };
   }
 
   verifyOtpChallenge(token: string): OtpChallenge {

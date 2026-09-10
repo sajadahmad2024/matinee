@@ -103,9 +103,4 @@ export class DeviceRepository {
   async removeByFcm(userId: string, fcmToken: string, tx?: DBExecutor): Promise<void> {
     await this.exec(tx).delete(deviceTokens).where(and(eq(deviceTokens.userId, userId), eq(deviceTokens.fcmToken, fcmToken)));
   }
-
-  /** Reassign all of a guest's devices to the merged-into user. */
-  async repointUser(fromUserId: string, toUserId: string, tx?: DBExecutor): Promise<void> {
-    await this.exec(tx).update(deviceTokens).set({ userId: toUserId, updatedAt: sql`now()` }).where(eq(deviceTokens.userId, fromUserId));
-  }
 }

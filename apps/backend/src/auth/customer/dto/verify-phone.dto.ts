@@ -15,9 +15,4 @@ export class VerifyPhoneDto {
   @IsOptional()
   @IsString()
   firebaseToken?: string;
-
-  @ApiPropertyOptional({ description: 'Current guest token to merge/carry over' })
-  @IsOptional()
-  @IsString()
-  guestToken?: string;
 }

@@ -8,4 +8,3 @@ export const AccountTypes = (...types: AccountType[]) => SetMetadata(ACCOUNT_TYP
 
 export const AdminOnly = () => AccountTypes(AccountType.ADMIN);
 export const CustomerOnly = () => AccountTypes(AccountType.CUSTOMER);
-export const CustomerOrGuest = () => AccountTypes(AccountType.GUEST, AccountType.CUSTOMER);
