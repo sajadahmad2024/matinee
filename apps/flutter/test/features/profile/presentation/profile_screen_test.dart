@@ -107,5 +107,15 @@ void main() {
         expect(rowsWhere((row) => row.onTap != null), hasLength(3));
       });
     });
+
+    group('accessibility', () {
+      testWidgets('meets the tap target and labelling guidelines', (tester) async {
+        when(() => cubit.state).thenReturn(ProfileState.success(profile));
+        await pumpView(tester);
+
+        await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+        await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
+      });
+    });
   });
 }

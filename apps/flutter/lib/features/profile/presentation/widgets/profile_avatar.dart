@@ -37,10 +37,14 @@ class ProfileAvatar extends StatelessWidget {
                 image: url == null || url.isEmpty ? null : DecorationImage(image: NetworkImage(url), fit: BoxFit.cover),
               ),
               child: url == null || url.isEmpty
-                  ? Center(
-                      child: Text(
-                        initialsOf(name),
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(color: colors.text.primary),
+                  // Excluded, not labelled: the initials stand in for a photo,
+                  // and the name they are drawn from is announced beside them.
+                  ? ExcludeSemantics(
+                      child: Center(
+                        child: Text(
+                          initialsOf(name),
+                          style: Theme.of(context).textTheme.titleLarge?.copyWith(color: colors.text.primary),
+                        ),
                       ),
                     )
                   : null,

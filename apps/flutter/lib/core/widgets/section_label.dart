@@ -17,9 +17,15 @@ class SectionLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors.text;
-    return Text(
-      label,
-      style: AppTextStyle.overline.copyWith(color: isMuted ? colors.muted : colors.secondary),
+    // A heading, not just styled text: without this a screen reader's heading
+    // navigation has nothing to jump between and the user swipes through every
+    // row to reach the next section.
+    return Semantics(
+      header: true,
+      child: Text(
+        label,
+        style: AppTextStyle.overline.copyWith(color: isMuted ? colors.muted : colors.secondary),
+      ),
     );
   }
 }

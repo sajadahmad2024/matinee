@@ -63,9 +63,21 @@ class PointsPill extends StatelessWidget {
     if (onTap == null) {
       return Semantics(label: tooltip, child: pill);
     }
+    // The design draws the pill 28 tall, which is too small to hit. The disc
+    // keeps that height and the target grows around it, the way a button's own
+    // tap target does.
     return Tooltip(
       message: tooltip,
-      child: InkWell(onTap: onTap, customBorder: const StadiumBorder(), child: pill),
+      child: InkWell(
+        onTap: onTap,
+        customBorder: const StadiumBorder(),
+        child: SizedBox(
+          height: kMinInteractiveDimension,
+          // widthFactor, so the target is only as wide as the pill; without a
+          // bounded height Center would take the whole column it sits in.
+          child: Center(widthFactor: 1, child: pill),
+        ),
+      ),
     );
   }
 }

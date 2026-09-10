@@ -7,6 +7,7 @@ import 'package:matinee/features/rewards/presentation/auction_screen.dart';
 import 'package:matinee/features/rewards/presentation/cubit/auction_cubit.dart';
 import 'package:matinee/features/rewards/presentation/cubit/auction_state.dart';
 import 'package:matinee/features/rewards/presentation/widgets/bid_history_row.dart';
+import 'package:matinee/features/rewards/presentation/widgets/points_pill.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../../helpers/helpers.dart';
@@ -131,6 +132,28 @@ void main() {
 
         verifyNever(() => cubit.placeBid(any()));
         expect(find.text('You have 7,082 CP to bid with.'), findsOneWidget);
+      });
+    });
+
+    group('accessibility', () {
+      testWidgets('labels every tappable thing on the screen', (tester) async {
+        // Not the size guidelines: the frame draws the bid field 40 tall and
+        // the BID button 39, and matching it is the point of the bar. The two
+        // controls that are not fixed by the frame are checked below.
+        when(() => cubit.state).thenReturn(AuctionState.success(boardWith()));
+        await pumpView(tester);
+
+        await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
+      });
+
+      testWidgets('gives the top-up pill a full tap target', (tester) async {
+        // The frame draws the pill 28 tall, so the target has to be grown
+        // around it rather than by making the pill itself bigger.
+        when(() => cubit.state).thenReturn(AuctionState.success(boardWith()));
+        await pumpView(tester);
+
+        final pill = find.byType(PointsPill).last;
+        expect(tester.getSize(pill).height, greaterThanOrEqualTo(kMinInteractiveDimension));
       });
     });
   });

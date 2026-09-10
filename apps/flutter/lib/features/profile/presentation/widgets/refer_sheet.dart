@@ -92,14 +92,20 @@ class ReferSheet extends StatelessWidget {
         body: Builder(
           builder: (context) => Column(
             children: [
-              // The uncovered part of the screen still dismisses the sheet, which
-              // the modal barrier would do if this route were not painting over
-              // it.
+              // The uncovered part of the screen still dismisses the sheet,
+              // which the modal barrier would do if this route were not
+              // painting over it. It carries the barrier's semantics too: a
+              // bare gesture area announces nothing, which would leave the
+              // close button as the only way out that a screen reader finds.
               Expanded(
-                child: GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: Navigator.of(context).pop,
-                  child: const SizedBox.expand(),
+                child: Semantics(
+                  button: true,
+                  label: l10n.referClose,
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: Navigator.of(context).pop,
+                    child: const SizedBox.expand(),
+                  ),
                 ),
               ),
               _Surface(

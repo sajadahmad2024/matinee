@@ -38,8 +38,11 @@ class ProfileMenuRow extends StatelessWidget {
       ),
       child: InkWell(
         onTap: onTap,
-        child: SizedBox(
-          height: AppControlHeight.listRow,
+        // A minimum, not a fixed height: a label that wraps at a large text
+        // scale has to grow the row. A SizedBox clips it, and silently — the
+        // overflow is vertical inside a Row, so nothing is reported.
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: AppControlHeight.listRow),
           child: Row(
             spacing: AppSpacing.sm,
             children: [

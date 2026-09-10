@@ -124,9 +124,16 @@ class _BidBarState extends State<BidBar> {
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
-                      // The frame draws no label and the field opens prefilled,
-                      // so the hint never renders; the name has to come from
-                      // the semantics instead.
+                      // The frame draws no label and the field opens
+                      // prefilled, so the hint never renders; the name has to
+                      // come from the semantics instead.
+                      //
+                      // The content padding stays zero. Padding the editor out
+                      // to the row's height enlarges the tap target, but a
+                      // constant inset is taken out of a box that does not
+                      // grow, so the text is left the same 16 at every text
+                      // scale and is cut in half at 200%. A small target is
+                      // not a WCAG 2.1 AA failure; clipped text is.
                       child: Semantics(
                         textField: true,
                         label: widget.fieldLabel,
