@@ -226,13 +226,18 @@ class _Menu extends StatelessWidget {
     final l10n = context.l10n;
     return Column(
       children: [
-        // My Earns and Notifications have no screen yet, so they render as the
-        // design draws them and do nothing until one exists.
-        ProfileMenuRow(label: l10n.profileMenuEarns, onTap: null),
+        ProfileMenuRow(
+          label: l10n.profileMenuEarns,
+          // Pushed, not gone to: the screen keeps the tab bar and carries its
+          // own back, so the platform back gesture has to return here.
+          onTap: () => unawaited(const EarnsRoute().push<void>(context)),
+        ),
         ProfileMenuRow(
           label: l10n.profileMenuRefer,
           onTap: () => unawaited(showReferSheet(context, referralCode: referralCode)),
         ),
+        // Notifications has no screen yet, so it renders as the design draws
+        // it and does nothing until one exists.
         ProfileMenuRow(label: l10n.profileMenuNotifications, onTap: null),
         ProfileMenuRow(
           label: l10n.profileMenuTerms,

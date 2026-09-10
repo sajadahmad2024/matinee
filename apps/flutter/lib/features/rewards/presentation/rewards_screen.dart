@@ -9,13 +9,13 @@ import 'package:matinee/core/responsive/responsive.dart';
 import 'package:matinee/core/theme/app_spacing.dart';
 import 'package:matinee/core/widgets/error_view.dart';
 import 'package:matinee/core/widgets/loading_view.dart';
+import 'package:matinee/core/widgets/points_header.dart';
 import 'package:matinee/core/widgets/section_label.dart';
 import 'package:matinee/di/service_locator.dart';
 import 'package:matinee/features/rewards/data/models/rewards_summary.dart';
 import 'package:matinee/features/rewards/data/rewards_repository.dart';
 import 'package:matinee/features/rewards/presentation/cubit/rewards_cubit.dart';
 import 'package:matinee/features/rewards/presentation/cubit/rewards_state.dart';
-import 'package:matinee/features/rewards/presentation/widgets/points_header.dart';
 import 'package:matinee/features/rewards/presentation/widgets/redeem_card.dart';
 
 class RewardsScreen extends StatelessWidget {

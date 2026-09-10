@@ -1295,7 +1295,7 @@
 
 **States**
 - **earned** — h113 as above
-- **locked** — h124; disc {surfaceRaised} stroke {outline} icon 16 {textDisabled}; name {textDisabled}
+- **locked** — h124; disc {surfaceRaised} stroke {outline} icon 16 {textMuted}; name {textMuted} (frame draws both {textDisabled}, which reads 2.38:1 for the name and 2.19:1 for the glyph — below AA's 4.5:1 and 1.4.11's 3:1, so both moved up one role; see §10)
 - **current** — fill {gold@10%} stroke {gold@30%}; disc {gold@10%}; name {goldLight} (Expert #427:20568)
 
 **Evidence:** `Container#414:12424`, `Container#414:12556`, `Container#427:20568`, `Container#397:9362`

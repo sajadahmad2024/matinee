@@ -18,4 +18,20 @@ abstract final class AppIconAssets {
   ///
   static const String navRewards = 'assets/icons/nav_rewards.svg';
   static const String navProfile = 'assets/icons/nav_profile.svg';
+
+  /// The My Earns rows, one glyph per source of points.
+  static const String fire = 'assets/icons/fire.svg';
+  static const String helpCircle = 'assets/icons/help_circle.svg';
+  static const String trophyCup = 'assets/icons/trophy_cup.svg';
+
+  ///
+  /// The same glyph the P2P tab draws, exported again at content size. The two
+  /// fold into one when the icon font lands.
+  ///
+  static const String puzzle = 'assets/icons/puzzle.svg';
+
+  /// The badge grid and the current-badge disc.
+  static const String trophyMedal = 'assets/icons/trophy_medal.svg';
+  static const String check = 'assets/icons/check.svg';
+  static const String lock = 'assets/icons/lock.svg';
 }

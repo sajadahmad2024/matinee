@@ -212,7 +212,7 @@
    "text.primary": "{white}",
    "text.secondary": "{textSecondary}",
    "text.muted": "{textMuted}",
-   "text.disabled": "{textDisabled}",
+   "text.disabled": "{textDisabled} — inactive controls only; 2.0-2.6:1 on every surface, so never for content",
    "text.inverse": "{surface}",
    "text.link": "{gold}",
    "text.numeral": "{goldLight}",
@@ -242,6 +242,7 @@
    "card.border.success": "{success@30%}",
    "card.background.raised": "{surfaceRaised}",
    "card.background.goldTint": "{gold@10%}",
+   "card.background.highlight": "gradient.highlightCard",
    "card.imageHairline": "{white@10%}",
    "button.primary.background": "{goldCta}",
    "button.primary.label": "{surface}",
@@ -292,6 +293,7 @@
    "badge.neutral.background": "{white@10%}",
    "badge.neutral.border": "{white@10%}",
    "badge.neutral.label": "{white@60%}",
+   "badge.discGradient": "gradient.goldDisc",
    "badge.live.background": "{error}",
    "badge.live.label": "{white}",
    "pill.points.background": "{pointsPillBg@70%}",
@@ -338,7 +340,9 @@
    "onboarding.statPill.value": "{goldLight}",
    "onboarding.statPill.caption": "{authTextMuted}",
    "progress.track": "{outline}",
+   "progress.track.raised": "{surfaceRaised}",
    "progress.fill": "gradient.progressGold",
+   "progress.fill.soft": "gradient.progressGoldSoft",
    "progress.fill.success": "{success}",
    "progress.fill.warning": "{yellow}",
    "divider": "{outline}",
@@ -573,6 +577,54 @@
     ],
     "use": "splash screen background (design: 12 stops #0C0E16→#F6D471 running to 467%; only the first fifth renders inside an 800dp frame, so the visible band is normalised onto the surface tokens)",
     "evidence": "Frame#36:5658"
+   },
+   "goldDisc": {
+    "type": "linear",
+    "angle": "top-left→bottom-right",
+    "stops": [
+     [
+      "{gold}",
+      0
+     ],
+     [
+      "{goldLight}",
+      1
+     ]
+    ],
+    "use": "badge disc on the current-badge card — goldSegment reversed, light falling bottom-right",
+    "evidence": "Container#414:12402 (design 135°)"
+   },
+   "progressGoldSoft": {
+    "type": "linear",
+    "angle": "left→right",
+    "stops": [
+     [
+      "{gold@60%}",
+      0
+     ],
+     [
+      "{goldLight@90%}",
+      1
+     ]
+    ],
+    "use": "My Earns row progress bars, held under progressGold so a stack of them reads as a set",
+    "evidence": "Container#486:1778"
+   },
+   "highlightCard": {
+    "type": "linear",
+    "angle": "top-left→bottom-right",
+    "stops": [
+     [
+      "{gold@14%}",
+      0
+     ],
+     [
+      "{gold@4%}",
+      1
+     ]
+    ],
+    "use": "wash behind a card the design singles out (current badge)",
+    "evidence": "Container#414:12401 (design 162.9°; the only stops in the system off the 10% alpha grid — snapping them to a10→a0 washed the card out against the frame, so the design's pair is kept)"
    }
   },
   "mappingFromDesign": {
@@ -3864,7 +3916,7 @@
     ],
     "notes": [
      "Built 2026-09-09 against a mocked service: the CTAs advance the flow, nothing is sent.",
-     "Radius 10 and the 50/54 button heights take the recorded snaps (12, control 52); block gap 28\u219232, field gap 18\u219220, social gap 10\u219212.",
+     "Radius 10 and the 50/54 button heights take the recorded snaps (12, control 52); block gap 28→32, field gap 18→20, social gap 10→12.",
      "The input error state is still undesigned, so an invalid field takes the recorded error role and a focus-shaped glow in it, per the open item's derived-rules note.",
      "The Google mark is `assets/icons/google.svg`, the vector layer of `97:5288`, rendered with flutter_svg as the icon decision here calls for. The legal document names open a placeholder URL until the real pages exist.",
      "Vertical centring of text takes two rules, both in the theme so every screen inherits them: text roles all set leadingDistribution: even, because Flutter's default splits a line's extra leading unevenly; and an input's 52 height comes from AppSpacing.inputContent rather than a minHeight alone, because the decorator anchors its text by baseline inside height a minHeight adds, leaving the value sitting high. A test in test/core/theme guards both.",
@@ -5617,7 +5669,9 @@
   {
    "topic": "Out of scope",
    "decision": "Auction (418:18052), Success state (404:9787) and the splash screenshot (36:5658) are concepts; their unique values are mapped to the nearest kept token, not tokenised."
-  }
+  },
+  "2026-09-10, building My Earns & Badges (486:1739, 414:12370, 414:12502): added gradients goldDisc, progressGoldSoft and highlightCard, plus roles progress.track.raised, progress.fill.soft, card.background.highlight and badge.discGradient. The first three were specified in the component catalogue (currentBadgeCard, earnRow, progress.linear) but never tabulated as named gradients, so nothing new was measured except highlightCard's alphas: first snapped to gold@10%→gold@0%, which read visibly fainter than the frame on the device, so the design's own gold@14%→gold@4% is kept — the one exception to the 10% alpha grid besides the existing 25/85 steps.",
+  "2026-09-10, WCAG 2.2 AA re-audit of My Earns & Badges: the locked badgeTile's name and padlock moved from textDisabled to textMuted. The frame draws both at #4A5568, which is 2.38:1 against surfaceCard for the name (AA 1.4.3 needs 4.5:1) and 2.19:1 for the glyph (1.4.11 needs 3:1). textDisabled stays in the theme for the labels of inactive controls, which WCAG exempts, and is now documented as never for content. The audit also found that textContrastGuideline cannot see text inside excludeSemantics, which is how every card composes its spoken label, so contrast is now asserted against the roles themselves in test/core/theme/contrast_test.dart."
  ],
  "openItems": [
   "Nav Bar library component needs Rewards/Profile active variants (only Home/P2P exist).",

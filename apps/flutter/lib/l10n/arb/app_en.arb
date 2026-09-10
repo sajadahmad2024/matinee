@@ -359,5 +359,54 @@
   "@rewardsBadgeSummary": {
     "description": "The badge standing read as one block.",
     "placeholders": { "label": { "type": "String" }, "name": { "type": "String" }, "caption": { "type": "String" } }
-  }
+  },
+  "earnsTitle": "My Earns",
+  "earnsBack": "Back to profile",
+  "earnsSegmentEarns": "Earns",
+  "earnsSegmentBadges": "Badges",
+  "earnsShareCaption": "{unit} \u00b7 {share}",
+  "@earnsShareCaption": {
+    "description": "The unit and the share of the balance an earn row accounts for, under its value.",
+    "placeholders": {
+      "unit": { "type": "String" },
+      "share": { "type": "double", "format": "percentPattern", "optionalParameters": { "decimalDigits": 0 } }
+    }
+  },
+  "earnsRowSummary": "{title}: {points} {unit}, {share} of your points. {activity}",
+  "@earnsRowSummary": {
+    "description": "One earn row read as a single sentence, since its bar repeats the share.",
+    "placeholders": {
+      "title": { "type": "String" },
+      "points": { "type": "String" },
+      "unit": { "type": "String" },
+      "share": { "type": "double", "format": "percentPattern", "optionalParameters": { "decimalDigits": 0 } },
+      "activity": { "type": "String" }
+    }
+  },
+  "earnsCurrentBadge": "CURRENT BADGE",
+  "earnsCurrentBadgeSummary": "Current badge: {name}. {caption}",
+  "@earnsCurrentBadgeSummary": {
+    "description": "The current-badge card read as one block.",
+    "placeholders": { "name": { "type": "String" }, "caption": { "type": "String" } }
+  },
+  "earnsAllBadges": "ALL BADGES",
+  "earnsFilterEarned": "Earned",
+  "earnsFilterLocked": "Locked",
+  "earnsBadgeEarnedSummary": "{name}, earned. {requirement}",
+  "@earnsBadgeEarnedSummary": {
+    "description": "An earned badge tile, whose state the design shows only as a tick.",
+    "placeholders": { "name": { "type": "String" }, "requirement": { "type": "String" } }
+  },
+  "earnsBadgeCurrentSummary": "{name}, your current badge. {requirement}",
+  "@earnsBadgeCurrentSummary": {
+    "description": "The tile of the badge the balance currently sits on.",
+    "placeholders": { "name": { "type": "String" }, "requirement": { "type": "String" } }
+  },
+  "earnsBadgeLockedSummary": "{name}, locked. {requirement}",
+  "@earnsBadgeLockedSummary": {
+    "description": "A locked badge tile, whose state the design shows only as a padlock and a grey.",
+    "placeholders": { "name": { "type": "String" }, "requirement": { "type": "String" } }
+  },
+  "earnsNoEarnedBadges": "No badges earned yet.",
+  "earnsNoLockedBadges": "Every badge is earned."
 }

@@ -101,9 +101,9 @@ void main() {
         List<ProfileMenuRow> rowsWhere(bool Function(ProfileMenuRow row) test) =>
             tester.widgetList<ProfileMenuRow>(find.byType(ProfileMenuRow)).where(test).toList();
 
-        // My Earns, Notifications and Logout have nowhere to go for now.
-        expect(rowsWhere((row) => row.onTap == null), hasLength(3));
-        expect(rowsWhere((row) => row.onTap != null), hasLength(3));
+        // Notifications and Logout have nowhere to go for now.
+        expect(rowsWhere((row) => row.onTap == null), hasLength(2));
+        expect(rowsWhere((row) => row.onTap != null), hasLength(4));
       });
     });
 

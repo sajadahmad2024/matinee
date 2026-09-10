@@ -82,6 +82,35 @@ abstract final class AppGradients {
     colors: [AppPalette.goldLight, AppPalette.gold],
   );
 
+  ///
+  /// The badge disc on the current-badge card, which runs the opposite way to
+  /// [goldSegment] — light falls bottom-right, not top-left.
+  ///
+  static const LinearGradient goldDisc = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [AppPalette.gold, AppPalette.goldLight],
+  );
+
+  ///
+  /// The My Earns row bars. Held under [progressGold] so four of them stacked
+  /// read as a set rather than four competing highlights.
+  ///
+  static LinearGradient get progressGoldSoft => LinearGradient(
+    colors: [AppPalette.gold.a60, AppPalette.goldLight.a90],
+  );
+
+  ///
+  /// Wash behind the current-badge card. Its two stops are the only ones in the
+  /// system off the 10% alpha grid: snapped to a10 falling to nothing, the card
+  /// washed out against the frame, so the design's own pair is kept.
+  ///
+  static LinearGradient get highlightCard => LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [AppPalette.gold.withValues(alpha: 0.14), AppPalette.gold.withValues(alpha: 0.04)],
+  );
+
   /// The 1px stroke of the points pill.
   static const LinearGradient pointsPillStroke = LinearGradient(
     begin: Alignment.topCenter,

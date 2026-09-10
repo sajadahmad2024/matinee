@@ -4,6 +4,6 @@ import 'package:matinee/features/rewards/data/services/rewards_api_service.dart'
 
 void registerRewardsDependencies() {
   getIt
-    ..registerLazySingleton<RewardsApiService>(RewardsApiService.new)
+    ..registerLazySingleton<RewardsApiService>(() => RewardsApiService(getIt()))
     ..registerLazySingleton<RewardsRepository>(() => RewardsRepository(getIt()));
 }

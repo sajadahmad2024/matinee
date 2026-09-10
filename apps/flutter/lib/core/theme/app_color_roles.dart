@@ -41,7 +41,14 @@ class AppTextColors {
   final Color primary;
   final Color secondary;
   final Color muted;
+
+  ///
+  /// The label of an inactive control, which WCAG exempts from the 4.5:1
+  /// minimum. It reads 2.0-2.6:1 on every surface, so content never takes it —
+  /// a greyed-out *value* is a contrast failure, not a disabled control.
+  ///
   final Color disabled;
+
   final Color inverse;
   final Color link;
   final Color numeral;
@@ -138,6 +145,7 @@ class AppCardColors {
     required this.borderSuccess,
     required this.backgroundRaised,
     required this.backgroundGoldTint,
+    required this.backgroundHighlight,
     required this.backgroundLocked,
     required this.auctionStat,
     required this.imageHairline,
@@ -150,6 +158,7 @@ class AppCardColors {
     borderSuccess: AppPalette.success.a30,
     backgroundRaised: AppPalette.surfaceRaised,
     backgroundGoldTint: AppPalette.gold.a10,
+    backgroundHighlight: AppGradients.highlightCard,
     backgroundLocked: AppPalette.outline,
     auctionStat: AppGradients.auctionBidCard,
     imageHairline: AppPalette.white.a10,
@@ -161,6 +170,9 @@ class AppCardColors {
   final Color borderSuccess;
   final Color backgroundRaised;
   final Color backgroundGoldTint;
+
+  /// Wash behind a card the design singles out, such as the current badge.
+  final LinearGradient backgroundHighlight;
 
   /// Fill of a locked exclusive-content tile, which the design paints in the
   /// outline tone rather than the raised one.
@@ -342,6 +354,7 @@ class AppBadgeColors {
     required this.neutralLabel,
     required this.liveBackground,
     required this.liveLabel,
+    required this.discGradient,
   });
 
   static final AppBadgeColors dark = AppBadgeColors(
@@ -362,6 +375,7 @@ class AppBadgeColors {
     neutralLabel: AppPalette.white.a60,
     liveBackground: AppPalette.errorDeep,
     liveLabel: AppPalette.white,
+    discGradient: AppGradients.goldDisc,
   );
 
   final Color successBackground;
@@ -381,6 +395,9 @@ class AppBadgeColors {
   final Color neutralLabel;
   final Color liveBackground;
   final Color liveLabel;
+
+  /// Fills the disc that carries the badge glyph on the current-badge card.
+  final LinearGradient discGradient;
 }
 
 class AppPillColors {
@@ -573,20 +590,32 @@ class AppOnboardingColors {
 class AppProgressColors {
   const AppProgressColors({
     required this.track,
+    required this.trackRaised,
     required this.fill,
+    required this.fillSoft,
     required this.fillSuccess,
     required this.fillWarning,
   });
 
-  static const AppProgressColors dark = AppProgressColors(
+  static final AppProgressColors dark = AppProgressColors(
     track: AppPalette.outline,
+    trackRaised: AppPalette.surfaceRaised,
     fill: AppGradients.progressGold,
+    fillSoft: AppGradients.progressGoldSoft,
     fillSuccess: AppPalette.success,
     fillWarning: AppPalette.yellow,
   );
 
   final Color track;
+
+  /// The track inside a card, which the design lifts off the card's own fill.
+  final Color trackRaised;
+
   final LinearGradient fill;
+
+  /// Held-back fill for the bars that repeat down the My Earns list.
+  final LinearGradient fillSoft;
+
   final Color fillSuccess;
   final Color fillWarning;
 }

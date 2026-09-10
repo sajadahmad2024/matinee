@@ -706,4 +706,70 @@ class AppLocalizationsEn extends AppLocalizations {
   String rewardsBadgeSummary(String label, String name, String caption) {
     return '$label: $name. $caption';
   }
+
+  @override
+  String get earnsTitle => 'My Earns';
+
+  @override
+  String get earnsBack => 'Back to profile';
+
+  @override
+  String get earnsSegmentEarns => 'Earns';
+
+  @override
+  String get earnsSegmentBadges => 'Badges';
+
+  @override
+  String earnsShareCaption(String unit, double share) {
+    final intl.NumberFormat shareNumberFormat = intl.NumberFormat.percentPattern(localeName);
+    final String shareString = shareNumberFormat.format(share);
+
+    return '$unit · $shareString';
+  }
+
+  @override
+  String earnsRowSummary(String title, String points, String unit, double share, String activity) {
+    final intl.NumberFormat shareNumberFormat = intl.NumberFormat.percentPattern(localeName);
+    final String shareString = shareNumberFormat.format(share);
+
+    return '$title: $points $unit, $shareString of your points. $activity';
+  }
+
+  @override
+  String get earnsCurrentBadge => 'CURRENT BADGE';
+
+  @override
+  String earnsCurrentBadgeSummary(String name, String caption) {
+    return 'Current badge: $name. $caption';
+  }
+
+  @override
+  String get earnsAllBadges => 'ALL BADGES';
+
+  @override
+  String get earnsFilterEarned => 'Earned';
+
+  @override
+  String get earnsFilterLocked => 'Locked';
+
+  @override
+  String earnsBadgeEarnedSummary(String name, String requirement) {
+    return '$name, earned. $requirement';
+  }
+
+  @override
+  String earnsBadgeCurrentSummary(String name, String requirement) {
+    return '$name, your current badge. $requirement';
+  }
+
+  @override
+  String earnsBadgeLockedSummary(String name, String requirement) {
+    return '$name, locked. $requirement';
+  }
+
+  @override
+  String get earnsNoEarnedBadges => 'No badges earned yet.';
+
+  @override
+  String get earnsNoLockedBadges => 'Every badge is earned.';
 }

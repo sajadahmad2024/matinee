@@ -92,7 +92,7 @@ Dark-only. Roles not listed here (surfaceDim/Bright, inverse*, info, fixed/dim v
 | `text.primary` | `{white}` |
 | `text.secondary` | `{textSecondary}` |
 | `text.muted` | `{textMuted}` |
-| `text.disabled` | `{textDisabled}` |
+| `text.disabled` | `{textDisabled}` — inactive controls only; 2.0-2.6:1 on every surface, so never for content |
 | `text.inverse` | `{surface}` |
 | `text.link` | `{gold}` |
 | `text.numeral` | `{goldLight}` |
@@ -123,6 +123,7 @@ Dark-only. Roles not listed here (surfaceDim/Bright, inverse*, info, fixed/dim v
 | `card.border.success` | `{success@30%}` |
 | `card.background.raised` | `{surfaceRaised}` |
 | `card.background.goldTint` | `{gold@10%}` |
+| `card.background.highlight` | `gradient.highlightCard` |
 | `card.background.locked` | `{outline}` |
 | `card.imageHairline` | `{white@10%}` |
 | `button.primary.background` | `{goldCta}` |
@@ -176,6 +177,7 @@ Dark-only. Roles not listed here (surfaceDim/Bright, inverse*, info, fixed/dim v
 | `badge.neutral.label` | `{white@60%}` |
 | `badge.live.background` | `{errorDeep}` |
 | `badge.live.label` | `{white}` |
+| `badge.discGradient` | `gradient.goldDisc` |
 | `pill.points.background` | `{pointsPillBg@70%}` |
 | `pill.points.border` | `gradient.pointsPillStroke` |
 | `pill.points.icon` | `{gold}` |
@@ -220,7 +222,9 @@ Dark-only. Roles not listed here (surfaceDim/Bright, inverse*, info, fixed/dim v
 | `onboarding.statPill.value` | `{goldLight}` |
 | `onboarding.statPill.caption` | `{authTextSecondary}` |
 | `progress.track` | `{outline}` |
+| `progress.track.raised` | `{surfaceRaised}` |
 | `progress.fill` | `gradient.progressGold` |
+| `progress.fill.soft` | `gradient.progressGoldSoft` |
 | `progress.fill.success` | `{success}` |
 | `progress.fill.warning` | `{yellow}` |
 | `divider` | `{outline}` |
@@ -254,7 +258,7 @@ Dark-only. Roles not listed here (surfaceDim/Bright, inverse*, info, fixed/dim v
 | `calendar.day.future` | `transparent` |
 | `calendar.day.today` | `{gold@10%} + border {gold@40%}` |
 
-## 4. Gradients (13)
+## 4. Gradients (16)
 | Name | Type | Stops | Use | Evidence |
 |---|---|---|---|---|
 | `heroScrim` | linear top→bottom | `{goldCta@10%}`@0, `{surface@30%}`@0.2, `{surface@0%}`@0.4, `{surface@40%}`@0.6, `{surface@85%}`@0.85, `{surface}`@1 | over full-bleed video/poster on Home | Container#25:2956 |
@@ -263,6 +267,9 @@ Dark-only. Roles not listed here (surfaceDim/Bright, inverse*, info, fixed/dim v
 | `onboardingScrim` | linear + radial vignette  | `{authSurface@30%}`@0, `{authSurface@50%}`@0.33, `{authSurface}`@0.56 + radial: `{authSurface@0%}`@0.4, `{authSurface@70%}`@1 | onboarding background | Container#85:1667, #85:1668 |
 | `progressGold` | linear left→right | `{gold}`@0, `{yellow}`@1 | progress fills, level-2 calendar tiles, nav indicator variant | Container#165:1959 |
 | `goldSegment` | linear  | `{goldLight}`@0, `{gold}`@1 | segmented-control active item, badge discs, gradient CTA variant | Button#414:12380 |
+| `goldDisc` | linear top-left→bottom-right | `{gold}`@0, `{goldLight}`@1 | badge disc on the current-badge card — `goldSegment` reversed, light falling bottom-right | Container#414:12402 (design 135°) |
+| `progressGoldSoft` | linear left→right | `{gold@60%}`@0, `{goldLight@90%}`@1 | My Earns row progress bars, held under `progressGold` so a stack of them reads as a set | Container#486:1778 |
+| `highlightCard` | linear top-left→bottom-right | `{gold@14%}`@0, `{gold@4%}`@1 | wash behind a card the design singles out (current badge) | Container#414:12401 (design 162.9°; the only stops in the system off the 10% alpha grid — snapping them to `a10`→`a0` washed the card out against the frame, so the design's pair is kept) |
 | `pointsPillStroke` | linear top→bottom | `{goldCta}`@0, `{goldLevel1}`@1 | 1px stroke of the points pill (design: #FFD067→#635025; approximated to kept tokens) | Background+Border#25:3071 |
 | `goldNumeral` | linear  | `{yellow}`@0, `{gold}`@1 | hero total-points numeral text fill; reached through the `text.numeralGradient` role | 7,082#429:20868 |
 | `auctionHeroScrim` | linear top→bottom | `{surface@20%}`@0.02, `{surface@50%}`@0.44, `{surface@85%}`@0.69, `{surface}`@0.98 | over the auction still — darkens throughout, where `heroScrim` clears a band for video | Container#418:18054 (first stop 15% snapped to 20%) |
@@ -595,7 +602,7 @@ Left to `ColorScheme.fromSeed(seedColor: {gold}, brightness: dark)` for now: lig
 
 Pipeline: Export each glyph frame from Figma at 24×24 (normalise all to a 24 grid, strokes outlined) → fantasticon / FlutterIcon → `MatineeIcons` IconData class; fonts are variable-tint so no per-state assets.
 
-Until that font exists, glyphs already needed ship as individual SVGs in `assets/icons/` and are tinted with a `colorFilter` — currently the four bottom-nav glyphs (`nav_home`, `nav_p2p`, `nav_rewards`, `nav_profile`, plus `_active` fills for the first two). Their paths are listed in `AppIconAssets`, so folding them into the font later is a change to that one class.
+Until that font exists, glyphs already needed ship as individual SVGs in `assets/icons/` and are tinted with a `colorFilter` — the four bottom-nav glyphs (`nav_home`, `nav_p2p`, `nav_rewards`, `nav_profile`, plus `_active` fills for the first two), and the seven My Earns / Badges glyphs (`fire`, `help_circle`, `puzzle`, `trophy_cup`, `trophy_medal`, `check`, `lock`) exported from the frames themselves so they match 1:1 — `puzzle` is the same glyph as `nav_p2p`, exported again at content size, and the two fold together in the font. Their paths are listed in `AppIconAssets` and they are drawn through the one `SvgIcon` widget, so folding them into the font later is a change to that class and that widget.
 
 Glyph inventory: home, p2p (puzzle), rewards (coins), profile, chevron-left, chevron-right, chevron-down, close, settings, like/heart (outline + filled), comment, info, share, send, ticket (points), star/badge, lock, check, play, fire (streak), trophy, calendar-prev/next, camera (edit avatar), logout, copy, clock, target, external-link. Multi-colour as SVG: Google G, brand discs (WhatsApp/Telegram/Instagram/Messages/X), app logo.
 
@@ -616,7 +623,7 @@ Emoji (🔥 🎖️ 🏆 🎬 🌍 ✨ 🧠 🔮 🎟️ 🤝 💎 🔗) are use
 | **Status** | success #2ECC71 (absorbs #6FCF97, #3D8C5F); error #EB5757 (absorbs #FF4444 logout, #E05252, #FF3333 LIVE, #7A3030). errorDeep #C43A3A is `error` darkened for the one place white text sits on solid red. Warning = yellow. Info = seed-derived. |
 | **Alpha** | Design alphas snapped to 10% steps; conventions: tint fill 10/20%, tint border 30/40%, disabled 30/50%, glow 40/20/50%, scrim 80%, placeholder 50%, on-image text 60%, hairline 10%. |
 | **onPrimary** | #0C0F16 (surface) on all gold — the design split 13 large CTAs (#0D0B08) vs 17 small buttons (#0C0F16); one ink is enough and matches the app surface. |
-| **Gradients** | 10 kept, re-expressed in final tokens; per-screen unique gradients on Auction/Success/Streak-intro collapsed into heroScrim / onboardingScrim / headerFade. Points-pill stroke approximated goldCta→goldLevel1 (design #FFD067→#635025). splashBg added 2026-09-08: the splash frame's 12-stop ramp into gold is normalised to surface→surfaceCard→surfaceRaised because the gold stops sit below the 800dp viewport and never render. |
+| **Gradients** | 10 kept, re-expressed in final tokens; per-screen unique gradients on Auction/Success/Streak-intro collapsed into heroScrim / onboardingScrim / headerFade. Points-pill stroke approximated goldCta→goldLevel1 (design #FFD067→#635025). splashBg added 2026-09-08: the splash frame's 12-stop ramp into gold is normalised to surface→surfaceCard→surfaceRaised because the gold stops sit below the 800dp viewport and never render. goldDisc, progressGoldSoft and highlightCard added 2026-09-10 for My Earns & Badges: the catalogue already specified all three on currentBadgeCard, earnRow and progress.linear but none was tabulated as a named gradient, so only highlightCard needed a decision. It was first snapped to gold@10%→gold@0%, but on the device that read visibly fainter than the frame, so the design's own gold@14%→gold@4% is kept — the one exception to the 10% alpha grid besides the existing 25/85 steps. |
 | **Geometry** | Spacing 2/4/8/12/16/20/24/32; radius 4/8/12/16/20/24/full (card 16, CTA & input 12, small button 8); icons 12/16/20/24/32; CTA 52, button 32, input 52, app bar 56 + status. |
 | **States** | Derived from each component's own colour (Material state layers 8/12%, disabled 30/50%, focus glow 20%). Light theme, info, toggles, toasts, empty/loading states left to ColorScheme.fromSeed(gold, dark) for now. |
 | **Icons** | Icon font for single-colour glyphs, SVG for multi-colour marks. |
@@ -631,3 +638,4 @@ Emoji (🔥 🎖️ 🏆 🎬 🌍 ✨ 🧠 🔮 🎟️ 🤝 💎 🔗) are use
 - Input error state, toggles/checkbox/radio, toast, empty/loading/error screens, Notifications screen — not designed; seed/derived rules apply until they are.
 - Confirm the points-pill stroke gradient approximation and the 8/9px → 10/11px size bumps with design.
 - Confirm the two contrast moves with design: the LIVE badge's fill (`error` #EB5757 → `errorDeep` #C43A3A) and the onboarding stat caption's colour (`authTextMuted` → `authTextSecondary`). Both were forced by WCAG AA at the sizes the frames draw; a redesign that enlarges the LIVE label to 14pt semibold or heavier would let it keep the frame's red at the 3:1 large-text ratio.
+- Confirm the third contrast move: the locked badge tile's name and padlock (`textDisabled` → `textMuted`). The frame knocks the name back *below* its own caption, which cannot be kept — `textDisabled` is 2.38:1 against the card where AA needs 4.5:1, and the glyph is 2.19:1 where 1.4.11 needs 3:1. Both now sit at the caption's tone, so the locked tile reads dimmer than an earned one (white name) but its name no longer sits under its caption. If that hierarchy matters, a token in the 4.6-5:1 band is needed; `textDisabled` itself has to stay where it is because it labels inactive controls, which WCAG exempts.

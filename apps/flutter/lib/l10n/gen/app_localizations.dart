@@ -1284,6 +1284,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{label}: {name}. {caption}'**
   String rewardsBadgeSummary(String label, String name, String caption);
+
+  /// No description provided for @earnsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My Earns'**
+  String get earnsTitle;
+
+  /// No description provided for @earnsBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to profile'**
+  String get earnsBack;
+
+  /// No description provided for @earnsSegmentEarns.
+  ///
+  /// In en, this message translates to:
+  /// **'Earns'**
+  String get earnsSegmentEarns;
+
+  /// No description provided for @earnsSegmentBadges.
+  ///
+  /// In en, this message translates to:
+  /// **'Badges'**
+  String get earnsSegmentBadges;
+
+  /// The unit and the share of the balance an earn row accounts for, under its value.
+  ///
+  /// In en, this message translates to:
+  /// **'{unit} · {share}'**
+  String earnsShareCaption(String unit, double share);
+
+  /// One earn row read as a single sentence, since its bar repeats the share.
+  ///
+  /// In en, this message translates to:
+  /// **'{title}: {points} {unit}, {share} of your points. {activity}'**
+  String earnsRowSummary(String title, String points, String unit, double share, String activity);
+
+  /// No description provided for @earnsCurrentBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'CURRENT BADGE'**
+  String get earnsCurrentBadge;
+
+  /// The current-badge card read as one block.
+  ///
+  /// In en, this message translates to:
+  /// **'Current badge: {name}. {caption}'**
+  String earnsCurrentBadgeSummary(String name, String caption);
+
+  /// No description provided for @earnsAllBadges.
+  ///
+  /// In en, this message translates to:
+  /// **'ALL BADGES'**
+  String get earnsAllBadges;
+
+  /// No description provided for @earnsFilterEarned.
+  ///
+  /// In en, this message translates to:
+  /// **'Earned'**
+  String get earnsFilterEarned;
+
+  /// No description provided for @earnsFilterLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Locked'**
+  String get earnsFilterLocked;
+
+  /// An earned badge tile, whose state the design shows only as a tick.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}, earned. {requirement}'**
+  String earnsBadgeEarnedSummary(String name, String requirement);
+
+  /// The tile of the badge the balance currently sits on.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}, your current badge. {requirement}'**
+  String earnsBadgeCurrentSummary(String name, String requirement);
+
+  /// A locked badge tile, whose state the design shows only as a padlock and a grey.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}, locked. {requirement}'**
+  String earnsBadgeLockedSummary(String name, String requirement);
+
+  /// No description provided for @earnsNoEarnedBadges.
+  ///
+  /// In en, this message translates to:
+  /// **'No badges earned yet.'**
+  String get earnsNoEarnedBadges;
+
+  /// No description provided for @earnsNoLockedBadges.
+  ///
+  /// In en, this message translates to:
+  /// **'Every badge is earned.'**
+  String get earnsNoLockedBadges;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

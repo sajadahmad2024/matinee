@@ -88,9 +88,9 @@ void main() {
       tester.getSemantics(find.bySemanticsLabel('Refer a Friend')),
       isSemantics(isButton: true, isEnabled: true),
     );
-    // My Earns has no screen yet, so the row is drawn but does nothing.
+    // Notifications has no screen yet, so the row is drawn but does nothing.
     expect(
-      tester.getSemantics(find.bySemanticsLabel('My Earns')),
+      tester.getSemantics(find.bySemanticsLabel('Notifications')),
       isSemantics(isButton: true, isEnabled: false),
     );
     handle.dispose();

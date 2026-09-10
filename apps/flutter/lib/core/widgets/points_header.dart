@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:matinee/core/theme/app_spacing.dart';
 import 'package:matinee/core/theme/app_text_styles.dart';
 import 'package:matinee/core/theme/extensions/build_context_extensions.dart';
+import 'package:matinee/core/widgets/header_block.dart';
 
 ///
-/// The Rewards header: the balance on the left, the badge standing and the
-/// distance to the next one on the right.
+/// The Rewards and Badges header: the balance on the left, the badge standing
+/// and the distance to the next one on the right.
 ///
 class PointsHeader extends StatelessWidget {
   const PointsHeader({
@@ -18,6 +19,8 @@ class PointsHeader extends StatelessWidget {
     required this.balanceSummary,
     required this.badgeSummary,
     super.key,
+    this.top,
+    this.bottom,
   });
 
   final String totalPointsLabel;
@@ -39,27 +42,43 @@ class PointsHeader extends StatelessWidget {
   /// The badge standing as one sentence, for the same reason.
   final String badgeSummary;
 
+  ///
+  /// Sits above the balance: an eyebrow, a title, a segmented control. Rewards
+  /// draws an empty slot there, which is why the gap below is its own.
+  ///
+  final Widget? top;
+
+  /// The bar Badges runs the full width of the block, under the balance.
+  final Widget? bottom;
+
   @override
   Widget build(BuildContext context) {
-    return DecoratedBox(
-      // The block's fade starts at the very top of the screen, so the header
-      // takes the status bar inset itself instead of sitting in a SafeArea.
-      decoration: BoxDecoration(gradient: context.appColors.overlay.header),
-      child: SafeArea(
-        bottom: false,
-        child: Padding(
-          // The design pads the block 50 from the frame top, leaving the
-          // balance 35 below the status bar. The gap below is the screen's.
-          padding: const EdgeInsets.only(
-            left: AppScreenPadding.main,
-            right: AppScreenPadding.main,
-            top: AppSpacing.xxxl,
-            bottom: AppSpacing.lg,
-          ),
-          child: Row(
+    return HeaderBlock(
+      // With nothing above it the balance stands where the design's empty
+      // eyebrow slot leaves it; a real top row starts at the frame's own 50.
+      topPadding: top == null ? AppSpacing.xxxl : AppSpacing.sm,
+      // The bar is drawn on the closing hairline, so it takes the gap that
+      // would otherwise sit under it.
+      bottomPadding: bottom == null ? AppSpacing.lg : 0,
+      child: Column(
+        // Stretched, or the full-width bar below shrinks to its own fill and
+        // sits centred, with no track either side of it.
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: AppSpacing.xl,
+        children: [
+          ?top,
+          Row(
             crossAxisAlignment: CrossAxisAlignment.end,
+            // The frame spreads the two blocks to the margins. Both are
+            // flexible and sized to their text, so what is left over goes
+            // between them: sized tight, the balance would eat its whole half
+            // and strand the badge short of the right margin.
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Expanded(
+              // Capped at half the row so neither block can push the other
+              // off the screen once the text scales up; loose, so each keeps
+              // its own width and the gap sits in the middle.
+              Flexible(
                 child: Semantics(
                   label: balanceSummary,
                   container: true,
@@ -67,15 +86,24 @@ class PointsHeader extends StatelessWidget {
                   child: _Balance(label: totalPointsLabel, value: totalPoints, unit: pointsUnit),
                 ),
               ),
-              Semantics(
-                label: badgeSummary,
-                container: true,
-                excludeSemantics: true,
-                child: _Badge(label: badgeLabel, name: badgeName, caption: nextBadgeCaption),
+              Flexible(
+                child: Semantics(
+                  label: badgeSummary,
+                  container: true,
+                  excludeSemantics: true,
+                  child: _Badge(label: badgeLabel, name: badgeName, caption: nextBadgeCaption),
+                ),
               ),
             ],
           ),
-        ),
+          // On top of the column's own gap, which together make the 34 the
+          // design leaves between the balance and the bar.
+          if (bottom case final bar?)
+            Padding(
+              padding: const EdgeInsets.only(top: AppSpacing.md),
+              child: bar,
+            ),
+        ],
       ),
     );
   }

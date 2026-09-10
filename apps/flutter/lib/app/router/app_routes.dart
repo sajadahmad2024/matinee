@@ -6,6 +6,7 @@ import 'package:matinee/features/auth/presentation/create_account_screen.dart';
 import 'package:matinee/features/auth/presentation/sign_in_screen.dart';
 import 'package:matinee/features/auth/presentation/subscribe_screen.dart';
 import 'package:matinee/features/auth/presentation/verify_otp_screen.dart';
+import 'package:matinee/features/earns/presentation/earns_screen.dart';
 import 'package:matinee/features/home/presentation/home_screen.dart';
 import 'package:matinee/features/onboarding/presentation/onboarding_screen.dart';
 import 'package:matinee/features/p2p/presentation/p2p_screen.dart';
@@ -38,7 +39,14 @@ class SplashRoute extends GoRouteData with $SplashRoute {
     TypedStatefulShellBranch<HomeBranch>(routes: [TypedGoRoute<HomeRoute>(path: '/')]),
     TypedStatefulShellBranch<P2pBranch>(routes: [TypedGoRoute<P2pRoute>(path: '/p2p')]),
     TypedStatefulShellBranch<RewardsBranch>(routes: [TypedGoRoute<RewardsRoute>(path: '/rewards')]),
-    TypedStatefulShellBranch<ProfileBranch>(routes: [TypedGoRoute<ProfileRoute>(path: '/profile')]),
+    TypedStatefulShellBranch<ProfileBranch>(
+      routes: [
+        TypedGoRoute<ProfileRoute>(
+          path: '/profile',
+          routes: [TypedGoRoute<EarnsRoute>(path: 'earns')],
+        ),
+      ],
+    ),
   ],
 )
 class AppShellRoute extends StatefulShellRouteData {
@@ -91,6 +99,17 @@ class ProfileRoute extends GoRouteData with $ProfileRoute {
 
   @override
   Widget build(BuildContext context, GoRouterState state) => const ProfileScreen();
+}
+
+///
+/// Inside the profile branch, unlike the other detail screens: the frames draw
+/// a bottom nav, so the tab bar stays put and the screen's own back returns.
+///
+class EarnsRoute extends GoRouteData with $EarnsRoute {
+  const EarnsRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) => const EarnsScreen();
 }
 
 ///

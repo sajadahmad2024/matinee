@@ -5,13 +5,14 @@ import 'package:matinee/core/error/app_exception.dart';
 import 'package:matinee/features/rewards/data/models/auction.dart';
 import 'package:matinee/features/rewards/data/models/exclusive_content.dart';
 import 'package:matinee/features/rewards/data/models/rewards_summary.dart';
+import 'package:matinee/shared/points/data/services/points_service.dart';
 
 ///
 /// Stands in for the rewards endpoints until the API exists. It answers after a
 /// delay, and holds the balance, bids and unlocks so spending carries across.
 ///
 class RewardsApiService {
-  RewardsApiService();
+  RewardsApiService(this._points);
 
   static const Duration mockLatency = Duration(milliseconds: 600);
 
@@ -23,20 +24,11 @@ class RewardsApiService {
 
   final DateTime _startedAt = DateTime.now();
 
-  ///
-  /// The balance is the one value several screens show, so a change is
-  /// broadcast. The service outlives them all, so this is never closed.
-  ///
-  final StreamController<int> _pointsChanges = StreamController<int>.broadcast();
+  /// The balance and the badge ladder live in one place for every screen that
+  /// shows them, so this holds none of it.
+  final PointsService _points;
 
-  int _points = 7082;
-
-  Stream<int> get pointsChanges => _pointsChanges.stream;
-
-  void _setPoints(int value) {
-    _points = value;
-    _pointsChanges.add(value);
-  }
+  Stream<int> get pointsChanges => _points.pointsChanges;
 
   late List<AuctionBid> _bids = _seedBids;
 
@@ -44,11 +36,12 @@ class RewardsApiService {
 
   Future<RewardsSummary> fetchSummary() async {
     await Future<void>.delayed(mockLatency);
+    final standing = _points.standing;
     return RewardsSummary(
-      totalPoints: _points,
-      badgeName: 'Expert',
-      pointsToNextBadge: 918,
-      nextBadgeName: 'Loyalist',
+      totalPoints: standing.totalPoints,
+      badgeName: standing.badgeName,
+      pointsToNextBadge: standing.pointsToNextBadge,
+      nextBadgeName: standing.nextBadgeName,
       destinations: const [
         RedeemDestination(
           kind: RedeemKind.liveAuction,
@@ -70,7 +63,7 @@ class RewardsApiService {
 
   Future<AuctionBoard> fetchAuctionBoard() async {
     await Future<void>.delayed(mockLatency);
-    return AuctionBoard(auction: _auction, pointsBalance: _points);
+    return AuctionBoard(auction: _auction, pointsBalance: _points.balance);
   }
 
   ///
@@ -81,14 +74,14 @@ class RewardsApiService {
     await Future<void>.delayed(mockLatency);
     // A bid commits the points even before the lot is won, so one over the
     // balance is refused like an unlock the user cannot afford.
-    if (amount > _points) {
+    if (amount > _points.balance) {
       throw const ValidationException(402);
     }
     _bids = [
       AuctionBid(bidderName: 'You', amount: amount, placedAt: DateTime.now(), isLeading: true),
       for (final bid in _bids) bid.copyWith(isLeading: false),
     ];
-    return AuctionBoard(auction: _auction, pointsBalance: _points);
+    return AuctionBoard(auction: _auction, pointsBalance: _points.balance);
   }
 
   Future<List<PointsPack>> fetchPointsPacks() async {
@@ -106,8 +99,8 @@ class RewardsApiService {
   ///
   Future<int> purchasePointsPack(PointsPack pack) async {
     await Future<void>.delayed(mockLatency);
-    _setPoints(_points + pack.points);
-    return _points;
+    _points.credit(pack.points);
+    return _points.balance;
   }
 
   Future<ExclusiveLibrary> fetchLibrary({String? filter}) async {
@@ -138,10 +131,7 @@ class RewardsApiService {
     await Future<void>.delayed(mockLatency);
     final item = _find(id);
     if (!_unlockedItemIds.contains(id)) {
-      if (item.unlockCost > _points) {
-        throw const ValidationException(402);
-      }
-      _setPoints(_points - item.unlockCost);
+      _points.debit(item.unlockCost);
       _unlockedItemIds = {..._unlockedItemIds, id};
     }
     return item.copyWith(isUnlocked: true);
