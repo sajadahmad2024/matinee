@@ -29,10 +29,10 @@ The Visuals page binds almost no Figma variables, so `get_variable_defs` returns
 **Components** — `design-component-catalogue.md`:
 1. Find the frame in the component × screen matrix; it lists every component on that screen.
 2. Read the component spec: anatomy, tokens, variants, states, evidence node ids.
-3. Check `get_code_connect_map`, then `core/widgets` and `shared/widgets` for an existing implementation of that component id.
+3. Check `get_code_connect_map`, then `core/widgets` for an existing implementation of that component id.
 4. Otherwise compose from Material (`Card`, `ListTile`, `FilledButton`, `TextField`, `Chip`, `NavigationBar`, `SegmentedButton`, `Badge`) using the spec's tokens through the theme.
 
-When a component is built for the second time, move it to `shared/widgets` and add a Code Connect mapping with `add_code_connect_map`.
+When a component is built for the second time, move it to `core/widgets` and add a Code Connect mapping with `add_code_connect_map`. `shared/` is for business logic two features need, never for widgets.
 
 **Icons and images** — `design-system.md` §8: single-colour glyphs come from the app icon font through one `AppIcons` class; multi-colour marks (Google G, brand discs, logo) are SVGs under `assets/icons`. Raster/vector images from `download_assets` go to `assets/images`, are declared in `pubspec.yaml`, and always carry `semanticLabel` or `excludeFromSemantics: true`.
 

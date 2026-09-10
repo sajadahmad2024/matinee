@@ -51,7 +51,7 @@ Lint findings are failures; hooks format and analyze every edited Dart file and 
 Each is checkable in review. Rationale in `docs/decisions/`.
 
 - **Dependencies flow downward.** Screen → Cubit → Repository → Service or generated client. A feature never imports another feature's cubit or screen. A repository never imports another repository; combine data in the cubit or a use-case. Session-wide state lives in a repository and is observed as a stream.
-- **Feature-first layout.** `features/<feature>/{data,domain?,presentation}` plus `<feature>_di.dart`. `core/` has no business logic; `shared/` holds business logic two or more features need. Promote on the second use; never copy.
+- **Feature-first layout.** `features/<feature>/{data,domain?,presentation}` plus `<feature>_di.dart`. `core/` has no business logic; `shared/` holds business logic two or more features need. Promote on the second use; never copy. A widget carries no business logic, so a cross-feature widget goes to `core/widgets`, never to `shared/`.
 - **Concrete unless a second implementation exists now.** No speculative interfaces.
 - **Cubits never in `get_it`.** `BlocProvider` owns the lifecycle. Cubit methods return `Future<void>`; callers use `unawaited`.
 - **Cubits extend `SafeCubit`.** Emits after `close()` are dropped, not thrown; `close()` still cancels what the cubit owns. See `dart-style.md`.

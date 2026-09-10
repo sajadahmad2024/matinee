@@ -31,7 +31,7 @@ In this stack the Cubit or Bloc is the view model.
 
 ## Folder structure
 
-Feature-first, because layer-first collapses at around five features. `core/` holds framework-level code with no business knowledge (theme, responsive, router, network plumbing, error types). `shared/` holds business logic that two or more features need (a session repository, feature flags). Something moves from a feature to `shared/` the moment a second feature needs it, not before; premature sharing costs as much as duplication. The fastest sharing check: deleting any one `features/x/` folder must never break another feature's compile.
+Feature-first, because layer-first collapses at around five features. `core/` holds framework-level code with no business knowledge (theme, responsive, router, network plumbing, error types) — and, in `core/widgets/`, every widget more than one feature draws, because a widget carries no business knowledge whatever domain it is named after. `shared/` holds business logic that two or more features need (a session repository, feature flags). Something moves from a feature to `shared/` the moment a second feature needs it, not before; premature sharing costs as much as duplication. The fastest sharing check: deleting any one `features/x/` folder must never break another feature's compile.
 
 ## Concrete unless a second implementation exists
 
