@@ -307,6 +307,10 @@ export interface RewardsAnalytics {
   totalBidsPeriod: number;
   topWinningBid: number;
   avgWinningBid: number;
+  /** Points redeemed that were bought outright in-app. */
+  pointsPurchased: number;
+  /** Points redeemed that were earned through gameplay / watching. */
+  pointsEarned: number;
 }
 
 const GLOBAL_REWARDS_ANALYTICS: RewardsAnalytics = {
@@ -320,6 +324,10 @@ const GLOBAL_REWARDS_ANALYTICS: RewardsAnalytics = {
   totalBidsPeriod: 2814,
   topWinningBid: 18200,
   avgWinningBid: 14300,
+  // Splits pointsRedeemed by where the points came from — how much of redemption
+  // the platform was actually paid for vs. how much it gave away through gameplay.
+  pointsPurchased: 653000,
+  pointsEarned: 1959000,
 };
 
 // Share of activity per macro-region (mirrors dashboard regional weighting).
@@ -355,6 +363,8 @@ export function rewardsAnalyticsForRegion(region: "global" | MacroRegion): Rewar
     // winning-bid stats aren't volume metrics — vary mildly by market depth
     topWinningBid: Math.round((g.topWinningBid * (0.7 + f)) / 100) * 100,
     avgWinningBid: Math.round((g.avgWinningBid * (0.7 + f)) / 100) * 100,
+    pointsPurchased: Math.round(g.pointsPurchased * f),
+    pointsEarned: Math.round(g.pointsEarned * f),
   };
 }
 
@@ -364,9 +374,7 @@ export function rewardsAnalyticsForRegion(region: "global" | MacroRegion): Rewar
 
 /** "GB" → "🇬🇧" via regional indicator symbols. */
 export function flagEmoji(iso: string): string {
-  return iso
-    .toUpperCase()
-    .replace(/./g, (c) => String.fromCodePoint(127397 + c.charCodeAt(0)));
+  return iso.toUpperCase().replace(/./g, (c) => String.fromCodePoint(127397 + c.charCodeAt(0)));
 }
 
 export function formatPoints(n: number): string {

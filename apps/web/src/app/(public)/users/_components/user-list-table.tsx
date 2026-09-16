@@ -44,7 +44,6 @@ export interface User {
   avatar: string;
   status: "active" | "suspended" | "banned";
   subscribed: boolean;
-  subscriptionTier?: string;
   pointsBalance: number;
   reportsCount: number;
   lastActive: string;
@@ -66,7 +65,6 @@ const mockUsers: User[] = [
     avatar: "",
     status: "active",
     subscribed: true,
-    subscriptionTier: "Premium",
     pointsBalance: 12450,
     reportsCount: 0,
     lastActive: "2 mins ago",
@@ -79,7 +77,6 @@ const mockUsers: User[] = [
     avatar: "",
     status: "active",
     subscribed: true,
-    subscriptionTier: "Basic",
     pointsBalance: 8900,
     reportsCount: 1,
     lastActive: "1 hour ago",
@@ -104,7 +101,6 @@ const mockUsers: User[] = [
     avatar: "",
     status: "active",
     subscribed: true,
-    subscriptionTier: "Premium",
     pointsBalance: 45200,
     reportsCount: 0,
     lastActive: "5 mins ago",
@@ -129,7 +125,6 @@ const mockUsers: User[] = [
     avatar: "",
     status: "active",
     subscribed: true,
-    subscriptionTier: "Basic",
     pointsBalance: 6780,
     reportsCount: 0,
     lastActive: "15 mins ago",
@@ -154,7 +149,6 @@ const mockUsers: User[] = [
     avatar: "",
     status: "active",
     subscribed: true,
-    subscriptionTier: "Premium",
     pointsBalance: 32100,
     reportsCount: 0,
     lastActive: "Just now",
@@ -266,14 +260,14 @@ export function UserListTable({
       ),
     },
     {
+      // Two classes only — the platform sells one subscription, so Basic/Premium tiers
+      // were dropped: a user is either subscribed or a free user.
       header: "Subscription",
       cell: (user) =>
         user.subscribed ? (
-          <Badge className="bg-accent/10 text-accent border-accent/30">
-            {user.subscriptionTier}
-          </Badge>
+          <Badge className="bg-accent/10 text-accent border-accent/30">Subscribed</Badge>
         ) : (
-          <span className="text-muted-foreground text-sm">Free</span>
+          <span className="text-muted-foreground text-sm">Free user</span>
         ),
     },
     {
@@ -374,7 +368,7 @@ export function UserListTable({
             <SelectContent className="border-border bg-card z-50">
               <SelectItem value="all">All Users</SelectItem>
               <SelectItem value="subscribed">Subscribed</SelectItem>
-              <SelectItem value="free">Free</SelectItem>
+              <SelectItem value="free">Free users</SelectItem>
             </SelectContent>
           </Select>
         </div>

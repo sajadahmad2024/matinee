@@ -1,22 +1,10 @@
 "use client";
 
-import type { Route } from "next";
-import Link from "next/link";
-
-import { AlertTriangle, Coins, Play, Target, TrendingUp } from "lucide-react";
-import {
-  Bar,
-  BarChart,
-  Line,
-  LineChart,
-  ResponsiveContainer,
-  XAxis,
-  YAxis,
-} from "recharts";
+import { Coins, Play, Target, TrendingUp } from "lucide-react";
+import { Bar, BarChart, Line, LineChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
 
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { CardContent } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 
 import { SectionHeading } from "@/components/custom/section-heading";
@@ -65,33 +53,6 @@ export function GameTrends({ timeRange = "7d" }: GameTrendsProps) {
         subtitle="Gameplay velocity, win/loss balance and the points economy across all formats"
         icon={TrendingUp}
       />
-
-      {/* Leaderboard Stagnation Alert — actionable, not passive */}
-      <Card className="border-warning/20 bg-warning/5">
-        <CardContent className="py-3">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-3">
-              <AlertTriangle className="text-warning h-5 w-5 shrink-0" />
-              <div>
-                <p className="text-foreground text-sm font-medium">
-                  Leaderboard Stagnation Detected
-                </p>
-                <p className="text-muted-foreground text-xs">
-                  Top 3 positions in Weekly Quests held by the same users for 4 consecutive weeks.
-                </p>
-              </div>
-            </div>
-            <div className="flex shrink-0 items-center gap-2 sm:pl-4">
-              <Button asChild size="sm" variant="outline" className="cursor-pointer">
-                <Link href={"/games/leaderboards" as Route}>View leaderboard</Link>
-              </Button>
-              <Button asChild size="sm" className="cursor-pointer">
-                <Link href={"/games/format/quests" as Route}>Rebalance rewards</Link>
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Row 1: Velocity & Win/Loss */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">

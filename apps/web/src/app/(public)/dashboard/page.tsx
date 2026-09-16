@@ -9,21 +9,19 @@ import { Download, Globe } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
+import { MACRO_REGIONS } from "@/app/_libs/regions";
 import { SectionHeading } from "@/components/custom/section-heading";
 import { TimeRangeSelector } from "@/components/custom/time-range-selector";
 
-import { MACRO_REGIONS } from "@/app/_libs/regions";
-
-import { downloadCsv, type CsvRow } from "./_libs/download-csv";
 import {
   GlobalActivityMap,
   MAP_METRIC_LABEL,
-  mapCells,
-  type MapLevel,
   type MapMetric,
+  mapCells,
 } from "./_components/global-activity-map";
 import { RealTimePulse } from "./_components/real-time-pulse";
 import { ViewershipSplit } from "./_components/viewership-split";
+import { type CsvRow, downloadCsv } from "./_libs/download-csv";
 import { REGION_ANALYTICS, TIME_RANGE_LABELS } from "./constants";
 
 // Master dashboard = a management snapshot with exactly three sections: live stat row,
@@ -35,6 +33,11 @@ export default function DashboardPage() {
   const [liveGameSessions, setLiveGameSessions] = useState(3847);
   const [subscribedUsers] = useState(8923);
   const [signedUpUsers] = useState(248500);
+  // $ attached to those subscribers — the count on its own never showed what they are
+  // worth. Lifetime revenue, derived from the Avg LTV the Subscriptions module reports,
+  // so the two screens never disagree.
+  const avgLifetimeValue = 186;
+  const lifetimeRevenue = subscribedUsers * avgLifetimeValue;
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -44,33 +47,32 @@ export default function DashboardPage() {
     return () => clearInterval(interval);
   }, []);
 
-  // Platform total (incl. guests) is distinct from Signed Up.
-  const totalUsers = 312000;
+  // Installs, incl. devices that never signed up — distinct from signed-up accounts.
+  const totalDownloads = 312000;
 
   const searchParams = useSearchParams();
   const timeRange = searchParams.get("timeRange") ?? "30d";
   const timeRangeLabel = TIME_RANGE_LABELS[timeRange] ?? timeRange;
 
   // The map's active view, mirrored so Export covers what the operator is looking at.
-  const [mapState, setMapState] = useState<{ level: MapLevel; metric: MapMetric }>({
-    level: "master",
-    metric: "activity",
-  });
+  const [mapMetric, setMapMetric] = useState<MapMetric>("activity");
 
   // Export = all three master sections: stat row, per-cell map values for the active
   // metric mode, and the viewership-split table.
   const exportDashboard = () => {
     const rows: CsvRow[] = [
       ["Section", "Metric", "Value"],
-      ["Live stats", "Total Users", totalUsers],
-      ["Live stats", "Signed Up", signedUpUsers],
-      ["Live stats", "Subscribed", subscribedUsers],
+      ["Live stats", "Total Downloads", totalDownloads],
+      ["Live stats", "Total Users", signedUpUsers],
+      ["Live stats", "Total Subscribers", subscribedUsers],
+      ["Live stats", "Subscriber lifetime revenue", lifetimeRevenue],
+      ["Live stats", "Avg lifetime value", avgLifetimeValue],
       ["Live stats", "Online Now", liveUsers],
       ["Live stats", "Playing Games", liveGameSessions],
       ["Live stats", "Period", timeRangeLabel],
     ];
-    for (const cell of mapCells(mapState.level, mapState.metric)) {
-      rows.push([`Activity map (${MAP_METRIC_LABEL(mapState.metric)})`, cell.name, cell.value]);
+    for (const cell of mapCells(mapMetric)) {
+      rows.push([`Activity map (${MAP_METRIC_LABEL(mapMetric)})`, cell.name, cell.value]);
     }
     for (const r of MACRO_REGIONS) {
       const a = REGION_ANALYTICS[r.code]!;
@@ -91,7 +93,9 @@ export default function DashboardPage() {
           </p>
           <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
             <span className="text-muted-foreground">Showing</span>
-            <span className="bg-primary/10 text-primary rounded px-2 py-0.5 font-medium">Global</span>
+            <span className="bg-primary/10 text-primary rounded px-2 py-0.5 font-medium">
+              Global
+            </span>
             <span className="bg-muted/50 text-foreground-secondary rounded px-2 py-0.5 font-medium">
               {timeRangeLabel}
             </span>
@@ -108,9 +112,11 @@ export default function DashboardPage() {
 
       {/* Section 1 — master stat row (live) */}
       <RealTimePulse
-        totalUsers={totalUsers}
-        signedUpUsers={signedUpUsers}
+        totalDownloads={totalDownloads}
+        totalUsers={signedUpUsers}
         subscribedUsers={subscribedUsers}
+        lifetimeRevenue={lifetimeRevenue}
+        avgLifetimeValue={avgLifetimeValue}
         liveUsers={liveUsers}
         liveGameSessions={liveGameSessions}
       />
@@ -129,7 +135,7 @@ export default function DashboardPage() {
             </Link>
           }
         />
-        <GlobalActivityMap onStateChange={setMapState} />
+        <GlobalActivityMap onMetricChange={setMapMetric} />
       </section>
 
       {/* Section 3 — viewership vs active gamification (rows click through) */}

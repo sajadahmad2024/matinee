@@ -9,10 +9,8 @@ import { Button } from "@/components/ui/button";
 
 import { MACRO_REGIONS, regionForCountry, regionLabel } from "@/app/_libs/regions";
 import { CountryFilter } from "@/components/custom/country-filter";
-import {
-  type RecommendedAction,
-  RecommendedActions,
-} from "@/components/custom/recommended-actions";
+import { FloatingRecommendedActions } from "@/components/custom/floating-recommended-actions";
+import { type RecommendedAction } from "@/components/custom/recommended-actions";
 import {
   RegionBoxFilter,
   type RegionBoxMetric,
@@ -111,8 +109,9 @@ export default async function ContentManagementPage({ searchParams }: PageProps)
     country !== "all" ? regionForCountry(country) : normalizeContentRegion(regionParam);
   const scopeLabel = region === "all" ? undefined : regionLabel(region);
 
-  // Calendar view on hold pending Adi (Sep 2 call) — see spec-05 §1.3.
-  const CALENDAR_ENABLED = false;
+  // Calendar is live again — scheduled publishes and licence expiries of published
+  // videos on one month grid, with its own schedule/expiration filter.
+  const CALENDAR_ENABLED = true;
   const showCalendar = CALENDAR_ENABLED && tab === "master" && viewMode === "calendar";
 
   return (
@@ -173,9 +172,6 @@ export default async function ContentManagementPage({ searchParams }: PageProps)
             <>
               <ContentInventory region={region} regionLabel={scopeLabel} />
 
-              {/* Recommended Actions — highest-priority content tasks (client: keep) */}
-              <RecommendedActions actions={contentActions(region)} />
-
               {/* Video timeline — the primary working surface, owned by Content Inventory */}
               <div className="space-y-4">
                 <div className="flex flex-wrap items-center justify-between gap-4">
@@ -225,6 +221,9 @@ export default async function ContentManagementPage({ searchParams }: PageProps)
           )}
         </div>
       )}
+
+      {/* Recommended Actions — docked bottom-right so it never pushes the library down */}
+      <FloatingRecommendedActions actions={contentActions(region)} />
     </div>
   );
 }

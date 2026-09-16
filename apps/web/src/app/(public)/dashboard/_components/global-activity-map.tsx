@@ -8,11 +8,9 @@ import Link from "next/link";
 import { Camera } from "lucide-react";
 
 import { cn } from "@/app/_libs/utils/cn";
-import { MACRO_REGIONS, type MacroRegion, regionForCountry } from "@/app/_libs/regions";
 
 import { COUNTRY_DATA, type CountryData } from "../constants";
 
-export type MapLevel = "master" | "regional";
 export type MapMetric = "activity" | "points" | "revenue";
 
 interface MapCell {
@@ -38,28 +36,14 @@ const fmt = (v: number, m: MapMetric) =>
       ? `${(v / 1_000_000).toFixed(1)}M`
       : `${(v / 1000).toFixed(0)}K`;
 
-/** Cells for a given level+metric — exported so the master Export can mirror the active view. */
-export function mapCells(level: MapLevel, metric: MapMetric): MapCell[] {
+/** Cells for a given metric — exported so the master Export can mirror the active view. */
+export function mapCells(metric: MapMetric): MapCell[] {
   const max = Math.max(...COUNTRY_DATA.map((c) => metricValue(c, metric)));
-  if (level === "master") {
-    return COUNTRY_DATA.map((c) => ({
-      code: c.code,
-      name: c.name,
-      value: metricValue(c, metric),
-      intensity: metricValue(c, metric) / max,
-    }));
-  }
-  const byRegion = new Map<MacroRegion, number>();
-  for (const c of COUNTRY_DATA) {
-    const r = regionForCountry(c.code);
-    byRegion.set(r, (byRegion.get(r) ?? 0) + metricValue(c, metric));
-  }
-  const rMax = Math.max(...byRegion.values());
-  return MACRO_REGIONS.filter((r) => byRegion.has(r.code)).map((r) => ({
-    code: r.code,
-    name: r.label,
-    value: byRegion.get(r.code)!,
-    intensity: byRegion.get(r.code)! / rMax,
+  return COUNTRY_DATA.map((c) => ({
+    code: c.code,
+    name: c.name,
+    value: metricValue(c, metric),
+    intensity: metricValue(c, metric) / max,
   }));
 }
 
@@ -73,12 +57,13 @@ interface HoverState {
 }
 
 interface GlobalActivityMapProps {
-  /** lets the master page export the values of the currently active level + metric */
-  onStateChange?: (state: { level: MapLevel; metric: MapMetric }) => void;
+  /** lets the master page export the values of the currently active metric */
+  onMetricChange?: (metric: MapMetric) => void;
 }
 
-export function GlobalActivityMap({ onStateChange }: GlobalActivityMapProps) {
-  const [level, setLevel] = useState<MapLevel>("master");
+// The Master/Regional level switch was removed — the client could not tell what it did,
+// and every cell already clicks through to that region's full analytics.
+export function GlobalActivityMap({ onMetricChange }: GlobalActivityMapProps) {
   const [metric, setMetric] = useState<MapMetric>("activity");
   const [hover, setHover] = useState<HoverState | null>(null);
   const [snapshotAt, setSnapshotAt] = useState<string>("—");
@@ -90,10 +75,10 @@ export function GlobalActivityMap({ onStateChange }: GlobalActivityMapProps) {
   }, []);
 
   useEffect(() => {
-    onStateChange?.({ level, metric });
-  }, [level, metric, onStateChange]);
+    onMetricChange?.(metric);
+  }, [metric, onMetricChange]);
 
-  const cells = mapCells(level, metric);
+  const cells = mapCells(metric);
 
   const color = (intensity: number) => {
     const hue = metric === "points" ? 270 : metric === "revenue" ? 142 : 217;
@@ -102,22 +87,8 @@ export function GlobalActivityMap({ onStateChange }: GlobalActivityMapProps) {
 
   return (
     <div className="space-y-3">
-      {/* Controls — Master/Regional, metric mode, snapshot */}
+      {/* Controls — metric mode, snapshot */}
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="bg-muted/30 inline-flex rounded-lg p-1">
-          {(["master", "regional"] as MapLevel[]).map((l) => (
-            <button
-              key={l}
-              type="button"
-              onClick={() => setLevel(l)}
-              className={cn(
-                "rounded-md px-3 py-1 text-sm capitalize transition-colors",
-                level === l ? "bg-background text-foreground" : "text-muted-foreground hover:text-foreground",
-              )}>
-              {l}
-            </button>
-          ))}
-        </div>
         <div className="bg-muted/30 inline-flex rounded-lg p-1">
           {METRICS.map((m) => (
             <button
@@ -126,7 +97,9 @@ export function GlobalActivityMap({ onStateChange }: GlobalActivityMapProps) {
               onClick={() => setMetric(m.key)}
               className={cn(
                 "rounded-md px-3 py-1 text-xs transition-colors",
-                metric === m.key ? "bg-background text-foreground" : "text-muted-foreground hover:text-foreground",
+                metric === m.key
+                  ? "bg-background text-foreground"
+                  : "text-muted-foreground hover:text-foreground",
               )}>
               {m.label}
             </button>
@@ -140,7 +113,7 @@ export function GlobalActivityMap({ onStateChange }: GlobalActivityMapProps) {
       </div>
 
       <div className="relative min-h-[240px]">
-        <div className={cn("grid gap-2 p-2", level === "master" ? "grid-cols-6" : "grid-cols-5")}>
+        <div className="grid grid-cols-3 gap-2 p-2 sm:grid-cols-6">
           {cells.map((c) => (
             <Link
               key={c.code}
@@ -149,12 +122,19 @@ export function GlobalActivityMap({ onStateChange }: GlobalActivityMapProps) {
               style={{ backgroundColor: color(c.intensity) }}
               onMouseEnter={(e) => {
                 const rect = e.currentTarget.getBoundingClientRect();
-                setHover({ name: c.name, value: c.value, x: rect.left + rect.width / 2, y: rect.top - 10 });
+                setHover({
+                  name: c.name,
+                  value: c.value,
+                  x: rect.left + rect.width / 2,
+                  y: rect.top - 10,
+                });
               }}
               onMouseLeave={() => setHover(null)}>
               <div className="text-center">
                 <span className="text-foreground text-xs font-bold">{c.code}</span>
-                <div className="text-foreground-secondary mt-0.5 text-[10px]">{fmt(c.value, metric)}</div>
+                <div className="text-foreground-secondary mt-0.5 text-[10px]">
+                  {fmt(c.value, metric)}
+                </div>
               </div>
             </Link>
           ))}
@@ -169,8 +149,7 @@ export function GlobalActivityMap({ onStateChange }: GlobalActivityMapProps) {
           </div>
           <span>High</span>
           <span className="ml-2">
-            {level === "regional" ? "macro-regions" : "top countries"} ·{" "}
-            {METRICS.find((m) => m.key === metric)?.label}
+            top countries · {METRICS.find((m) => m.key === metric)?.label}
           </span>
           <span className="text-primary ml-auto">Click a region for full analytics</span>
         </div>

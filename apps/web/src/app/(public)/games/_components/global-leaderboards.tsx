@@ -14,9 +14,9 @@ import {
   Gamepad2,
   Medal,
   Star,
-  Trophy,
   TrendingDown,
   TrendingUp,
+  Trophy,
   Users,
 } from "lucide-react";
 
@@ -350,11 +350,11 @@ export function GlobalLeaderboards() {
         <TabsList className="bg-muted/30">
           <TabsTrigger value="instances" className="cursor-pointer gap-2">
             <Gamepad2 className="h-4 w-4" />
-            Game Instances
+            Top Games
           </TabsTrigger>
           <TabsTrigger value="hall-of-fame" className="cursor-pointer gap-2">
             <Trophy className="h-4 w-4" />
-            Hall of Fame
+            Top Players
           </TabsTrigger>
         </TabsList>
 
@@ -367,7 +367,12 @@ export function GlobalLeaderboards() {
               const concentrated = mockInstances.filter((i) => i.topConcentration >= 40).length;
               const declining = mockInstances.filter((i) => i.trend < 0).length;
               const cards = [
-                { label: "Active boards", value: String(total), cls: "text-accent", icon: Activity },
+                {
+                  label: "Active boards",
+                  value: String(total),
+                  cls: "text-accent",
+                  icon: Activity,
+                },
                 {
                   label: "Need intervention",
                   value: String(needIntervention),
@@ -453,7 +458,7 @@ export function GlobalLeaderboards() {
         <TabsContent value="hall-of-fame" className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-foreground text-lg font-semibold">Global Hall of Fame</h3>
+              <h3 className="text-foreground text-lg font-semibold">Top Players — All Formats</h3>
               <p className="text-muted-foreground text-sm">Top users across all games</p>
             </div>
             <Select value={formatFilter} onValueChange={(v) => updateQuery("format", v)}>
