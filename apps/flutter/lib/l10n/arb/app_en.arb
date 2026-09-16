@@ -992,5 +992,847 @@
   "earnsNoStreakDays": "No streak days logged yet.",
   "earnsNoWins": "No auction wins yet.",
   "earnsNoPredictions": "No settled predictions yet.",
-  "earnsNoQuests": "No quest weeks yet."
+  "earnsNoQuests": "No quest weeks yet.",
+  "p2pRankLabel": "Rank",
+  "p2pStreakLabel": "Streak",
+  "p2pPointsLabel": "Points",
+  "p2pPointsUnit": "PTS",
+  "p2pRankValue": "#{rank}",
+  "@p2pRankValue": {
+    "description": "The rank, which the design always writes with a hash.",
+    "placeholders": {
+      "rank": {
+        "type": "String"
+      }
+    }
+  },
+  "p2pRankGain": "+{places} wk",
+  "@p2pRankGain": {
+    "description": "How many places the user climbed over the week.",
+    "placeholders": {
+      "places": {
+        "type": "int"
+      }
+    }
+  },
+  "p2pBestStreak": "Best {days}d",
+  "@p2pBestStreak": {
+    "description": "The longest run so far, abbreviated as the design writes it.",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "p2pBadgeProgress": "{earned} / {span}",
+  "@p2pBadgeProgress": {
+    "description": "Points into the current badge tier over the tier's width.",
+    "placeholders": {
+      "earned": {
+        "type": "String"
+      },
+      "span": {
+        "type": "String"
+      }
+    }
+  },
+  "p2pNextBadge": "{points} pts to {badge}",
+  "@p2pNextBadge": {
+    "description": "What the next badge still costs.",
+    "placeholders": {
+      "points": {
+        "type": "String"
+      },
+      "badge": {
+        "type": "String"
+      }
+    }
+  },
+  "p2pTopBadge": "Top badge reached",
+  "@p2pTopBadge": {
+    "description": "The caption once the ladder has no rung above."
+  },
+  "p2pGamesSection": "GAMES",
+  "p2pRankSummary": "Rank {rank}, up {places} places this week.",
+  "@p2pRankSummary": {
+    "description": "The rank column as one sentence; its glyph and caption say none of this.",
+    "placeholders": {
+      "rank": {
+        "type": "String"
+      },
+      "places": {
+        "type": "int"
+      }
+    }
+  },
+  "p2pStreakSummary": "Streak: {points} points, best run {days} days.",
+  "@p2pStreakSummary": {
+    "description": "The streak column as one sentence.",
+    "placeholders": {
+      "points": {
+        "type": "String"
+      },
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "p2pPointsSummary": "{points} points earned.",
+  "@p2pPointsSummary": {
+    "description": "The points column as one sentence.",
+    "placeholders": {
+      "points": {
+        "type": "String"
+      }
+    }
+  },
+  "p2pBadgeSummary": "Badge {badge}, {earned} of {span} points. {points} points to {nextBadge}.",
+  "@p2pBadgeSummary": {
+    "description": "The badge row as one sentence, because its bar announces nothing.",
+    "placeholders": {
+      "badge": {
+        "type": "String"
+      },
+      "earned": {
+        "type": "String"
+      },
+      "span": {
+        "type": "String"
+      },
+      "points": {
+        "type": "String"
+      },
+      "nextBadge": {
+        "type": "String"
+      }
+    }
+  },
+  "questsTitle": "Weekly Quests",
+  "questsAllSection": "ALL WEEKLY QUESTS",
+  "questsActiveBadge": "ACTIVE",
+  "questsActiveBadgeSpoken": "Active",
+  "@questsActiveBadgeSpoken": {
+    "description": "The active pill, spoken. Upper case is read out letter by letter."
+  },
+  "questsPointsReward": "{points} PTS",
+  "@questsPointsReward": {
+    "description": "A quest's reward over its still, which the design sets upper case.",
+    "placeholders": {
+      "points": {
+        "type": "String"
+      }
+    }
+  },
+  "questsPointsValue": "{points} pts",
+  "@questsPointsValue": {
+    "description": "A quest's reward in a list row.",
+    "placeholders": {
+      "points": {
+        "type": "String"
+      }
+    }
+  },
+  "questsTimeLeft": "{time} left",
+  "@questsTimeLeft": {
+    "description": "How long a quest is still open, such as '2d 14h left'.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "questsTimeLeftDays": "{days}d {hours}h",
+  "@questsTimeLeftDays": {
+    "description": "A remaining span the design abbreviates to days and hours.",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      },
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "questsTimeLeftHours": "{hours}h {minutes}m",
+  "@questsTimeLeftHours": {
+    "description": "A remaining span under a day.",
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "questsProgressFraction": "{done} / {total}",
+  "@questsProgressFraction": {
+    "description": "Actions done over actions in the quest.",
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "questsTrackProgress": "Track Progress",
+  "questsStartQuest": "Start Quest",
+  "questsRewardClaimed": "REWARD CLAIMED",
+  "questsRewardClaimedSpoken": "Reward claimed",
+  "@questsRewardClaimedSpoken": {
+    "description": "The claimed pill, spoken."
+  },
+  "questsEmpty": "No quests are running this week.",
+  "questsHeroSummary": "{title}. {description} {done} of {total} actions done, {points} points, {time} left.",
+  "@questsHeroSummary": {
+    "description": "The featured quest card as one sentence.",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "description": {
+        "type": "String"
+      },
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "points": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "questsRowSummary": "{title}. {description} Pays {points} points. {action}",
+  "@questsRowSummary": {
+    "description": "A quest list row as one sentence.",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "description": {
+        "type": "String"
+      },
+      "points": {
+        "type": "String"
+      },
+      "action": {
+        "type": "String"
+      }
+    }
+  },
+  "questProgressActionsDone": "{done} of {total} actions done",
+  "@questProgressActionsDone": {
+    "description": "The tracker's headline.",
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "questProgressEarnCaption": "Complete all actions to earn {points} pts",
+  "@questProgressEarnCaption": {
+    "description": "What finishing the quest pays.",
+    "placeholders": {
+      "points": {
+        "type": "String"
+      }
+    }
+  },
+  "questProgressYourActions": "YOUR ACTIONS",
+  "questProgressCuratedContent": "CURATED CONTENT",
+  "questProgressCounter": "{done}/{total}",
+  "@questProgressCounter": {
+    "description": "One action's own count, drawn as a chip.",
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "questProgressPercent": "{percent}%",
+  "@questProgressPercent": {
+    "description": "The ring's centre label.",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "questProgressWatch": "Watch",
+  "questProgressDone": "DONE",
+  "questProgressClaim": "Claim Reward",
+  "questProgressActionSummary": "{title}. {description} {done} of {total} done.",
+  "@questProgressActionSummary": {
+    "description": "One action card as one sentence.",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "description": {
+        "type": "String"
+      },
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "questProgressWatchItem": "Watch {title}",
+  "@questProgressWatchItem": {
+    "description": "What the button beside a curated row does.",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "questProgressItemWatched": "{title}, watched",
+  "@questProgressItemWatched": {
+    "description": "A curated row already done.",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "questModalEyebrow": "QUEST COMPLETED",
+  "questModalTitle": "Congratulations",
+  "questModalBody": "You''ve completed {quest} and earned your weekly reward.",
+  "@questModalBody": {
+    "description": "The modal's paragraph.",
+    "placeholders": {
+      "quest": {
+        "type": "String"
+      }
+    }
+  },
+  "questModalPointsLabel": "POINTS EARNED",
+  "questModalBadgeLabel": "BADGE UNLOCKED",
+  "questModalBadgeSummary": "Badge unlocked: {badge}.",
+  "@questModalBadgeSummary": {
+    "description": "The modal's badge card as one sentence.",
+    "placeholders": {
+      "badge": {
+        "type": "String"
+      }
+    }
+  },
+  "questModalPoints": "+{points}",
+  "@questModalPoints": {
+    "description": "The award, which the design always writes signed.",
+    "placeholders": {
+      "points": {
+        "type": "String"
+      }
+    }
+  },
+  "questModalPointsUnit": "pts",
+  "questModalClaim": "Claim Reward",
+  "questClaimedBadge": "REWARD CLAIMED",
+  "questClaimedEyebrow": "COMPLETED QUEST",
+  "questClaimedTitle": "Congratulations! 🎉",
+  "questClaimedBody": "You successfully completed all actions and claimed your reward for this week''s quest.",
+  "questClaimedPointsLabel": "POINTS EARNED",
+  "questClaimedDaysLabel": "COMPLETED IN",
+  "questClaimedActionsLabel": "ACTIONS DONE",
+  "questClaimedDaysUnit": "DAYS",
+  "questClaimedDaysSummary": "Completed in {days} days.",
+  "@questClaimedDaysSummary": {
+    "description": "The days card as one sentence.",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "questClaimedActionsOf": "/ {total}",
+  "@questClaimedActionsOf": {
+    "description": "The denominator beside the actions figure.",
+    "placeholders": {
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "questClaimedBadgeUnlocked": "BADGE UNLOCKED",
+  "questClaimedBadgeCaption": "Awarded for completing {quest}",
+  "@questClaimedBadgeCaption": {
+    "description": "What the badge was given for.",
+    "placeholders": {
+      "quest": {
+        "type": "String"
+      }
+    }
+  },
+  "questClaimedActionsSection": "COMPLETED ACTIONS",
+  "questClaimedActionDone": "Done",
+  "questClaimedShare": "Share Achievement",
+  "questClaimedBadgeSummary": "Badge unlocked: {badge}. {caption}",
+  "@questClaimedBadgeSummary": {
+    "description": "The badge card as one sentence.",
+    "placeholders": {
+      "badge": {
+        "type": "String"
+      },
+      "caption": {
+        "type": "String"
+      }
+    }
+  },
+  "streakIntroEyebrow": "DAILY STREAKS",
+  "streakIntroTitle": "The Daily Ritual",
+  "streakIntroCardTitle": "Spend {minutes} mins daily",
+  "@streakIntroCardTitle": {
+    "description": "The first rung's ask.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "streakIntroCardBody": "Every day you spend at least {minutes} minutes on Matinee counts as a streak day. Miss a day and your streak resets.",
+  "@streakIntroCardBody": {
+    "description": "How the streak works.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "streakIntroBody": "Longer streaks unlock exclusive badges and CinePoints multipliers.",
+  "streakIntroCta": "Start My Streak",
+  "streakTitle": "Daily Streaks",
+  "streakCurrentLevel": "CURRENT LEVEL",
+  "streakLevelName": "Level {level}",
+  "@streakLevelName": {
+    "description": "The level the streak has reached.",
+    "placeholders": {
+      "level": {
+        "type": "int"
+      }
+    }
+  },
+  "streakLevelRequirement": "{minutes} min/day for {days} days",
+  "@streakLevelRequirement": {
+    "description": "What the current level asks for.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      },
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "streakThisWeek": "This week",
+  "streakDaysDone": "days done",
+  "streakWeekFraction": "{done}/{total}",
+  "@streakWeekFraction": {
+    "description": "Days cleared this week over the days the level needs.",
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "streakUnlockCaption": "Complete {days} more days to unlock Level {level} ({minutes} min/day)",
+  "@streakUnlockCaption": {
+    "description": "What the next level still needs.",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      },
+      "level": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "streakTopLevelCaption": "You have reached the top level. Keep the run going.",
+  "streakLevelTrack": "LEVEL TRACK",
+  "streakTierLabel": "{minutes} min/day",
+  "@streakTierLabel": {
+    "description": "One rung of the ladder.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "streakTodaySession": "TODAY''S SESSION",
+  "streakSessionTarget": "/ {minutes} min",
+  "@streakSessionTarget": {
+    "description": "The minutes today's session is measured against.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "streakMinutesLeft": "{minutes} MIN LEFT",
+  "@streakMinutesLeft": {
+    "description": "How much of today's session is still to go.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "streakSessionMet": "TODAY IS DONE",
+  "streakSessionCaption": "Level {level} requires {minutes} min/day to keep your streak alive",
+  "@streakSessionCaption": {
+    "description": "Why today's target is what it is.",
+    "placeholders": {
+      "level": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "streakCompleteDay": "Complete Today",
+  "@streakCompleteDay": {
+    "description": "The CTA that counts today towards the streak, until a session tracker exists."
+  },
+  "streakNowLabel": "STREAK NOW",
+  "streakNowSummary": "Current streak: {days} days.",
+  "@streakNowSummary": {
+    "description": "The current run as one sentence.",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "streakBestLabel": "BEST STREAK",
+  "streakBestSummary": "Best streak: {days} days.",
+  "@streakBestSummary": {
+    "description": "The longest run as one sentence.",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "streakActiveLabel": "ACTIVE DAYS",
+  "streakActiveSummary": "Active days: {days}.",
+  "@streakActiveSummary": {
+    "description": "How many days were active, as one sentence.",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "streakDaysUnit": "days",
+  "streakLevelCardSummary": "Current level {level}, {minutes} minutes a day for {days} days. {done} of {days} days done this week.",
+  "@streakLevelCardSummary": {
+    "description": "The current-level card as one sentence.",
+    "placeholders": {
+      "level": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      },
+      "days": {
+        "type": "int"
+      },
+      "done": {
+        "type": "int"
+      }
+    }
+  },
+  "streakTierSummaryDone": "Level {level}, {minutes} minutes a day. Reached.",
+  "@streakTierSummaryDone": {
+    "description": "A cleared rung of the ladder.",
+    "placeholders": {
+      "level": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "streakTierSummaryCurrent": "Level {level}, {minutes} minutes a day. Current level.",
+  "@streakTierSummaryCurrent": {
+    "description": "The rung the streak is on.",
+    "placeholders": {
+      "level": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "streakTierSummaryLocked": "Level {level}, {minutes} minutes a day. Locked.",
+  "@streakTierSummaryLocked": {
+    "description": "A rung not yet reached.",
+    "placeholders": {
+      "level": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "streakSessionSummary": "Today''s session: {minutes} of {target} minutes.",
+  "@streakSessionSummary": {
+    "description": "The session card as one sentence.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      },
+      "target": {
+        "type": "int"
+      }
+    }
+  },
+  "streakLevelDoneTitle": "{days}-Day Ritual Complete!",
+  "@streakLevelDoneTitle": {
+    "description": "The drawer's headline.",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "streakLevelDoneBody": "You''ve mastered the daily ritual. Keep the momentum going for exclusive multipliers.",
+  "streakLevelDoneRewardLabel": "REWARD",
+  "streakLevelDoneRewardSummary": "Reward: {points} points.",
+  "@streakLevelDoneRewardSummary": {
+    "description": "The drawer's reward card as one sentence.",
+    "placeholders": {
+      "points": {
+        "type": "String"
+      }
+    }
+  },
+  "streakLevelDoneStatusLabel": "NEW STATUS",
+  "streakLevelDoneStatusSummary": "New status: {status}.",
+  "@streakLevelDoneStatusSummary": {
+    "description": "The drawer's status card as one sentence.",
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "streakLevelDonePoints": "+{points}",
+  "@streakLevelDonePoints": {
+    "description": "The award, written signed.",
+    "placeholders": {
+      "points": {
+        "type": "String"
+      }
+    }
+  },
+  "streakLevelDonePointsUnit": "Points",
+  "streakLevelDoneStatus": "Streak Master",
+  "streakLevelDoneClaim": "Claim Reward",
+  "streakLevelDoneDismiss": "CONTINUE WATCHING",
+  "predictionsTitle": "Prediction Games",
+  "predictionsSection": "PREDICTIONS",
+  "predictionsActiveBadge": "{count} ACTIVE",
+  "@predictionsActiveBadge": {
+    "description": "How many predictions are still open.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "predictionsActiveBadgeSpoken": "{count} active",
+  "@predictionsActiveBadgeSpoken": {
+    "description": "How many predictions are open, spoken.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "predictionsMultiplier": "{multiplier}X MULTIPLIER",
+  "@predictionsMultiplier": {
+    "description": "What a correct call multiplies by, over the still.",
+    "placeholders": {
+      "multiplier": {
+        "type": "int"
+      }
+    }
+  },
+  "predictionsPointsReward": "+{points} PTS",
+  "@predictionsPointsReward": {
+    "description": "What a correct call pays, over the still.",
+    "placeholders": {
+      "points": {
+        "type": "String"
+      }
+    }
+  },
+  "predictionsResultIn": "RESULT IN",
+  "predictionsResultInSpoken": "Result is in",
+  "@predictionsResultInSpoken": {
+    "description": "The settled pill, spoken."
+  },
+  "predictionsYesShare": "YES {percent}%",
+  "@predictionsYesShare": {
+    "description": "The yes share of votes cast.",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "predictionsNoShare": "NO {percent}%",
+  "@predictionsNoShare": {
+    "description": "The no share of votes cast.",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "predictionsTurnout": "{percent}% of players voted",
+  "@predictionsTurnout": {
+    "description": "How much of the audience has voted.",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "predictionsCastVote": "Cast Your Vote",
+  "predictionsRewardClaimed": "Reward Claimed",
+  "predictionsEmpty": "No predictions are open right now.",
+  "predictionsCardSummary": "{title}. {question} Yes {yes} per cent, no {no} per cent. {turnout} per cent of players voted. Pays {points} points at {multiplier} times.",
+  "@predictionsCardSummary": {
+    "description": "A prediction card as one sentence; its bar and pills announce none of it.",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "question": {
+        "type": "String"
+      },
+      "yes": {
+        "type": "int"
+      },
+      "no": {
+        "type": "int"
+      },
+      "turnout": {
+        "type": "int"
+      },
+      "points": {
+        "type": "String"
+      },
+      "multiplier": {
+        "type": "int"
+      }
+    }
+  },
+  "predictionEyebrow": "PREDICTION",
+  "predictionMultiplierValue": "{multiplier}X",
+  "@predictionMultiplierValue": {
+    "description": "The multiplier, on its own card.",
+    "placeholders": {
+      "multiplier": {
+        "type": "int"
+      }
+    }
+  },
+  "predictionMultiplierUnit": "MULTIPLIER",
+  "predictionMultiplierSummary": "{multiplier} times multiplier",
+  "@predictionMultiplierSummary": {
+    "description": "The multiplier card as one sentence.",
+    "placeholders": {
+      "multiplier": {
+        "type": "int"
+      }
+    }
+  },
+  "predictionClosesIn": "Voting closes in",
+  "predictionCountdownSummary": "Voting closes in {hours} hours {minutes} minutes",
+  "@predictionCountdownSummary": {
+    "description": "The countdown as a sentence, because its digits read as one number.",
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "predictionClosed": "Voting has closed",
+  "predictionQuestionLabel": "THE QUESTION",
+  "predictionRewardPoints": "+{points} PTS",
+  "@predictionRewardPoints": {
+    "description": "What a prediction pays, drawn in the reward tone inside the vote eyebrow.",
+    "placeholders": {
+      "points": {
+        "type": "String"
+      }
+    }
+  },
+  "predictionCastVoteLabel": "CAST YOUR VOTE · {reward}",
+  "@predictionCastVoteLabel": {
+    "description": "The eyebrow over the two vote buttons.",
+    "placeholders": {
+      "reward": {
+        "type": "String"
+      }
+    }
+  },
+  "predictionYes": "YES",
+  "predictionYesSpoken": "Yes",
+  "@predictionYesSpoken": {
+    "description": "The yes option's name. 'YES' is spelled out letter by letter."
+  },
+  "predictionNo": "NO",
+  "predictionNoSpoken": "No",
+  "@predictionNoSpoken": {
+    "description": "The no option's name. 'NO' is spelled out letter by letter."
+  },
+  "predictionSubmit": "Submit",
+  "predictionVoteRecorded": "Your vote is in",
+  "predictionShowAnalysis": "See how others voted",
+  "predictionAnalysisEyebrow": "PREDICTION ANALYSIS",
+  "predictionAnalysisClose": "Close",
+  "predictionAnalysisOptionSummary": "{option}: {percent} per cent",
+  "@predictionAnalysisOptionSummary": {
+    "description": "One share of the analysis sheet as a sentence.",
+    "placeholders": {
+      "option": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "int"
+      }
+    }
+  }
 }

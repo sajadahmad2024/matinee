@@ -4,8 +4,8 @@ import 'package:matinee/core/theme/app_radius.dart';
 import 'package:matinee/core/theme/app_spacing.dart';
 import 'package:matinee/core/theme/app_text_styles.dart';
 import 'package:matinee/core/theme/extensions/build_context_extensions.dart';
+import 'package:matinee/core/widgets/status_badge.dart';
 import 'package:matinee/features/earns/presentation/widgets/award_footer.dart';
-import 'package:matinee/features/earns/presentation/widgets/status_badge.dart';
 
 ///
 /// One settled prediction: what was asked, how it was called, how it went, and

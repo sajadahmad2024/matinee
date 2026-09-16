@@ -2,8 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:matinee/core/theme/app_sizes.dart';
 import 'package:matinee/core/theme/extensions/build_context_extensions.dart';
 
-/// Which of the design's two progress fills a bar carries.
-enum ProgressTone { bold, soft }
+/// Which of the design's progress fills a bar carries.
+enum ProgressTone {
+  bold,
+
+  /// Held back, for the bars that repeat down the My Earns list.
+  soft,
+
+  /// A run that is finished, which the design turns green rather than gold.
+  success,
+
+  /// A vote still open, which the design draws in the warning accent.
+  warning,
+}
 
 ///
 /// The design's linear progress bar. It is a bare bar with no label of its own,
@@ -55,6 +66,14 @@ class ProgressBar extends StatelessWidget {
                   gradient: switch (tone) {
                     ProgressTone.bold => colors.fill,
                     ProgressTone.soft => colors.fillSoft,
+                    // A flat colour rather than a ramp, so the two stops of a
+                    // gradient are given the one fill the design uses here.
+                    ProgressTone.success => LinearGradient(
+                      colors: [colors.fillSuccess, colors.fillSuccess],
+                    ),
+                    ProgressTone.warning => LinearGradient(
+                      colors: [colors.fillWarning, colors.fillWarning],
+                    ),
                   },
                   borderRadius: radius,
                 ),

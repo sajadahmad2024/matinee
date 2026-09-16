@@ -47,6 +47,10 @@ abstract final class AppControlHeight {
   static const double statCard = 72;
   static const double gameCard = 144;
   static const double progressBar = 4;
+
+  /// The taller bar the design draws on a hero card and in the P2P header.
+  static const double progressBarHero = 5;
+
   static const double progressBarThick = 6;
 
   static const Size sheetHandle = Size(40, 4);

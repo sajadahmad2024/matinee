@@ -28,4 +28,24 @@ abstract final class AppImageAssets {
   static const String auctionWin2 = 'assets/images/auction-win-2.jpg';
   static const String auctionWin3 = 'assets/images/auction-win-3.jpg';
   static const String auctionWin4 = 'assets/images/auction-win-4.jpg';
+
+  static const String p2pWeeklyQuest = 'assets/images/p2p-weekly-quest.jpg';
+  static const String p2pDailyStreaks = 'assets/images/p2p-daily-streaks.jpg';
+  static const String p2pPredictionGame = 'assets/images/p2p-prediction-game.jpg';
+
+  ///
+  /// The stills the quests are drawn against. Trailer Marathon's doubles as the
+  /// hero card's image and as its list row's.
+  ///
+  static const String questTrailerMarathon = 'assets/images/quest-trailer-marathon.jpg';
+  static const String questGenreExplorer = 'assets/images/quest-genre-explorer.jpg';
+  static const String questCommentConnoisseur = 'assets/images/quest-comment-connoisseur.jpg';
+
+  ///
+  /// One still per title, shown at every size it appears in: a prediction card,
+  /// a prediction hero, and a curated-content thumbnail.
+  ///
+  static const String movieNeonNoir = 'assets/images/movie-neon-noir.jpg';
+  static const String movieSilentStorm = 'assets/images/movie-silent-storm.jpg';
+  static const String movieMidnightRequiem = 'assets/images/movie-midnight-requiem.jpg';
 }

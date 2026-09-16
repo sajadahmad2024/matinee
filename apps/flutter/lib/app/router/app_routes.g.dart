@@ -13,6 +13,9 @@ List<RouteBase> get $appRoutes => [
   $auctionWinsRoute,
   $predictionHistoryRoute,
   $questHistoryRoute,
+  $weeklyQuestsRoute,
+  $dailyStreakRoute,
+  $predictionGamesRoute,
   $editProfileRoute,
   $auctionRoute,
   $exclusiveLibraryRoute,
@@ -285,6 +288,175 @@ mixin $QuestHistoryRoute on GoRouteData {
 
   @override
   String get location => GoRouteData.$location('/profile/earns/quests');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) => context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+RouteBase get $weeklyQuestsRoute => GoRouteData.$route(
+  path: '/p2p/quests',
+  hasOverriddenOnExit: false,
+  factory: $WeeklyQuestsRoute._fromState,
+  routes: [
+    GoRouteData.$route(
+      path: ':questId',
+      hasOverriddenOnExit: false,
+      factory: $QuestProgressRoute._fromState,
+      routes: [
+        GoRouteData.$route(
+          path: 'claimed',
+          hasOverriddenOnExit: false,
+          factory: $QuestClaimedRoute._fromState,
+        ),
+      ],
+    ),
+  ],
+);
+
+mixin $WeeklyQuestsRoute on GoRouteData {
+  static WeeklyQuestsRoute _fromState(GoRouterState state) => const WeeklyQuestsRoute();
+
+  @override
+  String get location => GoRouteData.$location('/p2p/quests');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) => context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin $QuestProgressRoute on GoRouteData {
+  static QuestProgressRoute _fromState(GoRouterState state) =>
+      QuestProgressRoute(questId: state.pathParameters['questId']!);
+
+  QuestProgressRoute get _self => this as QuestProgressRoute;
+
+  @override
+  String get location => GoRouteData.$location(
+    '/p2p/quests/${Uri.encodeComponent(_self.questId)}',
+  );
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) => context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin $QuestClaimedRoute on GoRouteData {
+  static QuestClaimedRoute _fromState(GoRouterState state) =>
+      QuestClaimedRoute(questId: state.pathParameters['questId']!);
+
+  QuestClaimedRoute get _self => this as QuestClaimedRoute;
+
+  @override
+  String get location => GoRouteData.$location(
+    '/p2p/quests/${Uri.encodeComponent(_self.questId)}/claimed',
+  );
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) => context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+RouteBase get $dailyStreakRoute => GoRouteData.$route(
+  path: '/p2p/streaks',
+  hasOverriddenOnExit: false,
+  factory: $DailyStreakRoute._fromState,
+);
+
+mixin $DailyStreakRoute on GoRouteData {
+  static DailyStreakRoute _fromState(GoRouterState state) => const DailyStreakRoute();
+
+  @override
+  String get location => GoRouteData.$location('/p2p/streaks');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) => context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+RouteBase get $predictionGamesRoute => GoRouteData.$route(
+  path: '/p2p/predictions',
+  hasOverriddenOnExit: false,
+  factory: $PredictionGamesRoute._fromState,
+  routes: [
+    GoRouteData.$route(
+      path: ':predictionId',
+      hasOverriddenOnExit: false,
+      factory: $PredictionDetailRoute._fromState,
+    ),
+  ],
+);
+
+mixin $PredictionGamesRoute on GoRouteData {
+  static PredictionGamesRoute _fromState(GoRouterState state) => const PredictionGamesRoute();
+
+  @override
+  String get location => GoRouteData.$location('/p2p/predictions');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) => context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin $PredictionDetailRoute on GoRouteData {
+  static PredictionDetailRoute _fromState(GoRouterState state) => PredictionDetailRoute(
+    predictionId: state.pathParameters['predictionId']!,
+  );
+
+  PredictionDetailRoute get _self => this as PredictionDetailRoute;
+
+  @override
+  String get location => GoRouteData.$location(
+    '/p2p/predictions/${Uri.encodeComponent(_self.predictionId)}',
+  );
 
   @override
   void go(BuildContext context) => context.go(location);

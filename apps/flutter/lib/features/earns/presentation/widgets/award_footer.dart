@@ -3,7 +3,7 @@ import 'package:matinee/core/assets/assets.dart';
 import 'package:matinee/core/theme/app_spacing.dart';
 import 'package:matinee/core/theme/app_text_styles.dart';
 import 'package:matinee/core/theme/extensions/build_context_extensions.dart';
-import 'package:matinee/features/earns/presentation/widgets/status_badge.dart';
+import 'package:matinee/core/widgets/status_badge.dart';
 
 ///
 /// The row that closes a history card: what the entry paid, and the badge it

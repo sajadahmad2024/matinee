@@ -28,6 +28,8 @@ const _standing = PointsStanding(
   pointsToNextBadge: 918,
   nextBadgeName: 'Cinematic Loyalist',
   progressToNextBadge: 0.694,
+  pointsIntoBadge: 2082,
+  badgeSpan: 3000,
 );
 
 const _overview = EarnsOverview(

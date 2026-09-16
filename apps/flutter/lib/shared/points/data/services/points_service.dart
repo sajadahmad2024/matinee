@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:matinee/core/error/app_exception.dart';
 import 'package:matinee/shared/points/data/models/badge_tier.dart';
@@ -57,12 +58,21 @@ class PointsService {
     // The top of the ladder has nothing above it, so it reads as complete
     // rather than as progress towards a rung that does not exist.
     if (next == null) {
+      // The rung that reached the top, which the balance has cleared in full.
+      // Measuring the span from the balance instead would read 0 of 1 for
+      // anyone standing exactly on the threshold.
+      final climbed = earnedTierIndex > 0
+          ? earned.threshold - tiers[earnedTierIndex - 1].threshold
+          : math.max(earned.threshold, 1);
       return PointsStanding(
         totalPoints: _points,
         badgeName: earned.name,
         pointsToNextBadge: 0,
         nextBadgeName: earned.name,
         progressToNextBadge: 1,
+        // Full, not partial: there is no rung above to be part of the way to.
+        pointsIntoBadge: climbed,
+        badgeSpan: climbed,
       );
     }
     final span = next.threshold - earned.threshold;
@@ -72,6 +82,8 @@ class PointsService {
       pointsToNextBadge: next.threshold - _points,
       nextBadgeName: next.name,
       progressToNextBadge: (_points - earned.threshold) / span,
+      pointsIntoBadge: _points - earned.threshold,
+      badgeSpan: span,
     );
   }
 

@@ -148,6 +148,7 @@ class AppCardColors {
     required this.backgroundHighlight,
     required this.backgroundLocked,
     required this.auctionStat,
+    required this.backgroundRow,
     required this.imageHairline,
   });
 
@@ -161,6 +162,7 @@ class AppCardColors {
     backgroundHighlight: AppGradients.highlightCard,
     backgroundLocked: AppPalette.outline,
     auctionStat: AppGradients.auctionBidCard,
+    backgroundRow: AppGradients.questRowCard,
     imageHairline: AppPalette.white.a10,
   );
 
@@ -180,6 +182,10 @@ class AppCardColors {
 
   /// Fill of the auction's two bid cards, which are washed rather than flat.
   final LinearGradient auctionStat;
+
+  /// Fill of a list row the design washes down its height, cooler and deeper
+  /// than the flat [background] a plain card takes.
+  final LinearGradient backgroundRow;
 
   final Color imageHairline;
 }
@@ -696,6 +702,8 @@ class AppOverlayColors {
     required this.topBar,
     required this.gameCard,
     required this.gameCardBottom,
+    required this.questCard,
+    required this.predictionCard,
     required this.onboarding,
     required this.onboardingVignette,
     required this.auctionHero,
@@ -703,6 +711,7 @@ class AppOverlayColors {
     required this.splash,
     required this.imageDimOnboarding,
     required this.imageDimStreakIntro,
+    required this.imageDimClaimed,
   });
 
   static final AppOverlayColors dark = AppOverlayColors(
@@ -710,6 +719,8 @@ class AppOverlayColors {
     topBar: AppGradients.topBarScrim,
     gameCard: AppGradients.gameCardScrim,
     gameCardBottom: AppGradients.gameCardScrimBottom,
+    questCard: AppGradients.questCardScrim,
+    predictionCard: AppGradients.predictionCardScrim,
     onboarding: AppGradients.onboardingScrim,
     onboardingVignette: AppGradients.onboardingVignette,
     auctionHero: AppGradients.auctionHeroScrim,
@@ -717,12 +728,21 @@ class AppOverlayColors {
     splash: AppGradients.splashBg,
     imageDimOnboarding: 0.30,
     imageDimStreakIntro: 0.50,
+    imageDimClaimed: 0.40,
   );
 
   final LinearGradient hero;
   final LinearGradient topBar;
   final LinearGradient gameCard;
   final LinearGradient gameCardBottom;
+
+  /// Over a quest card's still, which the design washes throughout.
+  final LinearGradient questCard;
+
+  /// Over a prediction card's still, which carries its title on the still
+  /// itself and so is washed harder than [questCard].
+  final LinearGradient predictionCard;
+
   final LinearGradient onboarding;
   final RadialGradient onboardingVignette;
 
@@ -736,6 +756,9 @@ class AppOverlayColors {
   final LinearGradient splash;
   final double imageDimOnboarding;
   final double imageDimStreakIntro;
+
+  /// How far back the design knocks a claimed quest's still.
+  final double imageDimClaimed;
 }
 
 ///

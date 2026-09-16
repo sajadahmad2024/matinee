@@ -1760,6 +1760,914 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No quest weeks yet.'**
   String get earnsNoQuests;
+
+  /// No description provided for @p2pRankLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Rank'**
+  String get p2pRankLabel;
+
+  /// No description provided for @p2pStreakLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Streak'**
+  String get p2pStreakLabel;
+
+  /// No description provided for @p2pPointsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Points'**
+  String get p2pPointsLabel;
+
+  /// No description provided for @p2pPointsUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'PTS'**
+  String get p2pPointsUnit;
+
+  /// The rank, which the design always writes with a hash.
+  ///
+  /// In en, this message translates to:
+  /// **'#{rank}'**
+  String p2pRankValue(String rank);
+
+  /// How many places the user climbed over the week.
+  ///
+  /// In en, this message translates to:
+  /// **'+{places} wk'**
+  String p2pRankGain(int places);
+
+  /// The longest run so far, abbreviated as the design writes it.
+  ///
+  /// In en, this message translates to:
+  /// **'Best {days}d'**
+  String p2pBestStreak(int days);
+
+  /// Points into the current badge tier over the tier's width.
+  ///
+  /// In en, this message translates to:
+  /// **'{earned} / {span}'**
+  String p2pBadgeProgress(String earned, String span);
+
+  /// What the next badge still costs.
+  ///
+  /// In en, this message translates to:
+  /// **'{points} pts to {badge}'**
+  String p2pNextBadge(String points, String badge);
+
+  /// The caption once the ladder has no rung above.
+  ///
+  /// In en, this message translates to:
+  /// **'Top badge reached'**
+  String get p2pTopBadge;
+
+  /// No description provided for @p2pGamesSection.
+  ///
+  /// In en, this message translates to:
+  /// **'GAMES'**
+  String get p2pGamesSection;
+
+  /// The rank column as one sentence; its glyph and caption say none of this.
+  ///
+  /// In en, this message translates to:
+  /// **'Rank {rank}, up {places} places this week.'**
+  String p2pRankSummary(String rank, int places);
+
+  /// The streak column as one sentence.
+  ///
+  /// In en, this message translates to:
+  /// **'Streak: {points} points, best run {days} days.'**
+  String p2pStreakSummary(String points, int days);
+
+  /// The points column as one sentence.
+  ///
+  /// In en, this message translates to:
+  /// **'{points} points earned.'**
+  String p2pPointsSummary(String points);
+
+  /// The badge row as one sentence, because its bar announces nothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Badge {badge}, {earned} of {span} points. {points} points to {nextBadge}.'**
+  String p2pBadgeSummary(String badge, String earned, String span, String points, String nextBadge);
+
+  /// No description provided for @questsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly Quests'**
+  String get questsTitle;
+
+  /// No description provided for @questsAllSection.
+  ///
+  /// In en, this message translates to:
+  /// **'ALL WEEKLY QUESTS'**
+  String get questsAllSection;
+
+  /// No description provided for @questsActiveBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'ACTIVE'**
+  String get questsActiveBadge;
+
+  /// The active pill, spoken. Upper case is read out letter by letter.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get questsActiveBadgeSpoken;
+
+  /// A quest's reward over its still, which the design sets upper case.
+  ///
+  /// In en, this message translates to:
+  /// **'{points} PTS'**
+  String questsPointsReward(String points);
+
+  /// A quest's reward in a list row.
+  ///
+  /// In en, this message translates to:
+  /// **'{points} pts'**
+  String questsPointsValue(String points);
+
+  /// How long a quest is still open, such as '2d 14h left'.
+  ///
+  /// In en, this message translates to:
+  /// **'{time} left'**
+  String questsTimeLeft(String time);
+
+  /// A remaining span the design abbreviates to days and hours.
+  ///
+  /// In en, this message translates to:
+  /// **'{days}d {hours}h'**
+  String questsTimeLeftDays(int days, int hours);
+
+  /// A remaining span under a day.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours}h {minutes}m'**
+  String questsTimeLeftHours(int hours, int minutes);
+
+  /// Actions done over actions in the quest.
+  ///
+  /// In en, this message translates to:
+  /// **'{done} / {total}'**
+  String questsProgressFraction(int done, int total);
+
+  /// No description provided for @questsTrackProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Track Progress'**
+  String get questsTrackProgress;
+
+  /// No description provided for @questsStartQuest.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Quest'**
+  String get questsStartQuest;
+
+  /// No description provided for @questsRewardClaimed.
+  ///
+  /// In en, this message translates to:
+  /// **'REWARD CLAIMED'**
+  String get questsRewardClaimed;
+
+  /// The claimed pill, spoken.
+  ///
+  /// In en, this message translates to:
+  /// **'Reward claimed'**
+  String get questsRewardClaimedSpoken;
+
+  /// No description provided for @questsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No quests are running this week.'**
+  String get questsEmpty;
+
+  /// The featured quest card as one sentence.
+  ///
+  /// In en, this message translates to:
+  /// **'{title}. {description} {done} of {total} actions done, {points} points, {time} left.'**
+  String questsHeroSummary(String title, String description, int done, int total, String points, String time);
+
+  /// A quest list row as one sentence.
+  ///
+  /// In en, this message translates to:
+  /// **'{title}. {description} Pays {points} points. {action}'**
+  String questsRowSummary(String title, String description, String points, String action);
+
+  /// The tracker's headline.
+  ///
+  /// In en, this message translates to:
+  /// **'{done} of {total} actions done'**
+  String questProgressActionsDone(int done, int total);
+
+  /// What finishing the quest pays.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete all actions to earn {points} pts'**
+  String questProgressEarnCaption(String points);
+
+  /// No description provided for @questProgressYourActions.
+  ///
+  /// In en, this message translates to:
+  /// **'YOUR ACTIONS'**
+  String get questProgressYourActions;
+
+  /// No description provided for @questProgressCuratedContent.
+  ///
+  /// In en, this message translates to:
+  /// **'CURATED CONTENT'**
+  String get questProgressCuratedContent;
+
+  /// One action's own count, drawn as a chip.
+  ///
+  /// In en, this message translates to:
+  /// **'{done}/{total}'**
+  String questProgressCounter(int done, int total);
+
+  /// The ring's centre label.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}%'**
+  String questProgressPercent(int percent);
+
+  /// No description provided for @questProgressWatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch'**
+  String get questProgressWatch;
+
+  /// No description provided for @questProgressDone.
+  ///
+  /// In en, this message translates to:
+  /// **'DONE'**
+  String get questProgressDone;
+
+  /// No description provided for @questProgressClaim.
+  ///
+  /// In en, this message translates to:
+  /// **'Claim Reward'**
+  String get questProgressClaim;
+
+  /// One action card as one sentence.
+  ///
+  /// In en, this message translates to:
+  /// **'{title}. {description} {done} of {total} done.'**
+  String questProgressActionSummary(String title, String description, int done, int total);
+
+  /// What the button beside a curated row does.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch {title}'**
+  String questProgressWatchItem(String title);
+
+  /// A curated row already done.
+  ///
+  /// In en, this message translates to:
+  /// **'{title}, watched'**
+  String questProgressItemWatched(String title);
+
+  /// No description provided for @questModalEyebrow.
+  ///
+  /// In en, this message translates to:
+  /// **'QUEST COMPLETED'**
+  String get questModalEyebrow;
+
+  /// No description provided for @questModalTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Congratulations'**
+  String get questModalTitle;
+
+  /// The modal's paragraph.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'\'ve completed {quest} and earned your weekly reward.'**
+  String questModalBody(String quest);
+
+  /// No description provided for @questModalPointsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'POINTS EARNED'**
+  String get questModalPointsLabel;
+
+  /// No description provided for @questModalBadgeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'BADGE UNLOCKED'**
+  String get questModalBadgeLabel;
+
+  /// The modal's badge card as one sentence.
+  ///
+  /// In en, this message translates to:
+  /// **'Badge unlocked: {badge}.'**
+  String questModalBadgeSummary(String badge);
+
+  /// The award, which the design always writes signed.
+  ///
+  /// In en, this message translates to:
+  /// **'+{points}'**
+  String questModalPoints(String points);
+
+  /// No description provided for @questModalPointsUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'pts'**
+  String get questModalPointsUnit;
+
+  /// No description provided for @questModalClaim.
+  ///
+  /// In en, this message translates to:
+  /// **'Claim Reward'**
+  String get questModalClaim;
+
+  /// No description provided for @questClaimedBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'REWARD CLAIMED'**
+  String get questClaimedBadge;
+
+  /// No description provided for @questClaimedEyebrow.
+  ///
+  /// In en, this message translates to:
+  /// **'COMPLETED QUEST'**
+  String get questClaimedEyebrow;
+
+  /// No description provided for @questClaimedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Congratulations! 🎉'**
+  String get questClaimedTitle;
+
+  /// No description provided for @questClaimedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You successfully completed all actions and claimed your reward for this week\'\'s quest.'**
+  String get questClaimedBody;
+
+  /// No description provided for @questClaimedPointsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'POINTS EARNED'**
+  String get questClaimedPointsLabel;
+
+  /// No description provided for @questClaimedDaysLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'COMPLETED IN'**
+  String get questClaimedDaysLabel;
+
+  /// No description provided for @questClaimedActionsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'ACTIONS DONE'**
+  String get questClaimedActionsLabel;
+
+  /// No description provided for @questClaimedDaysUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'DAYS'**
+  String get questClaimedDaysUnit;
+
+  /// The days card as one sentence.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed in {days} days.'**
+  String questClaimedDaysSummary(int days);
+
+  /// The denominator beside the actions figure.
+  ///
+  /// In en, this message translates to:
+  /// **'/ {total}'**
+  String questClaimedActionsOf(int total);
+
+  /// No description provided for @questClaimedBadgeUnlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'BADGE UNLOCKED'**
+  String get questClaimedBadgeUnlocked;
+
+  /// What the badge was given for.
+  ///
+  /// In en, this message translates to:
+  /// **'Awarded for completing {quest}'**
+  String questClaimedBadgeCaption(String quest);
+
+  /// No description provided for @questClaimedActionsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'COMPLETED ACTIONS'**
+  String get questClaimedActionsSection;
+
+  /// No description provided for @questClaimedActionDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get questClaimedActionDone;
+
+  /// No description provided for @questClaimedShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share Achievement'**
+  String get questClaimedShare;
+
+  /// The badge card as one sentence.
+  ///
+  /// In en, this message translates to:
+  /// **'Badge unlocked: {badge}. {caption}'**
+  String questClaimedBadgeSummary(String badge, String caption);
+
+  /// No description provided for @streakIntroEyebrow.
+  ///
+  /// In en, this message translates to:
+  /// **'DAILY STREAKS'**
+  String get streakIntroEyebrow;
+
+  /// No description provided for @streakIntroTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The Daily Ritual'**
+  String get streakIntroTitle;
+
+  /// The first rung's ask.
+  ///
+  /// In en, this message translates to:
+  /// **'Spend {minutes} mins daily'**
+  String streakIntroCardTitle(int minutes);
+
+  /// How the streak works.
+  ///
+  /// In en, this message translates to:
+  /// **'Every day you spend at least {minutes} minutes on Matinee counts as a streak day. Miss a day and your streak resets.'**
+  String streakIntroCardBody(int minutes);
+
+  /// No description provided for @streakIntroBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Longer streaks unlock exclusive badges and CinePoints multipliers.'**
+  String get streakIntroBody;
+
+  /// No description provided for @streakIntroCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Start My Streak'**
+  String get streakIntroCta;
+
+  /// No description provided for @streakTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Streaks'**
+  String get streakTitle;
+
+  /// No description provided for @streakCurrentLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'CURRENT LEVEL'**
+  String get streakCurrentLevel;
+
+  /// The level the streak has reached.
+  ///
+  /// In en, this message translates to:
+  /// **'Level {level}'**
+  String streakLevelName(int level);
+
+  /// What the current level asks for.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min/day for {days} days'**
+  String streakLevelRequirement(int minutes, int days);
+
+  /// No description provided for @streakThisWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'This week'**
+  String get streakThisWeek;
+
+  /// No description provided for @streakDaysDone.
+  ///
+  /// In en, this message translates to:
+  /// **'days done'**
+  String get streakDaysDone;
+
+  /// Days cleared this week over the days the level needs.
+  ///
+  /// In en, this message translates to:
+  /// **'{done}/{total}'**
+  String streakWeekFraction(int done, int total);
+
+  /// What the next level still needs.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete {days} more days to unlock Level {level} ({minutes} min/day)'**
+  String streakUnlockCaption(int days, int level, int minutes);
+
+  /// No description provided for @streakTopLevelCaption.
+  ///
+  /// In en, this message translates to:
+  /// **'You have reached the top level. Keep the run going.'**
+  String get streakTopLevelCaption;
+
+  /// No description provided for @streakLevelTrack.
+  ///
+  /// In en, this message translates to:
+  /// **'LEVEL TRACK'**
+  String get streakLevelTrack;
+
+  /// One rung of the ladder.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min/day'**
+  String streakTierLabel(int minutes);
+
+  /// No description provided for @streakTodaySession.
+  ///
+  /// In en, this message translates to:
+  /// **'TODAY\'\'S SESSION'**
+  String get streakTodaySession;
+
+  /// The minutes today's session is measured against.
+  ///
+  /// In en, this message translates to:
+  /// **'/ {minutes} min'**
+  String streakSessionTarget(int minutes);
+
+  /// How much of today's session is still to go.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} MIN LEFT'**
+  String streakMinutesLeft(int minutes);
+
+  /// No description provided for @streakSessionMet.
+  ///
+  /// In en, this message translates to:
+  /// **'TODAY IS DONE'**
+  String get streakSessionMet;
+
+  /// Why today's target is what it is.
+  ///
+  /// In en, this message translates to:
+  /// **'Level {level} requires {minutes} min/day to keep your streak alive'**
+  String streakSessionCaption(int level, int minutes);
+
+  /// The CTA that counts today towards the streak, until a session tracker exists.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete Today'**
+  String get streakCompleteDay;
+
+  /// No description provided for @streakNowLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'STREAK NOW'**
+  String get streakNowLabel;
+
+  /// The current run as one sentence.
+  ///
+  /// In en, this message translates to:
+  /// **'Current streak: {days} days.'**
+  String streakNowSummary(int days);
+
+  /// No description provided for @streakBestLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'BEST STREAK'**
+  String get streakBestLabel;
+
+  /// The longest run as one sentence.
+  ///
+  /// In en, this message translates to:
+  /// **'Best streak: {days} days.'**
+  String streakBestSummary(int days);
+
+  /// No description provided for @streakActiveLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'ACTIVE DAYS'**
+  String get streakActiveLabel;
+
+  /// How many days were active, as one sentence.
+  ///
+  /// In en, this message translates to:
+  /// **'Active days: {days}.'**
+  String streakActiveSummary(int days);
+
+  /// No description provided for @streakDaysUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'days'**
+  String get streakDaysUnit;
+
+  /// The current-level card as one sentence.
+  ///
+  /// In en, this message translates to:
+  /// **'Current level {level}, {minutes} minutes a day for {days} days. {done} of {days} days done this week.'**
+  String streakLevelCardSummary(int level, int minutes, int days, int done);
+
+  /// A cleared rung of the ladder.
+  ///
+  /// In en, this message translates to:
+  /// **'Level {level}, {minutes} minutes a day. Reached.'**
+  String streakTierSummaryDone(int level, int minutes);
+
+  /// The rung the streak is on.
+  ///
+  /// In en, this message translates to:
+  /// **'Level {level}, {minutes} minutes a day. Current level.'**
+  String streakTierSummaryCurrent(int level, int minutes);
+
+  /// A rung not yet reached.
+  ///
+  /// In en, this message translates to:
+  /// **'Level {level}, {minutes} minutes a day. Locked.'**
+  String streakTierSummaryLocked(int level, int minutes);
+
+  /// The session card as one sentence.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'\'s session: {minutes} of {target} minutes.'**
+  String streakSessionSummary(int minutes, int target);
+
+  /// The drawer's headline.
+  ///
+  /// In en, this message translates to:
+  /// **'{days}-Day Ritual Complete!'**
+  String streakLevelDoneTitle(int days);
+
+  /// No description provided for @streakLevelDoneBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'\'ve mastered the daily ritual. Keep the momentum going for exclusive multipliers.'**
+  String get streakLevelDoneBody;
+
+  /// No description provided for @streakLevelDoneRewardLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'REWARD'**
+  String get streakLevelDoneRewardLabel;
+
+  /// The drawer's reward card as one sentence.
+  ///
+  /// In en, this message translates to:
+  /// **'Reward: {points} points.'**
+  String streakLevelDoneRewardSummary(String points);
+
+  /// No description provided for @streakLevelDoneStatusLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'NEW STATUS'**
+  String get streakLevelDoneStatusLabel;
+
+  /// The drawer's status card as one sentence.
+  ///
+  /// In en, this message translates to:
+  /// **'New status: {status}.'**
+  String streakLevelDoneStatusSummary(String status);
+
+  /// The award, written signed.
+  ///
+  /// In en, this message translates to:
+  /// **'+{points}'**
+  String streakLevelDonePoints(String points);
+
+  /// No description provided for @streakLevelDonePointsUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'Points'**
+  String get streakLevelDonePointsUnit;
+
+  /// No description provided for @streakLevelDoneStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Streak Master'**
+  String get streakLevelDoneStatus;
+
+  /// No description provided for @streakLevelDoneClaim.
+  ///
+  /// In en, this message translates to:
+  /// **'Claim Reward'**
+  String get streakLevelDoneClaim;
+
+  /// No description provided for @streakLevelDoneDismiss.
+  ///
+  /// In en, this message translates to:
+  /// **'CONTINUE WATCHING'**
+  String get streakLevelDoneDismiss;
+
+  /// No description provided for @predictionsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Prediction Games'**
+  String get predictionsTitle;
+
+  /// No description provided for @predictionsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'PREDICTIONS'**
+  String get predictionsSection;
+
+  /// How many predictions are still open.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} ACTIVE'**
+  String predictionsActiveBadge(int count);
+
+  /// How many predictions are open, spoken.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} active'**
+  String predictionsActiveBadgeSpoken(int count);
+
+  /// What a correct call multiplies by, over the still.
+  ///
+  /// In en, this message translates to:
+  /// **'{multiplier}X MULTIPLIER'**
+  String predictionsMultiplier(int multiplier);
+
+  /// What a correct call pays, over the still.
+  ///
+  /// In en, this message translates to:
+  /// **'+{points} PTS'**
+  String predictionsPointsReward(String points);
+
+  /// No description provided for @predictionsResultIn.
+  ///
+  /// In en, this message translates to:
+  /// **'RESULT IN'**
+  String get predictionsResultIn;
+
+  /// The settled pill, spoken.
+  ///
+  /// In en, this message translates to:
+  /// **'Result is in'**
+  String get predictionsResultInSpoken;
+
+  /// The yes share of votes cast.
+  ///
+  /// In en, this message translates to:
+  /// **'YES {percent}%'**
+  String predictionsYesShare(int percent);
+
+  /// The no share of votes cast.
+  ///
+  /// In en, this message translates to:
+  /// **'NO {percent}%'**
+  String predictionsNoShare(int percent);
+
+  /// How much of the audience has voted.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% of players voted'**
+  String predictionsTurnout(int percent);
+
+  /// No description provided for @predictionsCastVote.
+  ///
+  /// In en, this message translates to:
+  /// **'Cast Your Vote'**
+  String get predictionsCastVote;
+
+  /// No description provided for @predictionsRewardClaimed.
+  ///
+  /// In en, this message translates to:
+  /// **'Reward Claimed'**
+  String get predictionsRewardClaimed;
+
+  /// No description provided for @predictionsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No predictions are open right now.'**
+  String get predictionsEmpty;
+
+  /// A prediction card as one sentence; its bar and pills announce none of it.
+  ///
+  /// In en, this message translates to:
+  /// **'{title}. {question} Yes {yes} per cent, no {no} per cent. {turnout} per cent of players voted. Pays {points} points at {multiplier} times.'**
+  String predictionsCardSummary(
+    String title,
+    String question,
+    int yes,
+    int no,
+    int turnout,
+    String points,
+    int multiplier,
+  );
+
+  /// No description provided for @predictionEyebrow.
+  ///
+  /// In en, this message translates to:
+  /// **'PREDICTION'**
+  String get predictionEyebrow;
+
+  /// The multiplier, on its own card.
+  ///
+  /// In en, this message translates to:
+  /// **'{multiplier}X'**
+  String predictionMultiplierValue(int multiplier);
+
+  /// No description provided for @predictionMultiplierUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'MULTIPLIER'**
+  String get predictionMultiplierUnit;
+
+  /// The multiplier card as one sentence.
+  ///
+  /// In en, this message translates to:
+  /// **'{multiplier} times multiplier'**
+  String predictionMultiplierSummary(int multiplier);
+
+  /// No description provided for @predictionClosesIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Voting closes in'**
+  String get predictionClosesIn;
+
+  /// The countdown as a sentence, because its digits read as one number.
+  ///
+  /// In en, this message translates to:
+  /// **'Voting closes in {hours} hours {minutes} minutes'**
+  String predictionCountdownSummary(int hours, int minutes);
+
+  /// No description provided for @predictionClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'Voting has closed'**
+  String get predictionClosed;
+
+  /// No description provided for @predictionQuestionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'THE QUESTION'**
+  String get predictionQuestionLabel;
+
+  /// What a prediction pays, drawn in the reward tone inside the vote eyebrow.
+  ///
+  /// In en, this message translates to:
+  /// **'+{points} PTS'**
+  String predictionRewardPoints(String points);
+
+  /// The eyebrow over the two vote buttons.
+  ///
+  /// In en, this message translates to:
+  /// **'CAST YOUR VOTE · {reward}'**
+  String predictionCastVoteLabel(String reward);
+
+  /// No description provided for @predictionYes.
+  ///
+  /// In en, this message translates to:
+  /// **'YES'**
+  String get predictionYes;
+
+  /// The yes option's name. 'YES' is spelled out letter by letter.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes'**
+  String get predictionYesSpoken;
+
+  /// No description provided for @predictionNo.
+  ///
+  /// In en, this message translates to:
+  /// **'NO'**
+  String get predictionNo;
+
+  /// The no option's name. 'NO' is spelled out letter by letter.
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get predictionNoSpoken;
+
+  /// No description provided for @predictionSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit'**
+  String get predictionSubmit;
+
+  /// No description provided for @predictionVoteRecorded.
+  ///
+  /// In en, this message translates to:
+  /// **'Your vote is in'**
+  String get predictionVoteRecorded;
+
+  /// No description provided for @predictionShowAnalysis.
+  ///
+  /// In en, this message translates to:
+  /// **'See how others voted'**
+  String get predictionShowAnalysis;
+
+  /// No description provided for @predictionAnalysisEyebrow.
+  ///
+  /// In en, this message translates to:
+  /// **'PREDICTION ANALYSIS'**
+  String get predictionAnalysisEyebrow;
+
+  /// No description provided for @predictionAnalysisClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get predictionAnalysisClose;
+
+  /// One share of the analysis sheet as a sentence.
+  ///
+  /// In en, this message translates to:
+  /// **'{option}: {percent} per cent'**
+  String predictionAnalysisOptionSummary(String option, int percent);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

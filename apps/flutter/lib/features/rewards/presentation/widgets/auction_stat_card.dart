@@ -6,6 +6,7 @@ import 'package:matinee/core/theme/app_radius.dart';
 import 'package:matinee/core/theme/app_spacing.dart';
 import 'package:matinee/core/theme/app_text_styles.dart';
 import 'package:matinee/core/theme/extensions/build_context_extensions.dart';
+import 'package:matinee/core/utils/clock_label.dart';
 
 ///
 /// One of the two cards under the auction blurb: a gold wash falling off the
@@ -121,15 +122,8 @@ class _AuctionCountdownCardState extends State<AuctionCountdownCard> {
     final ended = _remaining == Duration.zero;
     return AuctionStatCard(
       label: widget.label,
-      value: ended ? widget.endedLabel : _formatted(_remaining),
+      value: ended ? widget.endedLabel : clockLabel(_remaining),
       valueLabel: ended ? widget.endedLabel : widget.spokenRemaining(_remaining),
     );
-  }
-
-  /// Hours can run past a day, so they are not taken modulo 24.
-  static String _formatted(Duration remaining) {
-    String pad(int value) => value.toString().padLeft(2, '0');
-    return '${pad(remaining.inHours)}:${pad(remaining.inMinutes % 60)}:'
-        '${pad(remaining.inSeconds % 60)}';
   }
 }

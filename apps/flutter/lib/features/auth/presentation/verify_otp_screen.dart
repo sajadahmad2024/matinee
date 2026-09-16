@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:matinee/app/router/app_routes.dart';
 import 'package:matinee/core/l10n/l10n.dart';
 import 'package:matinee/core/theme/extensions/build_context_extensions.dart';
+import 'package:matinee/core/utils/emphasise.dart';
 import 'package:matinee/core/widgets/back_disc_button.dart';
 import 'package:matinee/di/service_locator.dart';
 import 'package:matinee/features/auth/data/auth_repository.dart';

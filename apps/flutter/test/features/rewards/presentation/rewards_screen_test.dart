@@ -4,11 +4,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:matinee/core/error/app_exception.dart';
 import 'package:matinee/core/widgets/error_view.dart';
+import 'package:matinee/core/widgets/redeem_card.dart';
 import 'package:matinee/features/rewards/data/models/rewards_summary.dart';
 import 'package:matinee/features/rewards/presentation/cubit/rewards_cubit.dart';
 import 'package:matinee/features/rewards/presentation/cubit/rewards_state.dart';
 import 'package:matinee/features/rewards/presentation/rewards_screen.dart';
-import 'package:matinee/features/rewards/presentation/widgets/redeem_card.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../../helpers/helpers.dart';

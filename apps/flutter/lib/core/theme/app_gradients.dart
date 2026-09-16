@@ -52,6 +52,36 @@ abstract final class AppGradients {
     stops: const [0, 0.5],
   );
 
+  ///
+  /// Over a quest card's still. Washes the top so the pills laid on it hold
+  /// their contrast, and falls to the body it meets.
+  ///
+  static final LinearGradient questCardScrim = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [AppPalette.surface.a20, AppPalette.surface.a80],
+  );
+
+  ///
+  /// Over a prediction card's still. Heavier than [questCardScrim] at both
+  /// ends, because the title sits on the still's foot rather than below it.
+  ///
+  static final LinearGradient predictionCardScrim = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [AppPalette.surface.a40, AppPalette.surface.a90],
+  );
+
+  ///
+  /// Fill of a quest row. The design runs it at 160 degrees, which on a card
+  /// this wide reads as a fall rather than a lean, so it is taken vertically.
+  ///
+  static const LinearGradient questRowCard = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [AppPalette.surfaceRow, AppPalette.surfaceRowDeep],
+  );
+
   /// Onboarding background wash, painted under [onboardingVignette].
   static final LinearGradient onboardingScrim = LinearGradient(
     begin: Alignment.topCenter,

@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 
 ///
-/// The 27 colour primitives of the design system. Only the theme reads these;
+/// The 29 colour primitives of the design system. Only the theme reads these;
 /// a hex that is not here does not exist in the app.
 ///
 abstract final class AppPalette {
   static const Color surface = Color(0xFF0C0F16);
   static const Color surfaceCard = Color(0xFF13171F);
   static const Color surfaceRaised = Color(0xFF1A1F2B);
+  static const Color surfaceRow = Color(0xFF111B27);
+  static const Color surfaceRowDeep = Color(0xFF0F1820);
   static const Color outline = Color(0xFF1F2535);
   static const Color navBar = Color(0xFF0D1C25);
   static const Color navBarOutline = Color(0xFF112532);

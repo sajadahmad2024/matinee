@@ -491,7 +491,9 @@
 - 4 different success greens/tints for the same 'done' meaning ({success} vs {success}; 0x1F vs 0x14 fills).
 
 **Implementation**
-- One `StatusBadge` with four tones covers this and `chip.badgeEarned`, which the frames draw with the same tokens. The gold tone maps to `tag.goldSubtle` — the existing role for a gold@10% fill with a gold label — so its border takes the alpha scale's 30% rather than the frame's 20%.
+- One `StatusBadge` covers this and `chip.badgeEarned`, which the frames draw with the same tokens. `successPlain` drops the stroke and takes the tighter padding, since there is no outline for the label to sit inside.
+- `active` keeps `{labelSmall}`, not the `{caption}` above: the frame sets ACTIVE in DM Sans 10 on a 1px track, which is `labelSmall` and not Inter 11.
+- `resultIn` is not implemented; the prediction card draws that pill as `success` with a tick. The gold tone maps to `tag.goldSubtle` — the existing role for a gold@10% fill with a gold label — so its border takes the alpha scale's 30% rather than the frame's 20%.
 - The naming pill (`neutral`) keeps the tighter 2/8 padding the frame gives it; the tinted tones take 4/12.
 - Every label-on-tint pair is asserted in `test/core/theme/contrast_test.dart` with the tint composited over the card. The tightest is the error pill at 4.65:1. The neutral pill is exempt: it sits over a still, under the on-image convention.
 
@@ -1100,6 +1102,16 @@
 
 **Evidence:** `Container#376:3278`
 
+**Implementation**
+- `StatRowCard` in the P2P feature. Its three columns are stretched inside an
+  `IntrinsicHeight`, so the 1x62 hairlines grow with a scaled-up column instead
+  of asking a Row inside a Column to fill a height that has no bound.
+- The value and caption of each column are `Wrap`s: three pieces on a third of
+  the card overflow at a large text scale.
+- The frame's own figures are not reproduced. The badge and the fraction come
+  from `shared/points`, so the header agrees with Rewards and My Earns, and the
+  streak column's points are derived from the run — see `docs/decisions/p2p.md`.
+
 **Screens:** 376:3272 (P2P), 384:7013 (P2P), 407:10456 (P2P), 378:4464 (P2P)
 
 ### `gameCard` — Game card (P2P / Rewards list)
@@ -1143,13 +1155,23 @@
 
 **Evidence:** `Container#165:1943`
 
+**Implementation**
+- `HeroQuestCard`. One scrim, `overlay.questCard`, which is the frame's own
+  20%-to-80% ramp: the pills sit on the top of the still and need the wash.
+- The body closes at 14 above and 16 on the other three sides.
+- The CTA is the themed `FilledButton` at the documented 52, not the frame's 42.
+- The fraction is the action count, so the card, the ring on the tracker and the
+  'n of m actions done' line are one number.
+- The title row is a `Wrap`, so a long title drops the time chip below it rather
+  than squeezing the words.
+
 **Screens:** 165:1931 (Weekly Quest listing), 378:4290 (Weekly Quest listing)
 
 ### `questListCard` — Quest list card
 *composite · reusable · 2 screen(s) · 6 instance(s)*
 
 **Anatomy**
-1. Card 341×129 gradient {surfaceCard}→{surfaceCard} stroke {outline} r10 (P0/12/10/12 gap 10)
+1. Card 341×129 gradient {surfaceRow}→{surfaceRowDeep} stroke {outline} r10 (P0/12/10/12 gap 10)
 1. Image 88×126 left (bleed)
 1. Content P12/14 SB: pts {numeralPill} {gold}; title pt4 {titleSmall} {white}; desc pt3 {caption} {textMuted}; btn.secondary 'Start Quest' (pt10) or badge.status REWARD CLAIMED
 
@@ -1165,6 +1187,18 @@
 
 **Notes**
 - Middle card (#165:1989) is wrapped in a second {surfaceCard} r14 container — inconsistent nesting.
+
+**Implementation**
+- `QuestListCard`, one card for both states: the nesting the frame's middle card
+  adds is not reproduced.
+- The whole row is the control. It carries `role: listItem`, its own spoken
+  sentence, and forwards `onTap` through the `Semantics`, because excluding the
+  subtree takes the `InkWell`'s tap with it.
+- Claimed draws the still at `overlay.imageDim` 0.4 under a `badge.success` wash
+  with a tick, and knocks the title back to the tone of its own description. Its
+  badge is the `successPlain` tone, so the pill carries no stroke.
+- The fill is `card.backgroundRow`, under a transparent `Material` so the ink
+  still shows: a `Material` takes a colour, not a gradient.
 
 **Screens:** 165:1931 (Weekly Quest listing), 378:4290 (Weekly Quest listing)
 
@@ -1188,6 +1222,18 @@
 
 **Evidence:** `Container#377:3960`, `Container#377:4010`, `Container#382:6723`
 
+**Implementation**
+- `ActionCard`, with `CuratedRow` describing one curated line. The bar is always
+  drawn and takes `ProgressTone.success` when the action is done, which is the
+  documented `progress.fill.success`.
+- The header is collapsed into one spoken sentence; the curated rows are not,
+  because each holds a button. They sit under `explicitChildNodes` so the
+  title's sentence and the button stay two stops.
+- A watched thumbnail takes `tag.gold.background` with the tick in
+  `icon.accent`; an unwatched one gets a disc of `pill.overImage.background`
+  behind its play glyph, so the mark holds contrast over a bright still.
+- The 'Watch' button counts its clip towards the action until a player exists.
+
 **Screens:** 377:3922 (Weekly quest track progress), 382:6636 (WeeklyQuestProgressScreen)
 
 ### `progressSummaryCard` — Progress summary card (ring + text)
@@ -1202,6 +1248,9 @@
 - radius: 14
 
 **Evidence:** `Container#377:3944`
+
+**Implementation**
+- `ProgressSummaryCard` over the shared `ProgressRing`.
 
 **Screens:** 377:3922 (Weekly quest track progress), 382:6636 (WeeklyQuestProgressScreen)
 
@@ -1220,6 +1269,12 @@
 
 **Evidence:** `Container#397:9109`
 
+**Implementation**
+- `StreakLevelCard`, drawn on `card.background.goldTint` inside
+  `tag.gold.border`. Its whole face is one spoken sentence: the disc, the dots
+  and the two fractions announce nothing.
+- The footnote switches to a run to keep once the ladder has nothing above it.
+
 **Screens:** 397:9099 (Daily Streak)
 
 ### `levelTrack` — Level track (4 steps)
@@ -1234,6 +1289,12 @@
 - disc: **done** {gold} fill, icon 14 {surface}; **current** {gold@20%} fill stroke 2 {gold}, {labelMedium} {yellow}, label {labelSmall} {gold}; **locked** {surfaceRaised} fill stroke {outline}, {labelMedium} {textDisabled}, label {textDisabled}
 
 **Evidence:** `Container#397:9140`
+
+**Implementation**
+- `LevelTrack`, with `LevelStep` per rung. A cleared rung draws the shared
+  `CheckDisc.level`; the current one takes the 2px gold ring the frame gives it.
+- A locked rung's label is `text.muted`, not `text.disabled`: the rung is
+  content, and the disabled tone reads under 4.5:1 on every surface here.
 
 **Screens:** 397:9099 (Daily Streak)
 
@@ -1252,6 +1313,13 @@
 
 **Evidence:** `Container#397:9193`, `Container#379:5011`
 
+**Implementation**
+- `RewardStatCard`, which covers this and the modal's two stat cards. `.figure`
+  takes a value and an optional unit — the frame writes the active-day count
+  with none — and `.name` the gold badge name.
+- Each card is one spoken sentence, because an eyebrow and a figure otherwise
+  read as two stops.
+
 **Screens:** 397:9099 (Daily Streak), 379:4980 (Completed weekly quest details)
 
 ### `sessionCard` — Today's session card
@@ -1267,6 +1335,12 @@
 - radius: 14
 
 **Evidence:** `Container#397:9173`
+
+**Implementation**
+- `SessionCard`. Its chip turns green once today's target is met, a state the
+  frame has no drawing for and which the gold 'left' tone would misreport.
+- The figure and the chip sit in a `Wrap`, so the chip drops below at a large
+  text scale.
 
 **Screens:** 397:9099 (Daily Streak)
 
@@ -1508,6 +1582,15 @@
 
 **Evidence:** `Container#406:9886`, `Container#406:9946`
 
+**Implementation**
+- `PredictionCard`. The no share is derived, so the two always add to a hundred.
+- The still takes `overlay.predictionCard`, which washes it throughout: the
+  pills sit on the top of the image and the title on its foot.
+- Settled, the multiplier pill is replaced by the state badge — the frame never
+  draws both — the bar turns green, and the CTA becomes the claimed banner. The
+  no share keeps its red either way, as the frame draws it.
+- The card is one spoken sentence; the bar and both pills are excluded.
+
 **Screens:** 406:9862 (Prediction Game listing)
 
 ### `predictionDetail` — Prediction detail screen
@@ -1518,6 +1601,19 @@
 1. Body P0/16/189/16 gap 59: countdown card {surfaceCard} stroke {outline} r12 P12/16 SB (live dot 7 r3.5 {success} glow + 'Voting closes in' {caption} {textSecondary}; 06:14:22 {numeralMd} {white}); question block (eyebrow {overline}; pt10 {headlineSmall} {white}); 'What others think' + '12.4K voted' Inter 11; split bar h6 r4 ({success} 211 / {error} 130) pt8; YES — 62% / NO — 38% {titleSmall} ({success}/{error}) pt8; paragraph pt10 Inter 12/19.2 {textMuted}; 'Cast your vote · +500 pts' eyebrow; 2× btn.tonal vote 166×56 gap 10 pt12
 
 **Evidence:** `Prediction game#408:10663`
+
+**Implementation**
+- `PredictionDetailScreen`, with `CountdownCard` and `VoteOptionButton`.
+- The bar carries no title: the hero holds the screen's heading, and the frame
+  leaves the bar with nothing but the back button.
+- Picking a side is local until it is submitted. Each button declares its
+  selected state and forwards `onTap`, or the node that reports being chosen
+  cannot be chosen.
+- The multiplier card is a minimum rather than the frame's fixed 86x46, so a
+  scaled-up figure grows it instead of being clipped. Its column hugs, or a Row
+  hands it loose cross-axis constraints and the card takes the hero's height.
+- 'What others think' is a sheet rather than a block on the page — see
+  `docs/decisions/p2p.md`.
 
 **Screens:** 408:10663 (Prediction game)
 
@@ -1636,6 +1732,14 @@
 
 **Evidence:** `DailyStreaksIntroScreen#396:8688`
 
+**Implementation**
+- `StreakIntroView`, shown by the streak screen while the streak has not
+  started. It reuses the Daily Streaks card still under
+  `overlay.imageDimStreakIntro` and `overlay.onboarding`.
+- The copy is bottom-aligned by giving the scroll view the viewport less its own
+  bottom padding, or the column shrink-wraps and strands the copy at the top.
+- The ask quotes the first rung of the ladder the API reports, not a literal.
+
 **Screens:** 396:8686 (Daily Streak Intro)
 
 ### `completionModal` — Weekly quest completion modal
@@ -1656,6 +1760,13 @@
 
 **Evidence:** `WeeklyCompletionModal#382:6799`
 
+**Implementation**
+- `showQuestCompletionSheet` over the shared `SheetSurface`. The reward is
+  already paid by the time it opens, so it reports nothing back and the tracker
+  replaces itself with the receipt afterwards.
+- Its heading carries `SemanticsRole.alert`: the sheet arrives without being
+  asked for, so it interrupts rather than waiting to be reached.
+
 **Screens:** 382:6636 (WeeklyQuestProgressScreen)
 
 ### `successDrawer` — Success drawer (7-day ritual) — OFF-SYSTEM
@@ -1673,6 +1784,13 @@
 
 **Notes**
 - Frame is 390 wide (not 375), uses 9 hexes that appear nowhere else ({surface}, {surfaceRaised}, {outline}, {outline}, {textSecondary}, {textSecondary}, {white}, {yellow}, {surface}) and a 7th font family. Treat as a concept, not a spec.
+
+**Implementation**
+- `showStreakLevelSheet`, built on the kept tokens rather than the concept's own:
+  the drawer is the standard `SheetSurface`, the halo is `glow.cta`, and the
+  bento pair is the same `RewardStatCard` the completion modal uses.
+- Reachable only when the streak reports its week finished. No frame draws an
+  affordance that advances a day, so it is covered by widget tests.
 
 **Screens:** 404:9787 (Successs state)
 

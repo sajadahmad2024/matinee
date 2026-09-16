@@ -10,10 +10,9 @@ import 'package:matinee/core/responsive/responsive.dart';
 import 'package:matinee/core/theme/app_spacing.dart';
 import 'package:matinee/core/theme/app_text_styles.dart';
 import 'package:matinee/core/theme/extensions/build_context_extensions.dart';
-import 'package:matinee/core/widgets/back_disc_button.dart';
+import 'package:matinee/core/widgets/back_app_bar.dart';
 import 'package:matinee/core/widgets/error_view.dart';
 import 'package:matinee/core/widgets/loading_view.dart';
-import 'package:matinee/core/widgets/screen_title.dart';
 import 'package:matinee/core/widgets/section_label.dart';
 import 'package:matinee/di/service_locator.dart';
 import 'package:matinee/features/earns/data/earns_repository.dart';
@@ -76,25 +75,7 @@ class EarnDetailView extends StatelessWidget {
     final l10n = context.l10n;
     final screenTitle = title(l10n, kind);
     return Scaffold(
-      appBar: AppBar(
-        leading: Padding(
-          // The screen margin exactly: the button pulls its own overhang back,
-          // so the disc lands on the margin the frame draws it against.
-          padding: const EdgeInsets.only(left: AppScreenPadding.main),
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: BackDiscButton(
-              tooltip: MaterialLocalizations.of(context).backButtonTooltip,
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-          ),
-        ),
-        leadingWidth: AppScreenPadding.main + BackDiscButton.leadingWidth,
-        // The frame leaves 12 between the disc and the title, which the slot
-        // already ends on; the default 16 would stack on top of it.
-        titleSpacing: 0,
-        title: ScreenTitle(label: screenTitle, child: Text(screenTitle)),
-      ),
+      appBar: BackAppBar(title: screenTitle),
       body: ContentContainer(
         maxWidth: ContentContainer.reading,
         child: BlocBuilder<EarnDetailCubit, EarnDetailState>(

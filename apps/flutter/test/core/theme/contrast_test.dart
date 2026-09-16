@@ -28,6 +28,10 @@ void main() {
     'colorScheme.surface': AppColorScheme.dark.surface,
     'card.background': colors.card.background,
     'card.backgroundRaised': colors.card.backgroundRaised,
+    // Both stops of the quest row's wash, since a row's copy crosses the whole
+    // fall of it.
+    'card.backgroundRow first stop': colors.card.backgroundRow.colors.first,
+    'card.backgroundRow last stop': colors.card.backgroundRow.colors.last,
   };
 
   final iconSurfaces = <String, Color>{
@@ -112,6 +116,80 @@ void main() {
         );
       });
     }
+  });
+
+  ///
+  /// The tinted cards P2P draws are grounds of their own: a gold or green wash
+  /// over the screen, not the flat card fill the matrix above covers. Only the
+  /// roles each card actually carries are asserted, for the same reason
+  /// `card.backgroundLocked` is left out of the matrix.
+  ///
+  group('a tinted card clears AA 4.5:1 for the roles it carries', () {
+    final surface = AppColorScheme.dark.surface;
+    final pairs = <String, (Color, Color)>{
+      'text.primary on the streak level card': (text.primary, colors.card.backgroundGoldTint),
+      'text.warning on the streak level card': (text.warning, colors.card.backgroundGoldTint),
+      'text.muted on the streak level card': (text.muted, colors.card.backgroundGoldTint),
+      'text.link on the streak level card': (text.link, colors.card.backgroundGoldTint),
+      'text.link on a picked vote button': (text.link, colors.button.outlineGoldBackground),
+      'text.primary on the congratulations card': (text.primary, colors.badge.successBackground),
+      'text.secondary on the congratulations card': (
+        text.secondary,
+        colors.badge.successBackground,
+      ),
+      'text.primary on the active pill over a still': (text.primary, colors.pill.pointsBackground),
+    };
+
+    for (final pair in pairs.entries) {
+      test(pair.key, () {
+        final ground = Color.alphaBlend(pair.value.$2, surface);
+        expect(
+          contrastRatio(pair.value.$1, ground),
+          greaterThanOrEqualTo(4.5),
+          reason:
+              '${pair.key} reads below the 4.5:1 WCAG 1.4.3 minimum once the card tint is '
+              'composited over the screen behind it.',
+        );
+      });
+    }
+  });
+
+  ///
+  /// The glyph boxes are a tint over a tint: a gold pane inside a gold-washed
+  /// card, or a gold disc on the flat one.
+  ///
+  group('a glyph box clears AA 4.5:1 through both of its tints', () {
+    final surface = AppColorScheme.dark.surface;
+
+    test('the level disc figure inside the streak level card', () {
+      final card = Color.alphaBlend(colors.card.backgroundGoldTint, surface);
+      final disc = Color.alphaBlend(colors.tag.goldBackground, card);
+      expect(contrastRatio(text.warning, disc), greaterThanOrEqualTo(4.5));
+    });
+
+    test("the level track's current disc figure", () {
+      final disc = Color.alphaBlend(colors.tag.goldBackground, colors.card.background);
+      expect(contrastRatio(text.warning, disc), greaterThanOrEqualTo(4.5));
+    });
+  });
+
+  ///
+  /// A tick sits on a solid fill rather than a tint, and carries meaning, so it
+  /// is held to the 3:1 a graphical object needs rather than 4.5:1.
+  ///
+  group('a check disc clears AA 3:1 against its fill', () {
+    test('the inline tick on its green square', () {
+      expect(contrastRatio(text.inverse, colors.status.success), greaterThanOrEqualTo(3));
+    });
+
+    test('the level tick on its gold disc', () {
+      expect(contrastRatio(text.inverse, icon.accent), greaterThanOrEqualTo(3));
+    });
+
+    test('the outlined tick against the green wash it sits in', () {
+      final ground = Color.alphaBlend(colors.badge.successBackground, colors.card.background);
+      expect(contrastRatio(colors.status.success, ground), greaterThanOrEqualTo(3));
+    });
   });
 
   group('the disabled roles are exempt, and only because they label a dead control', () {

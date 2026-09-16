@@ -1014,4 +1014,598 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get earnsNoQuests => 'No quest weeks yet.';
+
+  @override
+  String get p2pRankLabel => 'Rank';
+
+  @override
+  String get p2pStreakLabel => 'Streak';
+
+  @override
+  String get p2pPointsLabel => 'Points';
+
+  @override
+  String get p2pPointsUnit => 'PTS';
+
+  @override
+  String p2pRankValue(String rank) {
+    return '#$rank';
+  }
+
+  @override
+  String p2pRankGain(int places) {
+    return '+$places wk';
+  }
+
+  @override
+  String p2pBestStreak(int days) {
+    return 'Best ${days}d';
+  }
+
+  @override
+  String p2pBadgeProgress(String earned, String span) {
+    return '$earned / $span';
+  }
+
+  @override
+  String p2pNextBadge(String points, String badge) {
+    return '$points pts to $badge';
+  }
+
+  @override
+  String get p2pTopBadge => 'Top badge reached';
+
+  @override
+  String get p2pGamesSection => 'GAMES';
+
+  @override
+  String p2pRankSummary(String rank, int places) {
+    return 'Rank $rank, up $places places this week.';
+  }
+
+  @override
+  String p2pStreakSummary(String points, int days) {
+    return 'Streak: $points points, best run $days days.';
+  }
+
+  @override
+  String p2pPointsSummary(String points) {
+    return '$points points earned.';
+  }
+
+  @override
+  String p2pBadgeSummary(String badge, String earned, String span, String points, String nextBadge) {
+    return 'Badge $badge, $earned of $span points. $points points to $nextBadge.';
+  }
+
+  @override
+  String get questsTitle => 'Weekly Quests';
+
+  @override
+  String get questsAllSection => 'ALL WEEKLY QUESTS';
+
+  @override
+  String get questsActiveBadge => 'ACTIVE';
+
+  @override
+  String get questsActiveBadgeSpoken => 'Active';
+
+  @override
+  String questsPointsReward(String points) {
+    return '$points PTS';
+  }
+
+  @override
+  String questsPointsValue(String points) {
+    return '$points pts';
+  }
+
+  @override
+  String questsTimeLeft(String time) {
+    return '$time left';
+  }
+
+  @override
+  String questsTimeLeftDays(int days, int hours) {
+    return '${days}d ${hours}h';
+  }
+
+  @override
+  String questsTimeLeftHours(int hours, int minutes) {
+    return '${hours}h ${minutes}m';
+  }
+
+  @override
+  String questsProgressFraction(int done, int total) {
+    return '$done / $total';
+  }
+
+  @override
+  String get questsTrackProgress => 'Track Progress';
+
+  @override
+  String get questsStartQuest => 'Start Quest';
+
+  @override
+  String get questsRewardClaimed => 'REWARD CLAIMED';
+
+  @override
+  String get questsRewardClaimedSpoken => 'Reward claimed';
+
+  @override
+  String get questsEmpty => 'No quests are running this week.';
+
+  @override
+  String questsHeroSummary(String title, String description, int done, int total, String points, String time) {
+    return '$title. $description $done of $total actions done, $points points, $time left.';
+  }
+
+  @override
+  String questsRowSummary(String title, String description, String points, String action) {
+    return '$title. $description Pays $points points. $action';
+  }
+
+  @override
+  String questProgressActionsDone(int done, int total) {
+    return '$done of $total actions done';
+  }
+
+  @override
+  String questProgressEarnCaption(String points) {
+    return 'Complete all actions to earn $points pts';
+  }
+
+  @override
+  String get questProgressYourActions => 'YOUR ACTIONS';
+
+  @override
+  String get questProgressCuratedContent => 'CURATED CONTENT';
+
+  @override
+  String questProgressCounter(int done, int total) {
+    return '$done/$total';
+  }
+
+  @override
+  String questProgressPercent(int percent) {
+    return '$percent%';
+  }
+
+  @override
+  String get questProgressWatch => 'Watch';
+
+  @override
+  String get questProgressDone => 'DONE';
+
+  @override
+  String get questProgressClaim => 'Claim Reward';
+
+  @override
+  String questProgressActionSummary(String title, String description, int done, int total) {
+    return '$title. $description $done of $total done.';
+  }
+
+  @override
+  String questProgressWatchItem(String title) {
+    return 'Watch $title';
+  }
+
+  @override
+  String questProgressItemWatched(String title) {
+    return '$title, watched';
+  }
+
+  @override
+  String get questModalEyebrow => 'QUEST COMPLETED';
+
+  @override
+  String get questModalTitle => 'Congratulations';
+
+  @override
+  String questModalBody(String quest) {
+    return 'You\'ve completed $quest and earned your weekly reward.';
+  }
+
+  @override
+  String get questModalPointsLabel => 'POINTS EARNED';
+
+  @override
+  String get questModalBadgeLabel => 'BADGE UNLOCKED';
+
+  @override
+  String questModalBadgeSummary(String badge) {
+    return 'Badge unlocked: $badge.';
+  }
+
+  @override
+  String questModalPoints(String points) {
+    return '+$points';
+  }
+
+  @override
+  String get questModalPointsUnit => 'pts';
+
+  @override
+  String get questModalClaim => 'Claim Reward';
+
+  @override
+  String get questClaimedBadge => 'REWARD CLAIMED';
+
+  @override
+  String get questClaimedEyebrow => 'COMPLETED QUEST';
+
+  @override
+  String get questClaimedTitle => 'Congratulations! 🎉';
+
+  @override
+  String get questClaimedBody =>
+      'You successfully completed all actions and claimed your reward for this week\'s quest.';
+
+  @override
+  String get questClaimedPointsLabel => 'POINTS EARNED';
+
+  @override
+  String get questClaimedDaysLabel => 'COMPLETED IN';
+
+  @override
+  String get questClaimedActionsLabel => 'ACTIONS DONE';
+
+  @override
+  String get questClaimedDaysUnit => 'DAYS';
+
+  @override
+  String questClaimedDaysSummary(int days) {
+    return 'Completed in $days days.';
+  }
+
+  @override
+  String questClaimedActionsOf(int total) {
+    return '/ $total';
+  }
+
+  @override
+  String get questClaimedBadgeUnlocked => 'BADGE UNLOCKED';
+
+  @override
+  String questClaimedBadgeCaption(String quest) {
+    return 'Awarded for completing $quest';
+  }
+
+  @override
+  String get questClaimedActionsSection => 'COMPLETED ACTIONS';
+
+  @override
+  String get questClaimedActionDone => 'Done';
+
+  @override
+  String get questClaimedShare => 'Share Achievement';
+
+  @override
+  String questClaimedBadgeSummary(String badge, String caption) {
+    return 'Badge unlocked: $badge. $caption';
+  }
+
+  @override
+  String get streakIntroEyebrow => 'DAILY STREAKS';
+
+  @override
+  String get streakIntroTitle => 'The Daily Ritual';
+
+  @override
+  String streakIntroCardTitle(int minutes) {
+    return 'Spend $minutes mins daily';
+  }
+
+  @override
+  String streakIntroCardBody(int minutes) {
+    return 'Every day you spend at least $minutes minutes on Matinee counts as a streak day. Miss a day and your streak resets.';
+  }
+
+  @override
+  String get streakIntroBody => 'Longer streaks unlock exclusive badges and CinePoints multipliers.';
+
+  @override
+  String get streakIntroCta => 'Start My Streak';
+
+  @override
+  String get streakTitle => 'Daily Streaks';
+
+  @override
+  String get streakCurrentLevel => 'CURRENT LEVEL';
+
+  @override
+  String streakLevelName(int level) {
+    return 'Level $level';
+  }
+
+  @override
+  String streakLevelRequirement(int minutes, int days) {
+    return '$minutes min/day for $days days';
+  }
+
+  @override
+  String get streakThisWeek => 'This week';
+
+  @override
+  String get streakDaysDone => 'days done';
+
+  @override
+  String streakWeekFraction(int done, int total) {
+    return '$done/$total';
+  }
+
+  @override
+  String streakUnlockCaption(int days, int level, int minutes) {
+    return 'Complete $days more days to unlock Level $level ($minutes min/day)';
+  }
+
+  @override
+  String get streakTopLevelCaption => 'You have reached the top level. Keep the run going.';
+
+  @override
+  String get streakLevelTrack => 'LEVEL TRACK';
+
+  @override
+  String streakTierLabel(int minutes) {
+    return '$minutes min/day';
+  }
+
+  @override
+  String get streakTodaySession => 'TODAY\'S SESSION';
+
+  @override
+  String streakSessionTarget(int minutes) {
+    return '/ $minutes min';
+  }
+
+  @override
+  String streakMinutesLeft(int minutes) {
+    return '$minutes MIN LEFT';
+  }
+
+  @override
+  String get streakSessionMet => 'TODAY IS DONE';
+
+  @override
+  String streakSessionCaption(int level, int minutes) {
+    return 'Level $level requires $minutes min/day to keep your streak alive';
+  }
+
+  @override
+  String get streakCompleteDay => 'Complete Today';
+
+  @override
+  String get streakNowLabel => 'STREAK NOW';
+
+  @override
+  String streakNowSummary(int days) {
+    return 'Current streak: $days days.';
+  }
+
+  @override
+  String get streakBestLabel => 'BEST STREAK';
+
+  @override
+  String streakBestSummary(int days) {
+    return 'Best streak: $days days.';
+  }
+
+  @override
+  String get streakActiveLabel => 'ACTIVE DAYS';
+
+  @override
+  String streakActiveSummary(int days) {
+    return 'Active days: $days.';
+  }
+
+  @override
+  String get streakDaysUnit => 'days';
+
+  @override
+  String streakLevelCardSummary(int level, int minutes, int days, int done) {
+    return 'Current level $level, $minutes minutes a day for $days days. $done of $days days done this week.';
+  }
+
+  @override
+  String streakTierSummaryDone(int level, int minutes) {
+    return 'Level $level, $minutes minutes a day. Reached.';
+  }
+
+  @override
+  String streakTierSummaryCurrent(int level, int minutes) {
+    return 'Level $level, $minutes minutes a day. Current level.';
+  }
+
+  @override
+  String streakTierSummaryLocked(int level, int minutes) {
+    return 'Level $level, $minutes minutes a day. Locked.';
+  }
+
+  @override
+  String streakSessionSummary(int minutes, int target) {
+    return 'Today\'s session: $minutes of $target minutes.';
+  }
+
+  @override
+  String streakLevelDoneTitle(int days) {
+    return '$days-Day Ritual Complete!';
+  }
+
+  @override
+  String get streakLevelDoneBody =>
+      'You\'ve mastered the daily ritual. Keep the momentum going for exclusive multipliers.';
+
+  @override
+  String get streakLevelDoneRewardLabel => 'REWARD';
+
+  @override
+  String streakLevelDoneRewardSummary(String points) {
+    return 'Reward: $points points.';
+  }
+
+  @override
+  String get streakLevelDoneStatusLabel => 'NEW STATUS';
+
+  @override
+  String streakLevelDoneStatusSummary(String status) {
+    return 'New status: $status.';
+  }
+
+  @override
+  String streakLevelDonePoints(String points) {
+    return '+$points';
+  }
+
+  @override
+  String get streakLevelDonePointsUnit => 'Points';
+
+  @override
+  String get streakLevelDoneStatus => 'Streak Master';
+
+  @override
+  String get streakLevelDoneClaim => 'Claim Reward';
+
+  @override
+  String get streakLevelDoneDismiss => 'CONTINUE WATCHING';
+
+  @override
+  String get predictionsTitle => 'Prediction Games';
+
+  @override
+  String get predictionsSection => 'PREDICTIONS';
+
+  @override
+  String predictionsActiveBadge(int count) {
+    return '$count ACTIVE';
+  }
+
+  @override
+  String predictionsActiveBadgeSpoken(int count) {
+    return '$count active';
+  }
+
+  @override
+  String predictionsMultiplier(int multiplier) {
+    return '${multiplier}X MULTIPLIER';
+  }
+
+  @override
+  String predictionsPointsReward(String points) {
+    return '+$points PTS';
+  }
+
+  @override
+  String get predictionsResultIn => 'RESULT IN';
+
+  @override
+  String get predictionsResultInSpoken => 'Result is in';
+
+  @override
+  String predictionsYesShare(int percent) {
+    return 'YES $percent%';
+  }
+
+  @override
+  String predictionsNoShare(int percent) {
+    return 'NO $percent%';
+  }
+
+  @override
+  String predictionsTurnout(int percent) {
+    return '$percent% of players voted';
+  }
+
+  @override
+  String get predictionsCastVote => 'Cast Your Vote';
+
+  @override
+  String get predictionsRewardClaimed => 'Reward Claimed';
+
+  @override
+  String get predictionsEmpty => 'No predictions are open right now.';
+
+  @override
+  String predictionsCardSummary(
+    String title,
+    String question,
+    int yes,
+    int no,
+    int turnout,
+    String points,
+    int multiplier,
+  ) {
+    return '$title. $question Yes $yes per cent, no $no per cent. $turnout per cent of players voted. Pays $points points at $multiplier times.';
+  }
+
+  @override
+  String get predictionEyebrow => 'PREDICTION';
+
+  @override
+  String predictionMultiplierValue(int multiplier) {
+    return '${multiplier}X';
+  }
+
+  @override
+  String get predictionMultiplierUnit => 'MULTIPLIER';
+
+  @override
+  String predictionMultiplierSummary(int multiplier) {
+    return '$multiplier times multiplier';
+  }
+
+  @override
+  String get predictionClosesIn => 'Voting closes in';
+
+  @override
+  String predictionCountdownSummary(int hours, int minutes) {
+    return 'Voting closes in $hours hours $minutes minutes';
+  }
+
+  @override
+  String get predictionClosed => 'Voting has closed';
+
+  @override
+  String get predictionQuestionLabel => 'THE QUESTION';
+
+  @override
+  String predictionRewardPoints(String points) {
+    return '+$points PTS';
+  }
+
+  @override
+  String predictionCastVoteLabel(String reward) {
+    return 'CAST YOUR VOTE · $reward';
+  }
+
+  @override
+  String get predictionYes => 'YES';
+
+  @override
+  String get predictionYesSpoken => 'Yes';
+
+  @override
+  String get predictionNo => 'NO';
+
+  @override
+  String get predictionNoSpoken => 'No';
+
+  @override
+  String get predictionSubmit => 'Submit';
+
+  @override
+  String get predictionVoteRecorded => 'Your vote is in';
+
+  @override
+  String get predictionShowAnalysis => 'See how others voted';
+
+  @override
+  String get predictionAnalysisEyebrow => 'PREDICTION ANALYSIS';
+
+  @override
+  String get predictionAnalysisClose => 'Close';
+
+  @override
+  String predictionAnalysisOptionSummary(String option, int percent) {
+    return '$option: $percent per cent';
+  }
 }

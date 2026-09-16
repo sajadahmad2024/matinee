@@ -5,7 +5,7 @@ import 'package:matinee/core/theme/app_spacing.dart';
 import 'package:matinee/core/theme/app_text_styles.dart';
 import 'package:matinee/core/theme/extensions/build_context_extensions.dart';
 import 'package:matinee/core/widgets/back_disc_button.dart';
-import 'package:matinee/features/rewards/presentation/widgets/category_tag.dart';
+import 'package:matinee/core/widgets/category_tag.dart';
 
 ///
 /// The image card the Rewards and P2P lists are built from: a still under two

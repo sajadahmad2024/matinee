@@ -30,8 +30,16 @@ abstract final class AppSpacing {
   static const double labelToField = sm;
   static const double statCardPadding = md;
 
-  /// Cards are tighter vertically than horizontally by design.
-  static const EdgeInsets cardPadding = EdgeInsets.symmetric(horizontal: lg, vertical: 14);
+  ///
+  /// Cards are tighter vertically than horizontally by design, which is the one
+  /// gap on the scale's own steps and off them.
+  ///
+  static const double cardPaddingVertical = 14;
+
+  static const EdgeInsets cardPadding = EdgeInsets.symmetric(
+    horizontal: lg,
+    vertical: cardPaddingVertical,
+  );
 
   ///
   /// Centres a value inside a 52-tall input. A minHeight alone leaves it high,

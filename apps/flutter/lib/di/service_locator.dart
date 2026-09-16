@@ -7,6 +7,7 @@ import 'package:matinee/core/storage/secure_storage_service.dart';
 import 'package:matinee/features/auth/auth_di.dart';
 import 'package:matinee/features/earns/earns_di.dart';
 import 'package:matinee/features/onboarding/onboarding_di.dart';
+import 'package:matinee/features/p2p/p2p_di.dart';
 import 'package:matinee/features/profile/profile_di.dart';
 import 'package:matinee/features/rewards/rewards_di.dart';
 import 'package:matinee/shared/points/points_di.dart';
@@ -31,6 +32,7 @@ void registerDependencies(Env env) {
   registerAuthDependencies();
   registerEarnsDependencies();
   registerOnboardingDependencies();
+  registerP2pDependencies();
   registerProfileDependencies();
   registerRewardsDependencies();
 

@@ -7,10 +7,9 @@ import 'package:matinee/core/l10n/app_exception_l10n.dart';
 import 'package:matinee/core/l10n/l10n.dart';
 import 'package:matinee/core/responsive/responsive.dart';
 import 'package:matinee/core/theme/app_spacing.dart';
-import 'package:matinee/core/widgets/back_disc_button.dart';
+import 'package:matinee/core/widgets/back_app_bar.dart';
 import 'package:matinee/core/widgets/error_view.dart';
 import 'package:matinee/core/widgets/loading_view.dart';
-import 'package:matinee/core/widgets/screen_title.dart';
 import 'package:matinee/di/service_locator.dart';
 import 'package:matinee/features/rewards/data/models/exclusive_content.dart';
 import 'package:matinee/features/rewards/data/rewards_repository.dart';
@@ -43,30 +42,7 @@ class ExclusiveLibraryView extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     return Scaffold(
-      appBar: AppBar(
-        leading: Padding(
-          // The screen margin exactly: the button pulls its own overhang back,
-          // so the disc lands on the margin the frame draws it against.
-          padding: const EdgeInsets.only(left: AppScreenPadding.main),
-          // Left, not centred: the slot is wider than the target, and the
-          // frame sets the disc against the margin rather than in the middle.
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: BackDiscButton(
-              tooltip: MaterialLocalizations.of(context).backButtonTooltip,
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-          ),
-        ),
-        leadingWidth: AppScreenPadding.main + BackDiscButton.leadingWidth,
-        // The frame leaves 12 between the disc and the title, which the slot
-        // already ends on; the default 16 would stack on top of it.
-        titleSpacing: 0,
-        title: ScreenTitle(
-          label: l10n.exclusiveTitle,
-          child: Text(l10n.exclusiveTitle),
-        ),
-      ),
+      appBar: BackAppBar(title: l10n.exclusiveTitle),
       body: ContentContainer(
         maxWidth: ContentContainer.reading,
         child: BlocBuilder<ExclusiveLibraryCubit, ExclusiveLibraryState>(

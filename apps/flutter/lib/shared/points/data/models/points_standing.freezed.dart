@@ -15,7 +15,12 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$PointsStanding {
 
- int get totalPoints; String get badgeName; int get pointsToNextBadge; String get nextBadgeName; double get progressToNextBadge;
+ int get totalPoints; String get badgeName; int get pointsToNextBadge; String get nextBadgeName; double get progressToNextBadge;///
+/// Where the balance sits inside the badge it has earned, and how wide that
+/// rung is. The P2P header writes them as a fraction, and deriving them
+/// from the progress share would not reproduce whole points.
+///
+ int get pointsIntoBadge; int get badgeSpan;
 /// Create a copy of PointsStanding
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -27,20 +32,20 @@ $PointsStandingCopyWith<PointsStanding> get copyWith => _$PointsStandingCopyWith
 @override
 bool operator ==(Object other) {
   final _this = this as PointsStanding;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is PointsStanding&&(identical(other.totalPoints, _this.totalPoints) || other.totalPoints == _this.totalPoints)&&(identical(other.badgeName, _this.badgeName) || other.badgeName == _this.badgeName)&&(identical(other.pointsToNextBadge, _this.pointsToNextBadge) || other.pointsToNextBadge == _this.pointsToNextBadge)&&(identical(other.nextBadgeName, _this.nextBadgeName) || other.nextBadgeName == _this.nextBadgeName)&&(identical(other.progressToNextBadge, _this.progressToNextBadge) || other.progressToNextBadge == _this.progressToNextBadge));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is PointsStanding&&(identical(other.totalPoints, _this.totalPoints) || other.totalPoints == _this.totalPoints)&&(identical(other.badgeName, _this.badgeName) || other.badgeName == _this.badgeName)&&(identical(other.pointsToNextBadge, _this.pointsToNextBadge) || other.pointsToNextBadge == _this.pointsToNextBadge)&&(identical(other.nextBadgeName, _this.nextBadgeName) || other.nextBadgeName == _this.nextBadgeName)&&(identical(other.progressToNextBadge, _this.progressToNextBadge) || other.progressToNextBadge == _this.progressToNextBadge)&&(identical(other.pointsIntoBadge, _this.pointsIntoBadge) || other.pointsIntoBadge == _this.pointsIntoBadge)&&(identical(other.badgeSpan, _this.badgeSpan) || other.badgeSpan == _this.badgeSpan));
 }
 
 
 @override
 int get hashCode {
   final _this = this as PointsStanding;
-  return Object.hash(runtimeType,_this.totalPoints,_this.badgeName,_this.pointsToNextBadge,_this.nextBadgeName,_this.progressToNextBadge);
+  return Object.hash(runtimeType,_this.totalPoints,_this.badgeName,_this.pointsToNextBadge,_this.nextBadgeName,_this.progressToNextBadge,_this.pointsIntoBadge,_this.badgeSpan);
 }
 
 @override
 String toString() {
   final _this = this as PointsStanding;
-  return 'PointsStanding(totalPoints: ${_this.totalPoints}, badgeName: ${_this.badgeName}, pointsToNextBadge: ${_this.pointsToNextBadge}, nextBadgeName: ${_this.nextBadgeName}, progressToNextBadge: ${_this.progressToNextBadge})';
+  return 'PointsStanding(totalPoints: ${_this.totalPoints}, badgeName: ${_this.badgeName}, pointsToNextBadge: ${_this.pointsToNextBadge}, nextBadgeName: ${_this.nextBadgeName}, progressToNextBadge: ${_this.progressToNextBadge}, pointsIntoBadge: ${_this.pointsIntoBadge}, badgeSpan: ${_this.badgeSpan})';
 }
 
 
@@ -51,7 +56,7 @@ abstract mixin class $PointsStandingCopyWith<$Res>  {
   factory $PointsStandingCopyWith(PointsStanding value, $Res Function(PointsStanding) _then) = _$PointsStandingCopyWithImpl;
 @useResult
 $Res call({
- int totalPoints, String badgeName, int pointsToNextBadge, String nextBadgeName, double progressToNextBadge
+ int totalPoints, String badgeName, int pointsToNextBadge, String nextBadgeName, double progressToNextBadge, int pointsIntoBadge, int badgeSpan
 });
 
 
@@ -68,14 +73,16 @@ class _$PointsStandingCopyWithImpl<$Res>
 
 /// Create a copy of PointsStanding
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? totalPoints = null,Object? badgeName = null,Object? pointsToNextBadge = null,Object? nextBadgeName = null,Object? progressToNextBadge = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? totalPoints = null,Object? badgeName = null,Object? pointsToNextBadge = null,Object? nextBadgeName = null,Object? progressToNextBadge = null,Object? pointsIntoBadge = null,Object? badgeSpan = null,}) {
   return _then(PointsStanding(
 totalPoints: null == totalPoints ? _self.totalPoints : totalPoints // ignore: cast_nullable_to_non_nullable
 as int,badgeName: null == badgeName ? _self.badgeName : badgeName // ignore: cast_nullable_to_non_nullable
 as String,pointsToNextBadge: null == pointsToNextBadge ? _self.pointsToNextBadge : pointsToNextBadge // ignore: cast_nullable_to_non_nullable
 as int,nextBadgeName: null == nextBadgeName ? _self.nextBadgeName : nextBadgeName // ignore: cast_nullable_to_non_nullable
 as String,progressToNextBadge: null == progressToNextBadge ? _self.progressToNextBadge : progressToNextBadge // ignore: cast_nullable_to_non_nullable
-as double,
+as double,pointsIntoBadge: null == pointsIntoBadge ? _self.pointsIntoBadge : pointsIntoBadge // ignore: cast_nullable_to_non_nullable
+as int,badgeSpan: null == badgeSpan ? _self.badgeSpan : badgeSpan // ignore: cast_nullable_to_non_nullable
+as int,
   ));
 }
 
@@ -160,10 +167,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int totalPoints,  String badgeName,  int pointsToNextBadge,  String nextBadgeName,  double progressToNextBadge)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int totalPoints,  String badgeName,  int pointsToNextBadge,  String nextBadgeName,  double progressToNextBadge,  int pointsIntoBadge,  int badgeSpan)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _PointsStanding() when $default != null:
-return $default(_that.totalPoints,_that.badgeName,_that.pointsToNextBadge,_that.nextBadgeName,_that.progressToNextBadge);case _:
+return $default(_that.totalPoints,_that.badgeName,_that.pointsToNextBadge,_that.nextBadgeName,_that.progressToNextBadge,_that.pointsIntoBadge,_that.badgeSpan);case _:
   return orElse();
 
 }
@@ -181,10 +188,10 @@ return $default(_that.totalPoints,_that.badgeName,_that.pointsToNextBadge,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int totalPoints,  String badgeName,  int pointsToNextBadge,  String nextBadgeName,  double progressToNextBadge)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int totalPoints,  String badgeName,  int pointsToNextBadge,  String nextBadgeName,  double progressToNextBadge,  int pointsIntoBadge,  int badgeSpan)  $default,) {final _that = this;
 switch (_that) {
 case _PointsStanding():
-return $default(_that.totalPoints,_that.badgeName,_that.pointsToNextBadge,_that.nextBadgeName,_that.progressToNextBadge);case _:
+return $default(_that.totalPoints,_that.badgeName,_that.pointsToNextBadge,_that.nextBadgeName,_that.progressToNextBadge,_that.pointsIntoBadge,_that.badgeSpan);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -201,10 +208,10 @@ return $default(_that.totalPoints,_that.badgeName,_that.pointsToNextBadge,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int totalPoints,  String badgeName,  int pointsToNextBadge,  String nextBadgeName,  double progressToNextBadge)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int totalPoints,  String badgeName,  int pointsToNextBadge,  String nextBadgeName,  double progressToNextBadge,  int pointsIntoBadge,  int badgeSpan)?  $default,) {final _that = this;
 switch (_that) {
 case _PointsStanding() when $default != null:
-return $default(_that.totalPoints,_that.badgeName,_that.pointsToNextBadge,_that.nextBadgeName,_that.progressToNextBadge);case _:
+return $default(_that.totalPoints,_that.badgeName,_that.pointsToNextBadge,_that.nextBadgeName,_that.progressToNextBadge,_that.pointsIntoBadge,_that.badgeSpan);case _:
   return null;
 
 }
@@ -216,7 +223,7 @@ return $default(_that.totalPoints,_that.badgeName,_that.pointsToNextBadge,_that.
 
 
 class _PointsStanding implements PointsStanding {
-  const _PointsStanding({required this.totalPoints, required this.badgeName, required this.pointsToNextBadge, required this.nextBadgeName, required this.progressToNextBadge});
+  const _PointsStanding({required this.totalPoints, required this.badgeName, required this.pointsToNextBadge, required this.nextBadgeName, required this.progressToNextBadge, required this.pointsIntoBadge, required this.badgeSpan});
   
 
 @override final  int totalPoints;
@@ -224,6 +231,13 @@ class _PointsStanding implements PointsStanding {
 @override final  int pointsToNextBadge;
 @override final  String nextBadgeName;
 @override final  double progressToNextBadge;
+///
+/// Where the balance sits inside the badge it has earned, and how wide that
+/// rung is. The P2P header writes them as a fraction, and deriving them
+/// from the progress share would not reproduce whole points.
+///
+@override final  int pointsIntoBadge;
+@override final  int badgeSpan;
 
 /// Create a copy of PointsStanding
 /// with the given fields replaced by the non-null parameter values.
@@ -235,18 +249,18 @@ _$PointsStandingCopyWith<_PointsStanding> get copyWith => __$PointsStandingCopyW
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _PointsStanding&&(identical(other.totalPoints, totalPoints) || other.totalPoints == totalPoints)&&(identical(other.badgeName, badgeName) || other.badgeName == badgeName)&&(identical(other.pointsToNextBadge, pointsToNextBadge) || other.pointsToNextBadge == pointsToNextBadge)&&(identical(other.nextBadgeName, nextBadgeName) || other.nextBadgeName == nextBadgeName)&&(identical(other.progressToNextBadge, progressToNextBadge) || other.progressToNextBadge == progressToNextBadge));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _PointsStanding&&(identical(other.totalPoints, totalPoints) || other.totalPoints == totalPoints)&&(identical(other.badgeName, badgeName) || other.badgeName == badgeName)&&(identical(other.pointsToNextBadge, pointsToNextBadge) || other.pointsToNextBadge == pointsToNextBadge)&&(identical(other.nextBadgeName, nextBadgeName) || other.nextBadgeName == nextBadgeName)&&(identical(other.progressToNextBadge, progressToNextBadge) || other.progressToNextBadge == progressToNextBadge)&&(identical(other.pointsIntoBadge, pointsIntoBadge) || other.pointsIntoBadge == pointsIntoBadge)&&(identical(other.badgeSpan, badgeSpan) || other.badgeSpan == badgeSpan));
 }
 
 
 @override
 int get hashCode {
-    return Object.hash(runtimeType,totalPoints,badgeName,pointsToNextBadge,nextBadgeName,progressToNextBadge);
+    return Object.hash(runtimeType,totalPoints,badgeName,pointsToNextBadge,nextBadgeName,progressToNextBadge,pointsIntoBadge,badgeSpan);
 }
 
 @override
 String toString() {
-    return 'PointsStanding(totalPoints: $totalPoints, badgeName: $badgeName, pointsToNextBadge: $pointsToNextBadge, nextBadgeName: $nextBadgeName, progressToNextBadge: $progressToNextBadge)';
+    return 'PointsStanding(totalPoints: $totalPoints, badgeName: $badgeName, pointsToNextBadge: $pointsToNextBadge, nextBadgeName: $nextBadgeName, progressToNextBadge: $progressToNextBadge, pointsIntoBadge: $pointsIntoBadge, badgeSpan: $badgeSpan)';
 }
 
 
@@ -257,7 +271,7 @@ abstract mixin class _$PointsStandingCopyWith<$Res> implements $PointsStandingCo
   factory _$PointsStandingCopyWith(_PointsStanding value, $Res Function(_PointsStanding) _then) = __$PointsStandingCopyWithImpl;
 @override @useResult
 $Res call({
- int totalPoints, String badgeName, int pointsToNextBadge, String nextBadgeName, double progressToNextBadge
+ int totalPoints, String badgeName, int pointsToNextBadge, String nextBadgeName, double progressToNextBadge, int pointsIntoBadge, int badgeSpan
 });
 
 
@@ -274,14 +288,16 @@ class __$PointsStandingCopyWithImpl<$Res>
 
 /// Create a copy of PointsStanding
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? totalPoints = null,Object? badgeName = null,Object? pointsToNextBadge = null,Object? nextBadgeName = null,Object? progressToNextBadge = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? totalPoints = null,Object? badgeName = null,Object? pointsToNextBadge = null,Object? nextBadgeName = null,Object? progressToNextBadge = null,Object? pointsIntoBadge = null,Object? badgeSpan = null,}) {
   return _then(_PointsStanding(
 totalPoints: null == totalPoints ? _self.totalPoints : totalPoints // ignore: cast_nullable_to_non_nullable
 as int,badgeName: null == badgeName ? _self.badgeName : badgeName // ignore: cast_nullable_to_non_nullable
 as String,pointsToNextBadge: null == pointsToNextBadge ? _self.pointsToNextBadge : pointsToNextBadge // ignore: cast_nullable_to_non_nullable
 as int,nextBadgeName: null == nextBadgeName ? _self.nextBadgeName : nextBadgeName // ignore: cast_nullable_to_non_nullable
 as String,progressToNextBadge: null == progressToNextBadge ? _self.progressToNextBadge : progressToNextBadge // ignore: cast_nullable_to_non_nullable
-as double,
+as double,pointsIntoBadge: null == pointsIntoBadge ? _self.pointsIntoBadge : pointsIntoBadge // ignore: cast_nullable_to_non_nullable
+as int,badgeSpan: null == badgeSpan ? _self.badgeSpan : badgeSpan // ignore: cast_nullable_to_non_nullable
+as int,
   ));
 }
 

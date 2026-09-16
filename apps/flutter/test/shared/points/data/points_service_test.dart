@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:matinee/core/error/app_exception.dart';
+import 'package:matinee/shared/points/data/models/points_standing.dart';
 import 'package:matinee/shared/points/data/services/points_service.dart';
 
 void main() {
@@ -31,6 +32,25 @@ void main() {
         expect(standing.badgeName, 'Visionary');
         expect(standing.pointsToNextBadge, isZero);
         expect(standing.progressToNextBadge, 1);
+      });
+
+      test('writes the fraction across the tier the balance sits in', () {
+        final standing = service.standing;
+
+        expect(standing.pointsIntoBadge, 2082);
+        expect(standing.badgeSpan, 3000);
+      });
+
+      test('reads the top rung as complete rather than as nothing into a span of one', () {
+        service.credit(PointsService.tiers.last.threshold - service.balance);
+        final standing = service.standing;
+
+        // The rung that reached the top, cleared in full: 12,000 less the
+        // 8,000 below it.
+        expect(standing.pointsIntoBadge, 4000);
+        expect(standing.badgeSpan, 4000);
+        expect(standing.progressToNextBadge, 1);
+        expect(standing.isTopBadge, isTrue);
       });
 
       test('drops to the tier below when the balance falls', () {

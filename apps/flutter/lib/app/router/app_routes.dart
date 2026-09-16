@@ -11,7 +11,13 @@ import 'package:matinee/features/earns/presentation/earn_detail_screen.dart';
 import 'package:matinee/features/earns/presentation/earns_screen.dart';
 import 'package:matinee/features/home/presentation/home_screen.dart';
 import 'package:matinee/features/onboarding/presentation/onboarding_screen.dart';
+import 'package:matinee/features/p2p/presentation/daily_streak_screen.dart';
 import 'package:matinee/features/p2p/presentation/p2p_screen.dart';
+import 'package:matinee/features/p2p/presentation/prediction_detail_screen.dart';
+import 'package:matinee/features/p2p/presentation/prediction_games_screen.dart';
+import 'package:matinee/features/p2p/presentation/quest_claimed_screen.dart';
+import 'package:matinee/features/p2p/presentation/quest_progress_screen.dart';
+import 'package:matinee/features/p2p/presentation/weekly_quests_screen.dart';
 import 'package:matinee/features/profile/presentation/edit_profile_screen.dart';
 import 'package:matinee/features/profile/presentation/profile_screen.dart';
 import 'package:matinee/features/rewards/presentation/auction_screen.dart';
@@ -151,6 +157,79 @@ class QuestHistoryRoute extends GoRouteData with $QuestHistoryRoute {
 
   @override
   Widget build(BuildContext context, GoRouterState state) => const EarnDetailScreen(kind: EarnSourceKind.weeklyQuests);
+}
+
+///
+/// The three P2P games and the screens under them. Outside the shell, like the
+/// rewards details: their frames draw no bottom nav, so they cover it.
+///
+/// A quest's tracker and its receipt both hang off the quest, so its id is a
+/// path segment rather than something carried in `extra`.
+///
+@TypedGoRoute<WeeklyQuestsRoute>(
+  path: '/p2p/quests',
+  routes: [
+    TypedGoRoute<QuestProgressRoute>(
+      path: ':questId',
+      routes: [TypedGoRoute<QuestClaimedRoute>(path: 'claimed')],
+    ),
+  ],
+)
+class WeeklyQuestsRoute extends GoRouteData with $WeeklyQuestsRoute {
+  const WeeklyQuestsRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) => const WeeklyQuestsScreen();
+}
+
+class QuestProgressRoute extends GoRouteData with $QuestProgressRoute {
+  const QuestProgressRoute({required this.questId});
+
+  final String questId;
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) => QuestProgressScreen(questId: questId);
+}
+
+class QuestClaimedRoute extends GoRouteData with $QuestClaimedRoute {
+  const QuestClaimedRoute({required this.questId});
+
+  final String questId;
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) => QuestClaimedScreen(questId: questId);
+}
+
+///
+/// One route for the intro and the ladder alike: whether the streak has started
+/// is its own state, not a place the user navigates to.
+///
+@TypedGoRoute<DailyStreakRoute>(path: '/p2p/streaks')
+class DailyStreakRoute extends GoRouteData with $DailyStreakRoute {
+  const DailyStreakRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) => const DailyStreakScreen();
+}
+
+@TypedGoRoute<PredictionGamesRoute>(
+  path: '/p2p/predictions',
+  routes: [TypedGoRoute<PredictionDetailRoute>(path: ':predictionId')],
+)
+class PredictionGamesRoute extends GoRouteData with $PredictionGamesRoute {
+  const PredictionGamesRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) => const PredictionGamesScreen();
+}
+
+class PredictionDetailRoute extends GoRouteData with $PredictionDetailRoute {
+  const PredictionDetailRoute({required this.predictionId});
+
+  final String predictionId;
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) => PredictionDetailScreen(predictionId: predictionId);
 }
 
 ///
