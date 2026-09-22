@@ -1,0 +1,95 @@
+# Configuration for the package_rename tool.
+#
+# Usage (run once per flavor):
+#   dart run package_rename --flavour=dev
+#   dart run package_rename --flavour=staging
+#   dart run package_rename --flavour=prod
+#
+# The three sections are intentionally identical. package_rename is flavor-blind:
+# it writes a single applicationId/namespace, a single Info.plist and a single
+# CMake/Runner.rc, so per-flavor values here would just overwrite each other.
+# Flavor identity already lives where the build system expects it and must stay there:
+#   - Android: `applicationIdSuffix` and the `app_name` resValue per productFlavor
+#     in android/app/build.gradle.kts, read through android:label="@string/app_name".
+#   - iOS/macOS: PRODUCT_BUNDLE_IDENTIFIER and APP_DISPLAY_NAME per build
+#     configuration in Runner.xcodeproj, read through $(APP_DISPLAY_NAME).
+# So `android.app_name`, `ios.app_name` and the flavor suffixes are deliberately
+# omitted below; only the base identity is written here.
+
+# ─── Dev ──────────────────────────────────────────────────────────────────────
+
+package_rename_config-dev:
+  android:
+    package_name: com.ttle.matinee # Base applicationId; flavors append .dev / .staging
+    lang: kotlin
+  ios:
+    bundle_name: matinee # Short bundle name (lowercase, no spaces)
+    package_name: com.ttle.matinee # Base bundle identifier; flavor suffixes are preserved
+  macos:
+    app_name: Matinee
+    package_name: com.ttle.matinee
+    copyright_notice: Copyright © 2026 TTLE. All rights reserved.
+  web:
+    app_name: Matinee
+    description: Matinee.
+  linux:
+    app_name: Matinee
+    package_name: com.ttle.matinee
+    exe_name: matinee
+  windows:
+    app_name: Matinee
+    organization: TTLE
+    copyright_notice: Copyright © 2026 TTLE. All rights reserved.
+    exe_name: matinee
+
+# ─── Staging ──────────────────────────────────────────────────────────────────
+
+package_rename_config-staging:
+  android:
+    package_name: com.ttle.matinee
+    lang: kotlin
+  ios:
+    bundle_name: matinee
+    package_name: com.ttle.matinee
+  macos:
+    app_name: Matinee
+    package_name: com.ttle.matinee
+    copyright_notice: Copyright © 2026 TTLE. All rights reserved.
+  web:
+    app_name: Matinee
+    description: Matinee.
+  linux:
+    app_name: Matinee
+    package_name: com.ttle.matinee
+    exe_name: matinee
+  windows:
+    app_name: Matinee
+    organization: TTLE
+    copyright_notice: Copyright © 2026 TTLE. All rights reserved.
+    exe_name: matinee
+
+# ─── Prod ─────────────────────────────────────────────────────────────────────
+
+package_rename_config-prod:
+  android:
+    package_name: com.ttle.matinee
+    lang: kotlin
+  ios:
+    bundle_name: matinee
+    package_name: com.ttle.matinee
+  macos:
+    app_name: Matinee
+    package_name: com.ttle.matinee
+    copyright_notice: Copyright © 2026 TTLE. All rights reserved.
+  web:
+    app_name: Matinee
+    description: Matinee.
+  linux:
+    app_name: Matinee
+    package_name: com.ttle.matinee
+    exe_name: matinee
+  windows:
+    app_name: Matinee
+    organization: TTLE
+    copyright_notice: Copyright © 2026 TTLE. All rights reserved.
+    exe_name: matinee

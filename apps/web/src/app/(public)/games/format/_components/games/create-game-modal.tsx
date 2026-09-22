@@ -33,7 +33,6 @@ export function CreateGameModal({
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [rewardPoints, setRewardPoints] = useState(100);
-  const [xp, setXp] = useState(50);
   const [selectedVideoId, setSelectedVideoId] = useState<string | null>(null);
   const [videoSearchQuery, setVideoSearchQuery] = useState("");
 
@@ -107,19 +106,13 @@ export function CreateGameModal({
               </div>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label>Reward Points</Label>
-                <Input
-                  type="number"
-                  value={rewardPoints}
-                  onChange={(e) => setRewardPoints(Number(e.target.value))}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>XP Awarded</Label>
-                <Input type="number" value={xp} onChange={(e) => setXp(Number(e.target.value))} />
-              </div>
+            <div className="space-y-2">
+              <Label>Reward Points</Label>
+              <Input
+                type="number"
+                value={rewardPoints}
+                onChange={(e) => setRewardPoints(Number(e.target.value))}
+              />
             </div>
           </div>
 

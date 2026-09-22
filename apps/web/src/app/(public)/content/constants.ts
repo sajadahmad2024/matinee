@@ -1,4 +1,14 @@
-import { Archive, Calendar, FileText, Film, Inbox, Rocket, XCircle } from "lucide-react";
+import {
+  Archive,
+  Calendar,
+  CalendarRange,
+  Film,
+  Inbox,
+  type LucideIcon,
+  XCircle,
+} from "lucide-react";
+
+import { MACRO_REGIONS, type MacroRegion, regionForCountry } from "@/app/_libs/regions";
 
 import type { ContentStatus } from "./_components/status-badge";
 
@@ -21,7 +31,13 @@ export interface VideoItem {
   likes: number;
   isLive?: boolean;
   isFeatured?: boolean;
+  /** Boost is an overlay on the lifecycle status, not a status of its own — a boosted
+   *  video is still published or scheduled at the same time. */
+  boosted?: boolean;
   scheduledAt?: string;
+  // live availability window (every live video has dates associated — calendar view)
+  liveFrom?: string; // ISO date
+  liveUntil?: string; // ISO date
   // licensing
   licenseStatus?: "licensed" | "original" | "expiring" | "expired";
   licenseExpiresInDays?: number;
@@ -44,7 +60,11 @@ export interface VideoItem {
   // ad sales / sponsorship
   sponsored?: boolean;
   sponsor?: string;
-  adDurationSecs?: number;
+  adPlacement?: "pre-roll" | "icon-overlay";
+  adDurationSecs?: number; // pre-roll only
+  adOverlayDays?: number; // icon-overlay only — length of the sponsorship deal
+  /** Consumer-app "where to watch" CTA destinations, set at publish time (spec-05 §1.4). */
+  watchLinks?: { platform: string; url?: string }[];
   // workflow history (newest first)
   workflow?: WorkflowEvent[];
 }
@@ -61,6 +81,8 @@ export const MOCK_VIDEOS: VideoItem[] = [
     views: 124500,
     likes: 8920,
     isLive: true,
+    liveFrom: "2026-08-10",
+    liveUntil: "2026-11-10",
     licenseStatus: "expiring",
     licenseExpiresInDays: 45,
     licensorName: "Seoul Studios",
@@ -72,6 +94,7 @@ export const MOCK_VIDEOS: VideoItem[] = [
     lastModifiedAt: "May 12",
     unresolvedFlags: 0,
     recommendation: "promoted",
+    watchLinks: [{ platform: "Netflix", url: "https://netflix.com/title/80192098" }],
     genres: ["Romance", "Drama"],
     language: "Korean",
     region: "KR",
@@ -101,6 +124,8 @@ export const MOCK_VIDEOS: VideoItem[] = [
     views: 89200,
     likes: 6540,
     isFeatured: true,
+    liveFrom: "2026-07-20",
+    liveUntil: "2026-10-05",
     licenseStatus: "licensed",
     licenseExpiresInDays: 120,
     licensorName: "Global Rights Co",
@@ -112,12 +137,17 @@ export const MOCK_VIDEOS: VideoItem[] = [
     lastModifiedAt: "May 9",
     unresolvedFlags: 2,
     recommendation: "normal",
+    watchLinks: [
+      { platform: "Prime Video" },
+      { platform: "Apple TV", url: "https://tv.apple.com/movie/the-chase" },
+    ],
     genres: ["Action", "Thriller"],
     language: "English",
     region: "US",
     uploadDate: "2026-04-28",
     sponsored: true,
     sponsor: "Nike",
+    adPlacement: "pre-roll",
     adDurationSecs: 15,
   },
   {
@@ -131,6 +161,8 @@ export const MOCK_VIDEOS: VideoItem[] = [
     views: 156800,
     likes: 12400,
     isLive: true,
+    liveFrom: "2026-08-25",
+    liveUntil: "2026-12-01",
     licenseStatus: "original",
     viewsTrend: "up",
     completionRate: 72,
@@ -168,10 +200,11 @@ export const MOCK_VIDEOS: VideoItem[] = [
     studioName: "Food Network Asia",
     duration: "55:00",
     status: "scheduled",
+    boosted: true,
     linkedGames: 2,
     views: 0,
     likes: 0,
-    scheduledAt: "2026-01-25 20:00 UTC",
+    scheduledAt: "2026-09-25 20:00 UTC",
     licenseStatus: "licensed",
     licenseExpiresInDays: 90,
     licensorName: "Food Network Asia",
@@ -185,10 +218,13 @@ export const MOCK_VIDEOS: VideoItem[] = [
     thumbnail: "",
     studioName: "Wanderlust Media",
     duration: "38:45",
-    status: "boosted",
+    status: "published",
+    boosted: true,
     linkedGames: 1,
     views: 245000,
     likes: 18900,
+    liveFrom: "2026-09-01",
+    liveUntil: "2026-10-15",
     licenseStatus: "expiring",
     licenseExpiresInDays: 20,
     licensorName: "Wanderlust Media",
@@ -198,13 +234,15 @@ export const MOCK_VIDEOS: VideoItem[] = [
     revenuePer1k: 4.0,
     unresolvedFlags: 1,
     recommendation: "deprioritized",
+    watchLinks: [{ platform: "In cinemas" }],
     genres: ["Travel", "Documentary"],
     language: "English",
     region: "JP",
     uploadDate: "2026-04-15",
     sponsored: true,
     sponsor: "Japan Tourism Board",
-    adDurationSecs: 20,
+    adPlacement: "icon-overlay",
+    adOverlayDays: 30,
   },
   {
     id: "7",
@@ -228,6 +266,40 @@ export const MOCK_VIDEOS: VideoItem[] = [
       { date: "Apr 2", label: "Archived (license expired)", by: "System" },
       { date: "Nov 1 '25", label: "Published", by: "Mark T." },
     ],
+  },
+  {
+    id: "8",
+    title: "Street Food Diaries: Bangkok",
+    thumbnail: "",
+    studioName: "Food Network Asia",
+    duration: "32:10",
+    status: "scheduled",
+    linkedGames: 1,
+    views: 0,
+    likes: 0,
+    scheduledAt: "2026-10-08 18:00 UTC",
+    licenseStatus: "licensed",
+    licenseExpiresInDays: 180,
+    licensorName: "Food Network Asia",
+    genres: ["Food", "Travel"],
+    language: "English",
+    region: "TH",
+  },
+  {
+    id: "9",
+    title: "Winter Anthology: First Frost",
+    thumbnail: "",
+    studioName: "Aurora Pictures",
+    duration: "51:45",
+    status: "scheduled",
+    linkedGames: 0,
+    views: 0,
+    likes: 0,
+    scheduledAt: "2026-11-14 17:30 UTC",
+    licenseStatus: "original",
+    genres: ["Drama", "Anthology"],
+    language: "English",
+    region: "CA",
   },
 ];
 
@@ -266,21 +338,34 @@ export const REJECTED_VIDEOS: VideoItem[] = [
   },
 ];
 
-export type TabValue =
-  | "requests"
-  | "drafts"
-  | "scheduled"
-  | "boosted"
-  | "all"
-  | "rejected"
-  | "archived";
+export type TabValue = "requests" | "master" | "scheduled" | "all" | "rejected" | "archived";
 
-export const CONTENT_TABS_CONFIG: { value: TabValue; label: string; icon: any; count?: number }[] = [
+/** Parse mock dates — ISO ("2026-08-10") or "2026-09-25 20:00 UTC" display format. */
+export const parseMockDate = (s?: string): Date | null => {
+  if (!s) return null;
+  const iso = s.includes(" UTC") ? `${s.replace(" ", "T").replace(" UTC", "")}:00Z` : s;
+  const d = new Date(iso);
+  return isNaN(d.getTime()) ? null : d;
+};
+
+/** Master tab = everything live OR scheduled, in one scrolling list. */
+export const isMasterVideo = (v: VideoItem) =>
+  v.status === "published" || v.isLive === true || v.status === "scheduled";
+
+const MASTER_COUNT = MOCK_VIDEOS.filter(isMasterVideo).length;
+const SCHEDULED_COUNT = MOCK_VIDEOS.filter((v) => v.status === "scheduled").length;
+
+// Client flow, exactly: Requests → Master → Scheduled → Live → Rejected → Archive.
+export const CONTENT_TABS_CONFIG: {
+  value: TabValue;
+  label: string;
+  icon: LucideIcon;
+  count?: number;
+}[] = [
   { value: "requests", label: "Requests", icon: Inbox, count: 1 },
-  { value: "drafts", label: "Drafts", icon: FileText, count: 2 },
-  { value: "scheduled", label: "Scheduled", icon: Calendar, count: 1 },
-  { value: "boosted", label: "Priority", icon: Rocket, count: 1 },
-  { value: "all", label: "Live Videos", icon: Film },
+  { value: "master", label: "Master", icon: CalendarRange, count: MASTER_COUNT },
+  { value: "scheduled", label: "Scheduled", icon: Calendar, count: SCHEDULED_COUNT },
+  { value: "all", label: "Live", icon: Film },
   { value: "rejected", label: "Rejected", icon: XCircle, count: 1 },
   { value: "archived", label: "Archive", icon: Archive, count: 1 },
 ];
@@ -317,8 +402,10 @@ export const CONTENT_INVENTORY = {
   daysRemainingInMonth: 11,
   pipeline: { draft: 12, inReview: 8, scheduled: 5 },
   avgTimeToPublishDays: 3.2,
-  freshnessPct: 44, // % of views going to <30-day content
-  freshnessHealthyAbove: 40, // healthy when freshnessPct > this
+  // Licence / live-window expiries by calendar month. Kept plausibly related to
+  // LICENSING_SUMMARY.expiring30 (a 30-day rolling count), not equal to it.
+  expiringThisMonth: 30,
+  expiringNextMonth: 18,
 };
 
 // B. Licensing & Rights — summary tiles
@@ -349,12 +436,66 @@ export interface LicenseRow {
 }
 
 export const LICENSE_ROWS: LicenseRow[] = [
-  { contentTitle: "Neon Nights — Official Trailer", licensor: "Global Rights Co", expires: "Jun 28, 2026", daysLeft: 23, renewalStatus: "in_negotiation", revenueGenerated: 18400, revenueSource: "Ads + Subs", licenseCost: 6000 },
-  { contentTitle: "K-Drama Spotlight: Seoul Stories", licensor: "Seoul Studios", expires: "Jul 15, 2026", daysLeft: 40, renewalStatus: "renewing", revenueGenerated: 31200, revenueSource: "Ads", licenseCost: 12000 },
-  { contentTitle: "Marvel BTS — Set Secrets", licensor: "Global Rights Co", expires: "Jun 18, 2026", daysLeft: 13, renewalStatus: "expiring", revenueGenerated: 9400, revenueSource: "Subs", licenseCost: 8000 },
-  { contentTitle: "Indie Gems Vol. 4", licensor: "ArtHouse Dist.", expires: "Sep 02, 2026", daysLeft: 89, renewalStatus: "auto_renew", revenueGenerated: 7600, revenueSource: "Ads", licenseCost: 2500 },
-  { contentTitle: "Awards Night — Red Carpet", licensor: "Premiere Media", expires: "Jun 10, 2026", daysLeft: 5, renewalStatus: "expiring", revenueGenerated: 22800, revenueSource: "Ads + Sponsor", licenseCost: 9000 },
-  { contentTitle: "Classic Noir Restored", licensor: "Heritage Films", expires: "May 30, 2026", daysLeft: -6, renewalStatus: "lapsed", revenueGenerated: 4200, revenueSource: "Subs", licenseCost: 5000 },
+  {
+    contentTitle: "Neon Nights — Official Trailer",
+    licensor: "Global Rights Co",
+    expires: "Jun 28, 2026",
+    daysLeft: 23,
+    renewalStatus: "in_negotiation",
+    revenueGenerated: 18400,
+    revenueSource: "Ads + Subs",
+    licenseCost: 6000,
+  },
+  {
+    contentTitle: "K-Drama Spotlight: Seoul Stories",
+    licensor: "Seoul Studios",
+    expires: "Jul 15, 2026",
+    daysLeft: 40,
+    renewalStatus: "renewing",
+    revenueGenerated: 31200,
+    revenueSource: "Ads",
+    licenseCost: 12000,
+  },
+  {
+    contentTitle: "Marvel BTS — Set Secrets",
+    licensor: "Global Rights Co",
+    expires: "Jun 18, 2026",
+    daysLeft: 13,
+    renewalStatus: "expiring",
+    revenueGenerated: 9400,
+    revenueSource: "Subs",
+    licenseCost: 8000,
+  },
+  {
+    contentTitle: "Indie Gems Vol. 4",
+    licensor: "ArtHouse Dist.",
+    expires: "Sep 02, 2026",
+    daysLeft: 89,
+    renewalStatus: "auto_renew",
+    revenueGenerated: 7600,
+    revenueSource: "Ads",
+    licenseCost: 2500,
+  },
+  {
+    contentTitle: "Awards Night — Red Carpet",
+    licensor: "Premiere Media",
+    expires: "Jun 10, 2026",
+    daysLeft: 5,
+    renewalStatus: "expiring",
+    revenueGenerated: 22800,
+    revenueSource: "Ads + Sponsor",
+    licenseCost: 9000,
+  },
+  {
+    contentTitle: "Classic Noir Restored",
+    licensor: "Heritage Films",
+    expires: "May 30, 2026",
+    daysLeft: -6,
+    renewalStatus: "lapsed",
+    revenueGenerated: 4200,
+    revenueSource: "Subs",
+    licenseCost: 5000,
+  },
 ];
 
 // C. Content Performance — tiles with trend + sparkline
@@ -377,3 +518,91 @@ export const PERFORMANCE_SUMMARY = {
   avgEngagementSpark: [6.9, 7.1, 7.0, 7.3, 7.5, 7.6, 7.8],
   activeConcurrentViewers: 3421, // real-time in prod
 };
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Regional lens for the content master page (spec-05 §1.2)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export type ContentRegionKey = "all" | MacroRegion;
+
+const MACRO_CODES = new Set(MACRO_REGIONS.map((r) => r.code as string));
+
+export const normalizeContentRegion = (value?: string | null): ContentRegionKey =>
+  value && MACRO_CODES.has(value.toUpperCase()) ? (value.toUpperCase() as MacroRegion) : "all";
+
+/** Mock videos carry either a country ISO ("KR") or an already-macro code ("APAC"). */
+export const macroRegionForVideo = (v: VideoItem): MacroRegion =>
+  v.region && MACRO_CODES.has(v.region.toUpperCase())
+    ? (v.region.toUpperCase() as MacroRegion)
+    : regionForCountry(v.region);
+
+/** Share of the library per macro-region — mirrors the dashboard's viewership split. */
+export const CONTENT_REGION_FACTOR: Record<MacroRegion, number> = {
+  APAC: 0.36,
+  NA: 0.29,
+  EU: 0.19,
+  LATAM: 0.1,
+  MEA: 0.05,
+};
+
+const factorFor = (region: ContentRegionKey) =>
+  region === "all" ? 1 : CONTENT_REGION_FACTOR[region];
+
+/** Inventory tiles scoped to a region — deterministic scaling, like the dashboard mocks. */
+export function contentInventoryForRegion(region: ContentRegionKey) {
+  const f = factorFor(region);
+  if (region === "all") return CONTENT_INVENTORY;
+  const scale = (n: number) => Math.max(1, Math.round(n * f));
+  return {
+    ...CONTENT_INVENTORY,
+    activeLibrary: scale(CONTENT_INVENTORY.activeLibrary),
+    addedThisMonth: scale(CONTENT_INVENTORY.addedThisMonth),
+    uploadTarget: scale(CONTENT_INVENTORY.uploadTarget),
+    expiringThisMonth: scale(CONTENT_INVENTORY.expiringThisMonth),
+    expiringNextMonth: scale(CONTENT_INVENTORY.expiringNextMonth),
+    pipeline: {
+      draft: scale(CONTENT_INVENTORY.pipeline.draft),
+      inReview: scale(CONTENT_INVENTORY.pipeline.inReview),
+      scheduled: scale(CONTENT_INVENTORY.pipeline.scheduled),
+    },
+  };
+}
+
+/** Recommended-action counts scale with the region so the copy stays truthful. */
+export const scaleActionCount = (n: number, region: ContentRegionKey) =>
+  region === "all" ? n : Math.max(1, Math.round(n * factorFor(region)));
+
+const TOTAL_VIEWS = MOCK_VIDEOS.reduce((sum, v) => sum + v.views, 0);
+
+const byRegion = (base: number) => ({
+  all: base,
+  ...(Object.fromEntries(
+    MACRO_REGIONS.map((r) => [r.code, Math.round(base * CONTENT_REGION_FACTOR[r.code])]),
+  ) as Record<MacroRegion, number>),
+});
+
+/** Metric modes for the master-page region grid. */
+export const CONTENT_REGION_METRICS = {
+  liveVideos: byRegion(CONTENT_INVENTORY.activeLibrary),
+  views: byRegion(TOTAL_VIEWS),
+  uploads: byRegion(CONTENT_INVENTORY.addedThisMonth),
+};
+
+/** Tab counts scoped to the region lens, so the badges agree with the list below. */
+export function contentTabsForRegion(region: ContentRegionKey) {
+  if (region === "all") return CONTENT_TABS_CONFIG;
+  const inRegion = (v: VideoItem) => macroRegionForVideo(v) === region;
+  const count = (list: VideoItem[], pred: (v: VideoItem) => boolean) =>
+    list.filter((v) => inRegion(v) && pred(v)).length;
+
+  const counts: Partial<Record<TabValue, number>> = {
+    requests: count(PENDING_VIDEOS, () => true),
+    master: count(MOCK_VIDEOS, isMasterVideo),
+    scheduled: count(MOCK_VIDEOS, (v) => v.status === "scheduled"),
+    rejected: count(REJECTED_VIDEOS, () => true),
+    archived: count(MOCK_VIDEOS, (v) => v.status === "archived"),
+  };
+  return CONTENT_TABS_CONFIG.map((t) =>
+    t.count === undefined ? t : { ...t, count: counts[t.value] ?? 0 },
+  );
+}

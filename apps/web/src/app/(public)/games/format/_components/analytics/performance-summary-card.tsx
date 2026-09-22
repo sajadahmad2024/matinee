@@ -6,12 +6,17 @@ import { CardContent } from "@/components/ui/card";
 
 import { AnalyticsHeader } from "../../../_components/analytics-header";
 import { GlassCard } from "../../../_components/glass-card";
+import { shiftRate, type RegionKey } from "./region-scale";
 
 interface PerformanceSummaryCardProps {
   activeGamesCount: number;
+  region?: RegionKey;
 }
 
-export function PerformanceSummaryCard({ activeGamesCount }: PerformanceSummaryCardProps) {
+export function PerformanceSummaryCard({
+  activeGamesCount,
+  region = "all",
+}: PerformanceSummaryCardProps) {
   return (
     <GlassCard>
       <AnalyticsHeader title="Performance Summary" icon={Info} iconColor="text-accent" />
@@ -27,11 +32,11 @@ export function PerformanceSummaryCard({ activeGamesCount }: PerformanceSummaryC
           </div>
           <div className="flex items-center justify-between">
             <span className="text-muted-foreground text-sm">Win Rate</span>
-            <span className="text-foreground font-medium">68%</span>
+            <span className="text-foreground font-medium">{shiftRate(68, region)}%</span>
           </div>
           <div className="flex items-center justify-between">
             <span className="text-muted-foreground text-sm">Repeat Players</span>
-            <span className="text-success font-medium">72%</span>
+            <span className="text-success font-medium">{shiftRate(72, region)}%</span>
           </div>
           <div className="flex items-center justify-between">
             <span className="text-muted-foreground text-sm">Active Games</span>

@@ -84,13 +84,13 @@ export function InstanceResolveModal({ open, onOpenChange, instance, kind }: Ins
             <p className="text-muted-foreground text-xs">Winning bid</p>
             <p className="text-foreground text-lg font-semibold">{instance.winner ?? "Top bidder"}</p>
             <p className="text-muted-foreground text-sm">{instance.outcome ?? "Highest active bid"}</p>
-            <p className="text-muted-foreground mt-2 text-xs">Settling charges the winner's held bid and refunds the rest.</p>
+            <p className="text-muted-foreground mt-2 text-xs">Settling charges the winner&apos;s held bid and refunds the rest.</p>
           </div>
         )}
 
         {kind === "quest" && (
           <p className="text-muted-foreground text-sm">
-            End "{instance.name}" now? Participants who met the requirement are rewarded; the rest are closed out.
+            End &quot;{instance.name}&quot; now? Participants who met the requirement are rewarded; the rest are closed out.
           </p>
         )}
 

@@ -1,4 +1,3 @@
-import { Flame, Target, Trophy } from "lucide-react";
 import { type GameInstance } from "./_components/games/game-instances-list";
 
 export const MOCK_GAME_INSTANCES: GameInstance[] = [
@@ -59,12 +58,3 @@ export const AVAILABLE_VIDEOS = [
   { id: "v4", title: "Oppenheimer", duration: "2:55", views: 98400 },
   { id: "v5", title: "Barbie", duration: "2:20", views: 112300 },
 ];
-
-export const FORMAT_CONFIGS: Record<
-  string,
-  { icon: React.ElementType; name: string; requiresVideo: boolean }
-> = {
-  "1": { icon: Target, name: "Predict Outcome", requiresVideo: true },
-  "2": { icon: Flame, name: "Watch Streak", requiresVideo: false },
-  "3": { icon: Trophy, name: "Weekly Contest", requiresVideo: false },
-};

@@ -2,54 +2,42 @@
 
 import { useEffect, useState } from "react";
 
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
-import {
-  Activity,
-  Coins,
-  DollarSign,
-  Gamepad2,
-  Globe,
-  LayoutDashboard,
-  LineChart,
-  MessagesSquare,
-  Repeat,
-  Timer,
-  TrendingUp,
-  Users,
-} from "lucide-react";
+import { Download, Globe } from "lucide-react";
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 
-import { RegionFilter } from "@/components/custom/region-filter";
+import { MACRO_REGIONS } from "@/app/_libs/regions";
+import { SectionHeading } from "@/components/custom/section-heading";
 import { TimeRangeSelector } from "@/components/custom/time-range-selector";
 
-import { useTabParam } from "@/app/_libs/use-tab-param";
-
-import { CommunitySection } from "./_components/community-section";
-import { ConversionFunnelChart } from "./_components/conversion-funnel-chart";
-import { CriticalKPIs } from "./_components/critical-kpis";
-import { DashboardCard } from "./_components/dashboard-card";
-import { GameplayVelocityChart } from "./_components/gameplay-velocity-chart";
-import { GlobalActivityMap } from "./_components/global-activity-map";
-import { KFactorChart } from "./_components/k-factor-chart";
-import { MonetizationSection } from "./_components/monetization-section";
-import { PointsEconomyChart } from "./_components/points-economy-chart";
-import { PointsEconomySection } from "./_components/points-economy-section";
+import {
+  GlobalActivityMap,
+  MAP_METRIC_LABEL,
+  type MapMetric,
+  mapCells,
+} from "./_components/global-activity-map";
 import { RealTimePulse } from "./_components/real-time-pulse";
-import { RedemptionRateTrend } from "./_components/redemption-rate-trend";
-import { RetentionCohortChart } from "./_components/retention-cohort-chart";
-import { RevenueCompositionChart } from "./_components/revenue-composition-chart";
-import { SessionQualitySection } from "./_components/session-quality-section";
-import { SubscriptionTrendChart } from "./_components/subscription-trend-chart";
-import { UserAnalyticsSection } from "./_components/user-analytics-section";
+import { ViewershipSplit } from "./_components/viewership-split";
+import { type CsvRow, downloadCsv } from "./_libs/download-csv";
+import { REGION_ANALYTICS, TIME_RANGE_LABELS } from "./constants";
 
+// Master dashboard = a management snapshot with exactly three sections: live stat row,
+// global activity map (click a region for full analytics), viewership-vs-gamification
+// split. Everything else lives on /dashboard/region/[code] (7 boxed sections).
 export default function DashboardPage() {
   // Simulate live updating numbers
   const [liveUsers, setLiveUsers] = useState(12405);
   const [liveGameSessions, setLiveGameSessions] = useState(3847);
   const [subscribedUsers] = useState(8923);
   const [signedUpUsers] = useState(248500);
+  // $ attached to those subscribers — the count on its own never showed what they are
+  // worth. Lifetime revenue, derived from the Avg LTV the Subscriptions module reports,
+  // so the two screens never disagree.
+  const avgLifetimeValue = 186;
+  const lifetimeRevenue = subscribedUsers * avgLifetimeValue;
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -59,12 +47,40 @@ export default function DashboardPage() {
     return () => clearInterval(interval);
   }, []);
 
-  const [tab, setTab] = useTabParam("overview");
+  // Installs, incl. devices that never signed up — distinct from signed-up accounts.
+  const totalDownloads = 312000;
+
   const searchParams = useSearchParams();
   const timeRange = searchParams.get("timeRange") ?? "30d";
-  const region = searchParams.get("region") ?? "global";
-  const tabTrigger =
-    "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground gap-2";
+  const timeRangeLabel = TIME_RANGE_LABELS[timeRange] ?? timeRange;
+
+  // The map's active view, mirrored so Export covers what the operator is looking at.
+  const [mapMetric, setMapMetric] = useState<MapMetric>("activity");
+
+  // Export = all three master sections: stat row, per-cell map values for the active
+  // metric mode, and the viewership-split table.
+  const exportDashboard = () => {
+    const rows: CsvRow[] = [
+      ["Section", "Metric", "Value"],
+      ["Live stats", "Total Downloads", totalDownloads],
+      ["Live stats", "Total Users", signedUpUsers],
+      ["Live stats", "Total Subscribers", subscribedUsers],
+      ["Live stats", "Subscriber lifetime revenue", lifetimeRevenue],
+      ["Live stats", "Avg lifetime value", avgLifetimeValue],
+      ["Live stats", "Online Now", liveUsers],
+      ["Live stats", "Playing Games", liveGameSessions],
+      ["Live stats", "Period", timeRangeLabel],
+    ];
+    for (const cell of mapCells(mapMetric)) {
+      rows.push([`Activity map (${MAP_METRIC_LABEL(mapMetric)})`, cell.name, cell.value]);
+    }
+    for (const r of MACRO_REGIONS) {
+      const a = REGION_ANALYTICS[r.code]!;
+      rows.push(["Viewership split", `${r.label} — viewers`, a.screenTime.viewers]);
+      rows.push(["Viewership split", `${r.label} — gamified`, a.screenTime.gamified]);
+    }
+    downloadCsv(`dashboard-master-${timeRange}.csv`, rows);
+  };
 
   return (
     <div className="animate-fade-in space-y-6">
@@ -72,126 +88,58 @@ export default function DashboardPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="font-gaming text-foreground text-3xl font-bold">Dashboard</h1>
-          <p className="text-foreground-secondary mt-1 text-sm">Executive Overview & Live Command</p>
+          <p className="text-foreground-secondary mt-1 text-sm">
+            Global snapshot — click a region for detailed analytics
+          </p>
+          <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
+            <span className="text-muted-foreground">Showing</span>
+            <span className="bg-primary/10 text-primary rounded px-2 py-0.5 font-medium">
+              Global
+            </span>
+            <span className="bg-muted/50 text-foreground-secondary rounded px-2 py-0.5 font-medium">
+              {timeRangeLabel}
+            </span>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <RegionFilter defaultValue={region} />
+        <div className="flex flex-wrap items-center gap-2">
           <TimeRangeSelector defaultValue={timeRange} />
+          <Button variant="outline" className="gap-2" onClick={exportDashboard}>
+            <Download className="h-4 w-4" />
+            Export
+          </Button>
         </div>
       </div>
 
-      <Tabs value={tab} onValueChange={setTab} className="space-y-6">
-        <TabsList className="border-border/50 bg-background/50 flex h-auto flex-wrap border p-1">
-          <TabsTrigger value="overview" className={tabTrigger}>
-            <LayoutDashboard className="h-4 w-4" /> Overview
-          </TabsTrigger>
-          <TabsTrigger value="engagement" className={tabTrigger}>
-            <Activity className="h-4 w-4" /> Engagement
-          </TabsTrigger>
-          <TabsTrigger value="gamification" className={tabTrigger}>
-            <Coins className="h-4 w-4" /> Gamification
-          </TabsTrigger>
-          <TabsTrigger value="monetization" className={tabTrigger}>
-            <DollarSign className="h-4 w-4" /> Monetization
-          </TabsTrigger>
-          <TabsTrigger value="community" className={tabTrigger}>
-            <MessagesSquare className="h-4 w-4" /> Community
-          </TabsTrigger>
-        </TabsList>
+      {/* Section 1 — master stat row (live) */}
+      <RealTimePulse
+        totalDownloads={totalDownloads}
+        totalUsers={signedUpUsers}
+        subscribedUsers={subscribedUsers}
+        lifetimeRevenue={lifetimeRevenue}
+        avgLifetimeValue={avgLifetimeValue}
+        liveUsers={liveUsers}
+        liveGameSessions={liveGameSessions}
+      />
 
-        {/* OVERVIEW — the executive snapshot */}
-        <TabsContent value="overview" className="mt-0 space-y-6">
-          <RealTimePulse
-            liveUsers={liveUsers}
-            liveGameSessions={liveGameSessions}
-            subscribedUsers={subscribedUsers}
-            signedUpUsers={signedUpUsers}
-          />
-          <section>
-            <h2 className="text-foreground mb-4 text-lg font-semibold">Critical Health Metrics</h2>
-            <CriticalKPIs
-              pendingReports={156}
-              churnRate={4.2}
-              churnChange={-0.8}
-              totalUsers={248500}
-              activeUsers={198000}
-              dormantUsers={50500}
-              monthlyRevenue={127400}
-              mrr={98500}
-              revenueGrowth={18.7}
-              avgSessionDuration="24:38"
-              avgDailySessions={3.2}
-            />
-          </section>
-          <DashboardCard title="Global Activity Map" icon={Globe} iconColor="text-primary" className="gap-0">
-            <GlobalActivityMap />
-          </DashboardCard>
-          <div className="grid gap-4 lg:grid-cols-2">
-            <DashboardCard title="Retention Cohort (D1 / D7 / D30)" icon={LineChart} iconColor="text-primary">
-              <RetentionCohortChart />
-            </DashboardCard>
-            <DashboardCard title="Conversion Funnel" icon={Users} iconColor="text-accent">
-              <ConversionFunnelChart />
-            </DashboardCard>
-          </div>
-        </TabsContent>
+      {/* Section 2 — global activity map, cells click through to region analytics */}
+      <section className="border-border bg-card space-y-3 rounded-xl border p-4">
+        <SectionHeading
+          title="Global Activity Map"
+          subtitle="Heat by users, points economy, or revenue — click a region for full analytics"
+          icon={Globe}
+          action={
+            <Link
+              href="/dashboard/region/global"
+              className="text-muted-foreground hover:text-primary text-xs transition-colors">
+              View global analytics →
+            </Link>
+          }
+        />
+        <GlobalActivityMap onMetricChange={setMapMetric} />
+      </section>
 
-        {/* ENGAGEMENT — content quality + session quality */}
-        <TabsContent value="engagement" className="mt-0 space-y-6">
-          <SectionTitle icon={Timer} color="text-primary">User Analytics</SectionTitle>
-          <UserAnalyticsSection />
-          <SectionTitle icon={Activity} color="text-accent">Screen Time & Session Quality</SectionTitle>
-          <SessionQualitySection />
-        </TabsContent>
-
-        {/* GAMIFICATION */}
-        <TabsContent value="gamification" className="mt-0 space-y-6">
-          <SectionTitle icon={Coins} color="text-warning">Points Economy</SectionTitle>
-          <PointsEconomySection />
-          <div className="grid gap-4 lg:grid-cols-2">
-            <DashboardCard title="Gameplay Velocity (DAP)" icon={Gamepad2} iconColor="text-accent">
-              <GameplayVelocityChart />
-            </DashboardCard>
-            <DashboardCard title="Points Economy Trend" icon={Coins} iconColor="text-featured">
-              <PointsEconomyChart />
-            </DashboardCard>
-            <DashboardCard title="Points Redemption Rate" icon={Coins} iconColor="text-success">
-              <RedemptionRateTrend />
-            </DashboardCard>
-          </div>
-        </TabsContent>
-
-        {/* MONETIZATION */}
-        <TabsContent value="monetization" className="mt-0 space-y-6">
-          <SectionTitle icon={DollarSign} color="text-success">Monetization & Funnel</SectionTitle>
-          <MonetizationSection />
-          <div className="grid gap-4 lg:grid-cols-2">
-            <DashboardCard title="Subscription Trend" icon={TrendingUp} iconColor="text-success">
-              <SubscriptionTrendChart />
-            </DashboardCard>
-            <DashboardCard title="Revenue Composition" icon={DollarSign} iconColor="text-warning">
-              <RevenueCompositionChart />
-            </DashboardCard>
-            <DashboardCard title="K-Factor (Viral Coefficient)" icon={Repeat} iconColor="text-featured">
-              <KFactorChart />
-            </DashboardCard>
-          </div>
-        </TabsContent>
-
-        {/* COMMUNITY */}
-        <TabsContent value="community" className="mt-0 space-y-6">
-          <SectionTitle icon={MessagesSquare} color="text-featured">Community Analytics</SectionTitle>
-          <CommunitySection />
-        </TabsContent>
-      </Tabs>
+      {/* Section 3 — viewership vs active gamification (rows click through) */}
+      <ViewershipSplit />
     </div>
-  );
-}
-
-function SectionTitle({ icon: Icon, color, children }: { icon: React.ElementType; color: string; children: React.ReactNode }) {
-  return (
-    <h2 className="text-foreground flex items-center gap-2 text-lg font-semibold">
-      <Icon className={`h-5 w-5 ${color}`} /> {children}
-    </h2>
   );
 }

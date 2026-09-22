@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 
+import type { Route } from "next";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { Filter, Search } from "lucide-react";
@@ -15,7 +16,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { GlassCard } from "../../games/_components/glass-card";
 
 interface ModerationFiltersProps {
   searchQuery: string;
@@ -31,16 +31,6 @@ export function ModerationFilters({ searchQuery }: ModerationFiltersProps) {
   const severityFilter = searchParams.get("severity") || "all";
   const categoryFilter = searchParams.get("category") || "all";
 
-  // Debounce search update to URL
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (localSearch !== searchQuery) {
-        updateQuery("q", localSearch);
-      }
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [localSearch, searchQuery]);
-
   const updateQuery = useCallback(
     (name: string, value: string) => {
       const params = new URLSearchParams(searchParams.toString());
@@ -50,10 +40,20 @@ export function ModerationFilters({ searchQuery }: ModerationFiltersProps) {
         params.delete(name);
       }
       params.delete("page"); // Reset pagination
-      router.push(`${pathname}?${params.toString()}`, { scroll: false });
+      router.push(`${pathname}?${params.toString()}` as Route, { scroll: false });
     },
     [searchParams, pathname, router],
   );
+
+  // Debounce search update to URL
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (localSearch !== searchQuery) {
+        updateQuery("q", localSearch);
+      }
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [localSearch, searchQuery, updateQuery]);
 
   return (
     // <GlassCard className="p-4">

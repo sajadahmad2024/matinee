@@ -13,13 +13,13 @@ import {
   Gamepad2,
   History,
   Megaphone,
+  MonitorPlay,
   Pencil,
   Play,
   Rocket,
   ScrollText,
   ThumbsUp,
   Trash2,
-  Trophy,
   XCircle,
   Zap,
 } from "lucide-react";
@@ -41,20 +41,26 @@ import { cn } from "@/app/_libs/utils/cn";
 
 import { GlassCard } from "../../games/_components/glass-card";
 import type { VideoItem } from "../constants";
-import { ContentSignals } from "./content-signals";
 import { ApprovalModal } from "./approval-modal";
+import { ContentSignals } from "./content-signals";
 import { PreviewAsUserModal } from "./preview-as-user-modal";
 import { StatusBadge } from "./status-badge";
 import { WorkflowHistory } from "./workflow-history";
 
 interface VideoListItemProps {
   video: VideoItem;
+  /** "master" adds a status left-border accent (live = success, scheduled = primary) */
+  variant?: "default" | "master";
   onEdit: (id: string) => void;
   onAnalytics: (id: string) => void;
-  onLeaderboards: (id: string) => void;
 }
 
-export function VideoListItem({ video, onEdit, onAnalytics, onLeaderboards }: VideoListItemProps) {
+export function VideoListItem({
+  video,
+  variant = "default",
+  onEdit,
+  onAnalytics,
+}: VideoListItemProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
@@ -69,9 +75,7 @@ export function VideoListItem({ video, onEdit, onAnalytics, onLeaderboards }: Vi
   };
 
   const renewLicense = () =>
-    toast.info(
-      video.licenseTerms ? `License terms — ${video.licenseTerms}` : "No license on file",
-    );
+    toast.info(video.licenseTerms ? `License terms — ${video.licenseTerms}` : "No license on file");
 
   return (
     <>
@@ -81,16 +85,20 @@ export function VideoListItem({ video, onEdit, onAnalytics, onLeaderboards }: Vi
             className={cn(
               "hover:border-primary/50 group overflow-hidden transition-all duration-300",
               isHovered && "shadow-glow-sm shadow-primary/10",
+              variant === "master" &&
+                (video.status === "scheduled"
+                  ? "border-l-primary border-l-2"
+                  : "border-l-success border-l-2"),
             )}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}>
             <div className="relative flex items-center gap-5 p-4">
-              {/* Thumbnail — vertical 9:16 (mobile short video) */}
-              <div className="group/thumb relative h-28 w-[63px] shrink-0 overflow-hidden rounded-lg">
+              {/* Thumbnail — horizontal 16:9 (launch standard; vertical supported later) */}
+              <div className="group/thumb relative h-20 w-[142px] shrink-0 overflow-hidden rounded-lg">
                 <div
                   className={cn(
                     "absolute inset-0 bg-linear-to-br",
-                    video.status === "boosted"
+                    video.boosted
                       ? "from-featured/40 to-accent/30"
                       : video.isLive
                         ? "from-destructive/40 to-warning/30"
@@ -108,7 +116,11 @@ export function VideoListItem({ video, onEdit, onAnalytics, onLeaderboards }: Vi
                 </div>
                 {video.thumbnail && (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={video.thumbnail} alt={video.title} className="absolute inset-0 h-full w-full object-cover" />
+                  <img
+                    src={video.thumbnail}
+                    alt={video.title}
+                    className="absolute inset-0 h-full w-full object-cover"
+                  />
                 )}
 
                 <div className="absolute inset-0 flex items-center justify-center">
@@ -137,7 +149,7 @@ export function VideoListItem({ video, onEdit, onAnalytics, onLeaderboards }: Vi
                     </div>
                   </div>
                 )}
-                {video.status === "boosted" && !video.isLive && !video.isFeatured && (
+                {video.boosted && !video.isLive && !video.isFeatured && (
                   <div className="absolute top-2 left-2 z-10">
                     <div className="from-featured to-accent flex items-center gap-1 rounded-full bg-linear-to-r px-2 py-0.5 text-[10px] font-bold text-white">
                       <Rocket className="h-3 w-3" />
@@ -158,11 +170,19 @@ export function VideoListItem({ video, onEdit, onAnalytics, onLeaderboards }: Vi
                     {video.title}
                   </h3>
                   {video.sponsored && (
-                    <Badge variant="outline" className="border-featured/40 text-featured gap-1 text-[10px]">
+                    <Badge
+                      variant="outline"
+                      className="border-featured/40 text-featured gap-1 text-[10px]">
                       <Megaphone className="h-3 w-3" />
-                      Sponsored{video.adDurationSecs ? ` · ${video.adDurationSecs}s ad` : ""}
+                      Sponsored
+                      {video.adPlacement === "icon-overlay" && video.adOverlayDays
+                        ? ` · ${video.adOverlayDays}d overlay`
+                        : video.adDurationSecs
+                          ? ` · ${video.adDurationSecs}s ad`
+                          : ""}
                     </Badge>
                   )}
+                  {video.boosted && <StatusBadge status="boosted" />}
                   <StatusBadge status={video.status} />
                 </div>
 
@@ -177,20 +197,35 @@ export function VideoListItem({ video, onEdit, onAnalytics, onLeaderboards }: Vi
                     <span className="text-foreground font-medium">{formatNumber(video.views)}</span>
                     <span className="text-muted-foreground">views</span>
                   </Stat>
-                  <Stat icon={<ThumbsUp className="text-success h-3.5 w-3.5" />} wrap="bg-success/10">
+                  <Stat
+                    icon={<ThumbsUp className="text-success h-3.5 w-3.5" />}
+                    wrap="bg-success/10">
                     <span className="text-foreground font-medium">{formatNumber(video.likes)}</span>
                   </Stat>
                   <Stat icon={<Clock className="text-accent h-3.5 w-3.5" />} wrap="bg-accent/10">
                     <span className="text-muted-foreground">{video.duration}</span>
                   </Stat>
                   {video.linkedGames > 0 && (
-                    <Badge variant="outline" className="bg-accent/10 border-accent/30 text-accent gap-1.5">
+                    <Badge
+                      variant="outline"
+                      className="bg-accent/10 border-accent/30 text-accent gap-1.5">
                       <Gamepad2 className="h-3.5 w-3.5" />
                       {video.linkedGames} Game{video.linkedGames > 1 ? "s" : ""}
                     </Badge>
                   )}
+                  {video.watchLinks && video.watchLinks.length > 0 && (
+                    <Badge
+                      variant="outline"
+                      className="bg-success/10 border-success/30 text-success gap-1.5"
+                      title={video.watchLinks.map((w) => w.platform).join(", ")}>
+                      <MonitorPlay className="h-3.5 w-3.5" />
+                      Watch CTA ✓
+                    </Badge>
+                  )}
                   {video.scheduledAt && (
-                    <Badge variant="outline" className="bg-primary/10 border-primary/30 text-primary gap-1.5">
+                    <Badge
+                      variant="outline"
+                      className="bg-primary/10 border-primary/30 text-primary gap-1.5">
                       <Calendar className="h-3.5 w-3.5" />
                       {video.scheduledAt}
                     </Badge>
@@ -228,7 +263,11 @@ export function VideoListItem({ video, onEdit, onAnalytics, onLeaderboards }: Vi
                 )}>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon" onClick={() => onEdit(video.id)} className="hover:bg-primary/20 hover:text-primary h-9 w-9 rounded-lg">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => onEdit(video.id)}
+                      className="hover:bg-primary/20 hover:text-primary h-9 w-9 rounded-lg">
                       <Pencil className="h-4 w-4" />
                     </Button>
                   </TooltipTrigger>
@@ -236,22 +275,16 @@ export function VideoListItem({ video, onEdit, onAnalytics, onLeaderboards }: Vi
                 </Tooltip>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon" onClick={() => onAnalytics(video.id)} className="hover:bg-success/20 hover:text-success h-9 w-9 rounded-lg">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => onAnalytics(video.id)}
+                      className="hover:bg-success/20 hover:text-success h-9 w-9 rounded-lg">
                       <BarChart3 className="h-4 w-4" />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>View Analytics</TooltipContent>
                 </Tooltip>
-                {video.linkedGames > 0 && (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button variant="ghost" size="icon" onClick={() => onLeaderboards(video.id)} className="hover:bg-warning/20 hover:text-warning h-9 w-9 rounded-lg">
-                        <Trophy className="h-4 w-4" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>Game Leaderboards</TooltipContent>
-                  </Tooltip>
-                )}
               </div>
             </div>
 
@@ -260,10 +293,18 @@ export function VideoListItem({ video, onEdit, onAnalytics, onLeaderboards }: Vi
               <Collapsible open={historyOpen} onOpenChange={setHistoryOpen}>
                 <div className="border-border/30 border-t px-4">
                   <CollapsibleTrigger asChild>
-                    <Button variant="ghost" size="sm" className="text-muted-foreground h-8 gap-1.5 px-0">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-muted-foreground h-8 gap-1.5 px-0">
                       <History className="h-3.5 w-3.5" />
                       Workflow history
-                      <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", historyOpen && "rotate-180")} />
+                      <ChevronDown
+                        className={cn(
+                          "h-3.5 w-3.5 transition-transform",
+                          historyOpen && "rotate-180",
+                        )}
+                      />
                     </Button>
                   </CollapsibleTrigger>
                 </div>
@@ -275,7 +316,7 @@ export function VideoListItem({ video, onEdit, onAnalytics, onLeaderboards }: Vi
               </Collapsible>
             ) : null}
 
-            {(video.status === "boosted" || video.isLive) && (
+            {(video.boosted || video.isLive) && (
               <div
                 className={cn(
                   "absolute right-0 bottom-0 left-0 h-0.5",
@@ -343,7 +384,9 @@ function Stat({
 }) {
   return (
     <div className="flex items-center gap-1.5 text-xs">
-      <div className={cn("flex h-6 w-6 items-center justify-center rounded-full", wrap)}>{icon}</div>
+      <div className={cn("flex h-6 w-6 items-center justify-center rounded-full", wrap)}>
+        {icon}
+      </div>
       {children}
     </div>
   );

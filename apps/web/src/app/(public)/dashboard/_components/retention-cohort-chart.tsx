@@ -2,23 +2,28 @@
 
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
-// D0 → D30 retention curve for recent cohorts (the single most important consumer-app chart).
-const data = [
-  { day: "D0", "Apr cohort": 100, "May cohort": 100 },
-  { day: "D1", "Apr cohort": 52, "May cohort": 58 },
-  { day: "D3", "Apr cohort": 41, "May cohort": 46 },
-  { day: "D7", "Apr cohort": 33, "May cohort": 38 },
-  { day: "D14", "Apr cohort": 26, "May cohort": 30 },
-  { day: "D30", "Apr cohort": 19, "May cohort": 24 },
-];
+import { REGION_ANALYTICS, type GraphsData } from "../constants";
 
-export function RetentionCohortChart() {
+// D0 → D30 retention curve for recent cohorts (the single most important consumer-app chart).
+// Region-scoped via the `retention` prop; defaults to the global baseline.
+interface RetentionCohortChartProps {
+  retention?: GraphsData["retention"];
+}
+
+export function RetentionCohortChart({
+  retention = REGION_ANALYTICS["global"]!.graphs.retention,
+}: RetentionCohortChartProps) {
+  const data = retention.series.map((r) => ({
+    day: r.day,
+    "May cohort": r.current,
+    "Apr cohort": r.previous,
+  }));
   return (
     <div>
       <div className="text-muted-foreground mb-2 flex items-center gap-4 text-xs">
-        <span>D1 <b className="text-foreground">58%</b></span>
-        <span>D7 <b className="text-foreground">38%</b></span>
-        <span>D30 <b className="text-foreground">24%</b></span>
+        <span>D1 <b className="text-foreground">{retention.d1}%</b></span>
+        <span>D7 <b className="text-foreground">{retention.d7}%</b></span>
+        <span>D30 <b className="text-foreground">{retention.d30}%</b></span>
         <span className="text-success">↑ improving vs Apr</span>
       </div>
       <div className="h-[200px]">

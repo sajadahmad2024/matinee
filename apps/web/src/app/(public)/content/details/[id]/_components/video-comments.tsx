@@ -194,7 +194,7 @@ interface VideoCommentsProps {
   videoId?: string;
 }
 
-export function VideoComments({ videoId }: VideoCommentsProps) {
+export function VideoComments({ videoId: _videoId }: VideoCommentsProps) {
   const router = useRouter();
   const [commentsOpen, setCommentsOpen] = useState(true);
   const [comments, setComments] = useState<Comment[]>(mockCommentsData);

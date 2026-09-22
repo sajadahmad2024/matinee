@@ -2,9 +2,10 @@
 
 import { Activity, Gamepad2, Heart, Target, Timer } from "lucide-react";
 
+import { SectionHeading } from "@/components/custom/section-heading";
+import { StatTile } from "@/components/custom/stat-tile";
+
 import { PERFORMANCE_SUMMARY as PERF } from "../constants";
-import { SectionHeading } from "./section-heading";
-import { StatTile } from "./stat-tile";
 
 export function ContentPerformance() {
   return (

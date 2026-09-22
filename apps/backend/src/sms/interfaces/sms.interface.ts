@@ -35,4 +35,4 @@ export interface OtpOptions {
 /**
  * Supported SMS provider backends.
  */
-export type SmsProviderType = 'twilio' | 'sns';
+export type SmsProviderType = 'twilio' | 'sns' | 'log';

@@ -8,6 +8,7 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/
 
 import { AnalyticsHeader } from "../../../_components/analytics-header";
 import { GlassCard } from "../../../_components/glass-card";
+import { scaleCount, type RegionKey } from "./region-scale";
 
 const dailyPlaysData = [
   { date: "Jan 15", plays: 2400, completions: 1800, unique: 1200 },
@@ -19,7 +20,17 @@ const dailyPlaysData = [
   { date: "Jan 21", plays: 4800, completions: 3900, unique: 2500 },
 ];
 
-export function DailyActivityChart() {
+interface DailyActivityChartProps {
+  region?: RegionKey;
+}
+
+export function DailyActivityChart({ region = "all" }: DailyActivityChartProps) {
+  const data = dailyPlaysData.map((d) => ({
+    ...d,
+    plays: scaleCount(d.plays, region),
+    completions: scaleCount(d.completions, region),
+    unique: scaleCount(d.unique, region),
+  }));
   return (
     <GlassCard>
       <AnalyticsHeader title="Daily Activity" icon={BarChart3} />
@@ -32,7 +43,7 @@ export function DailyActivityChart() {
           }}
           className="h-[250px] w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={dailyPlaysData}>
+            <AreaChart data={data}>
               <XAxis
                 dataKey="date"
                 stroke="hsl(var(--muted-foreground))"

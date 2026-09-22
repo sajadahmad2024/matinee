@@ -36,7 +36,9 @@ export function UserOverviewTab({ user }: UserOverviewTabProps) {
             <DetailItem
               label="Plan"
               value={
-                <Badge className="bg-accent/10 text-accent">{user.subscriptionTier || "Free"}</Badge>
+                <Badge className="bg-accent/10 text-accent">
+                  {user.subscribed ? "Subscribed" : "Free user"}
+                </Badge>
               }
             />
             <DetailItem label="Next Billing" value="Feb 1, 2024" />

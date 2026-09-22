@@ -137,8 +137,9 @@ const validationSchema = Joi.object({
   APP_LOGS_URL: Joi.string().required(),
   DEV_DOCS_URL: Joi.string().required(),
   SERVICES_HEALTH_URL: Joi.string().required(),
-  // Queue (SQS / ElasticMQ) — Joi coerces strings to numbers/booleans for flat get()
-  QUEUE_DRIVER: Joi.string().valid('sqs', 'memory').default('sqs'),
+  // Queue (SQS everywhere) — Joi coerces strings to numbers/booleans for flat get().
+  // Local uses ElasticMQ via SQS_ENDPOINT; prod uses real AWS SQS (empty SQS_ENDPOINT). Same driver.
+  QUEUE_DRIVER: Joi.string().valid('sqs').default('sqs'),
   SQS_ENDPOINT: Joi.string().allow('').default(''),
   SQS_PORT: Joi.number().default(9326),
   SQS_REGION: Joi.string().default('us-east-1'),
@@ -166,14 +167,14 @@ const validationSchema = Joi.object({
   CSRF_ENABLED: Joi.boolean().default(false),
   PHONE_VERIFICATION_PROVIDER: Joi.string().valid('twilio', 'firebase').default('twilio'),
   APPLE_CLIENT_ID: Joi.string().allow('').default(''),
-  // Email provider (env-driven strategy: smtp / ses / sendgrid)
-  EMAIL_PROVIDER: Joi.string().valid('smtp', 'ses', 'sendgrid').default('smtp'),
+  // Email provider (env-driven strategy: smtp / ses / sendgrid / log [dev — logs + stashes code])
+  EMAIL_PROVIDER: Joi.string().valid('smtp', 'ses', 'sendgrid', 'log').default('smtp'),
   EMAIL_FROM: Joi.string().allow('').default('noreply@example.com'),
   SENDGRID_API_KEY: Joi.string().allow('').default(''),
   SENDGRID_SMTP_HOST: Joi.string().allow('').default('smtp.sendgrid.net'),
   SENDGRID_SMTP_PORT: Joi.number().port().default(587),
-  // SMS provider (env-driven strategy: twilio / sns)
-  SMS_PROVIDER: Joi.string().valid('twilio', 'sns').default('twilio'),
+  // SMS provider (env-driven strategy: twilio / sns / log [dev — logs + stashes code])
+  SMS_PROVIDER: Joi.string().valid('twilio', 'sns', 'log').default('twilio'),
   // Media (storage / delivery / transcode) — coerced for flat get()
   MEDIA_STORAGE_DRIVER: Joi.string().valid('s3', 'local').default('local'),
   MEDIA_DELIVERY_DRIVER: Joi.string().valid('cloudfront', 'local').default('local'),

@@ -6,6 +6,7 @@ import { CardContent } from "@/components/ui/card";
 
 import { AnalyticsHeader } from "../../../_components/analytics-header";
 import { GlassCard } from "../../../_components/glass-card";
+import { scaleCount, type RegionKey } from "./region-scale";
 
 const rewardDistribution = [
   { tier: "1st Place", count: 245, color: "hsl(var(--warning))" },
@@ -15,13 +16,18 @@ const rewardDistribution = [
   { tier: "Participation", count: 8540, color: "hsl(var(--muted))" },
 ];
 
-export function RewardDistributionCard() {
+interface RewardDistributionCardProps {
+  region?: RegionKey;
+}
+
+export function RewardDistributionCard({ region = "all" }: RewardDistributionCardProps) {
+  const tiers = rewardDistribution.map((t) => ({ ...t, count: scaleCount(t.count, region) }));
   return (
     <GlassCard>
       <AnalyticsHeader title="Reward Distribution" icon={Trophy} iconColor="text-warning" />
       <CardContent>
         <div className="space-y-3">
-          {rewardDistribution.map((tier) => (
+          {tiers.map((tier) => (
             <div key={tier.tier} className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="h-3 w-3 rounded-full" style={{ backgroundColor: tier.color }} />

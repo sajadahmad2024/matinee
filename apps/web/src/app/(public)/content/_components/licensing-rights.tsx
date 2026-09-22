@@ -1,18 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { AlertTriangle, Coins, FileText, Scale } from "lucide-react";
 
-import { AlertTriangle, Coins, FileText, Scale, Table2 } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
+import { SectionHeading } from "@/components/custom/section-heading";
+import { StatTile } from "@/components/custom/stat-tile";
 
 import { LICENSING_SUMMARY as LIC } from "../constants";
-import { LicensingTableModal } from "./licensing-table-modal";
-import { SectionHeading } from "./section-heading";
-import { StatTile } from "./stat-tile";
+import { LicensingTable } from "./licensing-table";
 
 export function LicensingRights() {
-  const [tableOpen, setTableOpen] = useState(false);
   const totalRights = LIC.licensed + LIC.original;
   const licensedPct = Math.round((LIC.licensed / totalRights) * 100);
   const expiringAlert = LIC.expiring30 > 5;
@@ -21,13 +17,8 @@ export function LicensingRights() {
     <section className="space-y-3">
       <SectionHeading
         title="Licensing & Rights"
-        subtitle="Cost, efficiency and expiry — click a tile for the full table"
+        subtitle="Cost, efficiency and expiry — full agreement table below"
         icon={Scale}
-        action={
-          <Button variant="outline" size="sm" className="gap-2" onClick={() => setTableOpen(true)}>
-            <Table2 className="h-4 w-4" /> Licensing table
-          </Button>
-        }
       />
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatTile
@@ -35,9 +26,12 @@ export function LicensingRights() {
           value={LIC.licensed.toLocaleString()}
           icon={FileText}
           accent="primary"
-          onClick={() => setTableOpen(true)}
           subStats={[
-            { label: "Licensed", value: `${LIC.licensed.toLocaleString()} (${licensedPct}%)`, accent: "primary" },
+            {
+              label: "Licensed",
+              value: `${LIC.licensed.toLocaleString()} (${licensedPct}%)`,
+              accent: "primary",
+            },
             { label: "Original / owned", value: LIC.original.toLocaleString(), accent: "accent" },
           ]}
         />
@@ -73,19 +67,20 @@ export function LicensingRights() {
           value={LIC.expiring30}
           icon={AlertTriangle}
           accent={expiringAlert ? "danger" : "warning"}
-          onClick={() => setTableOpen(true)}
-          trend={
-            expiringAlert ? { direction: "up", label: "Alert", good: false } : undefined
-          }
+          trend={expiringAlert ? { direction: "up", label: "Alert", good: false } : undefined}
           subStats={[
-            { label: "In 30 days", value: `${LIC.expiring30}`, accent: expiringAlert ? "danger" : "warning" },
+            {
+              label: "In 30 days",
+              value: `${LIC.expiring30}`,
+              accent: expiringAlert ? "danger" : "warning",
+            },
             { label: "In 60 days", value: `${LIC.expiring60}` },
             { label: "In 90 days", value: `${LIC.expiring90}` },
           ]}
         />
       </div>
 
-      <LicensingTableModal open={tableOpen} onOpenChange={setTableOpen} />
+      <LicensingTable />
     </section>
   );
 }

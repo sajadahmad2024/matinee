@@ -1,0 +1,328 @@
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:matinee/app/shell/app_shell.dart';
+import 'package:matinee/app/startup/splash_screen.dart';
+import 'package:matinee/features/auth/presentation/create_account_screen.dart';
+import 'package:matinee/features/auth/presentation/sign_in_screen.dart';
+import 'package:matinee/features/auth/presentation/subscribe_screen.dart';
+import 'package:matinee/features/auth/presentation/verify_otp_screen.dart';
+import 'package:matinee/features/earns/data/models/earn_source.dart';
+import 'package:matinee/features/earns/presentation/earn_detail_screen.dart';
+import 'package:matinee/features/earns/presentation/earns_screen.dart';
+import 'package:matinee/features/home/presentation/home_screen.dart';
+import 'package:matinee/features/onboarding/presentation/onboarding_screen.dart';
+import 'package:matinee/features/p2p/presentation/daily_streak_screen.dart';
+import 'package:matinee/features/p2p/presentation/p2p_screen.dart';
+import 'package:matinee/features/p2p/presentation/prediction_detail_screen.dart';
+import 'package:matinee/features/p2p/presentation/prediction_games_screen.dart';
+import 'package:matinee/features/p2p/presentation/quest_claimed_screen.dart';
+import 'package:matinee/features/p2p/presentation/quest_progress_screen.dart';
+import 'package:matinee/features/p2p/presentation/weekly_quests_screen.dart';
+import 'package:matinee/features/profile/presentation/edit_profile_screen.dart';
+import 'package:matinee/features/profile/presentation/profile_screen.dart';
+import 'package:matinee/features/rewards/presentation/auction_screen.dart';
+import 'package:matinee/features/rewards/presentation/exclusive_library_screen.dart';
+import 'package:matinee/features/rewards/presentation/rewards_screen.dart';
+import 'package:matinee/features/rewards/presentation/unlock_content_screen.dart';
+
+part 'app_routes.g.dart';
+
+@TypedGoRoute<SplashRoute>(path: '/splash')
+class SplashRoute extends GoRouteData with $SplashRoute {
+  const SplashRoute({this.from});
+
+  // Where to return once startup completes, so a cold-start deep link is not lost.
+  final String? from;
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) => const SplashScreen();
+}
+
+///
+/// The signed-in skeleton. Every tab is a branch with its own Navigator, so a
+/// screen pushed inside one is still there after a trip to another.
+///
+@TypedStatefulShellRoute<AppShellRoute>(
+  branches: [
+    TypedStatefulShellBranch<HomeBranch>(routes: [TypedGoRoute<HomeRoute>(path: '/')]),
+    TypedStatefulShellBranch<P2pBranch>(routes: [TypedGoRoute<P2pRoute>(path: '/p2p')]),
+    TypedStatefulShellBranch<RewardsBranch>(routes: [TypedGoRoute<RewardsRoute>(path: '/rewards')]),
+    TypedStatefulShellBranch<ProfileBranch>(
+      routes: [
+        TypedGoRoute<ProfileRoute>(
+          path: '/profile',
+          routes: [TypedGoRoute<EarnsRoute>(path: 'earns')],
+        ),
+      ],
+    ),
+  ],
+)
+class AppShellRoute extends StatefulShellRouteData {
+  const AppShellRoute();
+
+  @override
+  Widget builder(BuildContext context, GoRouterState state, StatefulNavigationShell navigationShell) =>
+      AppShell(navigationShell: navigationShell);
+}
+
+class HomeBranch extends StatefulShellBranchData {
+  const HomeBranch();
+}
+
+class P2pBranch extends StatefulShellBranchData {
+  const P2pBranch();
+}
+
+class RewardsBranch extends StatefulShellBranchData {
+  const RewardsBranch();
+}
+
+class ProfileBranch extends StatefulShellBranchData {
+  const ProfileBranch();
+}
+
+class HomeRoute extends GoRouteData with $HomeRoute {
+  const HomeRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) => const HomeScreen();
+}
+
+class P2pRoute extends GoRouteData with $P2pRoute {
+  const P2pRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) => const P2pScreen();
+}
+
+class RewardsRoute extends GoRouteData with $RewardsRoute {
+  const RewardsRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) => const RewardsScreen();
+}
+
+class ProfileRoute extends GoRouteData with $ProfileRoute {
+  const ProfileRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) => const ProfileScreen();
+}
+
+///
+/// Inside the profile branch, unlike the other detail screens: the frames draw
+/// a bottom nav, so the tab bar stays put and the screen's own back returns.
+///
+class EarnsRoute extends GoRouteData with $EarnsRoute {
+  const EarnsRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) => const EarnsScreen();
+}
+
+///
+/// The four My Earns history screens. Outside the shell, unlike My Earns
+/// itself: their frames draw no bottom nav, so they cover it.
+///
+/// One screen behind all four, so each route is only a path and a source.
+///
+@TypedGoRoute<StreakHistoryRoute>(path: '/profile/earns/streaks')
+class StreakHistoryRoute extends GoRouteData with $StreakHistoryRoute {
+  const StreakHistoryRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) => const EarnDetailScreen(kind: EarnSourceKind.dailyStreaks);
+}
+
+@TypedGoRoute<AuctionWinsRoute>(path: '/profile/earns/auction-wins')
+class AuctionWinsRoute extends GoRouteData with $AuctionWinsRoute {
+  const AuctionWinsRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) => const EarnDetailScreen(kind: EarnSourceKind.auctionWins);
+}
+
+@TypedGoRoute<PredictionHistoryRoute>(path: '/profile/earns/predictions')
+class PredictionHistoryRoute extends GoRouteData with $PredictionHistoryRoute {
+  const PredictionHistoryRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      const EarnDetailScreen(kind: EarnSourceKind.predictionGames);
+}
+
+@TypedGoRoute<QuestHistoryRoute>(path: '/profile/earns/quests')
+class QuestHistoryRoute extends GoRouteData with $QuestHistoryRoute {
+  const QuestHistoryRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) => const EarnDetailScreen(kind: EarnSourceKind.weeklyQuests);
+}
+
+///
+/// The three P2P games and the screens under them. Outside the shell, like the
+/// rewards details: their frames draw no bottom nav, so they cover it.
+///
+/// A quest's tracker and its receipt both hang off the quest, so its id is a
+/// path segment rather than something carried in `extra`.
+///
+@TypedGoRoute<WeeklyQuestsRoute>(
+  path: '/p2p/quests',
+  routes: [
+    TypedGoRoute<QuestProgressRoute>(
+      path: ':questId',
+      routes: [TypedGoRoute<QuestClaimedRoute>(path: 'claimed')],
+    ),
+  ],
+)
+class WeeklyQuestsRoute extends GoRouteData with $WeeklyQuestsRoute {
+  const WeeklyQuestsRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) => const WeeklyQuestsScreen();
+}
+
+class QuestProgressRoute extends GoRouteData with $QuestProgressRoute {
+  const QuestProgressRoute({required this.questId});
+
+  final String questId;
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) => QuestProgressScreen(questId: questId);
+}
+
+class QuestClaimedRoute extends GoRouteData with $QuestClaimedRoute {
+  const QuestClaimedRoute({required this.questId});
+
+  final String questId;
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) => QuestClaimedScreen(questId: questId);
+}
+
+///
+/// One route for the intro and the ladder alike: whether the streak has started
+/// is its own state, not a place the user navigates to.
+///
+@TypedGoRoute<DailyStreakRoute>(path: '/p2p/streaks')
+class DailyStreakRoute extends GoRouteData with $DailyStreakRoute {
+  const DailyStreakRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) => const DailyStreakScreen();
+}
+
+@TypedGoRoute<PredictionGamesRoute>(
+  path: '/p2p/predictions',
+  routes: [TypedGoRoute<PredictionDetailRoute>(path: ':predictionId')],
+)
+class PredictionGamesRoute extends GoRouteData with $PredictionGamesRoute {
+  const PredictionGamesRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) => const PredictionGamesScreen();
+}
+
+class PredictionDetailRoute extends GoRouteData with $PredictionDetailRoute {
+  const PredictionDetailRoute({required this.predictionId});
+
+  final String predictionId;
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) => PredictionDetailScreen(predictionId: predictionId);
+}
+
+///
+/// Outside the shell, not under the profile branch, because the frame draws no
+/// bottom nav. The path still nests so the URL and back affordance read right.
+///
+@TypedGoRoute<EditProfileRoute>(path: '/profile/edit')
+class EditProfileRoute extends GoRouteData with $EditProfileRoute {
+  const EditProfileRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) => const EditProfileScreen();
+}
+
+///
+/// The rewards detail screens, outside the shell for the same reason edit
+/// profile is: their frames draw no bottom nav, so they cover it.
+///
+@TypedGoRoute<AuctionRoute>(path: '/rewards/auction')
+class AuctionRoute extends GoRouteData with $AuctionRoute {
+  const AuctionRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) => const AuctionScreen();
+}
+
+@TypedGoRoute<ExclusiveLibraryRoute>(
+  path: '/rewards/exclusive',
+  routes: [TypedGoRoute<UnlockContentRoute>(path: ':itemId/unlock')],
+)
+class ExclusiveLibraryRoute extends GoRouteData with $ExclusiveLibraryRoute {
+  const ExclusiveLibraryRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) => const ExclusiveLibraryScreen();
+}
+
+class UnlockContentRoute extends GoRouteData with $UnlockContentRoute {
+  const UnlockContentRoute({required this.itemId});
+
+  final String itemId;
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) => UnlockContentScreen(itemId: itemId);
+}
+
+@TypedGoRoute<OnboardingRoute>(path: '/onboarding')
+class OnboardingRoute extends GoRouteData with $OnboardingRoute {
+  const OnboardingRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) => const OnboardingScreen();
+}
+
+@TypedGoRoute<SignInRoute>(
+  path: '/sign-in',
+  routes: [
+    TypedGoRoute<VerifyOtpRoute>(path: 'verify-otp/:dialCode/:phoneNumber'),
+    TypedGoRoute<CreateAccountRoute>(path: 'create-account'),
+  ],
+)
+class SignInRoute extends GoRouteData with $SignInRoute {
+  const SignInRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) => const SignInScreen();
+}
+
+class VerifyOtpRoute extends GoRouteData with $VerifyOtpRoute {
+  const VerifyOtpRoute({required this.dialCode, required this.phoneNumber});
+
+  // The dialling code without its '+', which has no place in a path segment.
+  final String dialCode;
+
+  // The number the code went to, shown on the screen and sent back with it.
+  final String phoneNumber;
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      VerifyOtpScreen(dialCode: dialCode, phoneNumber: phoneNumber);
+}
+
+class CreateAccountRoute extends GoRouteData with $CreateAccountRoute {
+  const CreateAccountRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) => const CreateAccountScreen();
+}
+
+@TypedGoRoute<SubscribeRoute>(path: '/subscribe')
+class SubscribeRoute extends GoRouteData with $SubscribeRoute {
+  const SubscribeRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) => const SubscribeScreen();
+}

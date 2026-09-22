@@ -36,7 +36,6 @@ export interface GameInstance {
   name: string;
   description: string;
   rewardPoints: number;
-  experiencePoints: number;
   // Scheduling fields
   startDate?: Date;
   startTime?: string;
@@ -161,16 +160,7 @@ export function GameAssociationCard({
                     />
                   </div>
                   <div className="space-y-1">
-                    <Label className="text-xs">Experience Points (XP)</Label>
-                    <Input
-                      type="number"
-                      value={game.experiencePoints}
-                      onChange={(e) =>
-                        updateGameInstance(game.id, {
-                          experiencePoints: parseInt(e.target.value) || 0,
-                        })
-                      }
-                    />
+                    <Input type="number" />
                   </div>
                 </div>
 
