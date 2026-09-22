@@ -73,6 +73,7 @@ const envConfig = registerAs(
       CACHE_DEFAULT_TTL: parseInt(process.env['CACHE_DEFAULT_TTL'] || '300', 10),
       CACHE_CLUSTER_ENABLED: (process.env['CACHE_CLUSTER_ENABLED'] || 'false').toLowerCase() === 'true',
       // Auth / JWT / Cookies
+      JWT_SECRET: process.env['JWT_SECRET'] || '',
       JWT_ACCESS_TTL: parseInt(process.env['JWT_ACCESS_TTL'] || '900', 10),
       JWT_REFRESH_TTL: parseInt(process.env['JWT_REFRESH_TTL'] || '5184000', 10),
       JWT_ADMIN_REFRESH_TTL: parseInt(process.env['JWT_ADMIN_REFRESH_TTL'] || '43200', 10),
@@ -87,6 +88,9 @@ const envConfig = registerAs(
       FCM_PROJECT_ID: process.env['FCM_PROJECT_ID'] || '',
       FCM_CLIENT_EMAIL: process.env['FCM_CLIENT_EMAIL'] || '',
       FCM_PRIVATE_KEY: process.env['FCM_PRIVATE_KEY'] || '',
+      FCM_DRY_RUN: (process.env['FCM_DRY_RUN'] || 'false').toLowerCase() === 'true',
+      FCM_DEFAULT_ANDROID_CHANNEL_ID: process.env['FCM_DEFAULT_ANDROID_CHANNEL_ID'] || 'default',
+      FCM_DEFAULT_WEB_ICON_URL: process.env['FCM_DEFAULT_WEB_ICON_URL'] || '',
       // SendGrid dynamic-template IDs (optional; empty = fall back to local Handlebars)
       SENDGRID_FROM_EMAIL: process.env['SENDGRID_FROM_EMAIL'] || '',
       SENDGRID_FROM_NAME: process.env['SENDGRID_FROM_NAME'] || '',
@@ -177,6 +181,9 @@ const validationSchema = Joi.object({
   FCM_PROJECT_ID: Joi.string().allow('').default(''),
   FCM_CLIENT_EMAIL: Joi.string().allow('').default(''),
   FCM_PRIVATE_KEY: Joi.string().allow('').default(''),
+  FCM_DRY_RUN: Joi.boolean().default(false),
+  FCM_DEFAULT_ANDROID_CHANNEL_ID: Joi.string().default('default'),
+  FCM_DEFAULT_WEB_ICON_URL: Joi.string().allow('').default(''),
   SENDGRID_FROM_EMAIL: Joi.string().allow('').default(''),
   SENDGRID_FROM_NAME: Joi.string().allow('').default(''),
   // Email provider (env-driven strategy: smtp / ses / sendgrid / log [dev — logs + stashes code])

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { DBService, DBExecutor } from '@db/db.service';
-import { deviceTokens, deviceTokenTopics, users } from '@db/drizzle/schema';
+import { deviceTokens, users } from '@db/drizzle/schema';
 import { and, desc, eq, sql } from 'drizzle-orm';
 
 export interface DeviceRecord {
@@ -67,22 +67,6 @@ export class DeviceRepository {
     return rows[0]!;
   }
 
-  async setTopics(deviceTokenId: string, topics: string[], tx?: DBExecutor): Promise<void> {
-    const db = this.exec(tx);
-    await db.delete(deviceTokenTopics).where(eq(deviceTokenTopics.deviceTokenId, deviceTokenId));
-    if (topics.length > 0) {
-      await db.insert(deviceTokenTopics).values(topics.map((topic) => ({ deviceTokenId, topic }))).onConflictDoNothing();
-    }
-  }
-
-  async getTopics(deviceTokenId: string, tx?: DBExecutor): Promise<string[]> {
-    const rows = await this.exec(tx)
-      .select({ topic: deviceTokenTopics.topic })
-      .from(deviceTokenTopics)
-      .where(eq(deviceTokenTopics.deviceTokenId, deviceTokenId));
-    return rows.map((r) => r.topic);
-  }
-
   /** A user's registered devices (newest-seen first) — for the "manage devices" screen. */
   async listByUser(userId: string, tx?: DBExecutor): Promise<DeviceListItem[]> {
     return this.exec(tx)
@@ -102,5 +86,61 @@ export class DeviceRepository {
 
   async removeByFcm(userId: string, fcmToken: string, tx?: DBExecutor): Promise<void> {
     await this.exec(tx).delete(deviceTokens).where(and(eq(deviceTokens.userId, userId), eq(deviceTokens.fcmToken, fcmToken)));
+  }
+
+  // ─── Push send support ──────────────────────────────────────────────────────
+
+  /**
+   * Active push targets for a user — the send worker uses this to resolve FCM tokens.
+   * Returns rows in a shape the FCM caller can immediately use: id (for logs + deactivate),
+   * fcmToken (for the actual send), platform (for optional per-platform payload tweaks).
+   */
+  async listActiveTokensByUser(
+    userId: string,
+    tx?: DBExecutor,
+  ): Promise<Array<{ id: string; fcmToken: string; platform: string }>> {
+    return this.exec(tx)
+      .select({
+        id: deviceTokens.id,
+        fcmToken: deviceTokens.fcmToken,
+        platform: deviceTokens.platform,
+      })
+      .from(deviceTokens)
+      .where(and(eq(deviceTokens.userId, userId), eq(deviceTokens.isActive, true)));
+  }
+
+  /** Same shape as listActiveTokensByUser, but for a pre-resolved set of device ids. */
+  async listActiveTokensByIds(
+    deviceTokenIds: string[],
+    tx?: DBExecutor,
+  ): Promise<Array<{ id: string; fcmToken: string; platform: string }>> {
+    if (deviceTokenIds.length === 0) {
+      return [];
+    }
+    return this.exec(tx)
+      .select({
+        id: deviceTokens.id,
+        fcmToken: deviceTokens.fcmToken,
+        platform: deviceTokens.platform,
+      })
+      .from(deviceTokens)
+      .where(
+        and(
+          eq(deviceTokens.isActive, true),
+          sql`${deviceTokens.id} = ANY(${deviceTokenIds}::uuid[])`,
+        ),
+      );
+  }
+
+  /**
+   * Soft-deactivate on permanent FCM error (e.g. registration-token-not-registered).
+   * Rows are kept for audit + reactivation on re-register. Topic rows drop when the
+   * row is later hard-deleted; while inactive, sends skip them via listActiveTokensByUser.
+   */
+  async deactivate(deviceTokenId: string, tx?: DBExecutor): Promise<void> {
+    await this.exec(tx)
+      .update(deviceTokens)
+      .set({ isActive: false, updatedAt: sql`now()` })
+      .where(eq(deviceTokens.id, deviceTokenId));
   }
 }
