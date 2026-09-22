@@ -1,0 +1,23 @@
+# Simplification checkpoint
+
+One message, every question, a recommendation for each, then wait. Every answer becomes a `decisions` entry (`topic`, `decision` with the reasoning and what was rejected). Where the user says "your call", the recommendation stands and the entry says so.
+
+Before the questions, give the evidence the answers depend on: page name and frame count; number of distinct hexes, text combinations, components found; the candidate primitive list with counts; the candidate text scale; the inconsistencies list. Numbers, not adjectives.
+
+| # | Question | Recommended default | What to record |
+|---|---|---|---|
+| 1 | **Library scope.** Which variable collections / text styles should survive? | Keep only collections **bound on the page**, and only the variables actually painted, recorded as their rendered value under the final token name. Drop unbound collections and library modes the app does not ship. | Collection names/keys kept and dropped; count of variables kept. |
+| 2 | **Colour modes.** Does the app ship one mode (as designed) or light + dark? | If the page is one mode, ship that mode only; `colorScheme.brightness` matches. A second mode is added only when the design has frames for it — never derived. | Mode(s); whether a second `ColorScheme` exists. |
+| 3 | **Conflicting components.** Where the page has two versions of the same component (two bottom navs, two card styles), which wins? | The one used on more screens, unless the client/user has stated a preference. Merge into one component; the loser's frames become evidence of the variant. | Per conflict: winner, reason. |
+| 4 | **Font families.** Which of the families found ship? | Families used on ≥ 2 screens with ≥ 10 instances ship; a family used once or for a single label is folded into the nearest shipping family and listed in `droppedFamilies`. | Families kept with weights; dropped with reason. |
+| 5 | **Text colours.** The page usually has several near-identical greys for secondary text — collapse? | Collapse to `textSecondary` (the most used) and `textMuted` (the darker one used for de-emphasis), plus `textDisabled`. Check contrast against the page background at the smallest size they are used. | Names, hexes, contrast ratios. |
+| 6 | **Typography scale.** How aggressive is the fold from N combinations to roles? | Material-shaped scale (display/headline/title/body/label + caption/overline as needed) of ~15–20 roles; size drift of ±2 px and unstated weight differences at ≤ 12 px are absorbed. Line height as `height` ratio; letter spacing kept where the design sets it. | Role list; `rawToRole` absorptions; "minimal and accurate" or "keep more roles". |
+| 7 | **Accessibility.** Fix contrast failures now or record them? | Adjust the token value to the nearest passing shade only when the change is below perceptibility; otherwise record the failure in `openItems` and keep the design value. State AA thresholds used (4.5:1 body, 3:1 large/UI). | Per failing pair: action. |
+| 8 | **Surfaces.** How many surface levels? | Minimum that keeps the visible steps: page background, card, raised/control, plus separate sets only for screens with a different palette (e.g. an auth flow with a warmer tint). Steps < 3 % luminance apart merge. | Surface tokens with values. |
+| 9 | **Other near-duplicates** (outlines, brand-accent tints, success/error variants). | Same rule as 8: merge below perceptibility, keep one primitive per meaning, express tints as `{primitive@NN%}`. | List of merges. |
+| 10 | **Icons.** Icon font, SVG, or Material icons? | Single-colour glyphs → one icon font (generated from exported SVGs); multi-colour marks (brand logos, badges) → SVG assets; Material `Icons` only where the design uses the Material glyph. Record the glyph inventory. | Strategy, pipeline tool, inventory. |
+| 11 | **Undesigned states** (pressed, focused, disabled, loading, error). | Derive from each component's primary colour with fixed layer opacities (pressed 12 %, focus ring 2 px at 60 %, disabled 30–50 %), documented in `states.rules`; everything the design never draws is left to `ColorScheme.fromSeed(seedColor)` and listed in `states.seedDerived`. | Rules and seed colour. |
+| 12 | **Scope of pages.** Confirm this page is the only source for values. | Yes; other pages are listed in `$meta.figma.excludedPages`. | Excluded pages. |
+| 13 | **Latitude.** May the extractor make remaining small calls itself? | Yes, each recorded in `decisions`. | Yes/no. |
+
+After the answers: re-check that every decision is applied in the JSON (a grep for the loser of each conflict should find it only in `evidence`, `absorbs`, `dropped` or `decisions`).

@@ -27,7 +27,7 @@ interface UserDirectoryProps {
   pageSize: number;
 }
 
-export function UserDirectory({ searchQuery, page, pageSize }: UserDirectoryProps) {
+export function UserDirectory({ searchQuery }: UserDirectoryProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -44,16 +44,6 @@ export function UserDirectory({ searchQuery, page, pageSize }: UserDirectoryProp
   const statusFilter = searchParams.get("status") || "all";
   const subscriptionFilter = searchParams.get("subscription") || "all";
 
-  // Debounce search update to URL
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (localSearch !== searchQuery) {
-        updateQuery("q", localSearch);
-      }
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [localSearch, searchQuery]);
-
   const updateQuery = useCallback(
     (name: string, value: string) => {
       const params = new URLSearchParams(searchParams.toString());
@@ -67,6 +57,16 @@ export function UserDirectory({ searchQuery, page, pageSize }: UserDirectoryProp
     },
     [searchParams, pathname, router],
   );
+
+  // Debounce search update to URL
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (localSearch !== searchQuery) {
+        updateQuery("q", localSearch);
+      }
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [localSearch, searchQuery, updateQuery]);
 
   const handleViewUser = (user: User) => {
     setSelectedUser(user);
@@ -131,15 +131,7 @@ export function UserDirectory({ searchQuery, page, pageSize }: UserDirectoryProp
         </div>
       </div>
 
-      <UserListTable
-        searchQuery={searchQuery}
-        statusFilter={statusFilter}
-        subscriptionFilter={subscriptionFilter}
-        page={page}
-        pageSize={pageSize}
-        onViewUser={handleViewUser}
-        onSendNotification={handleSendNotification}
-      />
+      <UserListTable onViewUser={handleViewUser} onSendNotification={handleSendNotification} />
 
       <UserDetailModal user={selectedUser} open={isDetailOpen} onOpenChange={setIsDetailOpen} />
 

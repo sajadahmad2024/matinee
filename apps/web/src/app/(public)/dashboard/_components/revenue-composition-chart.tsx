@@ -11,17 +11,16 @@ import {
   YAxis,
 } from "recharts";
 
-const data = [
-  { month: "Jul", subscriptions: 42000 },
-  { month: "Aug", subscriptions: 48000 },
-  { month: "Sep", subscriptions: 52000 },
-  { month: "Oct", subscriptions: 58000 },
-  { month: "Nov", subscriptions: 65000 },
-  { month: "Dec", subscriptions: 72000 },
-  { month: "Jan", subscriptions: 78000 },
-];
+import { REGION_ANALYTICS, type MonetizationData } from "../constants";
 
-export function RevenueCompositionChart() {
+// Revenue composition — region-scoped via the `data` prop; defaults to the global baseline.
+interface RevenueCompositionChartProps {
+  data?: MonetizationData["revenueTrend"];
+}
+
+export function RevenueCompositionChart({
+  data = REGION_ANALYTICS["global"]!.monetization.revenueTrend,
+}: RevenueCompositionChartProps) {
   return (
     <div className="h-[280px]">
       <ResponsiveContainer width="100%" height="100%">

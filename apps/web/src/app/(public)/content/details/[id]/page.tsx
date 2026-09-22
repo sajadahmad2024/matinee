@@ -2,7 +2,6 @@ import { Suspense } from "react";
 
 import { VideoForm } from "../../new/_components/video-form";
 import { ChangeHistoryCard } from "./_components/change-history-card";
-import { VideoComments } from "./_components/video-comments";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -61,8 +60,8 @@ export default async function VideoDetailsPage({ params }: PageProps) {
         <VideoForm
           initialData={mockInitialData}
           sidebar={
+            // Comment moderation lives in the Moderation module — no comments UI in the edit flow.
             <div className="space-y-6">
-              <VideoComments videoId={id} />
               <ChangeHistoryCard history={mockHistory} />
             </div>
           }

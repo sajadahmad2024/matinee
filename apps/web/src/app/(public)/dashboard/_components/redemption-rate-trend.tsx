@@ -2,23 +2,24 @@
 
 import { Area, AreaChart, CartesianGrid, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
-// % of distributed points that actually get redeemed — signals whether users trust points have value.
-const data = [
-  { week: "W1", rate: 34 },
-  { week: "W2", rate: 37 },
-  { week: "W3", rate: 36 },
-  { week: "W4", rate: 41 },
-  { week: "W5", rate: 44 },
-  { week: "W6", rate: 47 },
-  { week: "W7", rate: 49 },
-];
+import { REGION_ANALYTICS, type GamificationData } from "../constants";
 
-export function RedemptionRateTrend() {
+// % of distributed points that actually get redeemed — signals whether users trust points have value.
+// Region-scoped via the `data` prop; defaults to the global baseline.
+interface RedemptionRateTrendProps {
+  data?: GamificationData["redemptionTrend"];
+}
+
+export function RedemptionRateTrend({
+  data = REGION_ANALYTICS["global"]!.gamification.redemptionTrend,
+}: RedemptionRateTrendProps) {
+  const latest = data[data.length - 1]!.rate;
+  const delta = latest - data[0]!.rate;
   return (
     <div>
       <div className="text-muted-foreground mb-2 flex items-center gap-2 text-xs">
-        <span className="text-foreground text-lg font-bold">49%</span> redeemed this week
-        <span className="text-success">↑ +15pts since W1</span>
+        <span className="text-foreground text-lg font-bold">{latest}%</span> redeemed this week
+        <span className="text-success">↑ {delta >= 0 ? "+" : ""}{Math.round(delta)}pts since W1</span>
         <span className="ml-auto">healthy &gt; 40%</span>
       </div>
       <div className="h-[200px]">

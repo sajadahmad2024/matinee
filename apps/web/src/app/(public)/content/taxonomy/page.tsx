@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { useTabParam } from "@/app/_libs/use-tab-param";
 
-import { TaxonomyManager, type TaxonomyItem } from "./_components/taxonomy-manager";
+import { type TaxonomyItem, TaxonomyManager } from "./_components/taxonomy-manager";
 
 const STUDIOS: TaxonomyItem[] = [
   { id: "s1", name: "Seoul Studios", meta: "South Korea", count: 142 },
@@ -69,7 +69,13 @@ export default function TaxonomyPage() {
         </TabsList>
 
         <TabsContent value="studios">
-          <TaxonomyManager title="Studios" noun="Studio" metaLabel="Country" imageLabel="Logo" initialItems={STUDIOS} />
+          <TaxonomyManager
+            title="Studios"
+            noun="Studio"
+            metaLabel="Country"
+            imageLabel="Logo"
+            initialItems={STUDIOS}
+          />
         </TabsContent>
         <TabsContent value="genres">
           <TaxonomyManager title="Genres" noun="Genre" initialItems={GENRES} />
@@ -78,7 +84,13 @@ export default function TaxonomyPage() {
           <TaxonomyManager title="Tags" noun="Tag" initialItems={TAGS} />
         </TabsContent>
         <TabsContent value="cast">
-          <TaxonomyManager title="Cast & Crew" noun="Person" metaLabel="Role" imageLabel="Photo" initialItems={CAST} />
+          <TaxonomyManager
+            title="Cast & Crew"
+            noun="Person"
+            metaLabel="Role"
+            imageLabel="Photo"
+            initialItems={CAST}
+          />
         </TabsContent>
       </Tabs>
     </div>

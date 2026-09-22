@@ -14,7 +14,7 @@ export interface SendEmailOptions {
   attachments?: EmailAttachment[];
 }
 
-export type EmailProviderType = 'smtp' | 'ses' | 'sendgrid';
+export type EmailProviderType = 'smtp' | 'ses' | 'sendgrid' | 'log';
 
 export interface EmailSendResult {
   messageId: string;

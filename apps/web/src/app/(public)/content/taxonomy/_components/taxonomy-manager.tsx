@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 
-import { ImagePlus, Pencil, Plus, Trash2, X } from "lucide-react";
+import { ImagePlus, Pencil, Plus, Search, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -16,6 +16,13 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -50,7 +57,14 @@ interface TaxonomyManagerProps {
   imageLabel?: string;
 }
 
-export function TaxonomyManager({ title, noun, initialItems, metaLabel, showCount = true, imageLabel }: TaxonomyManagerProps) {
+export function TaxonomyManager({
+  title,
+  noun,
+  initialItems,
+  metaLabel,
+  showCount = true,
+  imageLabel,
+}: TaxonomyManagerProps) {
   const [items, setItems] = useState<TaxonomyItem[]>(initialItems);
   const [editing, setEditing] = useState<TaxonomyItem | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
@@ -60,7 +74,33 @@ export function TaxonomyManager({ title, noun, initialItems, metaLabel, showCoun
   const [image, setImage] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const initials = (n: string) => n.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
+  // Search + sort (scales as the taxonomy library grows) + contextual insights.
+  const [query, setQuery] = useState("");
+  const [sort, setSort] = useState<"most" | "least" | "name">("most");
+  const q = query.trim().toLowerCase();
+  const visible = items
+    .filter(
+      (i) => !q || i.name.toLowerCase().includes(q) || (i.meta ?? "").toLowerCase().includes(q),
+    )
+    .sort((a, b) => {
+      if (sort === "name") return a.name.localeCompare(b.name);
+      const ac = a.count ?? 0;
+      const bc = b.count ?? 0;
+      return sort === "most" ? bc - ac : ac - bc;
+    });
+  const mostUsed = items.reduce<TaxonomyItem | null>(
+    (m, i) => ((i.count ?? 0) > (m?.count ?? -1) ? i : m),
+    null,
+  );
+  const unusedCount = items.filter((i) => (i.count ?? 0) === 0).length;
+
+  const initials = (n: string) =>
+    n
+      .split(" ")
+      .map((w) => w[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase();
 
   const openCreate = () => {
     setEditing(null);
@@ -88,7 +128,10 @@ export function TaxonomyManager({ title, noun, initialItems, metaLabel, showCoun
       setItems((prev) => prev.map((i) => (i.id === editing.id ? { ...i, ...patch } : i)));
       toast.success(`${noun} updated`);
     } else {
-      setItems((prev) => [{ id: `${noun.toLowerCase()}_${Date.now()}`, count: 0, ...patch }, ...prev]);
+      setItems((prev) => [
+        { id: `${noun.toLowerCase()}_${Date.now()}`, count: 0, ...patch },
+        ...prev,
+      ]);
       toast.success(`${noun} created`);
     }
     setModalOpen(false);
@@ -106,11 +149,36 @@ export function TaxonomyManager({ title, noun, initialItems, metaLabel, showCoun
       <div className="flex items-center justify-between p-4">
         <div>
           <h3 className="text-foreground text-base font-semibold">{title}</h3>
-          <p className="text-muted-foreground text-xs">{items.length} {title.toLowerCase()}</p>
+          <p className="text-muted-foreground text-xs">
+            {items.length} {title.toLowerCase()}
+          </p>
         </div>
         <Button size="sm" className="gap-2" onClick={openCreate}>
           <Plus className="h-4 w-4" /> Add {noun}
         </Button>
+      </div>
+
+      {/* Search + sort controls — scale as the library grows */}
+      <div className="flex flex-col gap-3 px-4 pb-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="relative w-full sm:max-w-xs">
+          <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+          <Input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={`Search ${title.toLowerCase()}...`}
+            className="pl-9"
+          />
+        </div>
+        <Select value={sort} onValueChange={(v) => setSort(v as typeof sort)}>
+          <SelectTrigger className="w-[170px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent className="border-border bg-card z-50">
+            <SelectItem value="most">Most used</SelectItem>
+            <SelectItem value="least">Least used</SelectItem>
+            <SelectItem value="name">Name (A–Z)</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="border-border/40 border-t">
@@ -125,14 +193,14 @@ export function TaxonomyManager({ title, noun, initialItems, metaLabel, showCoun
             </TableRow>
           </TableHeader>
           <TableBody>
-            {items.length === 0 ? (
+            {visible.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={5} className="text-muted-foreground py-8 text-center">
-                  No {title.toLowerCase()} yet.
+                  {items.length === 0 ? `No ${title.toLowerCase()} yet.` : "No matches."}
                 </TableCell>
               </TableRow>
             ) : (
-              items.map((item) => (
+              visible.map((item) => (
                 <TableRow key={item.id}>
                   {imageLabel && (
                     <TableCell>
@@ -145,7 +213,11 @@ export function TaxonomyManager({ title, noun, initialItems, metaLabel, showCoun
                     </TableCell>
                   )}
                   <TableCell className="text-foreground font-medium">{item.name}</TableCell>
-                  {metaLabel && <TableCell className="text-muted-foreground text-sm">{item.meta ?? "—"}</TableCell>}
+                  {metaLabel && (
+                    <TableCell className="text-muted-foreground text-sm">
+                      {item.meta ?? "—"}
+                    </TableCell>
+                  )}
                   {showCount && (
                     <TableCell className="text-muted-foreground text-right text-sm tabular-nums">
                       {(item.count ?? 0).toLocaleString()}
@@ -153,7 +225,11 @@ export function TaxonomyManager({ title, noun, initialItems, metaLabel, showCoun
                   )}
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-1">
-                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(item)}>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => openEdit(item)}>
                         <Pencil className="h-4 w-4" />
                       </Button>
                       <Button
@@ -170,6 +246,26 @@ export function TaxonomyManager({ title, noun, initialItems, metaLabel, showCoun
             )}
           </TableBody>
         </Table>
+      </div>
+
+      {/* Contextual insights — fills the page with useful info instead of empty space */}
+      <div className="border-border/40 grid grid-cols-3 gap-4 border-t p-4">
+        <div>
+          <p className="text-muted-foreground text-xs">Total</p>
+          <p className="text-foreground font-semibold">{items.length}</p>
+        </div>
+        <div className="min-w-0">
+          <p className="text-muted-foreground text-xs">Most used</p>
+          <p className="text-foreground truncate font-semibold">
+            {mostUsed ? `${mostUsed.name} · ${(mostUsed.count ?? 0).toLocaleString()}` : "—"}
+          </p>
+        </div>
+        <div>
+          <p className="text-muted-foreground text-xs">Unused (safe to remove)</p>
+          <p className={`font-semibold ${unusedCount > 0 ? "text-warning" : "text-foreground"}`}>
+            {unusedCount}
+          </p>
+        </div>
       </div>
 
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
@@ -195,11 +291,20 @@ export function TaxonomyManager({ title, noun, initialItems, metaLabel, showCoun
                     className="hidden"
                     onChange={(e) => pickImage(e.target.files?.[0] ?? undefined)}
                   />
-                  <Button type="button" variant="outline" size="sm" onClick={() => fileRef.current?.click()}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => fileRef.current?.click()}>
                     Upload
                   </Button>
                   {image && (
-                    <Button type="button" variant="ghost" size="sm" className="text-muted-foreground gap-1" onClick={() => setImage(null)}>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="text-muted-foreground gap-1"
+                      onClick={() => setImage(null)}>
                       <X className="h-4 w-4" /> Remove
                     </Button>
                   )}
@@ -208,18 +313,31 @@ export function TaxonomyManager({ title, noun, initialItems, metaLabel, showCoun
             )}
             <div className="space-y-2">
               <Label>{noun} name</Label>
-              <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={`${noun} name`} autoFocus />
+              <Input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder={`${noun} name`}
+                autoFocus
+              />
             </div>
             {metaLabel && (
               <div className="space-y-2">
                 <Label>{metaLabel}</Label>
-                <Input value={meta} onChange={(e) => setMeta(e.target.value)} placeholder={metaLabel} />
+                <Input
+                  value={meta}
+                  onChange={(e) => setMeta(e.target.value)}
+                  placeholder={metaLabel}
+                />
               </div>
             )}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setModalOpen(false)}>Cancel</Button>
-            <Button onClick={save} disabled={!name.trim()}>{editing ? "Save changes" : `Create ${noun}`}</Button>
+            <Button variant="outline" onClick={() => setModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={save} disabled={!name.trim()}>
+              {editing ? "Save changes" : `Create ${noun}`}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

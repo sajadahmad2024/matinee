@@ -38,8 +38,11 @@ export function SubscriptionTabs({ defaultTab, children }: SubscriptionTabsProps
     router.push(`${pathname}?${createQueryString("tab", value)}` as Route, { scroll: false });
   };
 
+  // URL-controlled so in-app links (e.g. Recommended Actions) actually switch the tab.
+  const current = searchParams.get("tab") ?? defaultTab;
+
   return (
-    <Tabs defaultValue={defaultTab} onValueChange={handleTabChange} className="space-y-6">
+    <Tabs value={current} onValueChange={handleTabChange} className="space-y-6">
       <TabsList className="border-border/50 bg-background/50 border p-1">
         <TabsTrigger
           value="analytics"

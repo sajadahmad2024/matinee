@@ -163,21 +163,6 @@ export function TransactionLedger({
 
   const [localSearch, setLocalSearch] = useState(searchQuery);
 
-  // Debounce search update to URL
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (localSearch !== searchQuery) {
-        updateQuery("q", localSearch);
-      }
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [localSearch, searchQuery]);
-
-  // Sync local search with query changes
-  useEffect(() => {
-    setLocalSearch(searchQuery);
-  }, [searchQuery]);
-
   const updateQuery = useCallback(
     (name: string, value: string) => {
       const params = new URLSearchParams(searchParams.toString());
@@ -191,6 +176,21 @@ export function TransactionLedger({
     },
     [searchParams, pathname, router],
   );
+
+  // Debounce search update to URL
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (localSearch !== searchQuery) {
+        updateQuery("q", localSearch);
+      }
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [localSearch, searchQuery, updateQuery]);
+
+  // Sync local search with query changes
+  useEffect(() => {
+    setLocalSearch(searchQuery);
+  }, [searchQuery]);
 
   const filteredTransactions = useMemo(() => {
     return mockTransactions.filter((tx) => {

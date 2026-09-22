@@ -354,13 +354,6 @@ export default function VideoAnalyticsPage() {
                 </span>
                 <span className="font-gaming text-foreground text-lg font-bold">48,500</span>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-foreground flex items-center gap-2 text-sm font-medium">
-                  <TrendingUp className="text-success h-4 w-4" />
-                  XP Awarded
-                </span>
-                <span className="font-gaming text-foreground text-lg font-bold">125,000</span>
-              </div>
             </div>
           </CardContent>
         </Card>

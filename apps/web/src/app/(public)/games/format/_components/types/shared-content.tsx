@@ -13,11 +13,12 @@ import { GamificationExtras } from "../shared/gamification-extras";
 
 // Share behaviours pay differently (internal vs external vs referral).
 const INITIAL_BEHAVIORS: BehaviorReward[] = [
-  { id: "b1", label: "Internal share (to another user)", points: 3, xp: 1 },
-  { id: "b2", label: "External share (off-app)", points: 15, xp: 5 },
-  { id: "b3", label: "Referral completed first game", points: 100, xp: 25 },
+  { id: "b1", label: "Internal share (to another user)", points: 3 },
+  { id: "b2", label: "External share (off-app)", points: 15 },
+  { id: "b3", label: "Referral completed first game", points: 100 },
 ];
 
+/** Settings tab — includes the former Gamification content (merged per client decision). */
 export function SharedContentSettings() {
   // Maps 1:1 to reward_rules['shared_content'].config
   const [behaviors, setBehaviors] = useState<BehaviorReward[]>(INITIAL_BEHAVIORS);
@@ -57,22 +58,19 @@ export function SharedContentSettings() {
           </div>
 
           <p className="text-muted-foreground text-xs">
-            Saved as <code>reward_rules['shared_content']</code>: <code>behaviors[]</code> (each
-            fixed points + xp), <code>daily_share_cap</code>.
+            Saved as <code>reward_rules[&apos;shared_content&apos;]</code>: <code>behaviors[]</code> (each
+            fixed points), <code>daily_share_cap</code>.
           </p>
         </CardContent>
       </GlassCard>
 
       <AppWidgetCard gameTypeName="Shared Content" defaultCta="Share &amp; earn" />
-    </div>
-  );
-}
 
-export function SharedContentGamification() {
-  return (
-    <GamificationExtras
-      badges={[{ name: "Social Butterfly", requirement: "Refer 5 friends who finish a game" }]}
-      initialLocked={[{ id: "l1", name: "Referral leaderboard perks", threshold: 1500 }]}
-    />
+      {/* Former Gamification tab content — merged into Settings */}
+      <GamificationExtras
+        badges={[{ name: "Social Butterfly", requirement: "Refer 5 friends who finish a game" }]}
+        initialLocked={[{ id: "l1", name: "Referral leaderboard perks", threshold: 1500 }]}
+      />
+    </div>
   );
 }

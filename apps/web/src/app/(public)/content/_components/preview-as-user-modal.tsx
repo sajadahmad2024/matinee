@@ -15,7 +15,7 @@ interface PreviewAsUserModalProps {
 
 const fmt = (n: number) => (n >= 1000 ? `${(n / 1000).toFixed(1)}K` : `${n}`);
 
-/** Preview how the content appears in the customer app (vertical mockup). */
+/** Preview how the content appears in the customer app (16:9 launch standard). */
 export function PreviewAsUserModal({ open, onOpenChange, video }: PreviewAsUserModalProps) {
   if (!video) return null;
 
@@ -28,16 +28,22 @@ export function PreviewAsUserModal({ open, onOpenChange, video }: PreviewAsUserM
 
         {/* phone frame */}
         <div className="mx-auto w-[280px]">
-          <div className="border-border/60 relative aspect-[9/16] overflow-hidden rounded-[2rem] border-4 bg-black">
+          <div className="border-border/60 relative aspect-video overflow-hidden rounded-[1.5rem] border-4 bg-black">
             {/* video surface */}
             <div className="from-primary/40 to-accent/20 absolute inset-0 bg-linear-to-br" />
             {video.thumbnail && (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={video.thumbnail} alt={video.title} className="absolute inset-0 h-full w-full object-cover" />
+              <img
+                src={video.thumbnail}
+                alt={video.title}
+                className="absolute inset-0 h-full w-full object-cover"
+              />
             )}
             {video.sponsored && (
               <div className="absolute top-3 left-3">
-                <Badge className="bg-white/90 text-black text-[10px]">Sponsored · {video.sponsor}</Badge>
+                <Badge className="bg-white/90 text-[10px] text-black">
+                  Sponsored · {video.sponsor}
+                </Badge>
               </div>
             )}
             {video.isLive && (
@@ -82,7 +88,9 @@ export function PreviewAsUserModal({ open, onOpenChange, video }: PreviewAsUserM
 function Rail({ icon, value }: { icon: React.ReactNode; value: string }) {
   return (
     <div className="flex flex-col items-center gap-1">
-      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white/15">{icon}</div>
+      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white/15">
+        {icon}
+      </div>
       {value && <span className="text-[10px]">{value}</span>}
     </div>
   );

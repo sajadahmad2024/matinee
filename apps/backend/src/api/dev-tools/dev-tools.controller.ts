@@ -1,7 +1,8 @@
 import { RouteNames } from '@common/route-names';
 import { EnvConfig } from '@config/env.config';
 import { Public } from '@auth/decorators/public.decorator';
-import { Controller, Get, Res, VERSION_NEUTRAL } from '@nestjs/common';
+import { CacheService } from '@cache/cache.service';
+import { Controller, Get, NotFoundException, Query, Res, VERSION_NEUTRAL } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ApiExcludeController, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
@@ -19,7 +20,10 @@ export class DevToolsController {
   private readonly bullBoardUrl;
   private readonly systemHealthUrl;
 
-  constructor(private readonly configService: ConfigService<EnvConfig>) {
+  constructor(
+    private readonly configService: ConfigService<EnvConfig>,
+    private readonly cache: CacheService,
+  ) {
     this.grafanaUrl = this.configService.get('GRAFANA_URL') || 'http://localhost:3001';
     this.appLogsUrl = this.configService.get('APP_LOGS_URL') || 'https://localhost:3000';
     this.devDocsUrl = this.configService.get('DEV_DOCS_URL') || 'https://localhost:3100';
@@ -50,5 +54,24 @@ export class DevToolsController {
       tools,
       user: 'Developer',
     });
+  }
+
+  /**
+   * DEV-ONLY: fetch the last verification code captured by the `log` SMS/email providers for a
+   * destination (phone or email). Returns null if none/expired. 404 in production.
+   *
+   *   GET /dev-tools/otp?dest=+15551234567            (sms — default)
+   *   GET /dev-tools/otp?dest=admin@example.com&channel=email
+   */
+  @Get('otp')
+  async lastOtp(@Query('dest') dest: string, @Query('channel') channel?: string) {
+    if (this.configService.get('NODE_ENV') === 'production') {
+      throw new NotFoundException();
+    }
+    const ch = channel === 'email' ? 'email' : 'sms';
+    // A raw '+' in the query string decodes to a space; phone numbers have none, so restore it.
+    const normalized = (dest ?? '').replace(/ /g, '+');
+    const code = normalized ? await this.cache.get<string>(`dev:otp:${ch}:${normalized}`) : null;
+    return { dest: normalized, channel: ch, code: code ?? null };
   }
 }

@@ -1,0 +1,64 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dart *)",
+      "Bash(flutter *)",
+      "Bash(git diff *)",
+      "Bash(git status *)",
+      "Bash(git log *)",
+      "mcp__dart"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "if": "Edit(**)",
+            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/deny-generated.sh\"",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "if": "Write(**)",
+            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/deny-generated.sh\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "if": "Edit(**/*.dart)",
+            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/format.sh\"",
+            "timeout": 30
+          },
+          {
+            "type": "command",
+            "if": "Write(**/*.dart)",
+            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/format.sh\"",
+            "timeout": 30
+          },
+          {
+            "type": "command",
+            "if": "Edit(**/*.dart)",
+            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/analyze.sh\"",
+            "timeout": 90
+          },
+          {
+            "type": "command",
+            "if": "Write(**/*.dart)",
+            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/analyze.sh\"",
+            "timeout": 90
+          }
+        ]
+      }
+    ]
+  }
+}

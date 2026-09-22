@@ -11,20 +11,16 @@ import {
   YAxis,
 } from "recharts";
 
-const data = [
-  { date: "Jan 1", newSubs: 1200, cancellations: 180 },
-  { date: "Jan 8", newSubs: 1450, cancellations: 210 },
-  { date: "Jan 15", newSubs: 1380, cancellations: 165 },
-  { date: "Jan 22", newSubs: 1620, cancellations: 195 },
-  { date: "Jan 29", newSubs: 1780, cancellations: 220 },
-  { date: "Feb 5", newSubs: 1550, cancellations: 175 },
-  { date: "Feb 12", newSubs: 1890, cancellations: 240 },
-  { date: "Feb 19", newSubs: 2100, cancellations: 198 },
-  { date: "Feb 26", newSubs: 1950, cancellations: 215 },
-  { date: "Mar 5", newSubs: 2250, cancellations: 185 },
-];
+import { REGION_ANALYTICS, type MonetizationData } from "../constants";
 
-export function SubscriptionTrendChart() {
+// New subs vs cancellations — region-scoped via the `data` prop; defaults to the global baseline.
+interface SubscriptionTrendChartProps {
+  data?: MonetizationData["subsTrend"];
+}
+
+export function SubscriptionTrendChart({
+  data = REGION_ANALYTICS["global"]!.monetization.subsTrend,
+}: SubscriptionTrendChartProps) {
   return (
     <div className="h-[280px]">
       <ResponsiveContainer width="100%" height="100%">

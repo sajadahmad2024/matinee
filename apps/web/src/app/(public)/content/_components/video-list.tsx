@@ -1,7 +1,5 @@
 "use client";
 
-import { useState } from "react";
-
 import type { Route } from "next";
 import { useRouter } from "next/navigation";
 
@@ -13,30 +11,43 @@ import { TablePagination } from "@/components/custom/table-pagination";
 
 import {
   CONTENT_TABS_CONFIG,
+  type ContentRegionKey,
   MOCK_VIDEOS,
   PENDING_VIDEOS,
   REJECTED_VIDEOS,
-  TabValue,
-  VideoItem,
+  type TabValue,
+  type VideoItem,
+  isMasterVideo,
+  macroRegionForVideo,
+  parseMockDate,
 } from "../constants";
-import { LeaderboardModal } from "./leaderboard-modal";
+import type { DateRangeValue, SortValue } from "./content-filters";
 import { VideoListItem } from "./video-list-item";
+
+// Fixed per page-load — mock date filtering needs no live clock (and render must stay pure).
+const NOW = Date.now();
 
 interface VideoListProps {
   tab: TabValue;
   searchQuery: string;
+  sort: SortValue;
+  range: DateRangeValue;
+  /** Macro-region lens from the master-page grid (spec-05 §1.2). */
+  region: ContentRegionKey;
   page: number;
   pageSize: number;
 }
 
-export function VideoList({ tab, searchQuery, page, pageSize }: VideoListProps) {
+export function VideoList({
+  tab,
+  searchQuery,
+  sort,
+  range,
+  region,
+  page,
+  pageSize,
+}: VideoListProps) {
   const router = useRouter();
-  const [leaderboardModal, setLeaderboardModal] = useState<{ isOpen: boolean; videoTitle: string }>(
-    {
-      isOpen: false,
-      videoTitle: "",
-    },
-  );
 
   const getFilteredVideos = (): VideoItem[] => {
     let videos: VideoItem[] = [];
@@ -45,14 +56,12 @@ export function VideoList({ tab, searchQuery, page, pageSize }: VideoListProps) 
       case "requests":
         videos = PENDING_VIDEOS;
         break;
-      case "drafts":
-        videos = MOCK_VIDEOS.filter((v) => v.status === "draft");
+      case "master":
+        // live OR scheduled — one scrolling list
+        videos = MOCK_VIDEOS.filter(isMasterVideo);
         break;
       case "scheduled":
         videos = MOCK_VIDEOS.filter((v) => v.status === "scheduled");
-        break;
-      case "boosted":
-        videos = MOCK_VIDEOS.filter((v) => v.status === "boosted");
         break;
       case "rejected":
         videos = REJECTED_VIDEOS;
@@ -61,9 +70,15 @@ export function VideoList({ tab, searchQuery, page, pageSize }: VideoListProps) 
         videos = MOCK_VIDEOS.filter((v) => v.status === "archived");
         break;
       default:
+        // Live — published/boosted/live only (not drafts/scheduled/archived)
         videos = MOCK_VIDEOS.filter(
           (v) => v.status !== "draft" && v.status !== "scheduled" && v.status !== "archived",
         );
+    }
+
+    // Region lens — videos carry the territory they were published for.
+    if (region !== "all") {
+      videos = videos.filter((v) => macroRegionForVideo(v) === region);
     }
 
     if (searchQuery) {
@@ -73,7 +88,17 @@ export function VideoList({ tab, searchQuery, page, pageSize }: VideoListProps) 
       );
     }
 
-    return videos;
+    // Upload-date filter
+    if (range !== "all") {
+      const days = range === "30d" ? 30 : 90;
+      const cutoff = NOW - days * 24 * 60 * 60 * 1000;
+      videos = videos.filter((v) => {
+        const uploaded = parseMockDate(v.uploadDate);
+        return uploaded ? uploaded.getTime() >= cutoff : true; // items without an upload date stay
+      });
+    }
+
+    return applySort(videos, sort, tab);
   };
 
   const filteredVideos = getFilteredVideos();
@@ -112,12 +137,9 @@ export function VideoList({ tab, searchQuery, page, pageSize }: VideoListProps) 
           <VideoListItem
             key={video.id}
             video={video}
+            variant={tab === "master" ? "master" : "default"}
             onEdit={(id) => router.push(`/content/details/${id}` as Route)}
             onAnalytics={(id) => router.push(`/content/analytics/${id}` as Route)}
-            onLeaderboards={(id) => {
-              const v = filteredVideos.find((v) => v.id === id);
-              setLeaderboardModal({ isOpen: true, videoTitle: v?.title || "" });
-            }}
           />
         ))}
       </div>
@@ -130,21 +152,49 @@ export function VideoList({ tab, searchQuery, page, pageSize }: VideoListProps) 
         onPageChange={(p) => {
           const params = new URLSearchParams(window.location.search);
           params.set("page", p.toString());
-          router.push(`${window.location.pathname}?${params.toString()}`, { scroll: false });
+          router.push(`${window.location.pathname}?${params.toString()}` as Route, {
+            scroll: false,
+          });
         }}
         onPageSizeChange={(s) => {
           const params = new URLSearchParams(window.location.search);
           params.set("pageSize", s.toString());
           params.set("page", "1");
-          router.push(`${window.location.pathname}?${params.toString()}`, { scroll: false });
+          router.push(`${window.location.pathname}?${params.toString()}` as Route, {
+            scroll: false,
+          });
         }}
       />
-
-      <LeaderboardModal
-        isOpen={leaderboardModal.isOpen}
-        onClose={() => setLeaderboardModal({ isOpen: false, videoTitle: "" })}
-        videoTitle={leaderboardModal.videoTitle}
-      />
     </div>
+  );
+}
+
+function applySort(videos: VideoItem[], sort: SortValue, tab: TabValue): VideoItem[] {
+  if (sort === "most-viewed") return [...videos].sort((a, b) => b.views - a.views);
+  if (sort === "least-viewed") return [...videos].sort((a, b) => a.views - b.views);
+
+  // "Newest" default. Master tab leads with what's coming up:
+  // scheduled first by scheduledAt ascending, then live by upload date descending.
+  if (tab === "master") {
+    const scheduled = videos
+      .filter((v) => v.status === "scheduled")
+      .sort(
+        (a, b) =>
+          (parseMockDate(a.scheduledAt)?.getTime() ?? 0) -
+          (parseMockDate(b.scheduledAt)?.getTime() ?? 0),
+      );
+    const live = videos
+      .filter((v) => v.status !== "scheduled")
+      .sort(
+        (a, b) =>
+          (parseMockDate(b.uploadDate)?.getTime() ?? 0) -
+          (parseMockDate(a.uploadDate)?.getTime() ?? 0),
+      );
+    return [...scheduled, ...live];
+  }
+
+  return [...videos].sort(
+    (a, b) =>
+      (parseMockDate(b.uploadDate)?.getTime() ?? 0) - (parseMockDate(a.uploadDate)?.getTime() ?? 0),
   );
 }
