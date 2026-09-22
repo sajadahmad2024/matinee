@@ -26,7 +26,6 @@ export class DeviceController {
       platform: dto.platform,
       deviceId: dto.deviceId,
       appVersion: dto.appVersion,
-      topics: dto.topics,
     });
   }
 

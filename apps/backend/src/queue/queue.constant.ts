@@ -20,6 +20,9 @@ export enum JobName {
   SEND_SMS = 'send-sms',                    // deliver a transactional SMS (e.g. phone OTP) off the request path
   // Notifications
   NOTIFY_CAMPAIGN_FANOUT = 'notify-campaign-fanout', // fan a campaign out to its resolved audience in batches
+  PUSH_TO_USER = 'push-to-user',                     // transactional push: resolve user's active devices + FCM send
+  PUSH_TO_TOPIC = 'push-to-topic',                   // broadcast push via FCM topic (one FCM call)
+  PUSH_TO_DEVICES = 'push-to-devices',               // targeted push to a pre-resolved set of device_token ids
   // Media
   TRANSCODE_VIDEO = 'transcode-video',     // submit the HLS transcode job for a media asset
   TRANSCODE_POLL = 'transcode-poll',       // delayed self-poll of an in-flight transcode (status by status)

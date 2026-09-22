@@ -2098,3 +2098,36 @@ export const contentDailyStats = pgTable("content_daily_stats", {
 		}).onDelete("cascade"),
 	primaryKey({ columns: [table.contentId, table.statDate], name: "content_daily_stats_pkey"}),
 ]);
+
+export const notificationLogs = pgTable("notification_logs", {
+	id: uuid().default(sql`uuidv7()`).primaryKey().notNull(),
+	userId: uuid("user_id"),
+	deviceTokenId: uuid("device_token_id"),
+	channel: varchar({ length: 20 }).default('push').notNull(),
+	provider: varchar({ length: 20 }).default('fcm').notNull(),
+	templateKey: varchar("template_key", { length: 80 }).notNull(),
+	title: varchar({ length: 150 }),
+	body: varchar({ length: 500 }),
+	data: jsonb().default({}).notNull(),
+	topic: varchar({ length: 100 }),
+	status: varchar({ length: 20 }).default('sent').notNull(),
+	fcmMessageId: varchar("fcm_message_id", { length: 120 }),
+	errorCode: varchar("error_code", { length: 60 }),
+	errorMessage: varchar("error_message", { length: 300 }),
+	sentAt: timestamp("sent_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+}, (table) => [
+	index("idx_notification_logs_user").using("btree", table.userId.asc().nullsLast().op("uuid_ops"), table.sentAt.desc().nullsFirst().op("timestamptz_ops")),
+	index("idx_notification_logs_template").using("btree", table.templateKey.asc().nullsLast().op("text_ops"), table.sentAt.desc().nullsFirst().op("timestamptz_ops")),
+	index("idx_notification_logs_failed").using("btree", table.status.asc().nullsLast().op("text_ops"), table.sentAt.desc().nullsFirst().op("timestamptz_ops")).where(sql`(status)::text = 'failed'::text`),
+	foreignKey({
+			columns: [table.userId],
+			foreignColumns: [users.id],
+			name: "notification_logs_user_id_fkey"
+		}).onDelete("set null"),
+	foreignKey({
+			columns: [table.deviceTokenId],
+			foreignColumns: [deviceTokens.id],
+			name: "notification_logs_device_token_id_fkey"
+		}).onDelete("set null"),
+	check("notification_logs_status_check", sql`(status)::text = ANY ((ARRAY['sent'::character varying, 'failed'::character varying])::text[])`),
+]);
