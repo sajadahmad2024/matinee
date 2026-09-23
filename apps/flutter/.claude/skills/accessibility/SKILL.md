@@ -1,7 +1,7 @@
 ---
 name: accessibility
 description: Flutter accessibility auditing and remediation against WCAG 2.2 with conformance level selection (A, AA, AAA) across mobile, desktop, and web. Use when building, auditing, or reviewing widgets for screen reader support, target sizes, focus management, color contrast, text scaling, or motion sensitivity. Begins by confirming the WCAG level and target platform(s), then applies level-appropriate, platform-aware criteria and verifies with the flutter_test accessibility guidelines.
-argument-hint: "[wcag-level] [platform]"
+argument-hint: '[wcag-level] [platform]'
 disable-model-invocation: true
 ---
 
@@ -92,17 +92,17 @@ After completing all six categories, produce the Audit Report using the level-sp
 After delivering the report, use the `AskUserQuestion` tool with a single question:
 
 ```yaml
-question: "The audit is complete. How would you like to proceed with fixes?"
-header: "Fix scope"
+question: 'The audit is complete. How would you like to proceed with fixes?'
+header: 'Fix scope'
 options:
-  - label: "All issues"
-    description: "Fix every CRITICAL, MAJOR, and MINOR finding"
-  - label: "Critical + Major only"
-    description: "Fix blockers and significant barriers; skip MINOR polish items"
-  - label: "Critical only"
-    description: "Fix only what blocks assistive technology users entirely"
-  - label: "Specific findings"
-    description: "List the finding numbers you want fixed"
+  - label: 'All issues'
+    description: 'Fix every CRITICAL, MAJOR, and MINOR finding'
+  - label: 'Critical + Major only'
+    description: 'Fix blockers and significant barriers; skip MINOR polish items'
+  - label: 'Critical only'
+    description: 'Fix only what blocks assistive technology users entirely'
+  - label: 'Specific findings'
+    description: 'List the finding numbers you want fixed'
 ```
 
 Apply exactly the fixes the user selects. Add or extend the `meetsGuideline` test for each touched screen. After applying fixes, confirm: "Fixed [N] findings ([severities]). [N remaining] remain open."
@@ -115,77 +115,77 @@ Use this table during Phase 3 to determine which criteria apply at the selected 
 
 ### Level A — Core Criteria
 
-| WCAG ID | Criterion | Flutter Check |
-| --- | --- | --- |
-| 1.1.1 | Non-text Content | `semanticLabel` on images and icons; `Semantics(label:)` on custom paint; `excludeFromSemantics: true` on decorative |
-| 1.3.1 | Info and Relationships | `SemanticsRole` for lists, tabs, dialogs, tables, menus; `header: true` + `headingLevel`; `MergeSemantics` for grouped content; `button`, `checked`, `selected` flags |
-| 1.3.2 | Meaningful Sequence | Reading order matches visual order; `FocusTraversalGroup` with `OrderedTraversalPolicy` when it does not |
-| 1.3.3 | Sensory Characteristics | Instructions do not rely solely on shape, size, visual location, or sound |
-| 1.4.1 | Use of Color | Color never sole differentiator — always pair with icon, label, or pattern |
-| 2.1.1 | Keyboard | All functionality via keyboard/switch access; no bare `GestureDetector` |
-| 2.1.2 | No Keyboard Trap | Focus can always be moved away; standard Flutter overlay widgets handle this |
-| 2.1.4 | Character Key Shortcuts | Single-key `Shortcuts` can be turned off or remapped, or only fire while a widget has focus |
-| 2.3.1 | Three Flashes or Below Threshold | No content flashes > 3 times/second |
-| 2.4.1 | Bypass Blocks | Skip navigation mechanism for repeated blocks — **web platform only** |
-| 2.4.2 | Page Titled | Each screen has a meaningful title; `Title` widget or route title on web sets `<title>` |
-| 2.4.3 | Focus Order | Tab/focus order preserves meaning; `FocusTraversalOrder` with `NumericFocusOrder` |
-| 2.5.1 | Pointer Gestures | Multipoint or path-based gestures (pinch, swipe) have a single-pointer alternative |
-| 2.5.2 | Pointer Cancellation | Actions fire on up, not down; `onTap`, never `onTapDown`, for commits |
-| 2.5.3 | Label in Name | Visible label text is contained in the accessible name |
-| 2.5.4 | Motion Actuation | Shake or tilt actions have a UI alternative and can be disabled |
-| 3.2.6 **(2.2)** | Consistent Help | Help, contact and support entry points appear in the same relative place on every screen |
-| 3.3.1 | Error Identification | Form errors identified in text, not color alone; `validationResult` on the field's semantics |
-| 3.3.2 | Labels or Instructions | All form fields have visible labels; `InputDecoration(labelText:)` |
-| 3.3.7 **(2.2)** | Redundant Entry | Previously entered data is auto-populated or selectable, never retyped within the same flow |
-| 4.1.2 | Name, Role, Value | `Semantics(label:, role:)` or `button: true`, `Tooltip`; state exposed via `checked`, `selected`, `enabled`, `toggled` |
-| 4.1.3 | Status Messages | `Semantics(liveRegion: true)` or `SemanticsRole.status` / `SemanticsRole.alert` for async status |
+| WCAG ID         | Criterion                        | Flutter Check                                                                                                                                                         |
+| --------------- | -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1.1.1           | Non-text Content                 | `semanticLabel` on images and icons; `Semantics(label:)` on custom paint; `excludeFromSemantics: true` on decorative                                                  |
+| 1.3.1           | Info and Relationships           | `SemanticsRole` for lists, tabs, dialogs, tables, menus; `header: true` + `headingLevel`; `MergeSemantics` for grouped content; `button`, `checked`, `selected` flags |
+| 1.3.2           | Meaningful Sequence              | Reading order matches visual order; `FocusTraversalGroup` with `OrderedTraversalPolicy` when it does not                                                              |
+| 1.3.3           | Sensory Characteristics          | Instructions do not rely solely on shape, size, visual location, or sound                                                                                             |
+| 1.4.1           | Use of Color                     | Color never sole differentiator — always pair with icon, label, or pattern                                                                                            |
+| 2.1.1           | Keyboard                         | All functionality via keyboard/switch access; no bare `GestureDetector`                                                                                               |
+| 2.1.2           | No Keyboard Trap                 | Focus can always be moved away; standard Flutter overlay widgets handle this                                                                                          |
+| 2.1.4           | Character Key Shortcuts          | Single-key `Shortcuts` can be turned off or remapped, or only fire while a widget has focus                                                                           |
+| 2.3.1           | Three Flashes or Below Threshold | No content flashes > 3 times/second                                                                                                                                   |
+| 2.4.1           | Bypass Blocks                    | Skip navigation mechanism for repeated blocks — **web platform only**                                                                                                 |
+| 2.4.2           | Page Titled                      | Each screen has a meaningful title; `Title` widget or route title on web sets `<title>`                                                                               |
+| 2.4.3           | Focus Order                      | Tab/focus order preserves meaning; `FocusTraversalOrder` with `NumericFocusOrder`                                                                                     |
+| 2.5.1           | Pointer Gestures                 | Multipoint or path-based gestures (pinch, swipe) have a single-pointer alternative                                                                                    |
+| 2.5.2           | Pointer Cancellation             | Actions fire on up, not down; `onTap`, never `onTapDown`, for commits                                                                                                 |
+| 2.5.3           | Label in Name                    | Visible label text is contained in the accessible name                                                                                                                |
+| 2.5.4           | Motion Actuation                 | Shake or tilt actions have a UI alternative and can be disabled                                                                                                       |
+| 3.2.6 **(2.2)** | Consistent Help                  | Help, contact and support entry points appear in the same relative place on every screen                                                                              |
+| 3.3.1           | Error Identification             | Form errors identified in text, not color alone; `validationResult` on the field's semantics                                                                          |
+| 3.3.2           | Labels or Instructions           | All form fields have visible labels; `InputDecoration(labelText:)`                                                                                                    |
+| 3.3.7 **(2.2)** | Redundant Entry                  | Previously entered data is auto-populated or selectable, never retyped within the same flow                                                                           |
+| 4.1.2           | Name, Role, Value                | `Semantics(label:, role:)` or `button: true`, `Tooltip`; state exposed via `checked`, `selected`, `enabled`, `toggled`                                                |
+| 4.1.3           | Status Messages                  | `Semantics(liveRegion: true)` or `SemanticsRole.status` / `SemanticsRole.alert` for async status                                                                      |
 
 ### Level AA — Additional Criteria (includes all Level A)
 
-| WCAG ID | Criterion | Flutter Check |
-| --- | --- | --- |
-| 1.3.4 | Orientation | App does not lock to single orientation without essential reason; remove `SystemChrome.setPreferredOrientations` locks |
-| 1.3.5 | Identify Input Purpose | Text fields use correct `keyboardType` and `autofillHints`; `Semantics(inputType:)` on custom fields |
-| 1.4.3 | Contrast (Minimum) | Normal text 4.5:1; large text 3:1 against background; `textContrastGuideline` |
-| 1.4.4 | Resize Text | Text scales to 200% without loss of content or functionality; no fixed-height text containers, no `TextScaler.noScaling`, no `clamp` on the user's scaler |
-| 1.4.5 | Images of Text | Do not use images of text for styled text — use `Text` widget |
-| 1.4.10 | Reflow | Content reflows at 320 CSS px equivalent without horizontal scroll — use `Flexible`, `Wrap`, `SingleChildScrollView` |
-| 1.4.11 | Non-text Contrast | UI components and focus indicators have at least 3:1 contrast |
-| 1.4.12 | Text Spacing | Content not lost when letter/word/line spacing increased; avoid `overflow: TextOverflow.clip` in fixed containers |
-| 1.4.13 | Content on Hover or Focus | Hoverable/focusable content is dismissable, hoverable, and persistent — **web/desktop: hover tooltips and menus** |
-| 2.4.5 | Multiple Ways | More than one way to locate a screen (search, navigation, sitemap) |
-| 2.4.6 | Headings and Labels | Headings and labels are descriptive; `Semantics(header: true, headingLevel:)` for section headings |
-| 2.4.7 | Focus Visible | Keyboard focus indicator is always visible |
-| 2.4.11 **(2.2)** | Focus Not Obscured (Minimum) | Focused element is not fully hidden behind sticky headers, bottom bars, sheets or snackbars — **desktop/web priority** |
-| 2.5.7 **(2.2)** | Dragging Movements | Every drag (reorder, slider, dismiss) has a single-pointer alternative: buttons, a menu action, or `Slider` keyboard steps |
-| 2.5.8 **(2.2)** | Target Size (Minimum) | Targets at least 24x24 CSS px or spaced so 24 px circles do not overlap; the project baseline of 48 dp already exceeds this |
-| 3.1.2 | Language of Parts | Language changes in content are programmatically identified — **web platform: `lang` attribute** |
-| 3.2.3 | Consistent Navigation | Navigation is consistent across screens |
-| 3.2.4 | Consistent Identification | Components with same function identified consistently |
-| 3.3.3 | Error Suggestion | When input error is detected, correction is suggested if possible |
-| 3.3.4 | Error Prevention | Submissions with legal/financial data are reversible or confirmable |
-| 3.3.8 **(2.2)** | Accessible Authentication (Minimum) | No cognitive function test (memorised password retyping, puzzles) without an alternative; allow paste and autofill, support passkeys or magic links |
+| WCAG ID          | Criterion                           | Flutter Check                                                                                                                                             |
+| ---------------- | ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1.3.4            | Orientation                         | App does not lock to single orientation without essential reason; remove `SystemChrome.setPreferredOrientations` locks                                    |
+| 1.3.5            | Identify Input Purpose              | Text fields use correct `keyboardType` and `autofillHints`; `Semantics(inputType:)` on custom fields                                                      |
+| 1.4.3            | Contrast (Minimum)                  | Normal text 4.5:1; large text 3:1 against background; `textContrastGuideline`                                                                             |
+| 1.4.4            | Resize Text                         | Text scales to 200% without loss of content or functionality; no fixed-height text containers, no `TextScaler.noScaling`, no `clamp` on the user's scaler |
+| 1.4.5            | Images of Text                      | Do not use images of text for styled text — use `Text` widget                                                                                             |
+| 1.4.10           | Reflow                              | Content reflows at 320 CSS px equivalent without horizontal scroll — use `Flexible`, `Wrap`, `SingleChildScrollView`                                      |
+| 1.4.11           | Non-text Contrast                   | UI components and focus indicators have at least 3:1 contrast                                                                                             |
+| 1.4.12           | Text Spacing                        | Content not lost when letter/word/line spacing increased; avoid `overflow: TextOverflow.clip` in fixed containers                                         |
+| 1.4.13           | Content on Hover or Focus           | Hoverable/focusable content is dismissable, hoverable, and persistent — **web/desktop: hover tooltips and menus**                                         |
+| 2.4.5            | Multiple Ways                       | More than one way to locate a screen (search, navigation, sitemap)                                                                                        |
+| 2.4.6            | Headings and Labels                 | Headings and labels are descriptive; `Semantics(header: true, headingLevel:)` for section headings                                                        |
+| 2.4.7            | Focus Visible                       | Keyboard focus indicator is always visible                                                                                                                |
+| 2.4.11 **(2.2)** | Focus Not Obscured (Minimum)        | Focused element is not fully hidden behind sticky headers, bottom bars, sheets or snackbars — **desktop/web priority**                                    |
+| 2.5.7 **(2.2)**  | Dragging Movements                  | Every drag (reorder, slider, dismiss) has a single-pointer alternative: buttons, a menu action, or `Slider` keyboard steps                                |
+| 2.5.8 **(2.2)**  | Target Size (Minimum)               | Targets at least 24x24 CSS px or spaced so 24 px circles do not overlap; the project baseline of 48 dp already exceeds this                               |
+| 3.1.2            | Language of Parts                   | Language changes in content are programmatically identified — **web platform: `lang` attribute**                                                          |
+| 3.2.3            | Consistent Navigation               | Navigation is consistent across screens                                                                                                                   |
+| 3.2.4            | Consistent Identification           | Components with same function identified consistently                                                                                                     |
+| 3.3.3            | Error Suggestion                    | When input error is detected, correction is suggested if possible                                                                                         |
+| 3.3.4            | Error Prevention                    | Submissions with legal/financial data are reversible or confirmable                                                                                       |
+| 3.3.8 **(2.2)**  | Accessible Authentication (Minimum) | No cognitive function test (memorised password retyping, puzzles) without an alternative; allow paste and autofill, support passkeys or magic links       |
 
 ### Level AAA — Additional Criteria (includes all Level A and AA)
 
-| WCAG ID | Criterion | Flutter Check |
-| --- | --- | --- |
-| 1.4.6 | Contrast (Enhanced) | Normal text 7:1; large text 4.5:1 against background |
-| 2.1.3 | Keyboard (No Exception) | All functionality via keyboard with no exceptions — no `GestureDetector` anywhere |
-| 2.2.3 | No Timing | No time limits except for real-time events |
-| 2.2.6 | Timeouts | Users warned of inactivity timeouts |
-| 2.3.2 | Three Flashes | No content flashes at all — zero tolerance, not just below threshold |
-| 2.3.3 | Animation from Interactions | All motion animation can be disabled — gate every animation and transition on `disableAnimationsOf` |
-| 2.4.8 | Location | Users always know where they are within the app |
-| 2.4.9 | Link Purpose (Link Only) | Link purpose understandable from link text alone |
-| 2.4.12 **(2.2)** | Focus Not Obscured (Enhanced) | No part of the focused element is hidden by author content |
-| 2.4.13 **(2.2)** | Focus Appearance | Focus indicator area at least a 2 px perimeter of the component, with 3:1 contrast between focused and unfocused states |
-| 2.5.5 | Target Size (Enhanced) | Targets at least 44x44 CSS px; the 48 dp baseline satisfies this, `iOSTapTargetGuideline` checks 44 |
-| 2.5.6 | Concurrent Input Mechanisms | App does not restrict input to a single modality |
-| 3.2.5 | Change on Request | Context changes only initiated by user request |
-| 3.3.5 | Help | Context-sensitive help is available |
-| 3.3.6 | Error Prevention (All) | All submissions are reversible or confirmable |
-| 3.3.9 **(2.2)** | Accessible Authentication (Enhanced) | No cognitive function test at all, not even object or picture recognition |
+| WCAG ID          | Criterion                            | Flutter Check                                                                                                           |
+| ---------------- | ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------- |
+| 1.4.6            | Contrast (Enhanced)                  | Normal text 7:1; large text 4.5:1 against background                                                                    |
+| 2.1.3            | Keyboard (No Exception)              | All functionality via keyboard with no exceptions — no `GestureDetector` anywhere                                       |
+| 2.2.3            | No Timing                            | No time limits except for real-time events                                                                              |
+| 2.2.6            | Timeouts                             | Users warned of inactivity timeouts                                                                                     |
+| 2.3.2            | Three Flashes                        | No content flashes at all — zero tolerance, not just below threshold                                                    |
+| 2.3.3            | Animation from Interactions          | All motion animation can be disabled — gate every animation and transition on `disableAnimationsOf`                     |
+| 2.4.8            | Location                             | Users always know where they are within the app                                                                         |
+| 2.4.9            | Link Purpose (Link Only)             | Link purpose understandable from link text alone                                                                        |
+| 2.4.12 **(2.2)** | Focus Not Obscured (Enhanced)        | No part of the focused element is hidden by author content                                                              |
+| 2.4.13 **(2.2)** | Focus Appearance                     | Focus indicator area at least a 2 px perimeter of the component, with 3:1 contrast between focused and unfocused states |
+| 2.5.5            | Target Size (Enhanced)               | Targets at least 44x44 CSS px; the 48 dp baseline satisfies this, `iOSTapTargetGuideline` checks 44                     |
+| 2.5.6            | Concurrent Input Mechanisms          | App does not restrict input to a single modality                                                                        |
+| 3.2.5            | Change on Request                    | Context changes only initiated by user request                                                                          |
+| 3.3.5            | Help                                 | Context-sensitive help is available                                                                                     |
+| 3.3.6            | Error Prevention (All)               | All submissions are reversible or confirmable                                                                           |
+| 3.3.9 **(2.2)**  | Accessible Authentication (Enhanced) | No cognitive function test at all, not even object or picture recognition                                               |
 
 ---
 
@@ -247,11 +247,11 @@ if (MediaQuery.supportsAnnounceOf(context)) {
 
 Three numbers apply, and they are not the same rule:
 
-| Source | Minimum | Level | Checked by |
-| --- | --- | --- | --- |
-| WCAG 2.5.8 Target Size (Minimum) | 24x24 CSS px, or 24 px spacing | AA | manual |
-| WCAG 2.5.5 Target Size (Enhanced) and iOS HIG | 44x44 | AAA / iOS | `iOSTapTargetGuideline` |
-| Material and Android guideline, project baseline | 48x48 dp | project | `androidTapTargetGuideline` |
+| Source                                           | Minimum                        | Level     | Checked by                  |
+| ------------------------------------------------ | ------------------------------ | --------- | --------------------------- |
+| WCAG 2.5.8 Target Size (Minimum)                 | 24x24 CSS px, or 24 px spacing | AA        | manual                      |
+| WCAG 2.5.5 Target Size (Enhanced) and iOS HIG    | 44x44                          | AAA / iOS | `iOSTapTargetGuideline`     |
+| Material and Android guideline, project baseline | 48x48 dp                       | project   | `androidTapTargetGuideline` |
 
 The project baseline is 48 dp on every platform, which satisfies all three.
 
@@ -295,11 +295,11 @@ Focus indicators must meet 3:1 contrast (1.4.11 AA) and must not be hidden behin
 
 Contrast requirements start at Level AA — Level A has no contrast requirement.
 
-| Element | Level AA | Level AAA | WCAG criterion |
-| --- | --- | --- | --- |
-| Normal text (< 18pt / < 14pt bold) | 4.5:1 | 7:1 | 1.4.3 / 1.4.6 |
-| Large text (>= 18pt / >= 14pt bold) | 3:1 | 4.5:1 | 1.4.3 / 1.4.6 |
-| UI components and focus indicators | 3:1 | 3:1 | 1.4.11 |
+| Element                             | Level AA | Level AAA | WCAG criterion |
+| ----------------------------------- | -------- | --------- | -------------- |
+| Normal text (< 18pt / < 14pt bold)  | 4.5:1    | 7:1       | 1.4.3 / 1.4.6  |
+| Large text (>= 18pt / >= 14pt bold) | 3:1      | 4.5:1     | 1.4.3 / 1.4.6  |
+| UI components and focus indicators  | 3:1      | 3:1       | 1.4.11         |
 
 Colours come from `Theme.of(context).colorScheme` and `context.appColors`, which mirror `docs/design/`. `textContrastGuideline` measures the rendered text at the AA thresholds; a failure is a theme finding for the **Material Theming** skill, not a widget override. When `MediaQuery.highContrastOf(context)` is true, widen hairlines and strengthen borders.
 
