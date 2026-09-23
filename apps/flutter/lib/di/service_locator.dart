@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
+import 'package:hls_video_player/hls_video_player.dart';
 import 'package:matinee/core/config/env.dart';
 import 'package:matinee/core/network/dio_factory.dart';
 import 'package:matinee/core/storage/preferences_service.dart';
@@ -9,6 +10,7 @@ import 'package:matinee/features/earns/earns_di.dart';
 import 'package:matinee/features/onboarding/onboarding_di.dart';
 import 'package:matinee/features/p2p/p2p_di.dart';
 import 'package:matinee/features/profile/profile_di.dart';
+import 'package:matinee/features/reels/reels_di.dart';
 import 'package:matinee/features/rewards/rewards_di.dart';
 import 'package:matinee/shared/points/points_di.dart';
 
@@ -34,6 +36,7 @@ void registerDependencies(Env env) {
   registerOnboardingDependencies();
   registerP2pDependencies();
   registerProfileDependencies();
+  registerReelsDependencies();
   registerRewardsDependencies();
 
   // Feature registrations follow. create-feature appends one line per feature.
@@ -44,7 +47,9 @@ void registerDependencies(Env env) {
 /// retry(). Only what the first screen cannot render without belongs here.
 ///
 void registerStartupDependencies(GetIt locator) {
-  locator.registerSingletonAsync<DemoSplashHold>(DemoSplashHold.create);
+  locator
+    ..registerSingletonAsync<HlsEngine>(HlsEngine.initialize)
+    ..registerSingletonAsync<DemoSplashHold>(DemoSplashHold.create);
 }
 
 ///
