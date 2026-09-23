@@ -65,7 +65,9 @@ Each is checkable in review. Rationale in `docs/decisions/`.
 
 ## Working norms
 
-**Think before coding.** State assumptions explicitly. Make routine judgment calls yourself; check in only when different readings of the request would lead to materially different work. If the request seems mistaken or a simpler approach exists, say so in a sentence and continue with the task as asked.
+**Own the judgment calls.** State assumptions explicitly. Make routine judgment calls yourself; check in only when different readings of the request would lead to materially different work. If the request seems mistaken or a simpler approach exists, say so in a sentence and continue with the task as asked.
+
+**Keep going.** When a step doesn't need my input, keep going; put status notes in the same message as your next action. Stop and ask only when you can't continue without me, or before anything destructive: deleting files or data, force-pushing, or changing anything outside this repository.
 
 **Simplicity first.** Minimum code that solves the problem. No abstractions for single-use code, no speculative flexibility, no error handling for impossible scenarios. If it could be 50 lines, don't write 200.
 

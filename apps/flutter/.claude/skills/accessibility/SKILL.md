@@ -3,7 +3,6 @@ name: accessibility
 description: Flutter accessibility auditing and remediation against WCAG 2.2 with conformance level selection (A, AA, AAA) across mobile, desktop, and web. Use when building, auditing, or reviewing widgets for screen reader support, target sizes, focus management, color contrast, text scaling, or motion sensitivity. Begins by confirming the WCAG level and target platform(s), then applies level-appropriate, platform-aware criteria and verifies with the flutter_test accessibility guidelines.
 argument-hint: "[wcag-level] [platform]"
 disable-model-invocation: true
-effort: high
 ---
 
 # Accessibility

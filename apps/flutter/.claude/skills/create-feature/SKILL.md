@@ -22,6 +22,8 @@ Scaffold `features/<feature>/` end to end. The shapes in [references/templates.m
 
 ## Workflow
 
+Keep progress in a file, not in the conversation: append a `## Progress` checklist of the steps below to the plan in `docs/plan/` that covers this feature (if none does, create a dated one that starts with a `**Type:**` line, which the commit skill reads) and tick items off as they land. A long run gets its older turns summarised; the file survives that.
+
 1. **Name and shape.** `<feature>` in `snake_case`, `<Feature>` in `PascalCase`. Decide Cubit or Bloc from the invariant above.
 2. **Data source.** If the API is described by an OpenAPI spec, run the add-api skill first and inject the generated client; skip the DTO and service templates. Otherwise emit the DTO and the hand-written service.
 3. **Emit the tree.**

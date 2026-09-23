@@ -6,7 +6,6 @@ description: >
   or cryptography. Covers static security concerns — not pen-testing or runtime analysis.
 argument-hint: "[file-or-directory]"
 disable-model-invocation: true
-effort: high
 ---
 
 # Security
