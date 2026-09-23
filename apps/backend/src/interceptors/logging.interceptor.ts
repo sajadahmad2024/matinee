@@ -19,7 +19,6 @@ const SENSITIVE_KEYS = new Set([
   'firebasetoken',
   'idtoken',
   'identitytoken',
-  'guesttoken',
   'state',
   'secret',
   'authorization',

@@ -1,6 +1,7 @@
 import { EmailModule } from '@email/email.module';
 import { SmsModule } from '@sms/sms.module';
 import { MediaModule } from '@media/media.module';
+import { NotificationsModule } from '@notifications/notifications.module';
 import { Module } from '@nestjs/common';
 import { EmailJobService } from './email/email-job.service';
 import { EmailOtpHandler } from './email/email.handler';
@@ -8,6 +9,12 @@ import { SmsJobService } from './sms/sms-job.service';
 import { SmsSendHandler } from './sms/sms.handler';
 import { NotificationFanoutJobService } from './notifications/notification-fanout-job.service';
 import { NotificationFanoutHandler } from './notifications/notification.handler';
+import { NotificationSendJobService } from './notifications/notification-send-job.service';
+import {
+  PushToDevicesHandler,
+  PushToTopicHandler,
+  PushToUserHandler,
+} from './notifications/notification-send.handlers';
 import { CronModule } from './cron/cron.module';
 import { DailyMailHandler } from './cron/cron.handler';
 import { MediaJobService } from './media/media-job.service';
@@ -28,9 +35,11 @@ import {
  * Worker-scoped ASYNC job CONSUMERS — the @QueueHandler providers discovered by the
  * QueueConsumerService. Scheduling (the producer) lives in CronModule; this module holds
  * the handlers that do the work pushed onto the queue. Import ONLY in WorkerModule.
+ *
+ * NotificationsModule is imported to inject FcmProvider into the push send/topic-sync jobs.
  */
 @Module({
-  imports: [EmailModule, SmsModule, MediaModule, CronModule],
+  imports: [EmailModule, SmsModule, MediaModule, NotificationsModule, CronModule],
   providers: [
     EmailJobService,
     EmailOtpHandler,
@@ -38,6 +47,10 @@ import {
     SmsSendHandler,
     NotificationFanoutJobService,
     NotificationFanoutHandler,
+    NotificationSendJobService,
+    PushToUserHandler,
+    PushToDevicesHandler,
+    PushToTopicHandler,
     DailyMailHandler,
     MediaJobService,
     MediaTranscodeHandler,

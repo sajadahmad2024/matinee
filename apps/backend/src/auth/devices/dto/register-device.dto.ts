@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsArray, IsIn, IsOptional, IsString, MaxLength } from 'class-validator';
+import { IsIn, IsOptional, IsString, MaxLength } from 'class-validator';
 
 export class RegisterDeviceDto {
   @ApiProperty({ description: 'FCM registration token' })
@@ -21,10 +21,4 @@ export class RegisterDeviceDto {
   @IsString()
   @MaxLength(20)
   appVersion?: string;
-
-  @ApiPropertyOptional({ type: [String], example: ['all', 'daily_streak'] })
-  @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
-  topics?: string[];
 }

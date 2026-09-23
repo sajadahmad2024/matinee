@@ -2,7 +2,9 @@ import { EnvConfig } from '@config/env.config';
 import { MediaRepository, MediaRecord } from '@db/repositories/media/media.repository';
 import { QueueService } from '@queue/queue.service';
 import { JobName, QueueName } from '@queue/queue.constant';
-import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { AuthContext } from '@auth/interfaces/auth-context.interface';
+import { AccountType } from '@auth/interfaces/jwt-payload.interface';
 import { ConfigService } from '@nestjs/config';
 import { randomUUID } from 'crypto';
 import {
@@ -37,7 +39,27 @@ export class MediaService {
 
   // ─── Upload (request → client PUTs to storage → complete) ─────────────────────
 
-  async requestUpload(input: RequestUploadDto, uploaderId?: string): Promise<UploadTicketDto> {
+  /** Customers may only upload avatars (image ≤ 5 MB). Admins are unrestricted.
+   *  Enforced here (not in a guard) so both the API-shape check and the account-type
+   *  policy live next to each other and can't drift. */
+  private static readonly CUSTOMER_AVATAR_MAX_BYTES = 5 * 1024 * 1024;
+  private assertUploadAllowed(input: RequestUploadDto, actor: AuthContext): void {
+    if (actor.accountType === AccountType.ADMIN) {
+      return;
+    }
+    if (input.usageType !== UsageType.AVATAR) {
+      throw new ForbiddenException('Only avatar uploads are permitted');
+    }
+    if (input.mediaType !== MediaType.IMAGE || !input.mimeType.startsWith('image/')) {
+      throw new BadRequestException('Avatar must be an image');
+    }
+    if (input.sizeBytes > MediaService.CUSTOMER_AVATAR_MAX_BYTES) {
+      throw new BadRequestException('Avatar must be ≤ 5 MB');
+    }
+  }
+
+  async requestUpload(input: RequestUploadDto, actor: AuthContext): Promise<UploadTicketDto> {
+    this.assertUploadAllowed(input, actor);
     const accessLevel = input.accessLevel ?? this.defaultAccess(input.usageType);
     const assetRoot = `media/${input.usageType}/${randomUUID()}`;
     const storageKey = `${assetRoot}/original/${this.safeName(input.filename)}`;
@@ -53,7 +75,7 @@ export class MediaService {
       originalFilename: input.filename,
       mimeType: input.mimeType,
       fileSizeBytes: input.sizeBytes,
-      uploadedBy: uploaderId,
+      uploadedBy: actor.id,
       altText: input.altText,
     });
 
@@ -62,10 +84,14 @@ export class MediaService {
     return { mediaId: record.id, status: record.status, upload };
   }
 
-  async completeUpload(id: string, input: CompleteUploadDto): Promise<MediaDto> {
+  async completeUpload(id: string, input: CompleteUploadDto, actor: AuthContext): Promise<MediaDto> {
     const record = await this.media.findById(id);
     if (!record) {
       throw new NotFoundException('Media not found');
+    }
+    // Customers can only finalize their own uploads. Admins can finalize any.
+    if (actor.accountType !== AccountType.ADMIN && record.uploadedBy !== actor.id) {
+      throw new ForbiddenException('You cannot finalize this upload');
     }
     if (record.status !== MediaStatus.PENDING && record.status !== MediaStatus.UPLOADED) {
       throw new BadRequestException(`Media is already ${record.status}`);
