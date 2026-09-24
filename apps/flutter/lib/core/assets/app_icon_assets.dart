@@ -39,6 +39,12 @@ abstract final class AppIconAssets {
   static const String star = 'assets/icons/star.svg';
   static const String close = 'assets/icons/close.svg';
 
+  /// The Home video overlay's action rail.
+  static const String like = 'assets/icons/like.svg';
+  static const String comment = 'assets/icons/comment.svg';
+  static const String info = 'assets/icons/info.svg';
+  static const String share = 'assets/icons/share.svg';
+
   /// The notification cards: an auction's countdown, its bid action and a
   /// quest's points pill.
   static const String clock = 'assets/icons/clock.svg';

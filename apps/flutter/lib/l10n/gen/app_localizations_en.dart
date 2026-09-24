@@ -131,6 +131,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navProfile => 'Profile';
 
   @override
+  String reelsLikeAction(String count) {
+    return 'Like, $count';
+  }
+
+  @override
+  String reelsCommentAction(String count) {
+    return 'Comments, $count';
+  }
+
+  @override
+  String get reelsInfoAction => 'Info';
+
+  @override
+  String get reelsShareAction => 'Share';
+
+  @override
   String tabPlaceholder(String tab) {
     return '$tab is not built yet.';
   }
@@ -629,6 +645,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get exclusiveTag => 'EXCLUSIVE CONTENT';
+
+  @override
+  String get exclusiveConfirmTitle => 'Confirm Unlock';
+
+  @override
+  String get exclusiveConfirmMessage =>
+      'You\'re about to spend points to unlock this content. This action can\'t be undone.';
+
+  @override
+  String get exclusivePointDeduction => 'Point Deduction';
+
+  @override
+  String get exclusiveConfirmCta => 'Confirm & Unlock';
 
   @override
   String get a11yLoading => 'Loading';

@@ -11,7 +11,11 @@ class ReelsCubit extends SafeCubit<ReelsState> {
   Future<void> load() async {
     emit(const ReelsState.loading());
     try {
-      emit(ReelsState.success(await _repository.fetchReelsFeed()));
+      final (reels, pointsBalance) = await (
+        _repository.fetchReelsFeed(),
+        _repository.fetchPointsBalance(),
+      ).wait;
+      emit(ReelsState.success(reels, pointsBalance));
     } on AppException catch (e) {
       emit(ReelsState.failure(e));
     }

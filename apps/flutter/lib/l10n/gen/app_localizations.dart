@@ -331,6 +331,30 @@ abstract class AppLocalizations {
   /// **'Profile'**
   String get navProfile;
 
+  /// Accessible name of the video overlay's like button, which shows only the count as its visible label.
+  ///
+  /// In en, this message translates to:
+  /// **'Like, {count}'**
+  String reelsLikeAction(String count);
+
+  /// Accessible name of the video overlay's comment button, which shows only the count as its visible label.
+  ///
+  /// In en, this message translates to:
+  /// **'Comments, {count}'**
+  String reelsCommentAction(String count);
+
+  /// No description provided for @reelsInfoAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Info'**
+  String get reelsInfoAction;
+
+  /// No description provided for @reelsShareAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get reelsShareAction;
+
   /// Body of the stand-in screen behind a bottom-nav tab whose feature does not exist yet.
   ///
   /// In en, this message translates to:
@@ -1182,6 +1206,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'EXCLUSIVE CONTENT'**
   String get exclusiveTag;
+
+  /// No description provided for @exclusiveConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Unlock'**
+  String get exclusiveConfirmTitle;
+
+  /// No description provided for @exclusiveConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'\'re about to spend points to unlock this content. This action can\'\'t be undone.'**
+  String get exclusiveConfirmMessage;
+
+  /// No description provided for @exclusivePointDeduction.
+  ///
+  /// In en, this message translates to:
+  /// **'Point Deduction'**
+  String get exclusivePointDeduction;
+
+  /// No description provided for @exclusiveConfirmCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm & Unlock'**
+  String get exclusiveConfirmCta;
 
   /// Announced while a screen is fetching its content.
   ///

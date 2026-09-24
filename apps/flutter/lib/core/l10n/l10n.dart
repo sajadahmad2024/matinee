@@ -10,4 +10,8 @@ extension AppLocalizationsX on BuildContext {
   /// widget takes the digits already formatted. ARB messages format their own.
   ///
   NumberFormat get decimalFormat => NumberFormat.decimalPattern(Localizations.localeOf(this).toLanguageTag());
+
+  /// For the video action rail, where a count reads as `12.4K` rather than
+  /// the full figure [decimalFormat] gives.
+  NumberFormat get compactFormat => NumberFormat.compact(locale: Localizations.localeOf(this).toLanguageTag());
 }

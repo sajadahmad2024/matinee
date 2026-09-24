@@ -285,7 +285,7 @@ as String,
 /// @nodoc
 mixin _$Reel {
 
- String get id; String get masterUri; String get title; String get caption; ReelAuthor get author; int get likeCount; int get commentCount; int get shareCount; int get durationMs; ReelPlayback get playback; String? get thumbnailUrl;
+ String get id; String get masterUri; String get title; String get caption; ReelAuthor get author; int get likeCount; int get commentCount; int get shareCount; int get durationMs; ReelPlayback get playback; List<String> get genres; String? get thumbnailUrl; bool get isExclusive; int? get unlockCost; String? get preview; String? get castAndCrew;
 /// Create a copy of Reel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -297,20 +297,20 @@ $ReelCopyWith<Reel> get copyWith => _$ReelCopyWithImpl<Reel>(this as Reel, _$ide
 @override
 bool operator ==(Object other) {
   final _this = this as Reel;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Reel&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.masterUri, _this.masterUri) || other.masterUri == _this.masterUri)&&(identical(other.title, _this.title) || other.title == _this.title)&&(identical(other.caption, _this.caption) || other.caption == _this.caption)&&(identical(other.author, _this.author) || other.author == _this.author)&&(identical(other.likeCount, _this.likeCount) || other.likeCount == _this.likeCount)&&(identical(other.commentCount, _this.commentCount) || other.commentCount == _this.commentCount)&&(identical(other.shareCount, _this.shareCount) || other.shareCount == _this.shareCount)&&(identical(other.durationMs, _this.durationMs) || other.durationMs == _this.durationMs)&&(identical(other.playback, _this.playback) || other.playback == _this.playback)&&(identical(other.thumbnailUrl, _this.thumbnailUrl) || other.thumbnailUrl == _this.thumbnailUrl));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Reel&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.masterUri, _this.masterUri) || other.masterUri == _this.masterUri)&&(identical(other.title, _this.title) || other.title == _this.title)&&(identical(other.caption, _this.caption) || other.caption == _this.caption)&&(identical(other.author, _this.author) || other.author == _this.author)&&(identical(other.likeCount, _this.likeCount) || other.likeCount == _this.likeCount)&&(identical(other.commentCount, _this.commentCount) || other.commentCount == _this.commentCount)&&(identical(other.shareCount, _this.shareCount) || other.shareCount == _this.shareCount)&&(identical(other.durationMs, _this.durationMs) || other.durationMs == _this.durationMs)&&(identical(other.playback, _this.playback) || other.playback == _this.playback)&&const DeepCollectionEquality().equals(other.genres, _this.genres)&&(identical(other.thumbnailUrl, _this.thumbnailUrl) || other.thumbnailUrl == _this.thumbnailUrl)&&(identical(other.isExclusive, _this.isExclusive) || other.isExclusive == _this.isExclusive)&&(identical(other.unlockCost, _this.unlockCost) || other.unlockCost == _this.unlockCost)&&(identical(other.preview, _this.preview) || other.preview == _this.preview)&&(identical(other.castAndCrew, _this.castAndCrew) || other.castAndCrew == _this.castAndCrew));
 }
 
 
 @override
 int get hashCode {
   final _this = this as Reel;
-  return Object.hash(runtimeType,_this.id,_this.masterUri,_this.title,_this.caption,_this.author,_this.likeCount,_this.commentCount,_this.shareCount,_this.durationMs,_this.playback,_this.thumbnailUrl);
+  return Object.hash(runtimeType,_this.id,_this.masterUri,_this.title,_this.caption,_this.author,_this.likeCount,_this.commentCount,_this.shareCount,_this.durationMs,_this.playback,const DeepCollectionEquality().hash(_this.genres),_this.thumbnailUrl,_this.isExclusive,_this.unlockCost,_this.preview,_this.castAndCrew);
 }
 
 @override
 String toString() {
   final _this = this as Reel;
-  return 'Reel(id: ${_this.id}, masterUri: ${_this.masterUri}, title: ${_this.title}, caption: ${_this.caption}, author: ${_this.author}, likeCount: ${_this.likeCount}, commentCount: ${_this.commentCount}, shareCount: ${_this.shareCount}, durationMs: ${_this.durationMs}, playback: ${_this.playback}, thumbnailUrl: ${_this.thumbnailUrl})';
+  return 'Reel(id: ${_this.id}, masterUri: ${_this.masterUri}, title: ${_this.title}, caption: ${_this.caption}, author: ${_this.author}, likeCount: ${_this.likeCount}, commentCount: ${_this.commentCount}, shareCount: ${_this.shareCount}, durationMs: ${_this.durationMs}, playback: ${_this.playback}, genres: ${_this.genres}, thumbnailUrl: ${_this.thumbnailUrl}, isExclusive: ${_this.isExclusive}, unlockCost: ${_this.unlockCost}, preview: ${_this.preview}, castAndCrew: ${_this.castAndCrew})';
 }
 
 
@@ -321,7 +321,7 @@ abstract mixin class $ReelCopyWith<$Res>  {
   factory $ReelCopyWith(Reel value, $Res Function(Reel) _then) = _$ReelCopyWithImpl;
 @useResult
 $Res call({
- String id, String masterUri, String title, String caption, ReelAuthor author, int likeCount, int commentCount, int shareCount, int durationMs, ReelPlayback playback, String? thumbnailUrl
+ String id, String masterUri, String title, String caption, ReelAuthor author, int likeCount, int commentCount, int shareCount, int durationMs, ReelPlayback playback, List<String> genres, String? thumbnailUrl, bool isExclusive, int? unlockCost, String? preview, String? castAndCrew
 });
 
 
@@ -338,7 +338,7 @@ class _$ReelCopyWithImpl<$Res>
 
 /// Create a copy of Reel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? masterUri = null,Object? title = null,Object? caption = null,Object? author = null,Object? likeCount = null,Object? commentCount = null,Object? shareCount = null,Object? durationMs = null,Object? playback = null,Object? thumbnailUrl = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? masterUri = null,Object? title = null,Object? caption = null,Object? author = null,Object? likeCount = null,Object? commentCount = null,Object? shareCount = null,Object? durationMs = null,Object? playback = null,Object? genres = null,Object? thumbnailUrl = freezed,Object? isExclusive = null,Object? unlockCost = freezed,Object? preview = freezed,Object? castAndCrew = freezed,}) {
   return _then(Reel(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,masterUri: null == masterUri ? _self.masterUri : masterUri // ignore: cast_nullable_to_non_nullable
@@ -350,7 +350,12 @@ as int,commentCount: null == commentCount ? _self.commentCount : commentCount //
 as int,shareCount: null == shareCount ? _self.shareCount : shareCount // ignore: cast_nullable_to_non_nullable
 as int,durationMs: null == durationMs ? _self.durationMs : durationMs // ignore: cast_nullable_to_non_nullable
 as int,playback: null == playback ? _self.playback : playback // ignore: cast_nullable_to_non_nullable
-as ReelPlayback,thumbnailUrl: freezed == thumbnailUrl ? _self.thumbnailUrl : thumbnailUrl // ignore: cast_nullable_to_non_nullable
+as ReelPlayback,genres: null == genres ? _self.genres : genres // ignore: cast_nullable_to_non_nullable
+as List<String>,thumbnailUrl: freezed == thumbnailUrl ? _self.thumbnailUrl : thumbnailUrl // ignore: cast_nullable_to_non_nullable
+as String?,isExclusive: null == isExclusive ? _self.isExclusive : isExclusive // ignore: cast_nullable_to_non_nullable
+as bool,unlockCost: freezed == unlockCost ? _self.unlockCost : unlockCost // ignore: cast_nullable_to_non_nullable
+as int?,preview: freezed == preview ? _self.preview : preview // ignore: cast_nullable_to_non_nullable
+as String?,castAndCrew: freezed == castAndCrew ? _self.castAndCrew : castAndCrew // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }
@@ -454,10 +459,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String masterUri,  String title,  String caption,  ReelAuthor author,  int likeCount,  int commentCount,  int shareCount,  int durationMs,  ReelPlayback playback,  String? thumbnailUrl)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String masterUri,  String title,  String caption,  ReelAuthor author,  int likeCount,  int commentCount,  int shareCount,  int durationMs,  ReelPlayback playback,  List<String> genres,  String? thumbnailUrl,  bool isExclusive,  int? unlockCost,  String? preview,  String? castAndCrew)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Reel() when $default != null:
-return $default(_that.id,_that.masterUri,_that.title,_that.caption,_that.author,_that.likeCount,_that.commentCount,_that.shareCount,_that.durationMs,_that.playback,_that.thumbnailUrl);case _:
+return $default(_that.id,_that.masterUri,_that.title,_that.caption,_that.author,_that.likeCount,_that.commentCount,_that.shareCount,_that.durationMs,_that.playback,_that.genres,_that.thumbnailUrl,_that.isExclusive,_that.unlockCost,_that.preview,_that.castAndCrew);case _:
   return orElse();
 
 }
@@ -475,10 +480,10 @@ return $default(_that.id,_that.masterUri,_that.title,_that.caption,_that.author,
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String masterUri,  String title,  String caption,  ReelAuthor author,  int likeCount,  int commentCount,  int shareCount,  int durationMs,  ReelPlayback playback,  String? thumbnailUrl)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String masterUri,  String title,  String caption,  ReelAuthor author,  int likeCount,  int commentCount,  int shareCount,  int durationMs,  ReelPlayback playback,  List<String> genres,  String? thumbnailUrl,  bool isExclusive,  int? unlockCost,  String? preview,  String? castAndCrew)  $default,) {final _that = this;
 switch (_that) {
 case _Reel():
-return $default(_that.id,_that.masterUri,_that.title,_that.caption,_that.author,_that.likeCount,_that.commentCount,_that.shareCount,_that.durationMs,_that.playback,_that.thumbnailUrl);case _:
+return $default(_that.id,_that.masterUri,_that.title,_that.caption,_that.author,_that.likeCount,_that.commentCount,_that.shareCount,_that.durationMs,_that.playback,_that.genres,_that.thumbnailUrl,_that.isExclusive,_that.unlockCost,_that.preview,_that.castAndCrew);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -495,10 +500,10 @@ return $default(_that.id,_that.masterUri,_that.title,_that.caption,_that.author,
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String masterUri,  String title,  String caption,  ReelAuthor author,  int likeCount,  int commentCount,  int shareCount,  int durationMs,  ReelPlayback playback,  String? thumbnailUrl)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String masterUri,  String title,  String caption,  ReelAuthor author,  int likeCount,  int commentCount,  int shareCount,  int durationMs,  ReelPlayback playback,  List<String> genres,  String? thumbnailUrl,  bool isExclusive,  int? unlockCost,  String? preview,  String? castAndCrew)?  $default,) {final _that = this;
 switch (_that) {
 case _Reel() when $default != null:
-return $default(_that.id,_that.masterUri,_that.title,_that.caption,_that.author,_that.likeCount,_that.commentCount,_that.shareCount,_that.durationMs,_that.playback,_that.thumbnailUrl);case _:
+return $default(_that.id,_that.masterUri,_that.title,_that.caption,_that.author,_that.likeCount,_that.commentCount,_that.shareCount,_that.durationMs,_that.playback,_that.genres,_that.thumbnailUrl,_that.isExclusive,_that.unlockCost,_that.preview,_that.castAndCrew);case _:
   return null;
 
 }
@@ -510,7 +515,7 @@ return $default(_that.id,_that.masterUri,_that.title,_that.caption,_that.author,
 
 
 class _Reel implements Reel {
-  const _Reel({required this.id, required this.masterUri, required this.title, required this.caption, required this.author, required this.likeCount, required this.commentCount, required this.shareCount, required this.durationMs, required this.playback, this.thumbnailUrl});
+  const _Reel({required this.id, required this.masterUri, required this.title, required this.caption, required this.author, required this.likeCount, required this.commentCount, required this.shareCount, required this.durationMs, required this.playback, required  List<String> genres, this.thumbnailUrl, this.isExclusive = false, this.unlockCost, this.preview, this.castAndCrew}): _genres = genres;
   
 
 @override final  String id;
@@ -523,7 +528,18 @@ class _Reel implements Reel {
 @override final  int shareCount;
 @override final  int durationMs;
 @override final  ReelPlayback playback;
+ final  List<String> _genres;
+@override List<String> get genres {
+  if (_genres is EqualUnmodifiableListView) return _genres;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_genres);
+}
+
 @override final  String? thumbnailUrl;
+@override@JsonKey() final  bool isExclusive;
+@override final  int? unlockCost;
+@override final  String? preview;
+@override final  String? castAndCrew;
 
 /// Create a copy of Reel
 /// with the given fields replaced by the non-null parameter values.
@@ -535,18 +551,18 @@ _$ReelCopyWith<_Reel> get copyWith => __$ReelCopyWithImpl<_Reel>(this, _$identit
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Reel&&(identical(other.id, id) || other.id == id)&&(identical(other.masterUri, masterUri) || other.masterUri == masterUri)&&(identical(other.title, title) || other.title == title)&&(identical(other.caption, caption) || other.caption == caption)&&(identical(other.author, author) || other.author == author)&&(identical(other.likeCount, likeCount) || other.likeCount == likeCount)&&(identical(other.commentCount, commentCount) || other.commentCount == commentCount)&&(identical(other.shareCount, shareCount) || other.shareCount == shareCount)&&(identical(other.durationMs, durationMs) || other.durationMs == durationMs)&&(identical(other.playback, playback) || other.playback == playback)&&(identical(other.thumbnailUrl, thumbnailUrl) || other.thumbnailUrl == thumbnailUrl));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Reel&&(identical(other.id, id) || other.id == id)&&(identical(other.masterUri, masterUri) || other.masterUri == masterUri)&&(identical(other.title, title) || other.title == title)&&(identical(other.caption, caption) || other.caption == caption)&&(identical(other.author, author) || other.author == author)&&(identical(other.likeCount, likeCount) || other.likeCount == likeCount)&&(identical(other.commentCount, commentCount) || other.commentCount == commentCount)&&(identical(other.shareCount, shareCount) || other.shareCount == shareCount)&&(identical(other.durationMs, durationMs) || other.durationMs == durationMs)&&(identical(other.playback, playback) || other.playback == playback)&&const DeepCollectionEquality().equals(other.genres, _genres)&&(identical(other.thumbnailUrl, thumbnailUrl) || other.thumbnailUrl == thumbnailUrl)&&(identical(other.isExclusive, isExclusive) || other.isExclusive == isExclusive)&&(identical(other.unlockCost, unlockCost) || other.unlockCost == unlockCost)&&(identical(other.preview, preview) || other.preview == preview)&&(identical(other.castAndCrew, castAndCrew) || other.castAndCrew == castAndCrew));
 }
 
 
 @override
 int get hashCode {
-    return Object.hash(runtimeType,id,masterUri,title,caption,author,likeCount,commentCount,shareCount,durationMs,playback,thumbnailUrl);
+    return Object.hash(runtimeType,id,masterUri,title,caption,author,likeCount,commentCount,shareCount,durationMs,playback,const DeepCollectionEquality().hash(_genres),thumbnailUrl,isExclusive,unlockCost,preview,castAndCrew);
 }
 
 @override
 String toString() {
-    return 'Reel(id: $id, masterUri: $masterUri, title: $title, caption: $caption, author: $author, likeCount: $likeCount, commentCount: $commentCount, shareCount: $shareCount, durationMs: $durationMs, playback: $playback, thumbnailUrl: $thumbnailUrl)';
+    return 'Reel(id: $id, masterUri: $masterUri, title: $title, caption: $caption, author: $author, likeCount: $likeCount, commentCount: $commentCount, shareCount: $shareCount, durationMs: $durationMs, playback: $playback, genres: $genres, thumbnailUrl: $thumbnailUrl, isExclusive: $isExclusive, unlockCost: $unlockCost, preview: $preview, castAndCrew: $castAndCrew)';
 }
 
 
@@ -557,7 +573,7 @@ abstract mixin class _$ReelCopyWith<$Res> implements $ReelCopyWith<$Res> {
   factory _$ReelCopyWith(_Reel value, $Res Function(_Reel) _then) = __$ReelCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String masterUri, String title, String caption, ReelAuthor author, int likeCount, int commentCount, int shareCount, int durationMs, ReelPlayback playback, String? thumbnailUrl
+ String id, String masterUri, String title, String caption, ReelAuthor author, int likeCount, int commentCount, int shareCount, int durationMs, ReelPlayback playback, List<String> genres, String? thumbnailUrl, bool isExclusive, int? unlockCost, String? preview, String? castAndCrew
 });
 
 
@@ -574,7 +590,7 @@ class __$ReelCopyWithImpl<$Res>
 
 /// Create a copy of Reel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? masterUri = null,Object? title = null,Object? caption = null,Object? author = null,Object? likeCount = null,Object? commentCount = null,Object? shareCount = null,Object? durationMs = null,Object? playback = null,Object? thumbnailUrl = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? masterUri = null,Object? title = null,Object? caption = null,Object? author = null,Object? likeCount = null,Object? commentCount = null,Object? shareCount = null,Object? durationMs = null,Object? playback = null,Object? genres = null,Object? thumbnailUrl = freezed,Object? isExclusive = null,Object? unlockCost = freezed,Object? preview = freezed,Object? castAndCrew = freezed,}) {
   return _then(_Reel(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,masterUri: null == masterUri ? _self.masterUri : masterUri // ignore: cast_nullable_to_non_nullable
@@ -586,7 +602,12 @@ as int,commentCount: null == commentCount ? _self.commentCount : commentCount //
 as int,shareCount: null == shareCount ? _self.shareCount : shareCount // ignore: cast_nullable_to_non_nullable
 as int,durationMs: null == durationMs ? _self.durationMs : durationMs // ignore: cast_nullable_to_non_nullable
 as int,playback: null == playback ? _self.playback : playback // ignore: cast_nullable_to_non_nullable
-as ReelPlayback,thumbnailUrl: freezed == thumbnailUrl ? _self.thumbnailUrl : thumbnailUrl // ignore: cast_nullable_to_non_nullable
+as ReelPlayback,genres: null == genres ? _self._genres : genres // ignore: cast_nullable_to_non_nullable
+as List<String>,thumbnailUrl: freezed == thumbnailUrl ? _self.thumbnailUrl : thumbnailUrl // ignore: cast_nullable_to_non_nullable
+as String?,isExclusive: null == isExclusive ? _self.isExclusive : isExclusive // ignore: cast_nullable_to_non_nullable
+as bool,unlockCost: freezed == unlockCost ? _self.unlockCost : unlockCost // ignore: cast_nullable_to_non_nullable
+as int?,preview: freezed == preview ? _self.preview : preview // ignore: cast_nullable_to_non_nullable
+as String?,castAndCrew: freezed == castAndCrew ? _self.castAndCrew : castAndCrew // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }

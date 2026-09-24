@@ -46,6 +46,11 @@ class ReelsFeedApiService {
       durationMs: 634000,
       thumbnailUrl: 'https://test-streams.mux.dev/x36xhzz/poster.jpg',
       playback: _clearLive,
+      genres: ['Animation', 'Comedy'],
+      isExclusive: true,
+      unlockCost: 500,
+      preview: 'Behind the scenes: how the short was rendered frame by frame.',
+      castAndCrew: 'Blender Foundation',
     ),
     Reel(
       id: 'reel-2',
@@ -58,6 +63,7 @@ class ReelsFeedApiService {
       shareCount: 21,
       durationMs: 45000,
       playback: _clearLive,
+      genres: ['Drama'],
     ),
     Reel(
       id: 'reel-3',
@@ -70,6 +76,7 @@ class ReelsFeedApiService {
       shareCount: 9,
       durationMs: 634000,
       playback: _clearLive,
+      genres: ['Animation', 'Comedy'],
     ),
     Reel(
       id: 'reel-4',
@@ -82,6 +89,7 @@ class ReelsFeedApiService {
       shareCount: 4,
       durationMs: 120000,
       playback: _clearLive,
+      genres: ['Sci-Fi'],
     ),
     Reel(
       id: 'reel-5',
@@ -94,6 +102,7 @@ class ReelsFeedApiService {
       shareCount: 301,
       durationMs: 734000,
       playback: _clearLive,
+      genres: ['Sci-Fi', 'Action'],
     ),
     Reel(
       id: 'reel-6',
@@ -106,6 +115,7 @@ class ReelsFeedApiService {
       shareCount: 11,
       durationMs: 734000,
       playback: _clearLive,
+      genres: ['Sci-Fi', 'Action'],
     ),
     Reel(
       id: 'reel-7',
@@ -118,6 +128,7 @@ class ReelsFeedApiService {
       shareCount: 70,
       durationMs: 1800000,
       playback: _clearLive,
+      genres: ['Drama'],
     ),
     Reel(
       id: 'reel-signed-1',
@@ -142,6 +153,7 @@ class ReelsFeedApiService {
         maxPrefetchHeight: 480,
         authConfig: ReelAuthConfig(tokenRefreshId: 'signed-reel-1'),
       ),
+      genres: ['Thriller'],
     ),
     Reel(
       id: 'reel-token-1',
@@ -169,6 +181,7 @@ class ReelsFeedApiService {
           tokenRefreshId: 'header-reel-1',
         ),
       ),
+      genres: ['Thriller', 'Mystery'],
     ),
     Reel(
       id: 'reel-fairplay-1',
@@ -196,6 +209,7 @@ class ReelsFeedApiService {
           contentId: 'asset-fairplay-1',
         ),
       ),
+      genres: ['Drama'],
     ),
     Reel(
       id: 'reel-widevine-1',
@@ -227,11 +241,21 @@ class ReelsFeedApiService {
           contentId: 'asset-widevine-1',
         ),
       ),
+      genres: ['Drama'],
     ),
   ];
 
   Future<List<Reel>> fetchReelsFeed() async {
     await Future<void>.delayed(mockLatency);
     return _feed;
+  }
+
+  ///
+  /// Temporary home for the streak points balance: it belongs to the user, not
+  /// the reels feed, and moves to its own service once that API exists.
+  ///
+  Future<int> fetchPointsBalance() async {
+    await Future<void>.delayed(mockLatency);
+    return 540;
   }
 }

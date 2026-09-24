@@ -12,6 +12,7 @@ import 'package:matinee/core/theme/extensions/build_context_extensions.dart';
 import 'package:matinee/core/widgets/back_disc_button.dart';
 import 'package:matinee/core/widgets/error_view.dart';
 import 'package:matinee/core/widgets/loading_view.dart';
+import 'package:matinee/core/widgets/points_pill.dart';
 import 'package:matinee/core/widgets/screen_title.dart';
 import 'package:matinee/core/widgets/section_label.dart';
 import 'package:matinee/di/service_locator.dart';
@@ -24,7 +25,6 @@ import 'package:matinee/features/rewards/presentation/widgets/auction_stat_card.
 import 'package:matinee/features/rewards/presentation/widgets/bid_bar.dart';
 import 'package:matinee/features/rewards/presentation/widgets/bid_history_row.dart';
 import 'package:matinee/features/rewards/presentation/widgets/live_badge.dart';
-import 'package:matinee/features/rewards/presentation/widgets/points_pill.dart';
 
 class AuctionScreen extends StatelessWidget {
   const AuctionScreen({super.key});

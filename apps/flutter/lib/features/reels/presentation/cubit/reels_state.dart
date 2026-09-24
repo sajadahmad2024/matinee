@@ -8,6 +8,6 @@ part 'reels_state.freezed.dart';
 sealed class ReelsState with _$ReelsState {
   const factory ReelsState.initial() = ReelsInitial;
   const factory ReelsState.loading() = ReelsLoading;
-  const factory ReelsState.success(List<Reel> reels) = ReelsSuccess;
+  const factory ReelsState.success(List<Reel> reels, int pointsBalance) = ReelsSuccess;
   const factory ReelsState.failure(AppException error) = ReelsFailure;
 }
