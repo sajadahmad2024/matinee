@@ -12,25 +12,33 @@ per subsystem.
 1. Client calls `POST /v1/media/uploads` → API creates a `media_metadata` row (`status=pending`)
    and returns a presigned S3 PUT URL
 2. Client PUTs bytes directly to the S3 source bucket
-3. **Two paths converge (whichever fires first "wins", idempotent):**
-   - **API path (optional but recommended):** client calls `POST /v1/media/:id/complete` →
-     API HEAD-checks S3, marks `uploaded`; for **non-videos**, flips straight to `ready`
-   - **Lambda path (for videos):** S3 fires `ObjectCreated:*` → SQS `media-source-events`
-     → SQS event source mapping triggers the transcoder Lambda → Lambda looks up media row
-     by `storage_key`, checks `media_type='video'`, writes placeholder HLS + poster to output
-     bucket, `UPDATE`s `media_metadata` status → `ready`
-4. Client calls `GET /v1/media/:id/playback` → HLS master playlist URL (plus signed cookies
+3. S3 fires `ObjectCreated:*` → SQS `media-source-events` → the SQS event source mapping
+   triggers the transcoder Lambda, which (rules in `docker/dummy-transcoder/lib.js`):
+   - rejects + deletes objects larger than the size declared in step 1
+   - **video:** atomically claims the row (`processing`), writes placeholder HLS + poster to
+     the output bucket, sets `ready`
+   - **image/doc/other:** sets `ready` directly (no transcode)
+4. Optionally the client calls `POST /v1/media/:id/complete` → HEAD + size check; images/docs
+   flip to `ready` here if the Lambda hasn't already. Both paths use status-guarded writes, so
+   whichever runs second is a no-op — neither can regress the other
+5. Client calls `GET /v1/media/:id/playback` → HLS master playlist URL (plus signed cookies
    for `protected` assets)
 
-Division of labour:
-
-| Media type | READY transition owner |
+| Media type | READY transition |
 |---|---|
-| `video` | Transcoder Lambda (triggered by S3 event) |
-| `image` / `document` / `audio` / other | API's `POST /:id/complete` (synchronous, no transcoding needed) |
+| `video` | Transcoder Lambda, after the (dummy) transcode |
+| `image` / `document` / `audio` / other | Lambda on the S3 event, or `POST /:id/complete` — whichever comes first |
 
-The Lambda checks `media_type='video'` and skips everything else — the two paths never
-conflict.
+### Delivery: two buckets
+
+Originals live in the **source** bucket, HLS output in the **output** bucket; URLs are built
+from one CDN base. So:
+- **Cloud:** the CloudFront distribution needs two origins — path pattern `*/hls/*` → output
+  bucket, default behaviour → source bucket (both via OAC)
+- **Local** (`MEDIA_DELIVERY_DRIVER=local`): `LocalCdnController` serves `/__local-cdn/<key>`
+  by streaming from S3/Floci — `…/hls/…` keys from the output bucket, everything else from
+  source. Dev only (404 in production), no auth
+- **Delete** (`DELETE /media/:id`) purges the asset prefix in **both** buckets
 
 ## Architecture diagram
 
@@ -51,8 +59,8 @@ conflict.
       │ 3a. ObjectCreated:* (videos → transcode path)    │
       ▼                                                  │
 ┌───────────────────────────┐        3b. POST /:id/complete
-│ SQS media-source-events   │        (any media type — optional for videos,
-└───────────────────────────┘         required for images/docs)
+│ SQS media-source-events   │        (optional, any media type — HEAD +
+└───────────────────────────┘         size check; images/docs → READY)
       │                                                  │
       │ 4. SQS → Lambda event source mapping             │
       ▼                                                  │
@@ -60,7 +68,7 @@ conflict.
 │ Transcoder Lambda (dummy locally, real in prod)     │  │
 │   a. Parse SQS event → S3 key                       │  │
 │   b. pg: SELECT id, status, media_type WHERE ...    │  │
-│   c. IF media_type != 'video' → skip                │  │
+│   c. oversize → delete + failed; non-video → ready  │  │
 │   d. UPDATE status='processing' + status event      │  │
 │   e. Write placeholder master.m3u8 + poster → S3    │  │
 │      (real path: FFmpeg or MediaConvert.CreateJob)  │  │
@@ -68,8 +76,9 @@ conflict.
 │      delivery_prefix, is_hls, processed_at          │  │
 └─────────────────────────────────────────────────────┘  │
                                                          │
-                              non-videos: /complete flips │
-                              to READY synchronously here │
+                      status-guarded writes: whichever │
+                      of Lambda / /complete runs 2nd  │
+                      is a no-op                      │
                                                          │
       │ 6. GET /v1/media/:id/playback ────────────────────┘
       ▼
@@ -82,7 +91,7 @@ conflict.
 |---|---|---|
 | **API** (`MediaController` + `MediaService`) | Presigned upload, reads, playback URL minting, delete + inline S3 cleanup | `src/media/` |
 | **S3 source bucket** | Holds original uploads. Notification fires on `ObjectCreated:*` | Terraform: `infra/floci/s3.tf` |
-| **SQS `media-source-events`** | Bridge queue: S3 events → Lambda. DLQ after 5 retries | Terraform: `infra/floci/sqs.tf` |
+| **SQS `media-source-events`** | Bridge queue: S3 events → Lambda. Visibility = 6× Lambda timeout; DLQ after `media_source_events_max_receive_count` (5) deliveries | Terraform: `infra/floci/sqs.tf` |
 | **Transcoder Lambda** | Sole owner of `pending → processing → ready` transitions. Dummy handler locally; swap in FFmpeg / MediaConvert for prod | `docker/dummy-transcoder/` + `infra/floci/lambda.tf` |
 | **S3 output bucket** | HLS outputs (`master.m3u8`, variants, poster). Separate from source for lifecycle / IAM segregation | `infra/floci/s3.tf` |
 | **NestJS worker** | Does NOT touch media. Owns email/sms/notifications/content crons only | `src/background/` (media handlers deleted in v2) |
@@ -136,7 +145,7 @@ Zero code change between local dev, staging, and production — only these vars 
 | `MEDIA_OUTPUT_BUCKET` | `maintinee-media-output-development` | `maintinee-media-output-production` |
 
 The Lambda's own env (set by Terraform in `lambda.tf`, not by NestJS):
-- `MEDIA_OUTPUT_BUCKET`, `AWS_ENDPOINT_URL` (Floci only), `DATABASE_URL`, `AWS_REGION`
+- `MEDIA_OUTPUT_BUCKET`, `MAX_RECEIVE_COUNT`, `DATABASE_URL` (local) or `DATABASE_URL_SECRET_ID` (prod), `AWS_ENDPOINT_URL` (Floci only — `host.docker.internal`, never `localhost`)
 
 For pure local dev without Floci (default): set `MEDIA_STORAGE_DRIVER=local` — uploads land
 on disk. There is no local transcode path — the transcode chain only fires against S3+SQS+Lambda.

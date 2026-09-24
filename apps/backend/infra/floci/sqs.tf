@@ -9,7 +9,6 @@ locals {
     "email",
     "sms",
     "cron",
-    "media",
     "content",
     "notifications",
   ]
@@ -49,12 +48,14 @@ resource "aws_sqs_queue" "media_source_events_dlq" {
 
 #trivy:ignore:AVD-AWS-0096
 resource "aws_sqs_queue" "media_source_events" {
-  name                       = "media-source-events"
-  visibility_timeout_seconds = 60
+  name = "media-source-events"
+  # AWS guidance for Lambda event sources: visibility >= 6x the function timeout, otherwise a
+  # message can reappear (and be processed twice) while an invocation is still running.
+  visibility_timeout_seconds = var.transcoder_lambda_timeout_seconds * 6
 
   redrive_policy = jsonencode({
     deadLetterTargetArn = aws_sqs_queue.media_source_events_dlq.arn
-    maxReceiveCount     = 5
+    maxReceiveCount     = var.media_source_events_max_receive_count
   })
 }
 

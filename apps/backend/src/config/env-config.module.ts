@@ -227,10 +227,7 @@ const validationSchema = Joi.object({
   MEDIA_UPLOAD_URL_TTL: Joi.number().default(900),
   MEDIA_SIGNED_URL_TTL: Joi.number().default(900),
   MEDIA_MAX_UPLOAD_BYTES: Joi.number().default(10737418240),
-  MEDIA_TRANSCODE_POLL_INTERVAL: Joi.number().default(15),
-  MEDIA_TRANSCODE_POLL_MAX_INTERVAL: Joi.number().default(120),
-  MEDIA_TRANSCODE_STUCK_SECONDS: Joi.number().default(300),
-  MEDIA_TRANSCODE_MAX_SECONDS: Joi.number().default(21600),
+  MEDIA_TRANSCODE_STUCK_SECONDS: Joi.number().default(900), // reconcile threshold; raise for MediaConvert
   MEDIA_ORPHAN_AGE_SECONDS: Joi.number().default(86400),
 });
 

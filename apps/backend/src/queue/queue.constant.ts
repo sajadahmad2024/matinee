@@ -29,12 +29,6 @@ export enum JobName {
   PUSH_TO_USER = 'push-to-user',                     // transactional push: resolve user's active devices + FCM send
   PUSH_TO_TOPIC = 'push-to-topic',                   // broadcast push via FCM topic (one FCM call)
   PUSH_TO_DEVICES = 'push-to-devices',               // targeted push to a pre-resolved set of device_token ids
-  // Media
-  TRANSCODE_VIDEO = 'transcode-video',     // submit the HLS transcode job for a media asset
-  TRANSCODE_POLL = 'transcode-poll',       // delayed self-poll of an in-flight transcode (status by status)
-  MEDIA_RECONCILE = 'media-reconcile',     // cron safety-net: resume/fail stuck transcodes
-  MEDIA_ORPHAN_SWEEP = 'media-orphan-sweep', // cron: delete never-completed (stale pending) uploads
-  MEDIA_CLEANUP = 'media-cleanup',         // delete storage objects for a soft-deleted asset
   // Content
   PUBLISH_SCHEDULED = 'publish-scheduled',         // cron: flip scheduled→published when go-live passes
   LICENSE_EXPIRY_REMINDER = 'license-expiry-reminder', // cron: surface licenses expiring soon

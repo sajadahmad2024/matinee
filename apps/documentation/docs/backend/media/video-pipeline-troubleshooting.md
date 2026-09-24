@@ -85,6 +85,22 @@ aws --endpoint-url=http://localhost:4566 logs describe-log-streams \
 
 ---
 
+## Lambda can't reach S3 or Postgres (runs, but nothing changes)
+
+The Lambda is its own container. `localhost` inside it is the Lambda, not Floci or Postgres.
+Its env must use `host.docker.internal`:
+
+```bash
+aws --endpoint-url=http://localhost:4566 lambda get-function-configuration \
+  --function-name maintinee-transcoder-development --query 'Environment.Variables'
+# AWS_ENDPOINT_URL = http://host.docker.internal:4566
+# DATABASE_URL     = postgresql://…@host.docker.internal:5432/…
+```
+
+Terraform sets these via `lambda_aws_endpoint_url` / `transcoder_lambda_database_url`. On
+Linux Docker Engine, `host.docker.internal` may not resolve inside Floci-spawned containers —
+point both at an address the containers can reach (e.g. the Docker bridge gateway IP).
+
 ## Lambda runs but doesn't update the DB
 
 **Symptom:** `media-source-events` empties out (Lambda consumed the message), but

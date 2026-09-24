@@ -1,6 +1,6 @@
 import { EnvConfig } from '@config/env.config';
 import { MediaRepository, MediaRecord } from '@db/repositories/media/media.repository';
-import { BadRequestException, ForbiddenException, Inject, Injectable, NotFoundException ,Logger } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { AuthContext } from '@auth/interfaces/auth-context.interface';
 import { AccountType } from '@auth/interfaces/jwt-payload.interface';
 import { ConfigService } from '@nestjs/config';
@@ -95,32 +95,29 @@ export class MediaService {
   }
 
   /**
-   * Client's "I finished PUTting to S3" confirmation. Two jobs:
-   *  1. Explicit integrity check — HEAD the S3 object; 400 if the bytes never actually landed
-   *     (client-side error is caught HERE instead of silently by a stuck-pending sweep)
-   *  2. For NON-VIDEO uploads (images/docs), synchronously flip to READY so `GET /playback`
-   *     works immediately. Videos still need the async Lambda transcode → stay UPLOADED
+   * Client's "I finished PUTting to S3" confirmation. Jobs:
+   *  1. Integrity — HEAD the object; 400 if the bytes never landed.
+   *  2. Size — a presigned PUT can't cap Content-Length, so the landed size is checked against
+   *     the size declared at request time (and MEDIA_MAX_UPLOAD_BYTES); oversize objects are
+   *     deleted and the row FAILED. This is what actually enforces the customer 5 MB avatar cap.
+   *  3. Non-video (images/docs) → READY synchronously. Videos stay UPLOADED; the transcoder
+   *     Lambda (triggered by the same PUT's S3 event) owns UPLOADED → PROCESSING → READY.
    *
-   * Idempotent w.r.t. the S3-event Lambda path: for videos, both this endpoint and the
-   * Lambda try to move the row from PENDING → UPLOADED / → READY. Whichever wins first, the
-   * other is a no-op (Lambda's `WHERE status IN (pending, uploaded)` guard, and this endpoint's
-   * `if status !== PENDING && !== UPLOADED` guard).
-   *
-   * This is OPTIONAL for clients — a client that walks away after the PUT will still see the
-   * row go READY once the Lambda-via-S3-event fires. But calling it gives faster feedback and
-   * catches PUT failures at the API boundary.
+   * Race-safe with the Lambda: every transition is status-guarded in the repository, so
+   * whichever side loses the race gets `null` and we simply return the current row. Calling
+   * this after the Lambda already finished is an idempotent success, not an error.
    */
   async completeUpload(id: string, input: CompleteUploadDto, actor: AuthContext): Promise<MediaDto> {
-    const record = await this.media.findById(id);
-    if (!record) {
-      throw new NotFoundException('Media not found');
-    }
+    const record = await this.requireRecord(id);
     // Customers can only finalize their own uploads. Admins can finalize any.
     if (actor.accountType !== AccountType.ADMIN && record.uploadedBy !== actor.id) {
       throw new ForbiddenException('You cannot finalize this upload');
     }
+    if (record.status === MediaStatus.PROCESSING || record.status === MediaStatus.READY) {
+      return toMediaDto(record, this.resolveUrl(record)); // Lambda got there first — idempotent
+    }
     if (record.status !== MediaStatus.PENDING && record.status !== MediaStatus.UPLOADED) {
-      throw new BadRequestException(`Media is already ${record.status}`);
+      throw new BadRequestException(`Media is ${record.status}`);
     }
     if (!record.storageKey) {
       throw new BadRequestException('Media has no storage key');
@@ -130,26 +127,30 @@ export class MediaService {
       throw new BadRequestException('No uploaded object found for this media — upload first');
     }
 
-    const updated = await this.media.markUploaded(id, {
-      fileSizeBytes: input.sizeBytes ?? head.size,
-      checksum: input.checksum ?? head.etag,
-      mimeType: head.contentType ?? record.mimeType ?? undefined,
-    });
-    const row = updated ?? record;
-
-    if (record.mediaType === MediaType.VIDEO) {
-      // Videos: don't finalize here. The transcoder Lambda (SQS-triggered by the S3
-      // ObjectCreated event that fired when the client PUT completed) owns the
-      // UPLOADED → PROCESSING → READY transitions. Return the current row unchanged
-      // so the client can poll.
-      return toMediaDto(row, null);
+    const limit = this.maxAllowedBytes(record);
+    if (head.size !== undefined && head.size > limit) {
+      await this.storage.deleteObject(record.storageKey);
+      await this.media.markFailed(id, `uploaded object is ${head.size} bytes, limit ${limit}`);
+      throw new BadRequestException(`Uploaded file is larger than allowed (${head.size} > ${limit} bytes)`);
     }
 
-    // Non-video (images, docs) — no transcode needed, flip straight to READY here so the
-    // Lambda's later invocation short-circuits on its `status IN (pending, uploaded)` guard.
-    // `delivery_prefix` = the object key itself (there's no separate HLS output layout).
-    const ready = (await this.media.markReady(id, { deliveryPrefix: row.storageKey ?? undefined, isHls: false })) ?? row;
-    return toMediaDto(ready, this.resolveUrl(ready));
+    const uploaded = await this.media.markUploaded(id, {
+      // The landed object is authoritative; the client's numbers are only a fallback.
+      fileSizeBytes: head.size ?? input.sizeBytes,
+      checksum: head.etag ?? input.checksum,
+      mimeType: head.contentType ?? record.mimeType ?? undefined,
+    });
+    if (!uploaded) {
+      return this.currentDto(id); // lost the race to the Lambda
+    }
+
+    if (uploaded.mediaType === MediaType.VIDEO) {
+      return toMediaDto(uploaded, null); // Lambda finalizes; client polls GET /:id
+    }
+
+    // Non-video: no transcode — the original object is the deliverable.
+    const ready = await this.media.markReady(id, { deliveryPrefix: uploaded.storageKey ?? undefined, isHls: false });
+    return ready ? toMediaDto(ready, this.resolveUrl(ready)) : this.currentDto(id);
   }
 
   // ─── Read / serve ─────────────────────────────────────────────────────────────
@@ -205,50 +206,69 @@ export class MediaService {
   // ─── Maintenance crons (invoked by CronScheduler in the worker) ──────────────
 
   /**
-   * Safety net for rows stuck in PROCESSING. Runs every 10 minutes (see cron.scheduler.ts).
+   * Fail rows stuck in PROCESSING for > MEDIA_TRANSCODE_STUCK_SECONDS (default 15 min).
    *
-   * In v1 the worker's poll chain could break (lost message, DLQ'd poll, crash) and leave a
-   * row stuck. In v2 the transcoder Lambda's SQS event source mapping retries + DLQs on its
-   * own, but a Lambda that succeeds at half of its work (wrote HLS but failed the DB UPDATE)
-   * still leaves a row stuck in PROCESSING. This cron catches those.
-   *
-   * Behaviour: rows in PROCESSING for > MEDIA_TRANSCODE_MAX_SECONDS (default 6h) are marked
-   * FAILED. Under the new architecture there's nothing to "resume" — the Lambda already
-   * retried up to its DLQ threshold — so we just fail loud and let ops surface it.
+   * The Lambda's SQS retries re-claim a PROCESSING row with the same message id, so a row is
+   * only "stuck" when every retry died without finishing (e.g. timeouts, or the message went
+   * to the DLQ). Raise the threshold when a long-running transcoder (MediaConvert) is wired in.
+   * `markFailed` never overwrites READY, so racing a Lambda that just finished is safe.
    */
   async reconcileStuck(): Promise<void> {
-    const maxSeconds = this.config.get<number>('MEDIA_TRANSCODE_MAX_SECONDS') ?? 21_600;
-    const rows = await this.media.findStuckProcessing(maxSeconds, 50);
+    const stuckSeconds = this.config.get<number>('MEDIA_TRANSCODE_STUCK_SECONDS') ?? 900;
+    const rows = await this.media.findStuckProcessing(stuckSeconds, 50);
+    let failed = 0;
     for (const row of rows) {
-      await this.media.markFailed(row.id, 'transcode stalled — exceeded max processing time');
-      this.logger.warn(`reconcile: failed stuck media ${row.id}`);
+      if (await this.media.markFailed(row.id, `transcode stalled — no progress for ${stuckSeconds}s`)) {
+        failed++;
+        this.logger.warn(`reconcile: failed stuck media ${row.id}`);
+      }
     }
-    if (rows.length > 0) {
-      this.logger.log(`reconcile: failed ${rows.length} stuck-processing row(s)`);
+    if (failed > 0) {
+      this.logger.log(`reconcile: failed ${failed} stuck-processing row(s)`);
     }
   }
 
   /**
-   * Delete rows stuck in PENDING (never got the client's PUT / never got the S3 event).
-   * Runs hourly. Any row created > MEDIA_ORPHAN_AGE_SECONDS ago (default 24 h) that's still
-   * PENDING gets soft-deleted + storage-purged (in case a partial upload landed).
+   * Clean up rows stuck in PENDING for > MEDIA_ORPHAN_AGE_SECONDS (default 24 h) — the
+   * client asked for an upload URL and never PUT. If bytes DID land (the S3 event was lost or
+   * its processing failed), the file is kept and the row FAILED for ops to re-trigger, rather
+   * than destroying a real upload.
    */
   async sweepOrphans(): Promise<void> {
     const ageSeconds = this.config.get<number>('MEDIA_ORPHAN_AGE_SECONDS') ?? 86_400;
     const orphans = await this.media.findStalePending(ageSeconds, 100);
+    let purged = 0;
     for (const row of orphans) {
+      const head = row.storageKey ? await this.storage.headObject(row.storageKey) : { exists: false };
+      if (head.exists) {
+        await this.media.markFailed(row.id, 'upload landed but was never processed — re-trigger transcode');
+        this.logger.warn(`orphan-sweep: media ${row.id} has bytes but no processing — marked failed, file kept`);
+        continue;
+      }
       await this.media.softDelete(row.id);
       const assetRoot = this.assetRoot(row);
       if (assetRoot) {
         await this.storage.deletePrefix(assetRoot);
       }
+      purged++;
     }
-    if (orphans.length > 0) {
-      this.logger.log(`orphan-sweep: purged ${orphans.length} stale-pending row(s)`);
+    if (purged > 0) {
+      this.logger.log(`orphan-sweep: purged ${purged} stale-pending row(s)`);
     }
   }
 
   // ─── Helpers ──────────────────────────────────────────────────────────────────
+
+  private async currentDto(id: string): Promise<MediaDto> {
+    const current = await this.requireRecord(id);
+    return toMediaDto(current, this.resolveUrl(current));
+  }
+
+  /** Upload cap for a row: the size declared at request time, bounded by MEDIA_MAX_UPLOAD_BYTES. */
+  private maxAllowedBytes(record: MediaRecord): number {
+    const globalMax = this.config.get<number>('MEDIA_MAX_UPLOAD_BYTES') ?? 10 * 1024 * 1024 * 1024;
+    return record.fileSizeBytes !== null ? Math.min(record.fileSizeBytes, globalMax) : globalMax;
+  }
 
   private async requireRecord(id: string): Promise<MediaRecord> {
     const record = await this.media.findById(id);

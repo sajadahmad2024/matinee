@@ -4,6 +4,8 @@
 
 # Package manager files
 package-lock.json
+# …except the transcoder Lambda's — its Dockerfile runs `npm ci` against it
+!docker/dummy-transcoder/package-lock.json
 yarn.lock
 pnpm-lock.yaml
 .pnpm-store/

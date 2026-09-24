@@ -24,7 +24,9 @@ process.on('uncaughtException', (err) => {
 async function main(): Promise<void> {
   loadDotenv();
 
-  const { hydrateSecretsIfNeeded } = await import('@config/secrets-bootstrap');
+  // Relative path on purpose: the build rewrites path aliases (@config/…) in static imports
+  // only — an aliased dynamic import() compiles to require('@config/…') and crashes at runtime.
+  const { hydrateSecretsIfNeeded } = await import('./config/secrets-bootstrap');
   await hydrateSecretsIfNeeded();
 
   const { bootstrap } = await import('./worker-bootstrap');

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DBService, DBExecutor } from '@db/db.service';
 import { mediaMetadata, mediaStatusEvents } from '@db/drizzle/schema';
-import { and, asc, eq, isNull, lt, sql } from 'drizzle-orm';
+import { and, asc, eq, inArray, isNull, lt, notInArray, sql } from 'drizzle-orm';
 import { AccessLevel, MediaStatus, MediaType, UsageType } from '@media/constants/media.constant';
 
 /** A row of `media_metadata` as used by the media layer. */
@@ -72,6 +72,11 @@ export class MediaRepository {
     return tx ?? this.dbService.db;
   }
 
+  /** Run `fn` in the caller's transaction, or open one — keeps a transition + its audit event atomic. */
+  private inTx<T>(tx: DBExecutor | undefined, fn: (tx: DBExecutor) => Promise<T>): Promise<T> {
+    return tx ? fn(tx) : this.dbService.transaction(fn);
+  }
+
   /** Append a status-transition event (same executor → atomic with the transition). */
   async logEvent(
     mediaId: string,
@@ -139,25 +144,41 @@ export class MediaRepository {
     return this.map(rows[0]);
   }
 
-  /** Mark bytes present (after the client's direct upload completes). */
+  /**
+   * PENDING/UPLOADED → UPLOADED (bytes verified in storage). Status-guarded: returns `null`
+   * when the row has already moved on (e.g. the transcoder Lambda finished first), so a late
+   * `/complete` can never regress READY back to UPLOADED.
+   */
   async markUploaded(
     id: string,
     data: { fileSizeBytes?: number | undefined; checksum?: string | undefined; mimeType?: string | undefined },
     tx?: DBExecutor,
   ): Promise<MediaRecord | null> {
-    await this.exec(tx)
-      .update(mediaMetadata)
-      .set({
-        status: MediaStatus.UPLOADED,
-        uploadCompletedAt: sql`now()`,
-        ...(data.fileSizeBytes !== undefined ? { fileSizeBytes: data.fileSizeBytes } : {}),
-        ...(data.checksum ? { checksum: data.checksum } : {}),
-        ...(data.mimeType ? { mimeType: data.mimeType } : {}),
-        updatedAt: sql`now()`,
-      })
-      .where(and(eq(mediaMetadata.id, id), isNull(mediaMetadata.deletedAt)));
-    await this.logEvent(id, MediaStatus.UPLOADED, 'object verified in storage', undefined, tx);
-    return this.findById(id, tx);
+    return this.inTx(tx, async (t) => {
+      const updated = await t
+        .update(mediaMetadata)
+        .set({
+          status: MediaStatus.UPLOADED,
+          uploadCompletedAt: sql`now()`,
+          ...(data.fileSizeBytes !== undefined ? { fileSizeBytes: data.fileSizeBytes } : {}),
+          ...(data.checksum ? { checksum: data.checksum } : {}),
+          ...(data.mimeType ? { mimeType: data.mimeType } : {}),
+          updatedAt: sql`now()`,
+        })
+        .where(
+          and(
+            eq(mediaMetadata.id, id),
+            isNull(mediaMetadata.deletedAt),
+            inArray(mediaMetadata.status, [MediaStatus.PENDING, MediaStatus.UPLOADED]),
+          ),
+        )
+        .returning({ id: mediaMetadata.id });
+      if (updated.length === 0) {
+        return null;
+      }
+      await this.logEvent(id, MediaStatus.UPLOADED, 'object verified in storage', undefined, t);
+      return this.findById(id, t);
+    });
   }
 
   async markProcessing(id: string, data: { provider: string; jobId: string }, tx?: DBExecutor): Promise<void> {
@@ -183,6 +204,10 @@ export class MediaRepository {
     await this.logEvent(id, MediaStatus.PROCESSING, detail ?? `transcoding ${progress}%`, progress, tx);
   }
 
+  /**
+   * → READY. Status-guarded (only from PENDING/UPLOADED/PROCESSING, never on a deleted row):
+   * returns `null` when the transition didn't happen.
+   */
   async markReady(
     id: string,
     data: {
@@ -195,31 +220,61 @@ export class MediaRepository {
     },
     tx?: DBExecutor,
   ): Promise<MediaRecord | null> {
-    await this.exec(tx)
-      .update(mediaMetadata)
-      .set({
-        status: MediaStatus.READY,
-        processedAt: sql`now()`,
-        ...(data.hlsMasterKey ? { hlsMasterKey: data.hlsMasterKey } : {}),
-        ...(data.deliveryPrefix ? { deliveryPrefix: data.deliveryPrefix } : {}),
-        ...(data.isHls !== undefined ? { isHls: data.isHls } : {}),
-        ...(data.width !== undefined ? { width: data.width } : {}),
-        ...(data.height !== undefined ? { height: data.height } : {}),
-        ...(data.durationSeconds ? { durationSeconds: data.durationSeconds } : {}),
-        processingProgress: 100,
-        updatedAt: sql`now()`,
-      })
-      .where(eq(mediaMetadata.id, id));
-    await this.logEvent(id, MediaStatus.READY, 'asset ready', 100, tx);
-    return this.findById(id, tx);
+    return this.inTx(tx, async (t) => {
+      const updated = await t
+        .update(mediaMetadata)
+        .set({
+          status: MediaStatus.READY,
+          processedAt: sql`now()`,
+          ...(data.hlsMasterKey ? { hlsMasterKey: data.hlsMasterKey } : {}),
+          ...(data.deliveryPrefix ? { deliveryPrefix: data.deliveryPrefix } : {}),
+          ...(data.isHls !== undefined ? { isHls: data.isHls } : {}),
+          ...(data.width !== undefined ? { width: data.width } : {}),
+          ...(data.height !== undefined ? { height: data.height } : {}),
+          ...(data.durationSeconds ? { durationSeconds: data.durationSeconds } : {}),
+          processingProgress: 100,
+          updatedAt: sql`now()`,
+        })
+        .where(
+          and(
+            eq(mediaMetadata.id, id),
+            isNull(mediaMetadata.deletedAt),
+            inArray(mediaMetadata.status, [MediaStatus.PENDING, MediaStatus.UPLOADED, MediaStatus.PROCESSING]),
+          ),
+        )
+        .returning({ id: mediaMetadata.id });
+      if (updated.length === 0) {
+        return null;
+      }
+      await this.logEvent(id, MediaStatus.READY, 'asset ready', 100, t);
+      return this.findById(id, t);
+    });
   }
 
-  async markFailed(id: string, error: string, tx?: DBExecutor): Promise<void> {
-    await this.exec(tx)
-      .update(mediaMetadata)
-      .set({ status: MediaStatus.FAILED, processingError: error.slice(0, 2000), updatedAt: sql`now()` })
-      .where(eq(mediaMetadata.id, id));
-    await this.logEvent(id, MediaStatus.FAILED, error.slice(0, 500), undefined, tx);
+  /**
+   * → FAILED. Never overwrites a READY/ARCHIVED row or touches a deleted one (a slow
+   * reconcile tick racing a Lambda that just finished must not fail a good asset).
+   * Returns whether the transition happened.
+   */
+  async markFailed(id: string, error: string, tx?: DBExecutor): Promise<boolean> {
+    return this.inTx(tx, async (t) => {
+      const updated = await t
+        .update(mediaMetadata)
+        .set({ status: MediaStatus.FAILED, processingError: error.slice(0, 2000), updatedAt: sql`now()` })
+        .where(
+          and(
+            eq(mediaMetadata.id, id),
+            isNull(mediaMetadata.deletedAt),
+            notInArray(mediaMetadata.status, [MediaStatus.READY, MediaStatus.ARCHIVED, MediaStatus.FAILED]),
+          ),
+        )
+        .returning({ id: mediaMetadata.id });
+      if (updated.length === 0) {
+        return false;
+      }
+      await this.logEvent(id, MediaStatus.FAILED, error.slice(0, 500), undefined, t);
+      return true;
+    });
   }
 
   async setDeliveryPrefix(id: string, deliveryPrefix: string, tx?: DBExecutor): Promise<void> {
@@ -242,15 +297,17 @@ export class MediaRepository {
     if (!existing) {
       return null;
     }
-    await this.exec(tx)
-      .update(mediaMetadata)
-      .set({ status: MediaStatus.ARCHIVED, deletedAt: sql`now()`, updatedAt: sql`now()` })
-      .where(eq(mediaMetadata.id, id));
-    await this.logEvent(id, MediaStatus.ARCHIVED, 'soft-deleted; storage cleanup queued', undefined, tx);
+    await this.inTx(tx, async (t) => {
+      await t
+        .update(mediaMetadata)
+        .set({ status: MediaStatus.ARCHIVED, deletedAt: sql`now()`, updatedAt: sql`now()` })
+        .where(and(eq(mediaMetadata.id, id), isNull(mediaMetadata.deletedAt)));
+      await this.logEvent(id, MediaStatus.ARCHIVED, 'soft-deleted; storage purged', undefined, t);
+    });
     return existing;
   }
 
-  /** `processing` rows whose poll chain went stale (no progress update recently). */
+  /** `processing` rows with no update for `stuckSeconds` (transcoder died mid-job). */
   async findStuckProcessing(stuckSeconds: number, limit: number): Promise<MediaRecord[]> {
     const rows = await this.dbService.db
       .select()

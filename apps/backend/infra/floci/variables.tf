@@ -84,3 +84,31 @@ variable "app_secrets" {
 # Update the endpoints block in provider.tf if you rename secretsmanager. Kept here so the
 # secrets file has the SDK client dependency spelled out next to the Terraform-side one.
 
+
+variable "lambda_aws_endpoint_url" {
+  description = <<-EOT
+    AWS endpoint the transcoder Lambda's SDK clients use. Inside the Lambda container,
+    `localhost` is the container itself, NOT Floci — so this must be an address reachable from
+    the container: `http://host.docker.internal:4566` works on Docker Desktop (macOS/Windows);
+    on Linux use the Floci container name on a shared network. Set to "" in real AWS — the
+    variable is then omitted from the function env entirely.
+  EOT
+  type        = string
+  default     = "http://host.docker.internal:4566"
+}
+
+variable "transcoder_lambda_database_secret_id" {
+  description = <<-EOT
+    Prod: Secrets Manager secret id whose JSON has a DATABASE_URL key. When set, the Lambda
+    reads the connection string from Secrets Manager and DATABASE_URL is NOT placed in the
+    function env (or Terraform state). Leave "" locally to use transcoder_lambda_database_url.
+  EOT
+  type        = string
+  default     = ""
+}
+
+variable "media_source_events_max_receive_count" {
+  description = "Deliveries of an S3 event before it moves to the DLQ. The Lambda only marks a row FAILED on the last one."
+  type        = number
+  default     = 5
+}

@@ -2,6 +2,7 @@ import { EnvConfig } from '@config/env.config';
 import { Logger, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MediaController } from './media.controller';
+import { LocalCdnController } from './local-cdn.controller';
 import { MediaService } from './media.service';
 import { MEDIA_DELIVERY_PROVIDER, STORAGE_PROVIDER } from './constants/media.constant';
 import { StorageProvider } from './providers/storage.provider';
@@ -41,7 +42,7 @@ const deliveryProviderFactory = {
  */
 @Module({
   imports: [ConfigModule],
-  controllers: [MediaController],
+  controllers: [MediaController, LocalCdnController],
   providers: [MediaService, storageProviderFactory, deliveryProviderFactory],
   exports: [MediaService, STORAGE_PROVIDER, MEDIA_DELIVERY_PROVIDER],
 })

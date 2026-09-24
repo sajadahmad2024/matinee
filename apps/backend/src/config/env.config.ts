@@ -422,8 +422,7 @@ export class EnvConfig {
   // Defaults to `maintinee/<NODE_ENV>` — override when the deployed name differs.
   @IsOptional() @IsString() SECRETS_MANAGER_SECRET_ID?: string;
 
-  // ─── Email provider defaults (used by SES/SMTP/SendGrid providers) ─────────
-  @IsOptional() @IsString() EMAIL_PROVIDER?: string;
+  // (EMAIL_PROVIDER already declared above with SendGrid template ids block)
   @IsOptional() @IsString() EMAIL_FROM?: string;
 
   // ─── Media (storage + delivery — env-selected). Transcoding runs in the Lambda ──
@@ -446,9 +445,6 @@ export class EnvConfig {
   @IsOptional() @IsNumber() MEDIA_UPLOAD_URL_TTL?: number;
   @IsOptional() @IsNumber() MEDIA_SIGNED_URL_TTL?: number;
   @IsOptional() @IsNumber() MEDIA_MAX_UPLOAD_BYTES?: number;
-  @IsOptional() @IsNumber() MEDIA_TRANSCODE_POLL_INTERVAL?: number;
-  @IsOptional() @IsNumber() MEDIA_TRANSCODE_POLL_MAX_INTERVAL?: number;
   @IsOptional() @IsNumber() MEDIA_TRANSCODE_STUCK_SECONDS?: number;
-  @IsOptional() @IsNumber() MEDIA_TRANSCODE_MAX_SECONDS?: number;
   @IsOptional() @IsNumber() MEDIA_ORPHAN_AGE_SECONDS?: number;
 }

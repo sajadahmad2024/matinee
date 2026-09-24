@@ -21,11 +21,11 @@ resource "aws_iam_role" "transcoder_lambda" {
 
 data "aws_iam_policy_document" "transcoder_lambda_policy" {
   statement {
-    sid    = "SourceRead"
+    sid    = "SourceReadDelete"
     effect = "Allow"
     actions = [
       "s3:GetObject",
-      "s3:HeadObject",
+      "s3:DeleteObject", # oversize uploads are rejected by deleting the object
     ]
     resources = ["${aws_s3_bucket.media_source.arn}/*"]
   }
@@ -35,6 +35,7 @@ data "aws_iam_policy_document" "transcoder_lambda_policy" {
     effect = "Allow"
     actions = [
       "s3:PutObject",
+      "s3:DeleteObject", # outputs for an asset deleted mid-transcode are removed
       "s3:AbortMultipartUpload",
       "s3:ListBucketMultipartUploads",
       "s3:ListMultipartUploadParts",
@@ -62,6 +63,16 @@ data "aws_iam_policy_document" "transcoder_lambda_policy" {
       "sqs:ChangeMessageVisibility",
     ]
     resources = [aws_sqs_queue.media_source_events.arn]
+  }
+
+  dynamic "statement" {
+    for_each = var.transcoder_lambda_database_secret_id != "" ? [1] : []
+    content {
+      sid       = "DatabaseSecretRead"
+      effect    = "Allow"
+      actions   = ["secretsmanager:GetSecretValue"]
+      resources = [aws_secretsmanager_secret.app.arn]
+    }
   }
 
   statement {

@@ -12,15 +12,20 @@ resource "aws_lambda_function" "transcoder" {
   timeout     = var.transcoder_lambda_timeout_seconds
 
   environment {
-    variables = {
-      MEDIA_OUTPUT_BUCKET = aws_s3_bucket.media_output.bucket
-      DATABASE_URL        = var.transcoder_lambda_database_url
-      # Under Floci, the S3 client inside Lambda needs to hit the Floci edge from the
-      # perspective of the container network (docker socket used to spawn Lambda containers,
-      # so they share the daemon; localhost is reachable via host.docker.internal).
-      AWS_ENDPOINT_URL    = var.floci_endpoint
-      LOG_LEVEL           = "info"
-    }
+    variables = merge(
+      {
+        MEDIA_OUTPUT_BUCKET = aws_s3_bucket.media_output.bucket
+        # Must match the queue's redrive maxReceiveCount — the handler only marks a row FAILED on
+        # the final delivery; earlier failures are retried by SQS.
+        MAX_RECEIVE_COUNT = tostring(var.media_source_events_max_receive_count)
+        LOG_LEVEL         = "info"
+      },
+      var.transcoder_lambda_database_secret_id != ""
+      ? { DATABASE_URL_SECRET_ID = var.transcoder_lambda_database_secret_id }
+      : { DATABASE_URL = var.transcoder_lambda_database_url },
+      # Floci only: an endpoint reachable from INSIDE the Lambda container (not localhost).
+      var.lambda_aws_endpoint_url != "" ? { AWS_ENDPOINT_URL = var.lambda_aws_endpoint_url } : {},
+    )
   }
 
   depends_on = [aws_iam_role_policy_attachment.transcoder_lambda]

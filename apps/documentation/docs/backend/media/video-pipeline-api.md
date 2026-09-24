@@ -6,9 +6,10 @@ Last updated: 2026-09-24
 All endpoints live under `/v1/media/…`. Authenticated with the same JWT + guard stack as the
 rest of the API. Full request/response schemas in Swagger at `http://localhost:3000/api/v1`.
 
-**5 endpoints.** `POST /:id/complete` is optional for videos (Lambda handles the READY
-transition via S3 event either way) but required for non-videos (Lambda skips them; images
-and docs are finalized synchronously here).
+**5 endpoints.** `POST /:id/complete` is **optional for every media type**: the S3 event
+drives the transcoder Lambda, which finalizes videos (after the dummy transcode) and
+non-videos (immediately). Calling `/complete` gives faster feedback and an explicit
+upload/size check; calling it after the Lambda already finished returns the current row.
 
 ---
 
@@ -56,11 +57,14 @@ transcoder Lambda, and the Lambda flips the row to `ready` directly.
 
 1. PUT the file bytes to `upload.url` directly (do NOT proxy through the API)
 2. Send the exact `Content-Type` returned in `upload.headers` (presigned URL pins it)
-3. **For videos:** optional — the Lambda auto-flips to READY when S3 fires the ObjectCreated
-   event. Optionally call `POST /:id/complete` to fail fast if the PUT never landed
-4. **For non-videos (images/docs):** required — call `POST /:id/complete` to flip to READY.
-   The transcoder Lambda skips non-videos (nothing to transcode)
-5. Poll `GET /:id` to watch status progress: `pending → uploaded → processing → ready`
+3. Optionally call `POST /:id/complete` — fails fast if the PUT never landed or the file is
+   larger than the `sizeBytes` you declared. Images/docs flip to READY right here
+4. Otherwise just poll `GET /:id`: videos go `pending → processing → ready`, images/docs go
+   `pending → ready`, both driven by the S3 event
+
+**Declare the real size.** `sizeBytes` in this request is the upload's hard cap: a presigned
+PUT can't limit Content-Length, so the API and the Lambda both reject (and delete) any object
+larger than declared.
 
 ---
 

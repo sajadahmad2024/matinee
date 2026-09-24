@@ -2,10 +2,11 @@
   "name": "dummy-transcoder-lambda",
   "version": "1.0.0",
   "private": true,
-  "description": "Lambda container image: SQS-triggered stub transcoder. Reads S3 key from the event, writes a placeholder master.m3u8 + poster to the output bucket, updates media_metadata via pg. Swap handler.js's writePlaceholderOutputs() for FFmpeg or MediaConvert in prod.",
+  "description": "Transcoder Lambda container. handler.js = dummy (placeholder HLS); prod-handler.js + prod-completion-handler.js = MediaConvert templates. Shared SQS/DB/claim rules in lib.js.",
   "main": "handler.js",
   "dependencies": {
     "@aws-sdk/client-s3": "3.892.0",
+    "@aws-sdk/client-secrets-manager": "3.891.0",
     "pg": "8.13.1"
   }
 }

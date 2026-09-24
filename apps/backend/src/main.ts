@@ -13,7 +13,9 @@ async function main(): Promise<void> {
   // once `AppModule` is imported below, which is too late.
   loadDotenv();
 
-  const { hydrateSecretsIfNeeded } = await import('@config/secrets-bootstrap');
+  // Relative path on purpose: the build rewrites path aliases (@config/…) in static imports
+  // only — an aliased dynamic import() compiles to require('@config/…') and crashes at runtime.
+  const { hydrateSecretsIfNeeded } = await import('./config/secrets-bootstrap');
   await hydrateSecretsIfNeeded();
 
   const { bootstrap } = await import('./bootstrap');
