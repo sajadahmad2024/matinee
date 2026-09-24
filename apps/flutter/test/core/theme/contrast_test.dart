@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:matinee/core/theme/app_color_scheme.dart';
 import 'package:matinee/core/theme/app_colors.dart';
 
@@ -189,6 +189,74 @@ void main() {
     test('the outlined tick against the green wash it sits in', () {
       final ground = Color.alphaBlend(colors.badge.successBackground, colors.card.background);
       expect(contrastRatio(colors.status.success, ground), greaterThanOrEqualTo(3));
+    });
+  });
+
+  ///
+  /// The Notifications screen paints its own palette, so its copy is held to
+  /// AA against its own grounds, blended the way the screen composites them.
+  ///
+  group('the notifications palette clears AA 4.5:1 on its own grounds', () {
+    final n = colors.notification;
+    final surface = AppColorScheme.dark.surface;
+
+    // A read card is dimmed whole, so its copy and its fill both fade into
+    // the screen behind them.
+    Color dimmed(Color color) => Color.alphaBlend(color.withValues(alpha: 0.85), surface);
+    final readGround = dimmed(n.cardReadBackground);
+
+    final unreadGrounds = <String, Color>{
+      'cardBackground': n.cardBackground,
+      'cardUrgentBackground first stop': n.cardUrgentBackground.colors.first,
+      'cardUrgentBackground last stop': n.cardUrgentBackground.colors.last,
+    };
+    final unreadRoles = <String, Color>{
+      'title': n.title,
+      'body': n.body,
+      'meta': n.meta,
+      'emphasis': n.emphasis,
+      'accent': n.accent,
+      'warning': n.warning,
+      'pointsLabel': n.pointsLabel,
+    };
+    for (final role in unreadRoles.entries) {
+      for (final ground in unreadGrounds.entries) {
+        test('${role.key} on ${ground.key}', () {
+          expect(contrastRatio(role.value, ground.value), greaterThanOrEqualTo(4.5));
+        });
+      }
+    }
+
+    for (final role in {'titleRead': n.titleRead, 'bodyRead': n.bodyRead, 'meta': n.meta}.entries) {
+      test('${role.key} on a dimmed read card', () {
+        expect(
+          contrastRatio(Color.alphaBlend(role.value.withValues(alpha: 0.85), readGround), readGround),
+          greaterThanOrEqualTo(4.5),
+        );
+      });
+    }
+
+    test('successLabel on its wash over a dimmed read card', () {
+      final wash = Color.alphaBlend(n.successBackground.withValues(alpha: 0.15 * 0.85), readGround);
+      expect(contrastRatio(dimmed(n.successLabel), wash), greaterThanOrEqualTo(4.5));
+    });
+
+    test('the section labels and Read All on the screen', () {
+      expect(contrastRatio(n.meta, surface), greaterThanOrEqualTo(4.5));
+      expect(contrastRatio(Color.alphaBlend(n.sectionUnread, surface), surface), greaterThanOrEqualTo(4.5));
+      expect(contrastRatio(n.accent, surface), greaterThanOrEqualTo(4.5));
+    });
+
+    test('the chip labels on their fills', () {
+      expect(contrastRatio(n.chipLabel, n.chipBackground), greaterThanOrEqualTo(4.5));
+      final active = Color.alphaBlend(n.chipActiveBackground, surface);
+      expect(contrastRatio(n.chipActiveLabel, active), greaterThanOrEqualTo(4.5));
+      expect(contrastRatio(n.countLabel, n.countBackground), greaterThanOrEqualTo(4.5));
+    });
+
+    test('the button labels on their fills', () {
+      expect(contrastRatio(n.ctaLabel, n.ctaBackground), greaterThanOrEqualTo(4.5));
+      expect(contrastRatio(n.buttonLabel, n.buttonBackground), greaterThanOrEqualTo(4.5));
     });
   });
 

@@ -38,4 +38,10 @@ abstract final class AppIconAssets {
   /// The status badges and badge chips of the My Earns history screens.
   static const String star = 'assets/icons/star.svg';
   static const String close = 'assets/icons/close.svg';
+
+  /// The notification cards: an auction's countdown, its bid action and a
+  /// quest's points pill.
+  static const String clock = 'assets/icons/clock.svg';
+  static const String bolt = 'assets/icons/bolt.svg';
+  static const String alertCircle = 'assets/icons/alert_circle.svg';
 }

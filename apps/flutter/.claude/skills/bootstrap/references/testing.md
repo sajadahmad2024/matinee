@@ -5,7 +5,7 @@ Conventions for every test file are in `.claude/rules/testing.md` and load autom
 ## `test/helpers/pump_app.dart`
 
 ```dart
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:matinee/core/theme/app_color_scheme.dart';
 import 'package:matinee/core/theme/app_theme.dart';
@@ -16,7 +16,7 @@ extension PumpApp on WidgetTester {
     return pumpWidget(
       MaterialApp(
         theme: theme ?? const AppTheme(AppColorScheme.standard).light(),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        localizationsDelegates: const [AppLocalizations.delegate, ...GlobalMaterialLocalizations.delegates],
         supportedLocales: AppLocalizations.supportedLocales,
         home: widget,
       ),
@@ -172,7 +172,7 @@ Covers the design-critical piece: routes stay behind the splash until startup su
 ```dart
 import 'dart:async';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
@@ -208,7 +208,7 @@ void main() {
           value: startup,
           child: MaterialApp.router(
             routerConfig: router,
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            localizationsDelegates: const [AppLocalizations.delegate, ...GlobalMaterialLocalizations.delegates],
             supportedLocales: AppLocalizations.supportedLocales,
           ),
         ),
@@ -269,7 +269,7 @@ void main() {
 
 ```dart
 import 'package:bloc_test/bloc_test.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:matinee/core/theme/app_color_scheme.dart';
 import 'package:matinee/core/theme/cubit/theme_cubit.dart';

@@ -1,7 +1,8 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 ///
-/// The 29 colour primitives of the design system. Only the theme reads these;
+/// The 29 colour primitives of the design system, and the notifications
+/// palette scoped to that one screen. Only the theme reads these;
 /// a hex that is not here does not exist in the app.
 ///
 abstract final class AppPalette {
@@ -37,6 +38,23 @@ abstract final class AppPalette {
   /// own red carries the 10pt LIVE label at only 3.5:1.
   static const Color errorDeep = Color(0xFFC43A3A);
   static const Color black = Color(0xFF000000);
+
+  // The Notifications frame (1167:2170) is drawn in its own slate-and-amber
+  // palette, kept exact rather than folded into the tokens above.
+  static const Color notificationAccent = Color(0xFFF5C451);
+  static const Color notificationOnAccent = Color(0xFF0B0E14);
+  static const Color notificationCta = Color(0xFFFFD966);
+  static const Color notificationCard = Color(0xFF161C27);
+  static const Color notificationCardDeep = Color(0xFF121620);
+  static const Color notificationCardRead = Color(0xFF111620);
+  static const Color notificationChip = Color(0xFF141A24);
+  static const Color notificationButton = Color(0xFF222B3A);
+  static const Color notificationTextStrong = Color(0xFFE2E8F0);
+  static const Color notificationTextBody = Color(0xFFCBD5E1);
+  static const Color notificationTextMeta = Color(0xFF94A3B8);
+  static const Color notificationWarning = Color(0xFFFB923C);
+  static const Color notificationSuccess = Color(0xFF10B981);
+  static const Color notificationSuccessLabel = Color(0xFF34D399);
 }
 
 ///

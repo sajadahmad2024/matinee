@@ -18,6 +18,7 @@ dependencies:
   go_router: ^18.0.1
   intl: ^0.20.3
   json_annotation: ^4.12.0
+  material_ui: ^1.4.0
   retrofit: ^4.10.0
   sentry_flutter: ^9.28.0
   shared_preferences: ^2.5.5

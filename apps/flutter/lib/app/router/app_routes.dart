@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:matinee/app/shell/app_shell.dart';
 import 'package:matinee/app/startup/splash_screen.dart';
 import 'package:matinee/features/auth/presentation/create_account_screen.dart';
@@ -9,6 +9,7 @@ import 'package:matinee/features/auth/presentation/verify_otp_screen.dart';
 import 'package:matinee/features/earns/data/models/earn_source.dart';
 import 'package:matinee/features/earns/presentation/earn_detail_screen.dart';
 import 'package:matinee/features/earns/presentation/earns_screen.dart';
+import 'package:matinee/features/notifications/presentation/notifications_screen.dart';
 import 'package:matinee/features/onboarding/presentation/onboarding_screen.dart';
 import 'package:matinee/features/p2p/presentation/daily_streak_screen.dart';
 import 'package:matinee/features/p2p/presentation/p2p_screen.dart';
@@ -242,6 +243,14 @@ class EditProfileRoute extends GoRouteData with $EditProfileRoute {
 
   @override
   Widget build(BuildContext context, GoRouterState state) => const EditProfileScreen();
+}
+
+@TypedGoRoute<NotificationsRoute>(path: '/profile/notifications')
+class NotificationsRoute extends GoRouteData with $NotificationsRoute {
+  const NotificationsRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) => const NotificationsScreen();
 }
 
 ///

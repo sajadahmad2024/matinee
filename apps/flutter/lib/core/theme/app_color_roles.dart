@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:matinee/core/theme/app_gradients.dart';
 import 'package:matinee/core/theme/app_palette.dart';
 
@@ -823,4 +823,127 @@ class AppCalendarColors {
   final Color dayFuture;
   final Color dayTodayBackground;
   final Color dayTodayBorder;
+}
+
+///
+/// The palette scoped to the Notifications screen, which the frame draws in
+/// exact slate and amber values rather than the app's shared tokens.
+///
+class AppNotificationColors {
+  const AppNotificationColors({
+    required this.accent,
+    required this.title,
+    required this.titleRead,
+    required this.body,
+    required this.bodyRead,
+    required this.meta,
+    required this.emphasis,
+    required this.warning,
+    required this.sectionUnread,
+    required this.cardBackground,
+    required this.cardBorder,
+    required this.cardReadBackground,
+    required this.cardReadBorder,
+    required this.divider,
+    required this.chipBackground,
+    required this.chipBorder,
+    required this.chipLabel,
+    required this.chipActiveBackground,
+    required this.chipActiveBorder,
+    required this.chipActiveLabel,
+    required this.countBackground,
+    required this.countLabel,
+    required this.ctaBackground,
+    required this.ctaLabel,
+    required this.buttonBackground,
+    required this.buttonBorder,
+    required this.buttonLabel,
+    required this.pointsBorder,
+    required this.pointsLabel,
+    required this.successBackground,
+    required this.successBorder,
+    required this.successLabel,
+    required this.cardUrgentBackground,
+  });
+
+  static final AppNotificationColors dark = AppNotificationColors(
+    accent: AppPalette.notificationAccent,
+    title: AppPalette.white,
+    titleRead: AppPalette.notificationTextStrong,
+    body: AppPalette.notificationTextBody,
+    bodyRead: AppPalette.notificationTextMeta,
+    meta: AppPalette.notificationTextMeta,
+    emphasis: AppPalette.white,
+    warning: AppPalette.notificationWarning,
+    sectionUnread: AppPalette.notificationAccent.a90,
+    cardBackground: AppPalette.notificationCard,
+    cardBorder: AppPalette.notificationAccent.a40,
+    cardReadBackground: AppPalette.notificationCardRead,
+    cardReadBorder: AppPalette.white.withValues(alpha: 0.05),
+    divider: AppPalette.white.withValues(alpha: 0.05),
+    chipBackground: AppPalette.notificationChip,
+    chipBorder: AppPalette.white.a10,
+    chipLabel: AppPalette.notificationTextBody,
+    chipActiveBackground: AppPalette.notificationAccent.withValues(alpha: 0.12),
+    chipActiveBorder: AppPalette.notificationAccent.a40,
+    chipActiveLabel: AppPalette.notificationAccent,
+    countBackground: AppPalette.notificationAccent,
+    countLabel: AppPalette.notificationOnAccent,
+    ctaBackground: AppPalette.notificationCta,
+    ctaLabel: AppPalette.surface,
+    buttonBackground: AppPalette.notificationButton,
+    buttonBorder: AppPalette.white.a10,
+    buttonLabel: AppPalette.notificationTextStrong,
+    pointsBorder: AppPalette.notificationAccent.a30,
+    pointsLabel: AppPalette.notificationAccent,
+    successBackground: AppPalette.notificationSuccess.withValues(alpha: 0.15),
+    successBorder: AppPalette.notificationSuccess.a25,
+    successLabel: AppPalette.notificationSuccessLabel,
+    cardUrgentBackground: AppGradients.notificationUrgentCard,
+  );
+
+  /// Read All, the unread dot, marked amounts and the clock glyph.
+  final Color accent;
+  final Color title;
+  final Color titleRead;
+  final Color body;
+  final Color bodyRead;
+
+  /// Timestamps, the countdown, balances and the day eyebrows.
+  final Color meta;
+
+  /// A name inside the body copy.
+  final Color emphasis;
+
+  /// A deadline inside the body copy.
+  final Color warning;
+  final Color sectionUnread;
+  final Color cardBackground;
+  final Color cardBorder;
+  final Color cardReadBackground;
+  final Color cardReadBorder;
+
+  /// The hairline over an auction card's action bar.
+  final Color divider;
+  final Color chipBackground;
+  final Color chipBorder;
+  final Color chipLabel;
+  final Color chipActiveBackground;
+  final Color chipActiveBorder;
+  final Color chipActiveLabel;
+  final Color countBackground;
+  final Color countLabel;
+  final Color ctaBackground;
+  final Color ctaLabel;
+  final Color buttonBackground;
+  final Color buttonBorder;
+  final Color buttonLabel;
+  final Color pointsBorder;
+  final Color pointsLabel;
+  final Color successBackground;
+  final Color successBorder;
+  final Color successLabel;
+
+  /// The fill of an urgent unread card, in place of [cardBackground].
+  final LinearGradient cardUrgentBackground;
 }

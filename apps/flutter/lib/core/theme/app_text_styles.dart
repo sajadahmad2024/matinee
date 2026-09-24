@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 ///
 /// The type scale: 18 UI roles and 7 Oswald numeral roles. Material's own come

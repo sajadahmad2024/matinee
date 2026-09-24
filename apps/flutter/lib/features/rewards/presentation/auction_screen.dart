@@ -1,9 +1,10 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:matinee/core/l10n/app_exception_l10n.dart';
 import 'package:matinee/core/l10n/l10n.dart';
+import 'package:matinee/core/l10n/remaining_time_l10n.dart';
 import 'package:matinee/core/responsive/responsive.dart';
 import 'package:matinee/core/theme/app_spacing.dart';
 import 'package:matinee/core/theme/app_text_styles.dart';
@@ -104,16 +105,7 @@ class _Body extends StatelessWidget {
                                 label: l10n.auctionTimeRemaining,
                                 endsAt: auction.endsAt,
                                 endedLabel: l10n.auctionEnded,
-                                // To the minute, so it is not re-read every
-                                // second; the last one is worded, not rounded.
-                                spokenRemaining: (remaining) => switch (remaining) {
-                                  Duration(inMinutes: < 1) => l10n.auctionTimeRemainingUnderMinute,
-                                  Duration(inHours: 0, inMinutes: final minutes) => l10n.auctionTimeRemainingMinutes(
-                                    minutes,
-                                  ),
-                                  Duration(inHours: final hours, inMinutes: final minutes) =>
-                                    l10n.auctionTimeRemainingValue(hours, minutes % 60),
-                                },
+                                spokenRemaining: l10n.spokenRemaining,
                               ),
                             ),
                           ],

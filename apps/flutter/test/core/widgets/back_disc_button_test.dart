@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:matinee/core/theme/app_spacing.dart';
 import 'package:matinee/core/widgets/back_disc_button.dart';
 
@@ -22,7 +22,12 @@ void main() {
               padding: const EdgeInsets.symmetric(horizontal: AppScreenPadding.main),
               child: Column(
                 children: [
-                  Row(children: [BackDiscButton(tooltip: 'Back', onPressed: () {}), const Text('Title')]),
+                  Row(
+                    children: [
+                      BackDiscButton(tooltip: 'Back', onPressed: () {}),
+                      const Text('Title'),
+                    ],
+                  ),
                   const SizedBox(width: double.infinity, height: 20, child: Placeholder()),
                 ],
               ),

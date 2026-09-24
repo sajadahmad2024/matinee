@@ -12,7 +12,7 @@ Rules that apply to every route in the app:
 ## `lib/app/router/app_routes.dart`
 
 ```dart
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:go_router/go_router.dart';
 import 'package:matinee/app/startup/splash_screen.dart';
 import 'package:matinee/features/home/presentation/home_screen.dart';
@@ -108,7 +108,7 @@ GoRouter createRouter(AppStartupCubit startup, {required Listenable refreshListe
 ## `lib/app/router/not_found_screen.dart`
 
 ```dart
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:matinee/app/router/app_routes.dart';
 import 'package:matinee/core/l10n/l10n.dart';
 import 'package:matinee/core/widgets/error_view.dart';
@@ -136,7 +136,7 @@ class NotFoundScreen extends StatelessWidget {
 The first route needs a screen. This placeholder is replaced by the first real feature.
 
 ```dart
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:matinee/core/l10n/l10n.dart';
 import 'package:matinee/core/responsive/responsive.dart';
 

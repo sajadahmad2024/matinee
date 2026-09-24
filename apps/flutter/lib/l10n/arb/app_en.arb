@@ -1834,5 +1834,156 @@
         "type": "int"
       }
     }
+  },
+  "notificationsTitle": "Notifications",
+  "notificationsReadAll": "Read All",
+  "@notificationsReadAll": {
+    "description": "Marks every notification read."
+  },
+  "notificationsFilterAll": "All",
+  "notificationsFilterAuctions": "Auctions",
+  "notificationsFilterQuests": "Quests & Streaks",
+  "notificationsFilterSystem": "System",
+  "notificationsUnreadCount": "{count} unread",
+  "@notificationsUnreadCount": {
+    "description": "Unread notifications in a day's section, and the count on the All chip.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "notificationsSectionToday": "Today",
+  "notificationsSectionYesterday": "Yesterday",
+  "notificationsSectionEarlier": "Earlier",
+  "notificationsJustNow": "Just now",
+  "notificationsMinutesAgo": "{count}m ago",
+  "@notificationsMinutesAgo": {
+    "description": "When a notification arrived, under an hour ago. Short, as the card draws it.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "notificationsHoursAgo": "{count}h ago",
+  "@notificationsHoursAgo": {
+    "description": "When a notification arrived, under a day ago.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "notificationsYesterday": "Yesterday",
+  "@notificationsYesterday": {
+    "description": "When a notification arrived, the day before today."
+  },
+  "notificationsDaysAgo": "{count}d ago",
+  "@notificationsDaysAgo": {
+    "description": "When a notification arrived, two or more days ago.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "notificationsMinutesAgoSpoken": "{count, plural, =1{1 minute ago} other{{count} minutes ago}}",
+  "@notificationsMinutesAgoSpoken": {
+    "description": "The arrival time for a screen reader, which would read '5m' as five metres.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "notificationsHoursAgoSpoken": "{count, plural, =1{1 hour ago} other{{count} hours ago}}",
+  "@notificationsHoursAgoSpoken": {
+    "description": "The arrival time for a screen reader, under a day ago.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "notificationsDaysAgoSpoken": "{count, plural, =1{1 day ago} other{{count} days ago}}",
+  "@notificationsDaysAgoSpoken": {
+    "description": "The arrival time for a screen reader, two or more days ago.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "notificationsTimeLeft": "{time} left",
+  "@notificationsTimeLeft": {
+    "description": "An auction's countdown on its notification. time arrives formatted, as 04:11:56.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationsAuctionEnded": "Auction ended",
+  "notificationsBidNow": "Bid Now",
+  "notificationsCheckInNow": "Check In Now",
+  "notificationsPointsCredited": "+{points} PTS",
+  "@notificationsPointsCredited": {
+    "description": "Points a quest paid out.",
+    "placeholders": {
+      "points": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "notificationsPointsCreditedSpoken": "{points} points credited",
+  "@notificationsPointsCreditedSpoken": {
+    "description": "The points pill for a screen reader, which spells out 'PTS'.",
+    "placeholders": {
+      "points": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "notificationsBalance": "Total: {balance}",
+  "@notificationsBalance": {
+    "description": "The balance the credited points landed in.",
+    "placeholders": {
+      "balance": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "notificationsPointsAdded": "+{points} PTS Added",
+  "@notificationsPointsAdded": {
+    "description": "Points a finished game added.",
+    "placeholders": {
+      "points": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "notificationsPointsAddedSpoken": "{points} points added",
+  "@notificationsPointsAddedSpoken": {
+    "description": "The points-added badge for a screen reader.",
+    "placeholders": {
+      "points": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "notificationsUnread": "Unread",
+  "@notificationsUnread": {
+    "description": "Read before an unread card's title, which the design marks only with a border."
+  },
+  "notificationsEmpty": "You''re all caught up.",
+  "@notificationsEmpty": {
+    "description": "Shown when the selected filter holds no notifications. Not designed yet."
   }
 }
