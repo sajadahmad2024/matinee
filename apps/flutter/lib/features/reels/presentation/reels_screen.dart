@@ -109,11 +109,25 @@ class _FeedState extends State<_Feed> {
         HlsReelPager(
           controller: _pageController,
           items: items,
+          // Seek bar comes back as slot.bottomBar so it paints above the scrim.
+          controls: HlsPlayerControls(
+            embedBottomBar: false,
+            fullscreenBuilder: (context, state) {
+              return const Padding(
+                padding: EdgeInsets.all(AppSpacing.sm),
+                child: Icon(
+                  Icons.screen_rotation_rounded,
+                  size: AppIconSize.md,
+                ),
+              );
+            },
+          ),
           itemBuilder: (context, slot) {
             final reel = slot.item.data! as Reel;
             return _ReelPage(
               reel: reel,
               video: slot.video,
+              bottomBar: slot.bottomBar,
               isFocused: slot.isFocused,
               isUnlocked: _unlockedReelIds.contains(reel.id),
               pageController: _pageController,
@@ -161,6 +175,7 @@ class _ReelPage extends StatelessWidget {
   const _ReelPage({
     required this.reel,
     required this.video,
+    required this.bottomBar,
     required this.isFocused,
     required this.isUnlocked,
     required this.pageController,
@@ -170,6 +185,9 @@ class _ReelPage extends StatelessWidget {
 
   final Reel reel;
   final Widget video;
+
+  /// Player seek bar and timer, painted above the scrim and below the overlay.
+  final Widget? bottomBar;
 
   /// Whether the pager currently has this reel focused — sourced from
   /// `HlsReelSlot.isFocused`, updated once a page change settles.
@@ -199,25 +217,30 @@ class _ReelPage extends StatelessWidget {
         IgnorePointer(
           child: DecoratedBox(decoration: BoxDecoration(gradient: context.appColors.overlay.hero)),
         ),
+        ?bottomBar,
         PositionedDirectional(
           start: 0,
           end: 0,
           bottom: 0,
           child: SafeArea(
             top: false,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              spacing: AppSpacing.xxxl,
-              children: [
-                Align(
-                  alignment: AlignmentDirectional.centerEnd,
-                  child: Padding(
-                    padding: const EdgeInsetsDirectional.only(end: AppSpacing.lg),
-                    child: ReelActionRail(reel: reel),
+            child: Padding(
+              // Leaves the player's seek bar row uncovered at the bottom.
+              padding: const EdgeInsets.only(bottom: HlsPlayerControls.bottomBarHeight),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                spacing: AppSpacing.xxxl,
+                children: [
+                  Align(
+                    alignment: AlignmentDirectional.centerEnd,
+                    child: Padding(
+                      padding: const EdgeInsetsDirectional.only(end: AppSpacing.lg),
+                      child: ReelActionRail(reel: reel),
+                    ),
                   ),
-                ),
-                ReelMeta(reel: reel),
-              ],
+                  ReelMeta(reel: reel),
+                ],
+              ),
             ),
           ),
         ),

@@ -4,7 +4,8 @@
 /// implementation details.
 library;
 
-export 'src/video_player_android/video_player_android.dart' show AndroidVideoPlayer;
+export 'src/video_player_android/video_player_android.dart'
+    show AndroidVideoPlayer;
 export 'src/video_player_avfoundation/video_player_avfoundation.dart'
     show AVFoundationVideoPlayer;
 export 'src/bridge/hls_native_bridge.dart';
@@ -16,6 +17,8 @@ export 'src/engine/hls_prefetch_result.dart';
 export 'src/player/hls_engine_hud.dart';
 export 'src/player/hls_engine_seek_bar.dart';
 export 'src/player/hls_connectivity.dart';
+export 'src/player/hls_player_bottom_bar.dart';
+export 'src/player/hls_player_controls.dart';
 export 'src/player/hls_player_port.dart';
 export 'src/player/hls_player_snapshot.dart';
 export 'src/player/hls_player_view.dart';
