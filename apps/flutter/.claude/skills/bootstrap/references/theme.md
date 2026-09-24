@@ -17,7 +17,7 @@ lib/core/theme/
 ## `app_color_scheme.dart`
 
 ```dart
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 ///
 /// Selectable colour schemes. Adding one is a new value plus a branch in each
@@ -46,7 +46,7 @@ When a scheme needs a role overridden, chain `.copyWith(error: ...)` on the gene
 ## `app_colors.dart`
 
 ```dart
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 ///
 /// Semantic colours ColorScheme does not define. Every ThemeExtension needs
@@ -126,7 +126,7 @@ class AppColors extends ThemeExtension<AppColors> {
 ## `app_text_styles.dart`
 
 ```dart
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 ///
 /// The TextTheme roles the app overrides. fontFamily is set once here when the
@@ -166,7 +166,7 @@ abstract final class AppSpacing {
 ## `app_theme.dart`
 
 ```dart
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:matinee/core/theme/app_color_scheme.dart';
 import 'package:matinee/core/theme/app_colors.dart';
 import 'package:matinee/core/theme/app_spacing.dart';
@@ -219,7 +219,7 @@ class AppTheme {
 ## `cubit/theme_state.dart`
 
 ```dart
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:matinee/core/theme/app_color_scheme.dart';
 
@@ -237,7 +237,7 @@ abstract class ThemeState with _$ThemeState {
 ## `cubit/theme_cubit.dart`
 
 ```dart
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:matinee/core/bloc/safe_cubit.dart';
 import 'package:matinee/core/theme/app_color_scheme.dart';
 import 'package:matinee/core/theme/cubit/theme_state.dart';
@@ -258,7 +258,7 @@ class ThemeCubit extends SafeCubit<ThemeState> {
 ## `extensions/build_context_extensions.dart`
 
 ```dart
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:matinee/core/theme/app_colors.dart';
 
 extension AppThemeBuildContext on BuildContext {

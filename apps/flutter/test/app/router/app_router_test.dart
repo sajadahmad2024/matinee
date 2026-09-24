@@ -1,9 +1,9 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:matinee/app/router/app_router.dart';
 import 'package:matinee/app/router/stream_listenable.dart';
 import 'package:matinee/app/startup/app_startup_cubit.dart';
@@ -48,7 +48,7 @@ void main() {
           child: MaterialApp.router(
             routerConfig: router,
             theme: AppTheme.dark,
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            localizationsDelegates: const [AppLocalizations.delegate, ...GlobalMaterialLocalizations.delegates],
             supportedLocales: AppLocalizations.supportedLocales,
           ),
         ),
@@ -59,8 +59,8 @@ void main() {
       expect(find.byType(SplashScreen), findsOneWidget);
 
       gate.complete();
-      await tester.pump();
-      await tester.pump();
+      // The redirect lands on the next frame; the page transition runs after it.
+      await tester.pumpAndSettle();
 
       expect(find.byType(OnboardingScreen), findsOneWidget);
     });

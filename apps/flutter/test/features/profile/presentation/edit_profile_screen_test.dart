@@ -1,7 +1,7 @@
 import 'package:bloc_test/bloc_test.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:matinee/core/error/app_exception.dart';
 import 'package:matinee/core/widgets/error_view.dart';
 import 'package:matinee/features/profile/data/models/profile.dart';

@@ -63,3 +63,58 @@ abstract final class AppScreenPadding {
   static const double sheet = AppSpacing.xl;
   static const double modal = AppSpacing.xxl;
 }
+
+///
+/// The Notifications frame's own geometry, kept exact rather than snapped to
+/// the scale. Where a 48 tap target outgrows a drawn button, the difference
+/// comes off the card padding around it.
+///
+abstract final class AppNotificationLayout {
+  static const double listPadding = AppSpacing.xl;
+  static const double listTop = AppSpacing.sm;
+  static const double listBottom = 25;
+
+  /// The chips start closer to the edge than the list below them.
+  static const double chipRowInset = 10;
+
+  /// Both sit around the chips' 48 tap targets, which the frame draws at 30.
+  static const double chipRowTop = 13;
+  static const double chipRowBottom = 14.5;
+  static const EdgeInsets chipPadding = EdgeInsets.symmetric(horizontal: 15, vertical: 7);
+  static const double chipDot = 6;
+  static const double chipDotGap = 6;
+  static const double countGap = AppSpacing.sm;
+  static const double countPadding = 6;
+
+  static const double sectionGap = AppSpacing.xl;
+  static const double eyebrowInset = AppSpacing.xxs;
+  static const double cardGap = 10;
+
+  static const double cardPadding = 15;
+
+  /// Unread cards set their copy in from the left edge; read ones do not.
+  static const double unreadInset = 6;
+
+  /// What is left of [cardPadding] under a 26 button laid out at 48.
+  static const double cardPaddingUnderButton = cardPadding - (48 - buttonHeight) / 2;
+
+  static const double titleGap = 3.3;
+  static const double unreadDot = 6;
+  static const double unreadDotGap = 6;
+
+  static const double actionBarGap = 10.75;
+  static const double actionBarPadding = 5;
+  static const double buttonGap = 10;
+  static const double pointsGap = 8;
+  static const double pointsAddedGap = 11;
+
+  static const double clockGlyph = 14;
+  static const double glyphGap = AppSpacing.xs;
+
+  static const double buttonHeight = 26;
+  static const double ctaPadding = 14;
+  static const double buttonPadding = 13;
+
+  static const EdgeInsets pointsPadding = EdgeInsets.symmetric(horizontal: 11, vertical: 3);
+  static const EdgeInsets pointsAddedPadding = EdgeInsets.symmetric(horizontal: 9, vertical: 3);
+}

@@ -34,6 +34,10 @@ The spec is the DTO. A domain model is added only when a screen needs a differen
 
 `go_router` because it is the Flutter team's published router, still releasing monthly, and its typed-route generator removes string paths from the app entirely; `auto_route` was rejected as stale. Route classes rather than paths so a renamed route is a compile error, not a broken deep link. Identifiers travel in the path and filters in query parameters because `extra` is not serialisable: it breaks deep links, browser history and state restoration. Guards are `redirect` clauses because that is the only place go_router evaluates before building a page, which is what the startup gate and a future auth guard both need.
 
+Widgets import `package:material_ui/material_ui.dart`, never `package:flutter/material.dart`. Since 18.0, go_router picks the page type by finding `material_ui`'s `MaterialApp` above the router; the framework's `MaterialApp` is a different class, so it falls through to `NoTransitionPage`, which has no push transition and no iOS swipe back. Localisation delegates come from `material_ui`'s `GlobalMaterialLocalizations.delegates` for the same reason: `gen-l10n` still emits `flutter_localizations`, whose Material strings the `material_ui` widgets never read.
+
+The exception is `packages/hls_video_player`, a fork of the official `video_player` kept on `package:flutter/material.dart` so it stays diffable against upstream. It needs no compatibility bridge: the widgets the app renders from it pass their colours explicitly and read no theme or localisations.
+
 ## Theme
 
 Material 3 with `ColorScheme.fromSeed` per named scheme, because a seed derives the roles Material widgets already read, so most of the UI is on-brand with no per-widget styling. `AppColors` exists only for meanings Material lacks (success, warning, info) and `AppSpacing` is the one spacing scale, because the Figma-to-widget flow depends on every design variable having exactly one theme target; literals in widgets would make that mapping unverifiable and every redesign a search-and-replace.

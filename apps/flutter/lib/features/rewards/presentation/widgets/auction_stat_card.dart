@@ -1,12 +1,11 @@
-import 'dart:async';
-
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:matinee/core/theme/app_elevation.dart';
 import 'package:matinee/core/theme/app_radius.dart';
 import 'package:matinee/core/theme/app_spacing.dart';
 import 'package:matinee/core/theme/app_text_styles.dart';
 import 'package:matinee/core/theme/extensions/build_context_extensions.dart';
 import 'package:matinee/core/utils/clock_label.dart';
+import 'package:matinee/core/widgets/countdown_builder.dart';
 
 ///
 /// One of the two cards under the auction blurb: a gold wash falling off the
@@ -63,10 +62,9 @@ class AuctionStatCard extends StatelessWidget {
 }
 
 ///
-/// The countdown card. It reformats every second from the lot's end time, so
-/// a stale build never shows a frozen clock.
+/// The countdown card, reformatted every second from the lot's end time.
 ///
-class AuctionCountdownCard extends StatefulWidget {
+class AuctionCountdownCard extends StatelessWidget {
   const AuctionCountdownCard({
     required this.label,
     required this.endsAt,
@@ -86,44 +84,17 @@ class AuctionCountdownCard extends StatefulWidget {
   final String Function(Duration remaining) spokenRemaining;
 
   @override
-  State<AuctionCountdownCard> createState() => _AuctionCountdownCardState();
-}
-
-class _AuctionCountdownCardState extends State<AuctionCountdownCard> {
-  late final Timer _ticker;
-  late Duration _remaining = _timeLeft;
-
-  Duration get _timeLeft {
-    final left = widget.endsAt.difference(DateTime.now());
-    return left.isNegative ? Duration.zero : left;
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _ticker = Timer.periodic(const Duration(seconds: 1), (timer) {
-      setState(() => _remaining = _timeLeft);
-      // Past the end the value is fixed, so the ticker stops rather than
-      // rebuilding the card once a second for the life of the route.
-      if (_remaining == Duration.zero) {
-        timer.cancel();
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    _ticker.cancel();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final ended = _remaining == Duration.zero;
-    return AuctionStatCard(
-      label: widget.label,
-      value: ended ? widget.endedLabel : clockLabel(_remaining),
-      valueLabel: ended ? widget.endedLabel : widget.spokenRemaining(_remaining),
+    return CountdownBuilder(
+      endsAt: endsAt,
+      builder: (context, remaining) {
+        final ended = remaining == Duration.zero;
+        return AuctionStatCard(
+          label: label,
+          value: ended ? endedLabel : clockLabel(remaining),
+          valueLabel: ended ? endedLabel : spokenRemaining(remaining),
+        );
+      },
     );
   }
 }

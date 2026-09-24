@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:matinee/core/theme/app_palette.dart';
 
 ///
@@ -209,5 +209,15 @@ abstract final class AppGradients {
     end: Alignment.bottomCenter,
     colors: [AppPalette.surface, AppPalette.surfaceCard, AppPalette.surfaceRaised],
     stops: [0, 0.62, 1],
+  );
+
+  ///
+  /// Fill of an urgent unread notification. The frame runs it at 158.7 degrees,
+  /// a fall leaning slightly right.
+  ///
+  static const LinearGradient notificationUrgentCard = LinearGradient(
+    begin: Alignment(-0.36, -0.93),
+    end: Alignment(0.36, 0.93),
+    colors: [AppPalette.notificationCard, AppPalette.notificationCardDeep],
   );
 }

@@ -1,9 +1,9 @@
 import 'package:bloc_test/bloc_test.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:matinee/core/error/app_exception.dart';
 import 'package:matinee/features/profile/data/models/profile.dart';
 import 'package:matinee/features/profile/presentation/cubit/profile_cubit.dart';
@@ -88,9 +88,9 @@ void main() {
       tester.getSemantics(find.bySemanticsLabel('Refer a Friend')),
       isSemantics(isButton: true, isEnabled: true),
     );
-    // Notifications has no screen yet, so the row is drawn but does nothing.
+    // Logout has no flow yet, so the row is drawn but does nothing.
     expect(
-      tester.getSemantics(find.bySemanticsLabel('Notifications')),
+      tester.getSemantics(find.bySemanticsLabel('Logout')),
       isSemantics(isButton: true, isEnabled: false),
     );
     handle.dispose();

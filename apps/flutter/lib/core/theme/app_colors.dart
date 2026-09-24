@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:matinee/core/theme/app_color_roles.dart';
 import 'package:matinee/core/theme/app_palette.dart';
 
@@ -31,6 +31,7 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.status,
     required this.voteBar,
     required this.calendar,
+    required this.notification,
     required this.divider,
     required this.dividerAuth,
   });
@@ -59,6 +60,7 @@ class AppColors extends ThemeExtension<AppColors> {
     status: AppStatusColors.dark,
     voteBar: AppVoteBarColors.dark,
     calendar: AppCalendarColors.dark,
+    notification: AppNotificationColors.dark,
     divider: AppPalette.outline,
     dividerAuth: AppPalette.authOutline,
   );
@@ -86,6 +88,7 @@ class AppColors extends ThemeExtension<AppColors> {
   final AppStatusColors status;
   final AppVoteBarColors voteBar;
   final AppCalendarColors calendar;
+  final AppNotificationColors notification;
   final Color divider;
   final Color dividerAuth;
 
@@ -114,6 +117,7 @@ class AppColors extends ThemeExtension<AppColors> {
     AppStatusColors? status,
     AppVoteBarColors? voteBar,
     AppCalendarColors? calendar,
+    AppNotificationColors? notification,
     Color? divider,
     Color? dividerAuth,
   }) {
@@ -141,6 +145,7 @@ class AppColors extends ThemeExtension<AppColors> {
       status: status ?? this.status,
       voteBar: voteBar ?? this.voteBar,
       calendar: calendar ?? this.calendar,
+      notification: notification ?? this.notification,
       divider: divider ?? this.divider,
       dividerAuth: dividerAuth ?? this.dividerAuth,
     );

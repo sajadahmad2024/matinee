@@ -2668,6 +2668,180 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{option}: {percent} per cent'**
   String predictionAnalysisOptionSummary(String option, int percent);
+
+  /// No description provided for @notificationsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get notificationsTitle;
+
+  /// Marks every notification read.
+  ///
+  /// In en, this message translates to:
+  /// **'Read All'**
+  String get notificationsReadAll;
+
+  /// No description provided for @notificationsFilterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get notificationsFilterAll;
+
+  /// No description provided for @notificationsFilterAuctions.
+  ///
+  /// In en, this message translates to:
+  /// **'Auctions'**
+  String get notificationsFilterAuctions;
+
+  /// No description provided for @notificationsFilterQuests.
+  ///
+  /// In en, this message translates to:
+  /// **'Quests & Streaks'**
+  String get notificationsFilterQuests;
+
+  /// No description provided for @notificationsFilterSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get notificationsFilterSystem;
+
+  /// Unread notifications in a day's section, and the count on the All chip.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} unread'**
+  String notificationsUnreadCount(int count);
+
+  /// No description provided for @notificationsSectionToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get notificationsSectionToday;
+
+  /// No description provided for @notificationsSectionYesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday'**
+  String get notificationsSectionYesterday;
+
+  /// No description provided for @notificationsSectionEarlier.
+  ///
+  /// In en, this message translates to:
+  /// **'Earlier'**
+  String get notificationsSectionEarlier;
+
+  /// No description provided for @notificationsJustNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Just now'**
+  String get notificationsJustNow;
+
+  /// When a notification arrived, under an hour ago. Short, as the card draws it.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}m ago'**
+  String notificationsMinutesAgo(int count);
+
+  /// When a notification arrived, under a day ago.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}h ago'**
+  String notificationsHoursAgo(int count);
+
+  /// When a notification arrived, the day before today.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday'**
+  String get notificationsYesterday;
+
+  /// When a notification arrived, two or more days ago.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}d ago'**
+  String notificationsDaysAgo(int count);
+
+  /// The arrival time for a screen reader, which would read '5m' as five metres.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 minute ago} other{{count} minutes ago}}'**
+  String notificationsMinutesAgoSpoken(int count);
+
+  /// The arrival time for a screen reader, under a day ago.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 hour ago} other{{count} hours ago}}'**
+  String notificationsHoursAgoSpoken(int count);
+
+  /// The arrival time for a screen reader, two or more days ago.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 day ago} other{{count} days ago}}'**
+  String notificationsDaysAgoSpoken(int count);
+
+  /// An auction's countdown on its notification. time arrives formatted, as 04:11:56.
+  ///
+  /// In en, this message translates to:
+  /// **'{time} left'**
+  String notificationsTimeLeft(String time);
+
+  /// No description provided for @notificationsAuctionEnded.
+  ///
+  /// In en, this message translates to:
+  /// **'Auction ended'**
+  String get notificationsAuctionEnded;
+
+  /// No description provided for @notificationsBidNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Bid Now'**
+  String get notificationsBidNow;
+
+  /// No description provided for @notificationsCheckInNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Check In Now'**
+  String get notificationsCheckInNow;
+
+  /// Points a quest paid out.
+  ///
+  /// In en, this message translates to:
+  /// **'+{points} PTS'**
+  String notificationsPointsCredited(int points);
+
+  /// The points pill for a screen reader, which spells out 'PTS'.
+  ///
+  /// In en, this message translates to:
+  /// **'{points} points credited'**
+  String notificationsPointsCreditedSpoken(int points);
+
+  /// The balance the credited points landed in.
+  ///
+  /// In en, this message translates to:
+  /// **'Total: {balance}'**
+  String notificationsBalance(int balance);
+
+  /// Points a finished game added.
+  ///
+  /// In en, this message translates to:
+  /// **'+{points} PTS Added'**
+  String notificationsPointsAdded(int points);
+
+  /// The points-added badge for a screen reader.
+  ///
+  /// In en, this message translates to:
+  /// **'{points} points added'**
+  String notificationsPointsAddedSpoken(int points);
+
+  /// Read before an unread card's title, which the design marks only with a border.
+  ///
+  /// In en, this message translates to:
+  /// **'Unread'**
+  String get notificationsUnread;
+
+  /// Shown when the selected filter holds no notifications. Not designed yet.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'\'re all caught up.'**
+  String get notificationsEmpty;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

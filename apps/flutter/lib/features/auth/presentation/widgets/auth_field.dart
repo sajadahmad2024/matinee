@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:matinee/core/theme/app_elevation.dart';
 import 'package:matinee/core/theme/app_radius.dart';
 import 'package:matinee/core/theme/app_sizes.dart';

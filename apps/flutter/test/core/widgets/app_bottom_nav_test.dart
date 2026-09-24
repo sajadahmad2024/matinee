@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:matinee/core/assets/app_icon_assets.dart';
 import 'package:matinee/core/theme/app_colors.dart';
 import 'package:matinee/core/theme/app_sizes.dart';

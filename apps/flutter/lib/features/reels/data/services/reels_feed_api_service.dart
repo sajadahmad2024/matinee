@@ -45,7 +45,7 @@ class ReelsFeedApiService {
       shareCount: 90,
       durationMs: 634000,
       thumbnailUrl: 'https://test-streams.mux.dev/x36xhzz/poster.jpg',
-      playback: _clearLive,      
+      playback: _clearLive,
     ),
     Reel(
       id: 'reel-2',

@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:matinee/core/assets/assets.dart';
 import 'package:matinee/core/l10n/l10n.dart';
 import 'package:matinee/core/widgets/app_bottom_nav.dart';

@@ -31,6 +31,20 @@
 | `success` | `#2ECC71` | Done / claimed / won / correct | +12 wk#376:3290, CLAIMED#429:23264 |
 | `error` | `#EB5757` | Destructive (logout), incorrect, NO, LIVE | Logout#429:23433, INCORRECT#429:22624 |
 | `black` | `#000000` | Shadow base only | Container#35:4628 shadow |
+| `notificationAccent` | `#F5C451` | Notifications screen only | 1167:2170 |
+| `notificationTextBody` | `#CBD5E1` | Notifications screen only | 1167:2170 |
+| `notificationTextMeta` | `#94A3B8` | Notifications screen only | 1167:2170 |
+| `notificationTextStrong` | `#E2E8F0` | Notifications screen only | 1167:2170 |
+| `notificationCard` | `#161C27` | Notifications screen only | 1167:2170 |
+| `notificationCardDeep` | `#121620` | Notifications screen only | 1167:2170 |
+| `notificationCardRead` | `#111620` | Notifications screen only | 1167:2170 |
+| `notificationChip` | `#141A24` | Notifications screen only | 1167:2170 |
+| `notificationButton` | `#222B3A` | Notifications screen only | 1167:2170 |
+| `notificationOnAccent` | `#0B0E14` | Notifications screen only | 1167:2170 |
+| `notificationWarning` | `#FB923C` | Notifications screen only | 1167:2170 |
+| `notificationSuccess` | `#10B981` | Notifications screen only | 1167:2170 |
+| `notificationSuccessLabel` | `#34D399` | Notifications screen only | 1167:2170 |
+| `notificationCta` | `#FFD966` | Notifications screen only | 1167:2170 |
 
 Brand constants (third-party, not theme tokens): whatsapp `#25D366`, telegram `#0088CC`, instagram `#E1306C`, messages `#34B7F1`, twitter `#1DA1F2`, googleBlue `#4285F4`, googleGreen `#34A853`, googleYellow `#FBBC05`, googleRed `#EA4335`
 
@@ -608,6 +622,7 @@ Emoji (🔥 🎖️ 🏆 🎬 🌍 ✨ 🧠 🔮 🎟️ 🤝 💎 🔗) are use
 | **Icons** | Icon font for single-colour glyphs, SVG for multi-colour marks. |
 | **Out of scope** | Auction (418:18052), Success state (404:9787) and the splash screenshot (36:5658) are concepts; their unique values are mapped to the nearest kept token, not tokenised. |
 | **Inter Medium (500)** | The 58 Inter Medium texts (10–14 px small print) are folded into the Inter Regular roles (caption, bodySmall, bodyMedium) — the weight step is invisible at those sizes and the design uses Medium inconsistently. Weight 500 is therefore not declared and no Inter-Medium font file is bundled. |
+| **Notifications screen** | Notifications (1167:2170) sits outside the Visuals extraction and is kept to the frame's own values: a scoped notifications palette (AppPalette.notification*, AppColors.notification), the urgent-card gradient #161C27→#121620 at 158.7° (AppGradients.notificationUrgentCard), and the frame's exact spacing and radii (AppNotificationLayout). Borders are solid: #F5C451@40% unread, white@5% read; chips #141A24 with white@10% (inactive) or #F5C451@12% fill and @40% border (active). Type stays on the shared roles, and buttons keep their 48 tap targets with the difference taken off the card padding, so text minimums and tap sizes hold; cards with a button run up to 11 taller than drawn. |
 
 ## 10. Open items for design
 
@@ -615,6 +630,7 @@ Emoji (🔥 🎖️ 🏆 🎬 🌍 ✨ 🧠 🔮 🎟️ 🤝 💎 🔗) are use
 - Home top-left 28×20 slot is empty on every Home — logo or menu?
 - Edit Profile 'change photo' button (93×28) is an empty frame.
 - Splash screen is a screenshot placeholder — needs a design.
-- Input error state, toggles/checkbox/radio, toast, empty/loading/error screens, Notifications screen — not designed; seed/derived rules apply until they are.
+- Input error state, toggles/checkbox/radio, toast, empty/loading/error screens — not designed; seed/derived rules apply until they are.
 - Confirm the points-pill stroke gradient approximation and the 8/9px → 10/11px size bumps with design.
 - Figma file has moved on since this 2026-09-03 snapshot (checked 2026-09-18): 10 cited nodes no longer exist (Home top-left icon area #25:3071/#25:3073, Daily Streak containers #397:9215/#397:9220/#397:9362/#397:9388, Weekly Quest frame #381:5991, Subscribe/P2P screen #433:1005/#433:1007/#433:1044) and new frames appeared (Home V2, Subscription pop-up section, Prediction game, Live Auction options + Buy Points payment method, Subscribe redesign, Weekly Quest Completed). Re-run the extract-design-system skill before implementing those screens; values for unchanged screens remain valid.
+- Notifications screen (1167:2170) uses its own scoped palette; design should confirm whether it joins the shared tokens.

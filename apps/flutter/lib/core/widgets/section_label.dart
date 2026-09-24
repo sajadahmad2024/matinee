@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:matinee/core/theme/app_text_styles.dart';
 import 'package:matinee/core/theme/extensions/build_context_extensions.dart';
 import 'package:matinee/core/utils/emphasise.dart';
@@ -11,6 +11,7 @@ class SectionLabel extends StatelessWidget {
     this.isMuted = false,
     this.headingLevel = 2,
     this.emphasis,
+    this.color,
   });
 
   final String label;
@@ -25,6 +26,9 @@ class SectionLabel extends StatelessWidget {
   /// The screen's own title is level 1; a section nested in another passes 3.
   final int headingLevel;
 
+  /// Set only by a screen drawn in a scoped palette; wins over [isMuted].
+  final Color? color;
+
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors.text;
@@ -38,7 +42,7 @@ class SectionLabel extends StatelessWidget {
       container: true,
       child: Text.rich(
         TextSpan(children: emphasise(label, emphasis, TextStyle(color: colors.success))),
-        style: AppTextStyle.overline.copyWith(color: isMuted ? colors.muted : colors.secondary),
+        style: AppTextStyle.overline.copyWith(color: color ?? (isMuted ? colors.muted : colors.secondary)),
       ),
     );
   }

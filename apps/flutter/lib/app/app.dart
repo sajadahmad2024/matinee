@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:matinee/app/router/app_router.dart';
 import 'package:matinee/app/router/stream_listenable.dart';
 import 'package:matinee/app/startup/app_startup_cubit.dart';
@@ -64,7 +64,7 @@ class _AppViewState extends State<_AppView> {
       child: MaterialApp.router(
         routerConfig: _router,
         theme: AppTheme.dark,
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        localizationsDelegates: const [AppLocalizations.delegate, ...GlobalMaterialLocalizations.delegates],
         supportedLocales: AppLocalizations.supportedLocales,
       ),
     );
