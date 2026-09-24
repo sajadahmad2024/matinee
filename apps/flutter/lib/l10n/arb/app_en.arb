@@ -54,6 +54,26 @@
   "navP2p": "P2P",
   "navRewards": "Rewards",
   "navProfile": "Profile",
+  "reelsLikeAction": "Like, {count}",
+  "@reelsLikeAction": {
+    "description": "Accessible name of the video overlay's like button, which shows only the count as its visible label.",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "reelsCommentAction": "Comments, {count}",
+  "@reelsCommentAction": {
+    "description": "Accessible name of the video overlay's comment button, which shows only the count as its visible label.",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "reelsInfoAction": "Info",
+  "reelsShareAction": "Share",
   "tabPlaceholder": "{tab} is not built yet.",
   "@tabPlaceholder": {
     "description": "Body of the stand-in screen behind a bottom-nav tab whose feature does not exist yet.",
@@ -366,6 +386,10 @@
   "exclusiveCastAndCrew": "CAST & CREW",
   "exclusiveUnlockCta": "Unlock Now",
   "exclusiveTag": "EXCLUSIVE CONTENT",
+  "exclusiveConfirmTitle": "Confirm Unlock",
+  "exclusiveConfirmMessage": "You''re about to spend points to unlock this content. This action can''t be undone.",
+  "exclusivePointDeduction": "Point Deduction",
+  "exclusiveConfirmCta": "Confirm & Unlock",
   "a11yLoading": "Loading",
   "@a11yLoading": {
     "description": "Announced while a screen is fetching its content."

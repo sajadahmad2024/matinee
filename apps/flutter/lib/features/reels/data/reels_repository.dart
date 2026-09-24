@@ -8,4 +8,6 @@ class ReelsRepository {
   final ReelsFeedApiService _service;
 
   Future<List<Reel>> fetchReelsFeed() => guardApi(_service.fetchReelsFeed);
+
+  Future<int> fetchPointsBalance() => guardApi(_service.fetchPointsBalance);
 }

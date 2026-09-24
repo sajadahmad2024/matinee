@@ -30,6 +30,11 @@ abstract class Reel with _$Reel {
     required int shareCount,
     required int durationMs,
     required ReelPlayback playback,
+    required List<String> genres,
     String? thumbnailUrl,
+    @Default(false) bool isExclusive,
+    int? unlockCost,
+    String? preview,
+    String? castAndCrew,
   }) = _Reel;
 }

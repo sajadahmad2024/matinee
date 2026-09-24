@@ -126,12 +126,12 @@ return failure(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( List<Reel> reels)?  success,TResult Function( AppException error)?  failure,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( List<Reel> reels,  int pointsBalance)?  success,TResult Function( AppException error)?  failure,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case ReelsInitial() when initial != null:
 return initial();case ReelsLoading() when loading != null:
 return loading();case ReelsSuccess() when success != null:
-return success(_that.reels);case ReelsFailure() when failure != null:
+return success(_that.reels,_that.pointsBalance);case ReelsFailure() when failure != null:
 return failure(_that.error);case _:
   return orElse();
 
@@ -150,12 +150,12 @@ return failure(_that.error);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( List<Reel> reels)  success,required TResult Function( AppException error)  failure,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( List<Reel> reels,  int pointsBalance)  success,required TResult Function( AppException error)  failure,}) {final _that = this;
 switch (_that) {
 case ReelsInitial():
 return initial();case ReelsLoading():
 return loading();case ReelsSuccess():
-return success(_that.reels);case ReelsFailure():
+return success(_that.reels,_that.pointsBalance);case ReelsFailure():
 return failure(_that.error);}
 }
 /// A variant of `when` that fallback to returning `null`
@@ -170,12 +170,12 @@ return failure(_that.error);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( List<Reel> reels)?  success,TResult? Function( AppException error)?  failure,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( List<Reel> reels,  int pointsBalance)?  success,TResult? Function( AppException error)?  failure,}) {final _that = this;
 switch (_that) {
 case ReelsInitial() when initial != null:
 return initial();case ReelsLoading() when loading != null:
 return loading();case ReelsSuccess() when success != null:
-return success(_that.reels);case ReelsFailure() when failure != null:
+return success(_that.reels,_that.pointsBalance);case ReelsFailure() when failure != null:
 return failure(_that.error);case _:
   return null;
 
@@ -252,7 +252,7 @@ String toString() {
 
 
 class ReelsSuccess implements ReelsState {
-  const ReelsSuccess( List<Reel> reels): _reels = reels;
+  const ReelsSuccess( List<Reel> reels, this.pointsBalance): _reels = reels;
   
 
  final  List<Reel> _reels;
@@ -262,6 +262,7 @@ class ReelsSuccess implements ReelsState {
   return EqualUnmodifiableListView(_reels);
 }
 
+ final  int pointsBalance;
 
 /// Create a copy of ReelsState
 /// with the given fields replaced by the non-null parameter values.
@@ -273,18 +274,18 @@ $ReelsSuccessCopyWith<ReelsSuccess> get copyWith => _$ReelsSuccessCopyWithImpl<R
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is ReelsSuccess&&const DeepCollectionEquality().equals(other.reels, _reels));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is ReelsSuccess&&const DeepCollectionEquality().equals(other.reels, _reels)&&(identical(other.pointsBalance, pointsBalance) || other.pointsBalance == pointsBalance));
 }
 
 
 @override
 int get hashCode {
-    return Object.hash(runtimeType,const DeepCollectionEquality().hash(_reels));
+    return Object.hash(runtimeType,const DeepCollectionEquality().hash(_reels),pointsBalance);
 }
 
 @override
 String toString() {
-    return 'ReelsState.success(reels: $reels)';
+    return 'ReelsState.success(reels: $reels, pointsBalance: $pointsBalance)';
 }
 
 
@@ -295,7 +296,7 @@ abstract mixin class $ReelsSuccessCopyWith<$Res> implements $ReelsStateCopyWith<
   factory $ReelsSuccessCopyWith(ReelsSuccess value, $Res Function(ReelsSuccess) _then) = _$ReelsSuccessCopyWithImpl;
 @useResult
 $Res call({
- List<Reel> reels
+ List<Reel> reels, int pointsBalance
 });
 
 
@@ -312,10 +313,11 @@ class _$ReelsSuccessCopyWithImpl<$Res>
 
 /// Create a copy of ReelsState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? reels = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? reels = null,Object? pointsBalance = null,}) {
   return _then(ReelsSuccess(
 null == reels ? _self._reels : reels // ignore: cast_nullable_to_non_nullable
-as List<Reel>,
+as List<Reel>,null == pointsBalance ? _self.pointsBalance : pointsBalance // ignore: cast_nullable_to_non_nullable
+as int,
   ));
 }
 

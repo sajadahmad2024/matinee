@@ -2,12 +2,12 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:matinee/core/widgets/points_pill.dart';
 import 'package:matinee/features/rewards/data/models/auction.dart';
 import 'package:matinee/features/rewards/presentation/auction_screen.dart';
 import 'package:matinee/features/rewards/presentation/cubit/auction_cubit.dart';
 import 'package:matinee/features/rewards/presentation/cubit/auction_state.dart';
 import 'package:matinee/features/rewards/presentation/widgets/bid_history_row.dart';
-import 'package:matinee/features/rewards/presentation/widgets/points_pill.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../../helpers/helpers.dart';
