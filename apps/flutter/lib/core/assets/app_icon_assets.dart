@@ -45,9 +45,7 @@ abstract final class AppIconAssets {
   static const String info = 'assets/icons/info.svg';
   static const String share = 'assets/icons/share.svg';
 
-  /// The notification cards: an auction's countdown, its bid action and a
-  /// quest's points pill.
+  /// The notification cards: an auction's countdown and a quest's points pill.
   static const String clock = 'assets/icons/clock.svg';
-  static const String bolt = 'assets/icons/bolt.svg';
   static const String alertCircle = 'assets/icons/alert_circle.svg';
 }

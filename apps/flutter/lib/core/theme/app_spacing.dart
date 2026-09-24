@@ -66,8 +66,7 @@ abstract final class AppScreenPadding {
 
 ///
 /// The Notifications frame's own geometry, kept exact rather than snapped to
-/// the scale. Where a 48 tap target outgrows a drawn button, the difference
-/// comes off the card padding around it.
+/// the scale.
 ///
 abstract final class AppNotificationLayout {
   static const double listPadding = AppSpacing.xl;
@@ -95,25 +94,20 @@ abstract final class AppNotificationLayout {
   /// Unread cards set their copy in from the left edge; read ones do not.
   static const double unreadInset = 6;
 
-  /// What is left of [cardPadding] under a 26 button laid out at 48.
-  static const double cardPaddingUnderButton = cardPadding - (48 - buttonHeight) / 2;
-
   static const double titleGap = 3.3;
   static const double unreadDot = 6;
   static const double unreadDotGap = 6;
 
   static const double actionBarGap = 10.75;
   static const double actionBarPadding = 5;
-  static const double buttonGap = 10;
   static const double pointsGap = 8;
   static const double pointsAddedGap = 11;
 
   static const double clockGlyph = 14;
   static const double glyphGap = AppSpacing.xs;
 
-  static const double buttonHeight = 26;
-  static const double ctaPadding = 14;
-  static const double buttonPadding = 13;
+  /// Between a clickable card's copy and the arrow that marks it.
+  static const double arrowGap = AppSpacing.sm;
 
   static const EdgeInsets pointsPadding = EdgeInsets.symmetric(horizontal: 11, vertical: 3);
   static const EdgeInsets pointsAddedPadding = EdgeInsets.symmetric(horizontal: 9, vertical: 3);

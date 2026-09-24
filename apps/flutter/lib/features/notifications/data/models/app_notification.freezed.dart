@@ -323,12 +323,11 @@ extension NotificationFooterPatterns on NotificationFooter {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( AuctionBidFooter value)?  auctionBid,TResult Function( StreakCheckInFooter value)?  streakCheckIn,TResult Function( PointsCreditedFooter value)?  pointsCredited,TResult Function( PointsAddedFooter value)?  pointsAdded,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( AuctionCountdownFooter value)?  auctionCountdown,TResult Function( PointsCreditedFooter value)?  pointsCredited,TResult Function( PointsAddedFooter value)?  pointsAdded,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
-case AuctionBidFooter() when auctionBid != null:
-return auctionBid(_that);case StreakCheckInFooter() when streakCheckIn != null:
-return streakCheckIn(_that);case PointsCreditedFooter() when pointsCredited != null:
+case AuctionCountdownFooter() when auctionCountdown != null:
+return auctionCountdown(_that);case PointsCreditedFooter() when pointsCredited != null:
 return pointsCredited(_that);case PointsAddedFooter() when pointsAdded != null:
 return pointsAdded(_that);case _:
   return orElse();
@@ -348,12 +347,11 @@ return pointsAdded(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( AuctionBidFooter value)  auctionBid,required TResult Function( StreakCheckInFooter value)  streakCheckIn,required TResult Function( PointsCreditedFooter value)  pointsCredited,required TResult Function( PointsAddedFooter value)  pointsAdded,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( AuctionCountdownFooter value)  auctionCountdown,required TResult Function( PointsCreditedFooter value)  pointsCredited,required TResult Function( PointsAddedFooter value)  pointsAdded,}){
 final _that = this;
 switch (_that) {
-case AuctionBidFooter():
-return auctionBid(_that);case StreakCheckInFooter():
-return streakCheckIn(_that);case PointsCreditedFooter():
+case AuctionCountdownFooter():
+return auctionCountdown(_that);case PointsCreditedFooter():
 return pointsCredited(_that);case PointsAddedFooter():
 return pointsAdded(_that);}
 }
@@ -369,12 +367,11 @@ return pointsAdded(_that);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( AuctionBidFooter value)?  auctionBid,TResult? Function( StreakCheckInFooter value)?  streakCheckIn,TResult? Function( PointsCreditedFooter value)?  pointsCredited,TResult? Function( PointsAddedFooter value)?  pointsAdded,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( AuctionCountdownFooter value)?  auctionCountdown,TResult? Function( PointsCreditedFooter value)?  pointsCredited,TResult? Function( PointsAddedFooter value)?  pointsAdded,}){
 final _that = this;
 switch (_that) {
-case AuctionBidFooter() when auctionBid != null:
-return auctionBid(_that);case StreakCheckInFooter() when streakCheckIn != null:
-return streakCheckIn(_that);case PointsCreditedFooter() when pointsCredited != null:
+case AuctionCountdownFooter() when auctionCountdown != null:
+return auctionCountdown(_that);case PointsCreditedFooter() when pointsCredited != null:
 return pointsCredited(_that);case PointsAddedFooter() when pointsAdded != null:
 return pointsAdded(_that);case _:
   return null;
@@ -393,11 +390,10 @@ return pointsAdded(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( DateTime endsAt)?  auctionBid,TResult Function()?  streakCheckIn,TResult Function( int points,  int balance)?  pointsCredited,TResult Function( int points)?  pointsAdded,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( DateTime endsAt)?  auctionCountdown,TResult Function( int points,  int balance)?  pointsCredited,TResult Function( int points)?  pointsAdded,required TResult orElse(),}) {final _that = this;
 switch (_that) {
-case AuctionBidFooter() when auctionBid != null:
-return auctionBid(_that.endsAt);case StreakCheckInFooter() when streakCheckIn != null:
-return streakCheckIn();case PointsCreditedFooter() when pointsCredited != null:
+case AuctionCountdownFooter() when auctionCountdown != null:
+return auctionCountdown(_that.endsAt);case PointsCreditedFooter() when pointsCredited != null:
 return pointsCredited(_that.points,_that.balance);case PointsAddedFooter() when pointsAdded != null:
 return pointsAdded(_that.points);case _:
   return orElse();
@@ -417,11 +413,10 @@ return pointsAdded(_that.points);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( DateTime endsAt)  auctionBid,required TResult Function()  streakCheckIn,required TResult Function( int points,  int balance)  pointsCredited,required TResult Function( int points)  pointsAdded,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( DateTime endsAt)  auctionCountdown,required TResult Function( int points,  int balance)  pointsCredited,required TResult Function( int points)  pointsAdded,}) {final _that = this;
 switch (_that) {
-case AuctionBidFooter():
-return auctionBid(_that.endsAt);case StreakCheckInFooter():
-return streakCheckIn();case PointsCreditedFooter():
+case AuctionCountdownFooter():
+return auctionCountdown(_that.endsAt);case PointsCreditedFooter():
 return pointsCredited(_that.points,_that.balance);case PointsAddedFooter():
 return pointsAdded(_that.points);}
 }
@@ -437,11 +432,10 @@ return pointsAdded(_that.points);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( DateTime endsAt)?  auctionBid,TResult? Function()?  streakCheckIn,TResult? Function( int points,  int balance)?  pointsCredited,TResult? Function( int points)?  pointsAdded,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( DateTime endsAt)?  auctionCountdown,TResult? Function( int points,  int balance)?  pointsCredited,TResult? Function( int points)?  pointsAdded,}) {final _that = this;
 switch (_that) {
-case AuctionBidFooter() when auctionBid != null:
-return auctionBid(_that.endsAt);case StreakCheckInFooter() when streakCheckIn != null:
-return streakCheckIn();case PointsCreditedFooter() when pointsCredited != null:
+case AuctionCountdownFooter() when auctionCountdown != null:
+return auctionCountdown(_that.endsAt);case PointsCreditedFooter() when pointsCredited != null:
 return pointsCredited(_that.points,_that.balance);case PointsAddedFooter() when pointsAdded != null:
 return pointsAdded(_that.points);case _:
   return null;
@@ -454,8 +448,8 @@ return pointsAdded(_that.points);case _:
 /// @nodoc
 
 
-class AuctionBidFooter implements NotificationFooter {
-  const AuctionBidFooter({required this.endsAt});
+class AuctionCountdownFooter implements NotificationFooter {
+  const AuctionCountdownFooter({required this.endsAt});
   
 
  final  DateTime endsAt;
@@ -464,13 +458,13 @@ class AuctionBidFooter implements NotificationFooter {
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
-$AuctionBidFooterCopyWith<AuctionBidFooter> get copyWith => _$AuctionBidFooterCopyWithImpl<AuctionBidFooter>(this, _$identity);
+$AuctionCountdownFooterCopyWith<AuctionCountdownFooter> get copyWith => _$AuctionCountdownFooterCopyWithImpl<AuctionCountdownFooter>(this, _$identity);
 
 
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is AuctionBidFooter&&(identical(other.endsAt, endsAt) || other.endsAt == endsAt));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is AuctionCountdownFooter&&(identical(other.endsAt, endsAt) || other.endsAt == endsAt));
 }
 
 
@@ -481,15 +475,15 @@ int get hashCode {
 
 @override
 String toString() {
-    return 'NotificationFooter.auctionBid(endsAt: $endsAt)';
+    return 'NotificationFooter.auctionCountdown(endsAt: $endsAt)';
 }
 
 
 }
 
 /// @nodoc
-abstract mixin class $AuctionBidFooterCopyWith<$Res> implements $NotificationFooterCopyWith<$Res> {
-  factory $AuctionBidFooterCopyWith(AuctionBidFooter value, $Res Function(AuctionBidFooter) _then) = _$AuctionBidFooterCopyWithImpl;
+abstract mixin class $AuctionCountdownFooterCopyWith<$Res> implements $NotificationFooterCopyWith<$Res> {
+  factory $AuctionCountdownFooterCopyWith(AuctionCountdownFooter value, $Res Function(AuctionCountdownFooter) _then) = _$AuctionCountdownFooterCopyWithImpl;
 @useResult
 $Res call({
  DateTime endsAt
@@ -500,17 +494,17 @@ $Res call({
 
 }
 /// @nodoc
-class _$AuctionBidFooterCopyWithImpl<$Res>
-    implements $AuctionBidFooterCopyWith<$Res> {
-  _$AuctionBidFooterCopyWithImpl(this._self, this._then);
+class _$AuctionCountdownFooterCopyWithImpl<$Res>
+    implements $AuctionCountdownFooterCopyWith<$Res> {
+  _$AuctionCountdownFooterCopyWithImpl(this._self, this._then);
 
-  final AuctionBidFooter _self;
-  final $Res Function(AuctionBidFooter) _then;
+  final AuctionCountdownFooter _self;
+  final $Res Function(AuctionCountdownFooter) _then;
 
 /// Create a copy of NotificationFooter
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') $Res call({Object? endsAt = null,}) {
-  return _then(AuctionBidFooter(
+  return _then(AuctionCountdownFooter(
 endsAt: null == endsAt ? _self.endsAt : endsAt // ignore: cast_nullable_to_non_nullable
 as DateTime,
   ));
@@ -518,38 +512,6 @@ as DateTime,
 
 
 }
-
-/// @nodoc
-
-
-class StreakCheckInFooter implements NotificationFooter {
-  const StreakCheckInFooter();
-  
-
-
-
-
-
-
-@override
-bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is StreakCheckInFooter);
-}
-
-
-@override
-int get hashCode => runtimeType.hashCode;
-
-@override
-String toString() {
-    return 'NotificationFooter.streakCheckIn()';
-}
-
-
-}
-
-
-
 
 /// @nodoc
 
@@ -692,7 +654,7 @@ as int,
 /// @nodoc
 mixin _$AppNotification {
 
- String get id; NotificationCategory get category; String get title; List<NotificationSpan> get body; DateTime get receivedAt; bool get isRead; bool get isUrgent; NotificationFooter? get footer;
+ String get id; NotificationCategory get category; String get title; List<NotificationSpan> get body; DateTime get receivedAt; bool get isRead; bool get isUrgent; NotificationFooter? get footer; String? get deepLink;
 /// Create a copy of AppNotification
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -704,20 +666,20 @@ $AppNotificationCopyWith<AppNotification> get copyWith => _$AppNotificationCopyW
 @override
 bool operator ==(Object other) {
   final _this = this as AppNotification;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AppNotification&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.category, _this.category) || other.category == _this.category)&&(identical(other.title, _this.title) || other.title == _this.title)&&const DeepCollectionEquality().equals(other.body, _this.body)&&(identical(other.receivedAt, _this.receivedAt) || other.receivedAt == _this.receivedAt)&&(identical(other.isRead, _this.isRead) || other.isRead == _this.isRead)&&(identical(other.isUrgent, _this.isUrgent) || other.isUrgent == _this.isUrgent)&&(identical(other.footer, _this.footer) || other.footer == _this.footer));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AppNotification&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.category, _this.category) || other.category == _this.category)&&(identical(other.title, _this.title) || other.title == _this.title)&&const DeepCollectionEquality().equals(other.body, _this.body)&&(identical(other.receivedAt, _this.receivedAt) || other.receivedAt == _this.receivedAt)&&(identical(other.isRead, _this.isRead) || other.isRead == _this.isRead)&&(identical(other.isUrgent, _this.isUrgent) || other.isUrgent == _this.isUrgent)&&(identical(other.footer, _this.footer) || other.footer == _this.footer)&&(identical(other.deepLink, _this.deepLink) || other.deepLink == _this.deepLink));
 }
 
 
 @override
 int get hashCode {
   final _this = this as AppNotification;
-  return Object.hash(runtimeType,_this.id,_this.category,_this.title,const DeepCollectionEquality().hash(_this.body),_this.receivedAt,_this.isRead,_this.isUrgent,_this.footer);
+  return Object.hash(runtimeType,_this.id,_this.category,_this.title,const DeepCollectionEquality().hash(_this.body),_this.receivedAt,_this.isRead,_this.isUrgent,_this.footer,_this.deepLink);
 }
 
 @override
 String toString() {
   final _this = this as AppNotification;
-  return 'AppNotification(id: ${_this.id}, category: ${_this.category}, title: ${_this.title}, body: ${_this.body}, receivedAt: ${_this.receivedAt}, isRead: ${_this.isRead}, isUrgent: ${_this.isUrgent}, footer: ${_this.footer})';
+  return 'AppNotification(id: ${_this.id}, category: ${_this.category}, title: ${_this.title}, body: ${_this.body}, receivedAt: ${_this.receivedAt}, isRead: ${_this.isRead}, isUrgent: ${_this.isUrgent}, footer: ${_this.footer}, deepLink: ${_this.deepLink})';
 }
 
 
@@ -728,7 +690,7 @@ abstract mixin class $AppNotificationCopyWith<$Res>  {
   factory $AppNotificationCopyWith(AppNotification value, $Res Function(AppNotification) _then) = _$AppNotificationCopyWithImpl;
 @useResult
 $Res call({
- String id, NotificationCategory category, String title, List<NotificationSpan> body, DateTime receivedAt, bool isRead, bool isUrgent, NotificationFooter? footer
+ String id, NotificationCategory category, String title, List<NotificationSpan> body, DateTime receivedAt, bool isRead, bool isUrgent, NotificationFooter? footer, String? deepLink
 });
 
 
@@ -745,7 +707,7 @@ class _$AppNotificationCopyWithImpl<$Res>
 
 /// Create a copy of AppNotification
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? category = null,Object? title = null,Object? body = null,Object? receivedAt = null,Object? isRead = null,Object? isUrgent = null,Object? footer = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? category = null,Object? title = null,Object? body = null,Object? receivedAt = null,Object? isRead = null,Object? isUrgent = null,Object? footer = freezed,Object? deepLink = freezed,}) {
   return _then(AppNotification(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,category: null == category ? _self.category : category // ignore: cast_nullable_to_non_nullable
@@ -755,7 +717,8 @@ as List<NotificationSpan>,receivedAt: null == receivedAt ? _self.receivedAt : re
 as DateTime,isRead: null == isRead ? _self.isRead : isRead // ignore: cast_nullable_to_non_nullable
 as bool,isUrgent: null == isUrgent ? _self.isUrgent : isUrgent // ignore: cast_nullable_to_non_nullable
 as bool,footer: freezed == footer ? _self.footer : footer // ignore: cast_nullable_to_non_nullable
-as NotificationFooter?,
+as NotificationFooter?,deepLink: freezed == deepLink ? _self.deepLink : deepLink // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 /// Create a copy of AppNotification
@@ -852,10 +815,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  NotificationCategory category,  String title,  List<NotificationSpan> body,  DateTime receivedAt,  bool isRead,  bool isUrgent,  NotificationFooter? footer)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  NotificationCategory category,  String title,  List<NotificationSpan> body,  DateTime receivedAt,  bool isRead,  bool isUrgent,  NotificationFooter? footer,  String? deepLink)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _AppNotification() when $default != null:
-return $default(_that.id,_that.category,_that.title,_that.body,_that.receivedAt,_that.isRead,_that.isUrgent,_that.footer);case _:
+return $default(_that.id,_that.category,_that.title,_that.body,_that.receivedAt,_that.isRead,_that.isUrgent,_that.footer,_that.deepLink);case _:
   return orElse();
 
 }
@@ -873,10 +836,10 @@ return $default(_that.id,_that.category,_that.title,_that.body,_that.receivedAt,
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  NotificationCategory category,  String title,  List<NotificationSpan> body,  DateTime receivedAt,  bool isRead,  bool isUrgent,  NotificationFooter? footer)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  NotificationCategory category,  String title,  List<NotificationSpan> body,  DateTime receivedAt,  bool isRead,  bool isUrgent,  NotificationFooter? footer,  String? deepLink)  $default,) {final _that = this;
 switch (_that) {
 case _AppNotification():
-return $default(_that.id,_that.category,_that.title,_that.body,_that.receivedAt,_that.isRead,_that.isUrgent,_that.footer);case _:
+return $default(_that.id,_that.category,_that.title,_that.body,_that.receivedAt,_that.isRead,_that.isUrgent,_that.footer,_that.deepLink);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -893,10 +856,10 @@ return $default(_that.id,_that.category,_that.title,_that.body,_that.receivedAt,
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  NotificationCategory category,  String title,  List<NotificationSpan> body,  DateTime receivedAt,  bool isRead,  bool isUrgent,  NotificationFooter? footer)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  NotificationCategory category,  String title,  List<NotificationSpan> body,  DateTime receivedAt,  bool isRead,  bool isUrgent,  NotificationFooter? footer,  String? deepLink)?  $default,) {final _that = this;
 switch (_that) {
 case _AppNotification() when $default != null:
-return $default(_that.id,_that.category,_that.title,_that.body,_that.receivedAt,_that.isRead,_that.isUrgent,_that.footer);case _:
+return $default(_that.id,_that.category,_that.title,_that.body,_that.receivedAt,_that.isRead,_that.isUrgent,_that.footer,_that.deepLink);case _:
   return null;
 
 }
@@ -908,7 +871,7 @@ return $default(_that.id,_that.category,_that.title,_that.body,_that.receivedAt,
 
 
 class _AppNotification implements AppNotification {
-  const _AppNotification({required this.id, required this.category, required this.title, required  List<NotificationSpan> body, required this.receivedAt, this.isRead = false, this.isUrgent = false, this.footer}): _body = body;
+  const _AppNotification({required this.id, required this.category, required this.title, required  List<NotificationSpan> body, required this.receivedAt, this.isRead = false, this.isUrgent = false, this.footer, this.deepLink}): _body = body;
   
 
 @override final  String id;
@@ -925,6 +888,7 @@ class _AppNotification implements AppNotification {
 @override@JsonKey() final  bool isRead;
 @override@JsonKey() final  bool isUrgent;
 @override final  NotificationFooter? footer;
+@override final  String? deepLink;
 
 /// Create a copy of AppNotification
 /// with the given fields replaced by the non-null parameter values.
@@ -936,18 +900,18 @@ _$AppNotificationCopyWith<_AppNotification> get copyWith => __$AppNotificationCo
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _AppNotification&&(identical(other.id, id) || other.id == id)&&(identical(other.category, category) || other.category == category)&&(identical(other.title, title) || other.title == title)&&const DeepCollectionEquality().equals(other.body, _body)&&(identical(other.receivedAt, receivedAt) || other.receivedAt == receivedAt)&&(identical(other.isRead, isRead) || other.isRead == isRead)&&(identical(other.isUrgent, isUrgent) || other.isUrgent == isUrgent)&&(identical(other.footer, footer) || other.footer == footer));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _AppNotification&&(identical(other.id, id) || other.id == id)&&(identical(other.category, category) || other.category == category)&&(identical(other.title, title) || other.title == title)&&const DeepCollectionEquality().equals(other.body, _body)&&(identical(other.receivedAt, receivedAt) || other.receivedAt == receivedAt)&&(identical(other.isRead, isRead) || other.isRead == isRead)&&(identical(other.isUrgent, isUrgent) || other.isUrgent == isUrgent)&&(identical(other.footer, footer) || other.footer == footer)&&(identical(other.deepLink, deepLink) || other.deepLink == deepLink));
 }
 
 
 @override
 int get hashCode {
-    return Object.hash(runtimeType,id,category,title,const DeepCollectionEquality().hash(_body),receivedAt,isRead,isUrgent,footer);
+    return Object.hash(runtimeType,id,category,title,const DeepCollectionEquality().hash(_body),receivedAt,isRead,isUrgent,footer,deepLink);
 }
 
 @override
 String toString() {
-    return 'AppNotification(id: $id, category: $category, title: $title, body: $body, receivedAt: $receivedAt, isRead: $isRead, isUrgent: $isUrgent, footer: $footer)';
+    return 'AppNotification(id: $id, category: $category, title: $title, body: $body, receivedAt: $receivedAt, isRead: $isRead, isUrgent: $isUrgent, footer: $footer, deepLink: $deepLink)';
 }
 
 
@@ -958,7 +922,7 @@ abstract mixin class _$AppNotificationCopyWith<$Res> implements $AppNotification
   factory _$AppNotificationCopyWith(_AppNotification value, $Res Function(_AppNotification) _then) = __$AppNotificationCopyWithImpl;
 @override @useResult
 $Res call({
- String id, NotificationCategory category, String title, List<NotificationSpan> body, DateTime receivedAt, bool isRead, bool isUrgent, NotificationFooter? footer
+ String id, NotificationCategory category, String title, List<NotificationSpan> body, DateTime receivedAt, bool isRead, bool isUrgent, NotificationFooter? footer, String? deepLink
 });
 
 
@@ -975,7 +939,7 @@ class __$AppNotificationCopyWithImpl<$Res>
 
 /// Create a copy of AppNotification
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? category = null,Object? title = null,Object? body = null,Object? receivedAt = null,Object? isRead = null,Object? isUrgent = null,Object? footer = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? category = null,Object? title = null,Object? body = null,Object? receivedAt = null,Object? isRead = null,Object? isUrgent = null,Object? footer = freezed,Object? deepLink = freezed,}) {
   return _then(_AppNotification(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,category: null == category ? _self.category : category // ignore: cast_nullable_to_non_nullable
@@ -985,7 +949,8 @@ as List<NotificationSpan>,receivedAt: null == receivedAt ? _self.receivedAt : re
 as DateTime,isRead: null == isRead ? _self.isRead : isRead // ignore: cast_nullable_to_non_nullable
 as bool,isUrgent: null == isUrgent ? _self.isUrgent : isUrgent // ignore: cast_nullable_to_non_nullable
 as bool,footer: freezed == footer ? _self.footer : footer // ignore: cast_nullable_to_non_nullable
-as NotificationFooter?,
+as NotificationFooter?,deepLink: freezed == deepLink ? _self.deepLink : deepLink // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 

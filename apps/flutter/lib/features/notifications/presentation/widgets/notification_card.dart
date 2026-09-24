@@ -23,8 +23,6 @@ class NotificationCard extends StatelessWidget {
     required this.receivedLabel,
     required this.receivedSpoken,
     required this.onTap,
-    required this.onBid,
-    required this.onCheckIn,
     super.key,
   });
 
@@ -42,19 +40,11 @@ class NotificationCard extends StatelessWidget {
   final String receivedSpoken;
 
   final VoidCallback onTap;
-  final VoidCallback onBid;
-  final VoidCallback onCheckIn;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors.notification;
-    final l10n = context.l10n;
     final isRead = notification.isRead;
-    final title = isRead ? notification.title : '${l10n.notificationsUnread}, ${notification.title}';
-    final hasButton = switch (notification.footer) {
-      AuctionBidFooter() || StreakCheckInFooter() => true,
-      _ => false,
-    };
     final card = Semantics(
       container: true,
       child: Material(
@@ -78,46 +68,14 @@ class NotificationCard extends StatelessWidget {
                 start: AppNotificationLayout.cardPadding + (isRead ? 0 : AppNotificationLayout.unreadInset),
                 end: AppNotificationLayout.cardPadding,
                 top: AppNotificationLayout.cardPadding,
-                bottom: hasButton ? AppNotificationLayout.cardPaddingUnderButton : AppNotificationLayout.cardPadding,
+                bottom: AppNotificationLayout.cardPadding,
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+              child: Row(
+                spacing: AppNotificationLayout.arrowGap,
                 children: [
-                  Semantics(
-                    label: '$title, $receivedSpoken',
-                    excludeSemantics: true,
-                    child: Row(
-                      spacing: AppSpacing.sm,
-                      children: [
-                        Expanded(
-                          child: Row(
-                            spacing: AppNotificationLayout.unreadDotGap,
-                            children: [
-                              Flexible(
-                                child: Text(
-                                  notification.title,
-                                  style: AppTextStyle.labelMedium.copyWith(
-                                    color: isRead ? colors.titleRead : colors.title,
-                                  ),
-                                ),
-                              ),
-                              if (notification.isUrgent && !isRead)
-                                Container(
-                                  width: AppNotificationLayout.unreadDot,
-                                  height: AppNotificationLayout.unreadDot,
-                                  decoration: BoxDecoration(color: colors.accent, shape: BoxShape.circle),
-                                ),
-                            ],
-                          ),
-                        ),
-                        Text(receivedLabel, style: AppTextStyle.caption.copyWith(color: colors.meta)),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: AppNotificationLayout.titleGap),
-                  _Body(spans: notification.body, isRead: isRead),
-                  if (notification.footer case final footer?)
-                    _Footer(footer: footer, onBid: onBid, onCheckIn: onCheckIn),
+                  Expanded(child: _content(context)),
+                  if (notification.deepLink != null)
+                    Icon(Icons.chevron_right, size: AppIconSize.sm, color: colors.meta),
                 ],
               ),
             ),
@@ -126,6 +84,52 @@ class NotificationCard extends StatelessWidget {
       ),
     );
     return isRead ? Opacity(opacity: _readOpacity, child: card) : card;
+  }
+
+  Widget _content(BuildContext context) {
+    final colors = context.appColors.notification;
+    final l10n = context.l10n;
+    final isRead = notification.isRead;
+    final title = isRead ? notification.title : '${l10n.notificationsUnread}, ${notification.title}';
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Semantics(
+          label: '$title, $receivedSpoken',
+          excludeSemantics: true,
+          child: Row(
+            spacing: AppSpacing.sm,
+            children: [
+              Expanded(
+                child: Row(
+                  spacing: AppNotificationLayout.unreadDotGap,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        notification.title,
+                        style: AppTextStyle.labelMedium.copyWith(
+                          color: isRead ? colors.titleRead : colors.title,
+                        ),
+                      ),
+                    ),
+                    if (notification.isUrgent && !isRead)
+                      Container(
+                        width: AppNotificationLayout.unreadDot,
+                        height: AppNotificationLayout.unreadDot,
+                        decoration: BoxDecoration(color: colors.accent, shape: BoxShape.circle),
+                      ),
+                  ],
+                ),
+              ),
+              Text(receivedLabel, style: AppTextStyle.caption.copyWith(color: colors.meta)),
+            ],
+          ),
+        ),
+        const SizedBox(height: AppNotificationLayout.titleGap),
+        _Body(spans: notification.body, isRead: isRead),
+        if (notification.footer case final footer?) _Footer(footer: footer),
+      ],
+    );
   }
 }
 
@@ -160,22 +164,16 @@ class _Body extends StatelessWidget {
 }
 
 class _Footer extends StatelessWidget {
-  const _Footer({required this.footer, required this.onBid, required this.onCheckIn});
+  const _Footer({required this.footer});
 
   final NotificationFooter footer;
-  final VoidCallback onBid;
-  final VoidCallback onCheckIn;
-
-  static const OutlinedBorder _buttonShape = RoundedRectangleBorder(
-    borderRadius: BorderRadius.all(Radius.circular(AppRadius.sm)),
-  );
 
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors.notification;
     final l10n = context.l10n;
     return switch (footer) {
-      AuctionBidFooter(:final endsAt) => Padding(
+      AuctionCountdownFooter(:final endsAt) => Padding(
         padding: const EdgeInsets.only(top: AppNotificationLayout.actionBarGap),
         child: DecoratedBox(
           decoration: BoxDecoration(
@@ -184,11 +182,7 @@ class _Footer extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.only(top: AppNotificationLayout.actionBarPadding),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              spacing: AppSpacing.sm,
               children: [
-                // Flexible, so a scaled-up countdown wraps rather than pushing
-                // the button off the card.
                 Flexible(
                   child: CountdownBuilder(
                     endsAt: endsAt,
@@ -220,46 +214,9 @@ class _Footer extends StatelessWidget {
                     },
                   ),
                 ),
-                FilledButton(
-                  onPressed: onBid,
-                  style: FilledButton.styleFrom(
-                    backgroundColor: colors.ctaBackground,
-                    foregroundColor: colors.ctaLabel,
-                    minimumSize: const Size(0, AppNotificationLayout.buttonHeight),
-                    padding: const EdgeInsets.symmetric(horizontal: AppNotificationLayout.ctaPadding),
-                    textStyle: AppTextStyle.labelMedium,
-                    shape: _buttonShape,
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    spacing: AppNotificationLayout.glyphGap,
-                    children: [
-                      Text(l10n.notificationsBidNow),
-                      SvgIcon(AppIconAssets.bolt, color: colors.ctaLabel, size: AppIconSize.xs),
-                    ],
-                  ),
-                ),
               ],
             ),
           ),
-        ),
-      ),
-      // No gap above: the button's 48 tap target already carries more than the
-      // frame's 10 over its drawn 26.
-      StreakCheckInFooter() => Align(
-        alignment: AlignmentDirectional.centerEnd,
-        child: OutlinedButton(
-          onPressed: onCheckIn,
-          style: OutlinedButton.styleFrom(
-            backgroundColor: colors.buttonBackground,
-            foregroundColor: colors.buttonLabel,
-            side: BorderSide(color: colors.buttonBorder),
-            minimumSize: const Size(0, AppNotificationLayout.buttonHeight),
-            padding: const EdgeInsets.symmetric(horizontal: AppNotificationLayout.buttonPadding),
-            textStyle: AppTextStyle.labelMedium.copyWith(fontWeight: FontWeight.w500),
-            shape: _buttonShape,
-          ),
-          child: Text(l10n.notificationsCheckInNow),
         ),
       ),
       PointsCreditedFooter(:final points, :final balance) => Padding(

@@ -39,12 +39,10 @@
 | `notificationCardDeep` | `#121620` | Notifications screen only | 1167:2170 |
 | `notificationCardRead` | `#111620` | Notifications screen only | 1167:2170 |
 | `notificationChip` | `#141A24` | Notifications screen only | 1167:2170 |
-| `notificationButton` | `#222B3A` | Notifications screen only | 1167:2170 |
 | `notificationOnAccent` | `#0B0E14` | Notifications screen only | 1167:2170 |
 | `notificationWarning` | `#FB923C` | Notifications screen only | 1167:2170 |
 | `notificationSuccess` | `#10B981` | Notifications screen only | 1167:2170 |
 | `notificationSuccessLabel` | `#34D399` | Notifications screen only | 1167:2170 |
-| `notificationCta` | `#FFD966` | Notifications screen only | 1167:2170 |
 
 Brand constants (third-party, not theme tokens): whatsapp `#25D366`, telegram `#0088CC`, instagram `#E1306C`, messages `#34B7F1`, twitter `#1DA1F2`, googleBlue `#4285F4`, googleGreen `#34A853`, googleYellow `#FBBC05`, googleRed `#EA4335`
 
@@ -622,7 +620,7 @@ Emoji (🔥 🎖️ 🏆 🎬 🌍 ✨ 🧠 🔮 🎟️ 🤝 💎 🔗) are use
 | **Icons** | Icon font for single-colour glyphs, SVG for multi-colour marks. |
 | **Out of scope** | Auction (418:18052), Success state (404:9787) and the splash screenshot (36:5658) are concepts; their unique values are mapped to the nearest kept token, not tokenised. |
 | **Inter Medium (500)** | The 58 Inter Medium texts (10–14 px small print) are folded into the Inter Regular roles (caption, bodySmall, bodyMedium) — the weight step is invisible at those sizes and the design uses Medium inconsistently. Weight 500 is therefore not declared and no Inter-Medium font file is bundled. |
-| **Notifications screen** | Notifications (1167:2170) sits outside the Visuals extraction and is kept to the frame's own values: a scoped notifications palette (AppPalette.notification*, AppColors.notification), the urgent-card gradient #161C27→#121620 at 158.7° (AppGradients.notificationUrgentCard), and the frame's exact spacing and radii (AppNotificationLayout). Borders are solid: #F5C451@40% unread, white@5% read; chips #141A24 with white@10% (inactive) or #F5C451@12% fill and @40% border (active). Type stays on the shared roles, and buttons keep their 48 tap targets with the difference taken off the card padding, so text minimums and tap sizes hold; cards with a button run up to 11 taller than drawn. |
+| **Notifications screen** | Notifications (1167:2170) sits outside the Visuals extraction and is kept to the frame's own values: a scoped notifications palette (AppPalette.notification*, AppColors.notification), the urgent-card gradient #161C27→#121620 at 158.7° (AppGradients.notificationUrgentCard), and the frame's exact spacing and radii (AppNotificationLayout). Borders are solid: #F5C451@40% unread, white@5% read; chips #141A24 with white@10% (inactive) or #F5C451@12% fill and @40% border (active). Type stays on the shared roles, so text minimums hold. The frame's Bid Now and Check In Now buttons are not built: a card that leads somewhere is tapped whole and carries a trailing chevron (Icons.chevron_right, meta colour) instead. |
 
 ## 10. Open items for design
 

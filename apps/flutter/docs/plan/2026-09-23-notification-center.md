@@ -17,7 +17,7 @@ Outside the shell, like edit profile: the frame draws no bottom nav, so it cover
 - The frame is not part of the extracted design system. Its values fold into existing entries; no new tokens (see `docs/design/design-system.md` decisions log).
 - The active filter chip is the gold-tinted pill the frame draws (`tag.goldSubtle` roles), not the solid documented filter chip.
 - No inbox API exists. A hand-written service stands in for it, as in earns, p2p and rewards. Filters, Read All and tap-to-read work locally.
-- Bid Now opens the auction; Check In Now opens the daily streak.
+- No CTA buttons on the cards. A notification with a `deepLink` shows a trailing arrow; the whole card will open the link once deep linking lands. Until then a tap only marks it read.
 
 ## Assumptions
 

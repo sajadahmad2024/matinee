@@ -853,11 +853,6 @@ class AppNotificationColors {
     required this.chipActiveLabel,
     required this.countBackground,
     required this.countLabel,
-    required this.ctaBackground,
-    required this.ctaLabel,
-    required this.buttonBackground,
-    required this.buttonBorder,
-    required this.buttonLabel,
     required this.pointsBorder,
     required this.pointsLabel,
     required this.successBackground,
@@ -889,11 +884,6 @@ class AppNotificationColors {
     chipActiveLabel: AppPalette.notificationAccent,
     countBackground: AppPalette.notificationAccent,
     countLabel: AppPalette.notificationOnAccent,
-    ctaBackground: AppPalette.notificationCta,
-    ctaLabel: AppPalette.surface,
-    buttonBackground: AppPalette.notificationButton,
-    buttonBorder: AppPalette.white.a10,
-    buttonLabel: AppPalette.notificationTextStrong,
     pointsBorder: AppPalette.notificationAccent.a30,
     pointsLabel: AppPalette.notificationAccent,
     successBackground: AppPalette.notificationSuccess.withValues(alpha: 0.15),
@@ -933,11 +923,6 @@ class AppNotificationColors {
   final Color chipActiveLabel;
   final Color countBackground;
   final Color countLabel;
-  final Color ctaBackground;
-  final Color ctaLabel;
-  final Color buttonBackground;
-  final Color buttonBorder;
-  final Color buttonLabel;
   final Color pointsBorder;
   final Color pointsLabel;
   final Color successBackground;

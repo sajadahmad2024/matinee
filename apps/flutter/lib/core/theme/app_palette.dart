@@ -43,12 +43,10 @@ abstract final class AppPalette {
   // palette, kept exact rather than folded into the tokens above.
   static const Color notificationAccent = Color(0xFFF5C451);
   static const Color notificationOnAccent = Color(0xFF0B0E14);
-  static const Color notificationCta = Color(0xFFFFD966);
   static const Color notificationCard = Color(0xFF161C27);
   static const Color notificationCardDeep = Color(0xFF121620);
   static const Color notificationCardRead = Color(0xFF111620);
   static const Color notificationChip = Color(0xFF141A24);
-  static const Color notificationButton = Color(0xFF222B3A);
   static const Color notificationTextStrong = Color(0xFFE2E8F0);
   static const Color notificationTextBody = Color(0xFFCBD5E1);
   static const Color notificationTextMeta = Color(0xFF94A3B8);

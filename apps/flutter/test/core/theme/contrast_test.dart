@@ -253,11 +253,6 @@ void main() {
       expect(contrastRatio(n.chipActiveLabel, active), greaterThanOrEqualTo(4.5));
       expect(contrastRatio(n.countLabel, n.countBackground), greaterThanOrEqualTo(4.5));
     });
-
-    test('the button labels on their fills', () {
-      expect(contrastRatio(n.ctaLabel, n.ctaBackground), greaterThanOrEqualTo(4.5));
-      expect(contrastRatio(n.buttonLabel, n.buttonBackground), greaterThanOrEqualTo(4.5));
-    });
   });
 
   group('the disabled roles are exempt, and only because they label a dead control', () {

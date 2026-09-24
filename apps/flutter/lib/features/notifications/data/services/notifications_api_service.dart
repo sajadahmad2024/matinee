@@ -46,9 +46,10 @@ class NotificationsApiService {
       ],
       receivedAt: _startedAt.subtract(const Duration(minutes: 5)),
       isUrgent: true,
-      footer: NotificationFooter.auctionBid(
+      footer: NotificationFooter.auctionCountdown(
         endsAt: _startedAt.add(const Duration(hours: 4, minutes: 11, seconds: 56)),
       ),
+      deepLink: '/rewards/auction',
     ),
     AppNotification(
       id: 'n-2',
@@ -60,7 +61,7 @@ class NotificationsApiService {
         NotificationSpan(" to claim today's check-in and keep your 257 streak alive!"),
       ],
       receivedAt: _startedAt.subtract(const Duration(hours: 3)),
-      footer: const NotificationFooter.streakCheckIn(),
+      deepLink: '/p2p/streaks',
     ),
     AppNotification(
       id: 'n-3',
