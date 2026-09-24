@@ -3,8 +3,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:hls_video_player/src/engine/hls_engine.dart';
 import 'package:hls_video_player/src/player/hls_connectivity.dart';
+import 'package:hls_video_player/src/player/hls_fullscreen_view.dart';
 import 'package:hls_video_player/src/player/hls_hud_binder.dart';
 import 'package:hls_video_player/src/player/hls_hud_session.dart';
+import 'package:hls_video_player/src/player/hls_player_bottom_bar.dart';
+import 'package:hls_video_player/src/player/hls_player_chrome.dart';
+import 'package:hls_video_player/src/player/hls_player_controls.dart';
 import 'package:hls_video_player/src/player/hls_player_port.dart';
 import 'package:hls_video_player/src/player/hls_player_snapshot.dart';
 import 'package:hls_video_player/src/player/hls_port_window.dart';
@@ -26,6 +30,7 @@ class HlsReelPager extends StatefulWidget {
     this.showSeekBar = true,
     this.tapToTogglePlay = true,
     this.showBufferLoader = true,
+    this.controls = const HlsPlayerControls(),
     this.autoplay = true,
     this.muted = true,
     this.connectivity,
@@ -41,6 +46,11 @@ class HlsReelPager extends StatefulWidget {
   final bool showSeekBar;
   final bool tapToTogglePlay;
   final bool showBufferLoader;
+
+  /// Visibility and builders for play/pause, mute, seek bar and timer.
+  final HlsPlayerControls controls;
+
+  /// Initial play intent for every newly focused reel.
   final bool autoplay;
   final bool muted;
   final HlsConnectivity? connectivity;
@@ -59,6 +69,9 @@ class _HlsReelPagerState extends State<HlsReelPager> {
   late bool _ownsController;
   final HlsHudTelemetry _telemetry = HlsHudTelemetry();
   int? _statsFocus;
+
+  // Shows the focused port rotated above everything; no second player.
+  final OverlayPortalController _fullscreen = OverlayPortalController();
 
   @override
   void initState() {
@@ -148,6 +161,31 @@ class _HlsReelPagerState extends State<HlsReelPager> {
     super.dispose();
   }
 
+  void _toggleFullscreen() {
+    setState(_fullscreen.isShowing ? _fullscreen.hide : _fullscreen.show);
+  }
+
+  Widget _buildFullscreen(BuildContext context) {
+    return HlsFullscreenView(
+      child: HlsPlayerChrome(
+        port: _window.focusedPort,
+        isFocused: true,
+        playRequested: _window.playRequested,
+        muted: _window.muted,
+        showSeekBar: widget.showSeekBar,
+        showBufferLoader: widget.showBufferLoader,
+        controls: widget.controls.embedded,
+        isFullscreen: true,
+        onTogglePlay: widget.tapToTogglePlay
+            ? () => unawaited(_window.togglePlay())
+            : null,
+        onToggleMute: () => unawaited(_window.toggleMute()),
+        onToggleFullscreen: _toggleFullscreen,
+        onSeek: (Duration position) => unawaited(_window.seekTo(position)),
+      ),
+    );
+  }
+
   Future<void> _clearCache() {
     final Uri master = widget.items.isEmpty
         ? Uri.parse('https://invalid.invalid/')
@@ -171,6 +209,8 @@ class _HlsReelPagerState extends State<HlsReelPager> {
       scrollDirection: Axis.vertical,
       itemCount: widget.items.length,
       onPageChanged: (int index) {
+        // Pause belongs to the reel that was paused; mute stays shared.
+        _window.playRequested = widget.autoplay;
         unawaited(_window.sync(focusedIndex: index));
       },
       itemBuilder: (BuildContext context, int index) {
@@ -179,6 +219,12 @@ class _HlsReelPagerState extends State<HlsReelPager> {
         final bool focused = index == _window.focusedIndex;
         final HlsPlayerSnapshot snapshot =
             port?.snapshot ?? HlsPlayerSnapshot.empty;
+        void seek(Duration position) {
+          if (focused) {
+            unawaited(_window.seekTo(position));
+          }
+        }
+
         final Widget video = HlsVideoPlayer.fromPort(
           key: ValueKey<String>('reel-${item.id}'),
           masterUri: item.masterUri,
@@ -189,15 +235,14 @@ class _HlsReelPagerState extends State<HlsReelPager> {
           showSeekBar: widget.showSeekBar,
           tapToTogglePlay: widget.tapToTogglePlay,
           showBufferLoader: widget.showBufferLoader,
+          controls: widget.controls,
           openError: _window.errorAt(index),
           onTogglePlay: focused && widget.tapToTogglePlay
               ? () => unawaited(_window.togglePlay())
               : null,
-          onSeek: (Duration position) {
-            if (focused) {
-              unawaited(_window.seekTo(position));
-            }
-          },
+          onToggleMute: focused ? () => unawaited(_window.toggleMute()) : null,
+          onToggleFullscreen: focused ? _toggleFullscreen : null,
+          onSeek: seek,
         );
         return widget.itemBuilder(
           context,
@@ -208,11 +253,29 @@ class _HlsReelPagerState extends State<HlsReelPager> {
             port: port,
             isFocused: focused,
             snapshot: snapshot,
+            bottomBar: widget.controls.embedBottomBar
+                ? null
+                : HlsPlayerBottomBar(
+                    port: port,
+                    isFocused: focused,
+                    playRequested: _window.playRequested,
+                    muted: _window.muted,
+                    onSeek: seek,
+                    onTogglePlay: focused && widget.tapToTogglePlay
+                        ? () => unawaited(_window.togglePlay())
+                        : null,
+                    onToggleMute: focused
+                        ? () => unawaited(_window.toggleMute())
+                        : null,
+                    onToggleFullscreen: focused ? _toggleFullscreen : null,
+                    showSeekBar: widget.showSeekBar,
+                    controls: widget.controls,
+                  ),
           ),
         );
       },
     );
-    return Stack(
+    final Widget body = Stack(
       fit: StackFit.expand,
       children: <Widget>[
         pages,
@@ -248,6 +311,21 @@ class _HlsReelPagerState extends State<HlsReelPager> {
           ),
         ],
       ],
+    );
+    return PopScope(
+      // Back leaves fullscreen first instead of leaving the screen.
+      canPop: !_fullscreen.isShowing,
+      onPopInvokedWithResult: (bool didPop, _) {
+        if (!didPop && _fullscreen.isShowing) {
+          _toggleFullscreen();
+        }
+      },
+      child: OverlayPortal(
+        controller: _fullscreen,
+        overlayLocation: OverlayChildLocation.rootOverlay,
+        overlayChildBuilder: _buildFullscreen,
+        child: body,
+      ),
     );
   }
 }

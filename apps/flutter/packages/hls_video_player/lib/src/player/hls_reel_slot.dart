@@ -12,6 +12,7 @@ class HlsReelSlot {
     required this.port,
     required this.isFocused,
     required this.snapshot,
+    this.bottomBar,
   });
 
   final int index;
@@ -20,4 +21,8 @@ class HlsReelSlot {
   final HlsPlayerPort? port;
   final bool isFocused;
   final HlsPlayerSnapshot snapshot;
+
+  /// Seek bar and timer for the host to place; null while they are embedded
+  /// in [video] (`HlsPlayerControls.embedBottomBar`).
+  final Widget? bottomBar;
 }

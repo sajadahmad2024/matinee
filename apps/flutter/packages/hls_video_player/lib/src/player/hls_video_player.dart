@@ -3,9 +3,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:hls_video_player/src/engine/hls_engine.dart';
 import 'package:hls_video_player/src/player/hls_connectivity.dart';
+import 'package:hls_video_player/src/player/hls_fullscreen_view.dart';
 import 'package:hls_video_player/src/player/hls_hud_binder.dart';
 import 'package:hls_video_player/src/player/hls_hud_session.dart';
 import 'package:hls_video_player/src/player/hls_player_chrome.dart';
+import 'package:hls_video_player/src/player/hls_player_controls.dart';
 import 'package:hls_video_player/src/player/hls_player_port.dart';
 import 'package:hls_video_player/src/player/hls_port_window.dart';
 import 'package:hls_video_player/src/player/hls_reel_item.dart';
@@ -25,6 +27,7 @@ class HlsVideoPlayer extends StatefulWidget {
     this.showSeekBar = true,
     this.tapToTogglePlay = true,
     this.showBufferLoader = true,
+    this.controls = const HlsPlayerControls(),
     this.connectivity,
     super.key,
   }) : port = null,
@@ -34,6 +37,7 @@ class HlsVideoPlayer extends StatefulWidget {
        onTogglePlay = null,
        onSeek = null,
        onToggleMute = null,
+       onToggleFullscreen = null,
        onClearCache = null,
        ownsWindow = true;
 
@@ -50,8 +54,10 @@ class HlsVideoPlayer extends StatefulWidget {
     this.showSeekBar = true,
     this.tapToTogglePlay = true,
     this.showBufferLoader = true,
+    this.controls = const HlsPlayerControls(),
     this.openError,
     this.onToggleMute,
+    this.onToggleFullscreen,
     this.onClearCache,
     super.key,
   }) : autoplay = playRequested,
@@ -69,11 +75,17 @@ class HlsVideoPlayer extends StatefulWidget {
   final bool showSeekBar;
   final bool tapToTogglePlay;
   final bool showBufferLoader;
+
+  /// Visibility and builders for play/pause, mute, seek bar and timer.
+  final HlsPlayerControls controls;
   final HlsConnectivity? connectivity;
   final String? openError;
   final VoidCallback? onTogglePlay;
   final ValueChanged<Duration>? onSeek;
   final VoidCallback? onToggleMute;
+
+  /// Pager-owned fullscreen toggle for [HlsVideoPlayer.fromPort].
+  final VoidCallback? onToggleFullscreen;
   final Future<void> Function()? onClearCache;
 
   @override
@@ -83,6 +95,7 @@ class HlsVideoPlayer extends StatefulWidget {
 class _HlsVideoPlayerState extends State<HlsVideoPlayer> {
   HlsPortWindow? _window;
   final HlsHudTelemetry _telemetry = HlsHudTelemetry();
+  final OverlayPortalController _fullscreen = OverlayPortalController();
 
   @override
   void initState() {
@@ -189,6 +202,14 @@ class _HlsVideoPlayerState extends State<HlsVideoPlayer> {
     }
   }
 
+  void _toggleFullscreen() {
+    if (!widget.ownsWindow) {
+      widget.onToggleFullscreen?.call();
+      return;
+    }
+    setState(_fullscreen.isShowing ? _fullscreen.hide : _fullscreen.show);
+  }
+
   void _seek(Duration position) {
     if (widget.ownsWindow) {
       unawaited(_window?.seekTo(position));
@@ -214,17 +235,26 @@ class _HlsVideoPlayerState extends State<HlsVideoPlayer> {
         ? window?.errorAt(0)
         : widget.openError;
 
-    return Stack(
+    final Widget body = Stack(
       fit: StackFit.expand,
       children: <Widget>[
         HlsPlayerChrome(
           port: port,
           isFocused: focused,
           playRequested: playRequested,
+          muted: muted,
           showSeekBar: widget.showSeekBar,
           showBufferLoader: widget.showBufferLoader,
+          controls: widget.controls,
           onTogglePlay: focused && widget.tapToTogglePlay
               ? () => unawaited(_togglePlay())
+              : null,
+          onToggleMute: widget.ownsWindow || widget.onToggleMute != null
+              ? () => unawaited(_toggleMute())
+              : null,
+          onToggleFullscreen:
+              widget.ownsWindow || widget.onToggleFullscreen != null
+              ? _toggleFullscreen
               : null,
           onSeek: _seek,
         ),
@@ -240,6 +270,41 @@ class _HlsVideoPlayerState extends State<HlsVideoPlayer> {
             onClearCache: () => unawaited(_clearCache()),
           ),
       ],
+    );
+    if (!widget.ownsWindow) {
+      return body;
+    }
+    return PopScope(
+      // Back leaves fullscreen first instead of leaving the screen.
+      canPop: !_fullscreen.isShowing,
+      onPopInvokedWithResult: (bool didPop, _) {
+        if (!didPop && _fullscreen.isShowing) {
+          _toggleFullscreen();
+        }
+      },
+      child: OverlayPortal(
+        controller: _fullscreen,
+        overlayLocation: OverlayChildLocation.rootOverlay,
+        overlayChildBuilder: (BuildContext context) => HlsFullscreenView(
+          child: HlsPlayerChrome(
+            port: port,
+            isFocused: true,
+            playRequested: playRequested,
+            muted: muted,
+            showSeekBar: widget.showSeekBar,
+            showBufferLoader: widget.showBufferLoader,
+            controls: widget.controls.embedded,
+            isFullscreen: true,
+            onTogglePlay: widget.tapToTogglePlay
+                ? () => unawaited(_togglePlay())
+                : null,
+            onToggleMute: () => unawaited(_toggleMute()),
+            onToggleFullscreen: _toggleFullscreen,
+            onSeek: _seek,
+          ),
+        ),
+        child: body,
+      ),
     );
   }
 }

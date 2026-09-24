@@ -19,18 +19,23 @@ Duration hlsSeekPositionFromTap({
   return Duration(milliseconds: (duration.inMilliseconds * fraction).round());
 }
 
-/// Thin played-versus-buffered track with a `mm:ss / mm:ss` label.
+/// Thin played-versus-buffered track.
 ///
-/// Copy of the lab seek bar, driven by [HlsPlayerSnapshot] so portrait UI
-/// never imports `video_player`. Taps seek through [onSeek] and do not toggle
-/// play. No thumbnail preview and no drag-to-scrub.
+/// Driven by [HlsPlayerSnapshot] so portrait UI never imports `video_player`.
+/// Taps seek through [onSeek] and do not toggle play. No drag-to-scrub.
+///
+/// [track] replaces the painted track; taps on it still seek.
 class HlsEngineSeekBar extends StatelessWidget {
-  /// Creates the overlay seek bar.
+  /// Creates the seek track.
   const HlsEngineSeekBar({
     required this.onSeek,
     required this.snapshot,
+    this.track,
     super.key,
   });
+
+  /// Custom visual that fills the hit area in place of the painted track.
+  final Widget? track;
 
   /// Invoked with a clamped timestamp when the user taps the bar.
   final ValueChanged<Duration> onSeek;
@@ -39,55 +44,55 @@ class HlsEngineSeekBar extends StatelessWidget {
   final HlsPlayerSnapshot snapshot;
 
   static const double _trackHeight = 3;
-  static const double _hitHeight = 44;
+
+  /// Touch target height; also the height of the package bottom bar.
+  static const double hitHeight = 44;
 
   @override
   Widget build(BuildContext context) {
-    if (!snapshot.isInitialized || snapshot.duration <= Duration.zero) {
-      return const SizedBox.shrink();
-    }
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) =>
+          GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTapDown: (TapDownDetails details) {
+              onSeek(
+                hlsSeekPositionFromTap(
+                  dx: details.localPosition.dx,
+                  width: constraints.maxWidth,
+                  duration: snapshot.duration,
+                ),
+              );
+            },
+            child: SizedBox(
+              height: hitHeight,
+              child:
+                  track ??
+                  CustomPaint(
+                    painter: _HlsEngineSeekBarPainter(snapshot: snapshot),
+                  ),
+            ),
+          ),
+    );
+  }
+}
 
-    return Align(
-      alignment: Alignment.bottomCenter,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        child: Row(
-          children: <Widget>[
-            Expanded(
-              child: LayoutBuilder(
-                builder: (BuildContext context, BoxConstraints constraints) =>
-                    GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTapDown: (TapDownDetails details) {
-                        onSeek(
-                          hlsSeekPositionFromTap(
-                            dx: details.localPosition.dx,
-                            width: constraints.maxWidth,
-                            duration: snapshot.duration,
-                          ),
-                        );
-                      },
-                      child: SizedBox(
-                        height: _hitHeight,
-                        child: CustomPaint(
-                          painter: _HlsEngineSeekBarPainter(snapshot: snapshot),
-                        ),
-                      ),
-                    ),
-              ),
-            ),
-            const SizedBox(width: 8),
-            Text(
-              '${_format(snapshot.position)} / ${_format(snapshot.duration)}',
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 11,
-                fontFeatures: <FontFeature>[FontFeature.tabularFigures()],
-                shadows: <Shadow>[Shadow(blurRadius: 3)],
-              ),
-            ),
-          ],
-        ),
+/// `m:ss / m:ss` playhead label shown beside [HlsEngineSeekBar].
+class HlsEngineTimer extends StatelessWidget {
+  /// Creates the timer label.
+  const HlsEngineTimer({required this.snapshot, super.key});
+
+  /// Current native player state.
+  final HlsPlayerSnapshot snapshot;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      '${_format(snapshot.position)} / ${_format(snapshot.duration)}',
+      style: const TextStyle(
+        color: Colors.white,
+        fontSize: 11,
+        fontFeatures: <FontFeature>[FontFeature.tabularFigures()],
+        shadows: <Shadow>[Shadow(blurRadius: 3)],
       ),
     );
   }
