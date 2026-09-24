@@ -1736,12 +1736,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notificationsAuctionEnded => 'Auction ended';
 
   @override
-  String get notificationsBidNow => 'Bid Now';
-
-  @override
-  String get notificationsCheckInNow => 'Check In Now';
-
-  @override
   String notificationsPointsCredited(int points) {
     final intl.NumberFormat pointsNumberFormat = intl.NumberFormat.decimalPattern(localeName);
     final String pointsString = pointsNumberFormat.format(points);

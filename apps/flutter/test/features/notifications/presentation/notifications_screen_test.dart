@@ -1,7 +1,6 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:matinee/core/error/app_exception.dart';
 import 'package:matinee/core/widgets/error_view.dart';
@@ -16,12 +15,9 @@ import '../../../helpers/helpers.dart';
 
 class _MockNotificationsCubit extends MockCubit<NotificationsState> implements NotificationsCubit {}
 
-class _MockGoRouter extends Mock implements GoRouter {}
-
 void main() {
   group(NotificationsView, () {
     late NotificationsCubit cubit;
-    late _MockGoRouter router;
 
     final now = DateTime.now();
     final outbid = AppNotification(
@@ -34,7 +30,8 @@ void main() {
       ],
       receivedAt: now.subtract(const Duration(minutes: 5)),
       isUrgent: true,
-      footer: NotificationFooter.auctionBid(endsAt: now.add(const Duration(hours: 4))),
+      footer: NotificationFooter.auctionCountdown(endsAt: now.add(const Duration(hours: 4))),
+      deepLink: '/rewards/auction',
     );
     final streak = AppNotification(
       id: 'n-2',
@@ -42,7 +39,7 @@ void main() {
       title: 'Daily Streak at Risk',
       body: const [NotificationSpan('Check in to keep it.')],
       receivedAt: now.subtract(const Duration(minutes: 30)),
-      footer: const NotificationFooter.streakCheckIn(),
+      deepLink: '/p2p/streaks',
     );
     final quest = AppNotification(
       id: 'n-3',
@@ -64,11 +61,9 @@ void main() {
 
     setUp(() {
       cubit = _MockNotificationsCubit();
-      router = _MockGoRouter();
       when(() => cubit.selectFilter(any())).thenAnswer((_) async {});
       when(() => cubit.markAsRead(any())).thenAnswer((_) async {});
       when(cubit.markAllAsRead).thenAnswer((_) async {});
-      when(() => router.push<void>(any())).thenAnswer((_) async {});
     });
 
     Future<void> pumpView(WidgetTester tester, {TextScaler textScaler = TextScaler.noScaling}) {
@@ -76,10 +71,7 @@ void main() {
       return tester.pumpApp(
         MediaQuery(
           data: MediaQueryData(textScaler: textScaler),
-          child: InheritedGoRouter(
-            goRouter: router,
-            child: BlocProvider<NotificationsCubit>.value(value: cubit, child: const NotificationsView()),
-          ),
+          child: BlocProvider<NotificationsCubit>.value(value: cubit, child: const NotificationsView()),
         ),
       );
     }
@@ -177,27 +169,16 @@ void main() {
       });
     });
 
-    group('navigates', () {
-      testWidgets('to the auction from Bid Now', (tester) async {
+    group('renders an arrow', () {
+      testWidgets('on the cards that lead somewhere, and only those', (tester) async {
         when(() => cubit.state).thenReturn(NotificationsState.success(notifications: inbox));
         await pumpView(tester);
 
-        await tester.tap(find.text('Bid Now'));
-        await tester.pump();
-
-        verify(() => cubit.markAsRead('n-1')).called(1);
-        verify(() => router.push<void>('/rewards/auction')).called(1);
-      });
-
-      testWidgets('to the daily streak from Check In Now', (tester) async {
-        when(() => cubit.state).thenReturn(NotificationsState.success(notifications: inbox));
-        await pumpView(tester);
-
-        await tester.tap(find.text('Check In Now'));
-        await tester.pump();
-
-        verify(() => cubit.markAsRead('n-2')).called(1);
-        verify(() => router.push<void>('/p2p/streaks')).called(1);
+        expect(find.byIcon(Icons.chevron_right), findsNWidgets(2));
+        expect(
+          find.descendant(of: find.byType(NotificationCard).at(2), matching: find.byIcon(Icons.chevron_right)),
+          findsNothing,
+        );
       });
     });
 

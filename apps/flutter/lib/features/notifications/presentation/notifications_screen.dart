@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:matinee/app/router/app_routes.dart';
 import 'package:matinee/core/l10n/app_exception_l10n.dart';
 import 'package:matinee/core/l10n/l10n.dart';
 import 'package:matinee/core/responsive/responsive.dart';
@@ -159,14 +158,6 @@ class _Body extends StatelessWidget {
                       receivedLabel: _received(l10n, notification.receivedAt, now, spoken: false),
                       receivedSpoken: _received(l10n, notification.receivedAt, now, spoken: true),
                       onTap: () => unawaited(cubit.markAsRead(notification.id)),
-                      onBid: () {
-                        unawaited(cubit.markAsRead(notification.id));
-                        unawaited(const AuctionRoute().push<void>(context));
-                      },
-                      onCheckIn: () {
-                        unawaited(cubit.markAsRead(notification.id));
-                        unawaited(const DailyStreakRoute().push<void>(context));
-                      },
                     ),
                   ),
               ],

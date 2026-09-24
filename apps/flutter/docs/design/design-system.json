@@ -703,12 +703,10 @@
      "notificationCardDeep": "#121620",
      "notificationCardRead": "#111620",
      "notificationChip": "#141A24",
-     "notificationButton": "#222B3A",
      "notificationOnAccent": "#0B0E14",
      "notificationWarning": "#FB923C",
      "notificationSuccess": "#10B981",
-     "notificationSuccessLabel": "#34D399",
-     "notificationCta": "#FFD966"
+     "notificationSuccessLabel": "#34D399"
     },
     "gradients": {
      "notificationUrgentCard": {
@@ -5652,7 +5650,7 @@
   },
   {
    "topic": "Notifications screen",
-   "decision": "Notifications (1167:2170) sits outside the Visuals extraction and is kept to the frame's own values: a scoped notifications palette (AppPalette.notification*, AppColors.notification), the urgent-card gradient #161C27→#121620 at 158.7° (AppGradients.notificationUrgentCard), and the frame's exact spacing and radii (AppNotificationLayout). Borders are solid: #F5C451@40% unread, white@5% read; chips #141A24 with white@10% (inactive) or #F5C451@12% fill and @40% border (active). Type stays on the shared roles, and buttons keep their 48 tap targets with the difference taken off the card padding, so text minimums and tap sizes hold; cards with a button run up to 11 taller than drawn."
+   "decision": "Notifications (1167:2170) sits outside the Visuals extraction and is kept to the frame's own values: a scoped notifications palette (AppPalette.notification*, AppColors.notification), the urgent-card gradient #161C27→#121620 at 158.7° (AppGradients.notificationUrgentCard), and the frame's exact spacing and radii (AppNotificationLayout). Borders are solid: #F5C451@40% unread, white@5% read; chips #141A24 with white@10% (inactive) or #F5C451@12% fill and @40% border (active). Type stays on the shared roles, so text minimums hold. The frame's Bid Now and Check In Now buttons are not built: a card that leads somewhere is tapped whole and carries a trailing chevron (Icons.chevron_right, meta colour) instead."
   }
  ],
  "openItems": [

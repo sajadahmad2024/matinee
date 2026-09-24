@@ -2837,18 +2837,6 @@ abstract class AppLocalizations {
   /// **'Auction ended'**
   String get notificationsAuctionEnded;
 
-  /// No description provided for @notificationsBidNow.
-  ///
-  /// In en, this message translates to:
-  /// **'Bid Now'**
-  String get notificationsBidNow;
-
-  /// No description provided for @notificationsCheckInNow.
-  ///
-  /// In en, this message translates to:
-  /// **'Check In Now'**
-  String get notificationsCheckInNow;
-
   /// Points a quest paid out.
   ///
   /// In en, this message translates to:

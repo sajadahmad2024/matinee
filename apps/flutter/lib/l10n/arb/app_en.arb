@@ -1950,8 +1950,6 @@
     }
   },
   "notificationsAuctionEnded": "Auction ended",
-  "notificationsBidNow": "Bid Now",
-  "notificationsCheckInNow": "Check In Now",
   "notificationsPointsCredited": "+{points} PTS",
   "@notificationsPointsCredited": {
     "description": "Points a quest paid out.",
