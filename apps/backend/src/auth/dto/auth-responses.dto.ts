@@ -32,6 +32,11 @@ export class AuthResponseDto {
   needsProfile!: boolean;
 }
 
+export class UsernameAvailableResponseDto {
+  @ApiProperty({ description: 'true when nobody else has this username' })
+  available!: boolean;
+}
+
 export class OtpDeliveryResponseDto {
   @ApiProperty({ enum: ['sent', 'client_managed'] })
   delivery!: string;

@@ -9,7 +9,6 @@ NestJS 11, TypeScript 5.9 (very strict), Drizzle ORM (SQL-first), PostgreSQL, AW
 ## Commands
 
 ```bash
-pnpm start:dev              # Start API + Worker (concurrently)
 pnpm type-check             # TypeScript strict check (run before committing)
 pnpm lint                   # ESLint with auto-fix
 pnpm test                   # Unit tests (Jest)
@@ -52,16 +51,6 @@ The project uses maximum strictness. Key implications:
 5. Regenerate schema: `pnpm db:introspect`
 6. Schema output: `src/db/drizzle/schema.ts`
 
-**Tables** (migration `0001_create_users`, pending apply): users, roles, permissions, user_roles, role_permissions, oauth_accounts, otp_codes, reward_rules, referral_codes, referral_redemptions, device_tokens, device_token_topics, geo_policies, user_enforcement_actions. (`0000_init` = uuid extension only; no DB-level audit tables.)
-
-## Path Aliases (baseUrl: ./src)
-
-```
-@common/*  @config/*  @db/*  @redis/*  @cache/*  @queue/*  @otel/*  @bg/*  @cron/*
-@auth/*  @users/*  @email/*  @sms/*  @metrics/*  @health/*
-@middlewares/*  @interceptors/*  @logger/*
-```
-
 ## Architecture Patterns
 
 ### Repository Pattern (Centralized under src/db/)
@@ -74,10 +63,6 @@ Controller (HTTP layer) -> Service (business logic/facade) -> Repository (DB acc
 
 **Repository location**: `src/db/repositories/<domain>/<name>.repository.ts`
 **Import pattern**: `import { UsersRepository } from '@db/repositories/users/users.repository'`
-
-Existing repository domains:
-- `src/db/repositories/auth/` — auth, token, mfa, api-key, oauth (being rebuilt for the new schema)
-- `src/db/repositories/users/` — users
 
 ### Provider/Strategy Pattern
 External integrations use abstract base classes / driver tokens with swappable implementations, **selected by env (no code change local↔cloud)**:
@@ -199,8 +184,6 @@ walkthrough: `apps/documentation/docs/backend/media/video-pipeline-api.md`.
 ## Conventions
 
 ### Naming
-- Files: `kebab-case` (`user.service.ts`, `create-user.dto.ts`)
-- Classes: `PascalCase` (`UserService`, `CreateUserDto`)
 - Route names: centralized in `src/common/route-names.ts` (RouteNames enum)
 
 ### Controllers
@@ -213,11 +196,6 @@ walkthrough: `apps/documentation/docs/backend/media/video-pipeline-api.md`.
 ### Services
 - Orchestrate repositories and providers (Facade pattern)
 - No direct DB calls — use repository methods
-
-### DTOs
-- Use `class-validator` decorators for validation
-- Use `class-transformer` for transformation
-- Use `@nestjs/swagger` decorators (`@ApiProperty()`) for API docs
 
 ### Repositories
 - Only place that imports from `@db/*` and runs Drizzle queries
@@ -238,12 +216,9 @@ walkthrough: `apps/documentation/docs/backend/media/video-pipeline-api.md`.
 
 ## Common Pitfalls
 
-1. **ConfigService returns undefined** — `configService.get('KEY')` is `T | undefined`. Always provide a fallback: `configService.get('PORT') ?? 3000`
-2. **Index access is `T | undefined`** — Due to `noUncheckedIndexedAccess`. Check before using: `const item = arr[0]; if (item) { ... }`
-3. **Optional properties** — Due to `exactOptionalPropertyTypes`, you cannot do `{ prop: undefined }` on optional fields. Omit the key instead or use a type union `prop?: string | undefined`
-4. **Migration journal** — After creating a SQL migration file, the journal at `meta/_journal.json` must have a matching entry. `pnpm db:create-migration` handles this automatically.
-5. **pnpm may not be on PATH** — Use `npx` as fallback if `pnpm` is not found
-6. **Worker process** — API and Worker run concurrently. Worker entrypoint `src/worker.main.ts`. The **SQS consumer runs only in the worker** (`QueueConsumerModule` is imported by `WorkerModule`, not `AppModule`), so the cron scheduler and queue polling never run in the API.
-7. **Env coercion** — flat `ConfigService.get()` returns correctly-typed values **only for keys in the Joi `validationSchema`** (`src/config/env-config.module.ts`). Add new number/boolean env vars there, else they read back as raw strings (`'false'` is truthy!).
-8. **Queues** — enqueue with `QueueService.send(QueueName.X, JobName.Y, body)`; consume with a `@QueueHandler({ queue, name })` provider under `src/background/`. Retries/DLQ are SQS-native (visibility timeout + `QUEUE_MAX_RECEIVE_COUNT` redrive). Local queue server = ElasticMQ (`pnpm db:dev:up`).
-9. **Cache** — use `CacheService` (not `@nestjs/cache-manager`). TTLs are in **seconds**. Invalidate groups via `invalidateTag(tag)` (version-key, no `SCAN`).
+1. **Migration journal** — After creating a SQL migration file, the journal at `meta/_journal.json` must have a matching entry. `pnpm db:create-migration` handles this automatically.
+2. **pnpm may not be on PATH** — Use `npx` as fallback if `pnpm` is not found
+3. **Worker process** — API and Worker run concurrently. Worker entrypoint `src/worker.main.ts`. The **SQS consumer runs only in the worker** (`QueueConsumerModule` is imported by `WorkerModule`, not `AppModule`), so the cron scheduler and queue polling never run in the API.
+4. **Env coercion** — flat `ConfigService.get()` returns correctly-typed values **only for keys in the Joi `validationSchema`** (`src/config/env-config.module.ts`). Add new number/boolean env vars there, else they read back as raw strings (`'false'` is truthy!).
+5. **Queues** — enqueue with `QueueService.send(QueueName.X, JobName.Y, body)`; consume with a `@QueueHandler({ queue, name })` provider under `src/background/`. Retries/DLQ are SQS-native (visibility timeout + `QUEUE_MAX_RECEIVE_COUNT` redrive). Local queue server = ElasticMQ (`pnpm db:dev:up`).
+6. **Cache** — use `CacheService` (not `@nestjs/cache-manager`). TTLs are in **seconds**. Invalidate groups via `invalidateTag(tag)` (version-key, no `SCAN`).

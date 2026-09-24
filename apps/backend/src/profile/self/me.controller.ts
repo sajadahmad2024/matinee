@@ -2,7 +2,7 @@ import { RouteNames } from '@common/route-names';
 import { ApiEnvelope } from '@common/swagger/api-envelope.decorator';
 import { Controller, Get } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { CustomerOrGuest } from '../../auth/decorators/account-type.decorator';
+import { CustomerOnly } from '../../auth/decorators/account-type.decorator';
 import { CurrentUser } from '../../auth/decorators/current-user.decorator';
 import { ProfileService } from './profile.service';
 import { AppBootstrapDto } from '../dto/profile-response.dto';
@@ -14,7 +14,7 @@ import { AppBootstrapDto } from '../dto/profile-response.dto';
  */
 @ApiTags('Me')
 @ApiBearerAuth()
-@CustomerOrGuest()
+@CustomerOnly()
 @Controller({ path: RouteNames.ME, version: '1' })
 export class MeController {
   constructor(private readonly profile: ProfileService) {}

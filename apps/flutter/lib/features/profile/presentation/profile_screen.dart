@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:matinee/app/router/app_routes.dart';
 import 'package:matinee/core/config/legal_links.dart';
 import 'package:matinee/core/l10n/app_exception_l10n.dart';
@@ -184,9 +184,8 @@ class _Header extends StatelessWidget {
                 ),
               ),
               IconButton(
-                // The frame draws a bell whatever the component's name says. No
-                // notifications screen exists yet, so the control is disabled.
-                onPressed: null,
+                // The frame draws a bell whatever the component's name says.
+                onPressed: () => unawaited(const NotificationsRoute().push<void>(context)),
                 tooltip: l10n.profileMenuNotifications,
                 icon: const Icon(Icons.notifications_none),
               ),
@@ -236,9 +235,10 @@ class _Menu extends StatelessWidget {
           label: l10n.profileMenuRefer,
           onTap: () => unawaited(showReferSheet(context, referralCode: referralCode)),
         ),
-        // Notifications has no screen yet, so it renders as the design draws
-        // it and does nothing until one exists.
-        ProfileMenuRow(label: l10n.profileMenuNotifications, onTap: null),
+        ProfileMenuRow(
+          label: l10n.profileMenuNotifications,
+          onTap: () => unawaited(const NotificationsRoute().push<void>(context)),
+        ),
         ProfileMenuRow(
           label: l10n.profileMenuTerms,
           onTap: () => unawaited(launchUrl(AppLegalLinks.terms)),

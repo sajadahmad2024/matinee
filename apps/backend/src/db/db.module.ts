@@ -42,6 +42,7 @@ import { ModerationRepository } from './repositories/moderation/moderation.repos
 import { AnalyticsRepository } from './repositories/analytics/analytics.repository';
 import { AdminUser360Repository } from './repositories/users/user-360.repository';
 import { NotificationCampaignRepository } from './repositories/notifications/notification-campaign.repository';
+import { NotificationLogsRepository } from './repositories/notifications/notification-logs.repository';
 import { AppSettingsRepository } from './repositories/platform/app-settings.repository';
 import { GamesMetaRepository } from './repositories/games/games-meta.repository';
 import { EventRepository } from './repositories/events/event.repository';
@@ -86,6 +87,7 @@ const repositories = [
   AnalyticsRepository,
   AdminUser360Repository,
   NotificationCampaignRepository,
+  NotificationLogsRepository,
   AppSettingsRepository,
   GamesMetaRepository,
   EventRepository,

@@ -66,13 +66,16 @@ const envConfig = registerAs(
       QUEUE_WAIT_TIME_SECONDS: parseInt(process.env['QUEUE_WAIT_TIME_SECONDS'] || '20', 10),
       QUEUE_MAX_RECEIVE_COUNT: parseInt(process.env['QUEUE_MAX_RECEIVE_COUNT'] || '5', 10),
       QUEUE_BATCH_SIZE: parseInt(process.env['QUEUE_BATCH_SIZE'] || '10', 10),
-      QUEUE_CONSUMER_ENABLED: (process.env['QUEUE_CONSUMER_ENABLED'] || 'true').toLowerCase() === 'true',
+      QUEUE_CONSUMER_ENABLED:
+        (process.env['QUEUE_CONSUMER_ENABLED'] || 'true').toLowerCase() === 'true',
       QUEUE_AUTO_CREATE: (process.env['QUEUE_AUTO_CREATE'] || 'true').toLowerCase() === 'true',
       // Cache (Redis / ElastiCache)
       CACHE_KEY_PREFIX: process.env['CACHE_KEY_PREFIX'] || 'app',
       CACHE_DEFAULT_TTL: parseInt(process.env['CACHE_DEFAULT_TTL'] || '300', 10),
-      CACHE_CLUSTER_ENABLED: (process.env['CACHE_CLUSTER_ENABLED'] || 'false').toLowerCase() === 'true',
+      CACHE_CLUSTER_ENABLED:
+        (process.env['CACHE_CLUSTER_ENABLED'] || 'false').toLowerCase() === 'true',
       // Auth / JWT / Cookies
+      JWT_SECRET: process.env['JWT_SECRET'] || '',
       JWT_ACCESS_TTL: parseInt(process.env['JWT_ACCESS_TTL'] || '900', 10),
       JWT_REFRESH_TTL: parseInt(process.env['JWT_REFRESH_TTL'] || '5184000', 10),
       JWT_ADMIN_REFRESH_TTL: parseInt(process.env['JWT_ADMIN_REFRESH_TTL'] || '43200', 10),
@@ -90,6 +93,16 @@ const envConfig = registerAs(
       FLOCI_PORT: parseInt(process.env['FLOCI_PORT'] || '4566', 10),
       // AWS Secrets Manager blob hydrated by src/config/secrets-bootstrap.ts
       SECRETS_MANAGER_SECRET_ID: process.env['SECRETS_MANAGER_SECRET_ID'] || '',
+      // Firebase Admin SDK — required when PHONE_VERIFICATION_PROVIDER=firebase
+      FCM_PROJECT_ID: process.env['FCM_PROJECT_ID'] || '',
+      FCM_CLIENT_EMAIL: process.env['FCM_CLIENT_EMAIL'] || '',
+      FCM_PRIVATE_KEY: process.env['FCM_PRIVATE_KEY'] || '',
+      FCM_DRY_RUN: (process.env['FCM_DRY_RUN'] || 'false').toLowerCase() === 'true',
+      FCM_DEFAULT_ANDROID_CHANNEL_ID: process.env['FCM_DEFAULT_ANDROID_CHANNEL_ID'] || 'default',
+      FCM_DEFAULT_WEB_ICON_URL: process.env['FCM_DEFAULT_WEB_ICON_URL'] || '',
+      // SendGrid dynamic-template IDs (optional; empty = fall back to local Handlebars)
+      SENDGRID_FROM_EMAIL: process.env['SENDGRID_FROM_EMAIL'] || '',
+      SENDGRID_FROM_NAME: process.env['SENDGRID_FROM_NAME'] || '',
     }) as EnvConfig
 );
 
@@ -174,6 +187,14 @@ const validationSchema = Joi.object({
   CSRF_ENABLED: Joi.boolean().default(false),
   PHONE_VERIFICATION_PROVIDER: Joi.string().valid('twilio', 'firebase').default('twilio'),
   APPLE_CLIENT_ID: Joi.string().allow('').default(''),
+  FCM_PROJECT_ID: Joi.string().allow('').default(''),
+  FCM_CLIENT_EMAIL: Joi.string().allow('').default(''),
+  FCM_PRIVATE_KEY: Joi.string().allow('').default(''),
+  FCM_DRY_RUN: Joi.boolean().default(false),
+  FCM_DEFAULT_ANDROID_CHANNEL_ID: Joi.string().default('default'),
+  FCM_DEFAULT_WEB_ICON_URL: Joi.string().allow('').default(''),
+  SENDGRID_FROM_EMAIL: Joi.string().allow('').default(''),
+  SENDGRID_FROM_NAME: Joi.string().allow('').default(''),
   // Email provider (env-driven strategy: smtp / ses / sendgrid / log [dev — logs + stashes code])
   EMAIL_PROVIDER: Joi.string().valid('smtp', 'ses', 'sendgrid', 'log').default('smtp'),
   EMAIL_FROM: Joi.string().allow('').default('noreply@example.com'),

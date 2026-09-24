@@ -5,12 +5,13 @@ import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagg
 import { Throttle } from '@nestjs/throttler';
 import { Response } from 'express';
 import { Public } from '../decorators/public.decorator';
-import { CustomerOnly, CustomerOrGuest } from '../decorators/account-type.decorator';
+import { CustomerOnly } from '../decorators/account-type.decorator';
 import { CurrentUser } from '../decorators/current-user.decorator';
 import { CustomerAuthService } from './customer-auth.service';
 import { RequestPhoneOtpDto } from './dto/request-phone-otp.dto';
 import { VerifyPhoneDto } from './dto/verify-phone.dto';
 import { CompleteProfileDto } from './dto/complete-profile.dto';
+import { CheckUsernameDto } from './dto/check-username.dto';
 import { RefreshDto } from './dto/refresh.dto';
 import {
   AuthResponseDto,
@@ -18,20 +19,13 @@ import {
   OtpDeliveryResponseDto,
   RefreshResponseDto,
   UserResponseDto,
+  UsernameAvailableResponseDto,
 } from '../dto/auth-responses.dto';
 
 @ApiTags('Customer Auth')
 @Controller({ path: RouteNames.AUTH, version: '1' })
 export class CustomerAuthController {
   constructor(private readonly auth: CustomerAuthService) {}
-
-  @Post('guest')
-  @Public()
-  @ApiOperation({ summary: 'Bootstrap an anonymous guest and issue tokens' })
-  @ApiEnvelope(AuthResponseDto, { status: 201 })
-  bootstrapGuest() {
-    return this.auth.bootstrapGuest();
-  }
 
   @Post('phone/otp')
   @Public()
@@ -54,7 +48,6 @@ export class CustomerAuthController {
       otpToken: dto.otpToken,
       code: dto.code,
       firebaseToken: dto.firebaseToken,
-      guestToken: dto.guestToken,
     });
   }
 
@@ -62,12 +55,8 @@ export class CustomerAuthController {
   @Public()
   @ApiOperation({ summary: 'Start Google sign-in — 302 redirect to the Google consent screen' })
   @ApiResponse({ status: 302, description: 'Redirect to the Google OAuth consent screen' })
-  googleStart(
-    @Query('guestToken') guestToken: string | undefined,
-    @Query('redirect') redirect: string | undefined,
-    @Res() res: Response,
-  ) {
-    const state = this.auth.encodeOAuthState({ guestToken, redirect });
+  googleStart(@Query('redirect') redirect: string | undefined, @Res() res: Response) {
+    const state = this.auth.encodeOAuthState({ redirect });
     res.redirect(this.auth.getSocialAuthUrl('google', state));
   }
 
@@ -76,8 +65,8 @@ export class CustomerAuthController {
   @ApiOperation({ summary: 'Google OAuth callback — 302 back to the app with tokens in the URL fragment' })
   @ApiResponse({ status: 302, description: 'Redirect back to the app with access/refresh tokens in the URL fragment' })
   async googleCallback(@Query('code') code: string, @Query('state') state: string | undefined, @Res() res: Response) {
-    const { guestToken, redirect } = this.auth.decodeOAuthState(state);
-    const result = await this.auth.completeSocialLogin('google', code, guestToken);
+    const { redirect } = this.auth.decodeOAuthState(state);
+    const result = await this.auth.completeSocialLogin('google', code);
     res.redirect(this.auth.buildSuccessRedirect(result, redirect));
   }
 
@@ -85,12 +74,8 @@ export class CustomerAuthController {
   @Public()
   @ApiOperation({ summary: 'Start Apple sign-in — 302 redirect to the Apple consent screen' })
   @ApiResponse({ status: 302, description: 'Redirect to the Apple OAuth consent screen' })
-  appleStart(
-    @Query('guestToken') guestToken: string | undefined,
-    @Query('redirect') redirect: string | undefined,
-    @Res() res: Response,
-  ) {
-    const state = this.auth.encodeOAuthState({ guestToken, redirect });
+  appleStart(@Query('redirect') redirect: string | undefined, @Res() res: Response) {
+    const state = this.auth.encodeOAuthState({ redirect });
     res.redirect(this.auth.getSocialAuthUrl('apple', state));
   }
 
@@ -100,9 +85,18 @@ export class CustomerAuthController {
   @ApiOperation({ summary: 'Apple OAuth callback (form_post) — 302 back to the app with tokens' })
   @ApiResponse({ status: 302, description: 'Redirect back to the app with access/refresh tokens in the URL fragment' })
   async appleCallback(@Body('code') code: string, @Body('state') state: string | undefined, @Res() res: Response) {
-    const { guestToken, redirect } = this.auth.decodeOAuthState(state);
-    const result = await this.auth.completeSocialLogin('apple', code, guestToken);
+    const { redirect } = this.auth.decodeOAuthState(state);
+    const result = await this.auth.completeSocialLogin('apple', code);
     res.redirect(this.auth.buildSuccessRedirect(result, redirect));
+  }
+
+  @Get('username/available')
+  @Public()
+  @Throttle({ short: { limit: 30, ttl: 60_000 } })
+  @ApiOperation({ summary: 'Pre-check username availability (for the Create Account screen)' })
+  @ApiEnvelope(UsernameAvailableResponseDto)
+  async checkUsername(@Query() dto: CheckUsernameDto) {
+    return { available: await this.auth.isUsernameAvailable(dto.username) };
   }
 
   @Post('profile')
@@ -130,7 +124,7 @@ export class CustomerAuthController {
   }
 
   @Get('me')
-  @CustomerOrGuest()
+  @CustomerOnly()
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Current authenticated user' })
   @ApiEnvelope(UserResponseDto)
@@ -139,7 +133,7 @@ export class CustomerAuthController {
   }
 
   @Post('logout')
-  @CustomerOrGuest()
+  @CustomerOnly()
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Logout (client discards tokens)' })
@@ -149,7 +143,7 @@ export class CustomerAuthController {
   }
 
   @Post('logout-all')
-  @CustomerOrGuest()
+  @CustomerOnly()
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Revoke all sessions (bumps token_version)' })

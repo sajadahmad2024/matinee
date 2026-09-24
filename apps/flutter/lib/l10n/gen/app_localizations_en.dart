@@ -1608,4 +1608,153 @@ class AppLocalizationsEn extends AppLocalizations {
   String predictionAnalysisOptionSummary(String option, int percent) {
     return '$option: $percent per cent';
   }
+
+  @override
+  String get notificationsTitle => 'Notifications';
+
+  @override
+  String get notificationsReadAll => 'Read All';
+
+  @override
+  String get notificationsFilterAll => 'All';
+
+  @override
+  String get notificationsFilterAuctions => 'Auctions';
+
+  @override
+  String get notificationsFilterQuests => 'Quests & Streaks';
+
+  @override
+  String get notificationsFilterSystem => 'System';
+
+  @override
+  String notificationsUnreadCount(int count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return '$countString unread';
+  }
+
+  @override
+  String get notificationsSectionToday => 'Today';
+
+  @override
+  String get notificationsSectionYesterday => 'Yesterday';
+
+  @override
+  String get notificationsSectionEarlier => 'Earlier';
+
+  @override
+  String get notificationsJustNow => 'Just now';
+
+  @override
+  String notificationsMinutesAgo(int count) {
+    return '${count}m ago';
+  }
+
+  @override
+  String notificationsHoursAgo(int count) {
+    return '${count}h ago';
+  }
+
+  @override
+  String get notificationsYesterday => 'Yesterday';
+
+  @override
+  String notificationsDaysAgo(int count) {
+    return '${count}d ago';
+  }
+
+  @override
+  String notificationsMinutesAgoSpoken(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count minutes ago',
+      one: '1 minute ago',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String notificationsHoursAgoSpoken(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count hours ago',
+      one: '1 hour ago',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String notificationsDaysAgoSpoken(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days ago',
+      one: '1 day ago',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String notificationsTimeLeft(String time) {
+    return '$time left';
+  }
+
+  @override
+  String get notificationsAuctionEnded => 'Auction ended';
+
+  @override
+  String get notificationsBidNow => 'Bid Now';
+
+  @override
+  String get notificationsCheckInNow => 'Check In Now';
+
+  @override
+  String notificationsPointsCredited(int points) {
+    final intl.NumberFormat pointsNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String pointsString = pointsNumberFormat.format(points);
+
+    return '+$pointsString PTS';
+  }
+
+  @override
+  String notificationsPointsCreditedSpoken(int points) {
+    final intl.NumberFormat pointsNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String pointsString = pointsNumberFormat.format(points);
+
+    return '$pointsString points credited';
+  }
+
+  @override
+  String notificationsBalance(int balance) {
+    final intl.NumberFormat balanceNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String balanceString = balanceNumberFormat.format(balance);
+
+    return 'Total: $balanceString';
+  }
+
+  @override
+  String notificationsPointsAdded(int points) {
+    final intl.NumberFormat pointsNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String pointsString = pointsNumberFormat.format(points);
+
+    return '+$pointsString PTS Added';
+  }
+
+  @override
+  String notificationsPointsAddedSpoken(int points) {
+    final intl.NumberFormat pointsNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String pointsString = pointsNumberFormat.format(points);
+
+    return '$pointsString points added';
+  }
+
+  @override
+  String get notificationsUnread => 'Unread';
+
+  @override
+  String get notificationsEmpty => 'You\'re all caught up.';
 }

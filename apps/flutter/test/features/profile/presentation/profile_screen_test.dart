@@ -1,7 +1,8 @@
 import 'package:bloc_test/bloc_test.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:matinee/core/error/app_exception.dart';
 import 'package:matinee/core/widgets/error_view.dart';
 import 'package:matinee/features/profile/data/models/profile.dart';
@@ -16,6 +17,8 @@ import 'package:mocktail/mocktail.dart';
 import '../../../helpers/helpers.dart';
 
 class _MockProfileCubit extends MockCubit<ProfileState> implements ProfileCubit {}
+
+class _MockGoRouter extends Mock implements GoRouter {}
 
 void main() {
   group(ProfileView, () {
@@ -101,9 +104,50 @@ void main() {
         List<ProfileMenuRow> rowsWhere(bool Function(ProfileMenuRow row) test) =>
             tester.widgetList<ProfileMenuRow>(find.byType(ProfileMenuRow)).where(test).toList();
 
-        // Notifications and Logout have nowhere to go for now.
-        expect(rowsWhere((row) => row.onTap == null), hasLength(2));
-        expect(rowsWhere((row) => row.onTap != null), hasLength(4));
+        // Logout has nowhere to go for now.
+        expect(rowsWhere((row) => row.onTap == null), hasLength(1));
+        expect(rowsWhere((row) => row.onTap != null), hasLength(5));
+      });
+    });
+
+    group('navigates', () {
+      late _MockGoRouter router;
+
+      setUp(() {
+        router = _MockGoRouter();
+        when(() => router.push<void>(any())).thenAnswer((_) async {});
+      });
+
+      Future<void> pumpRouted(WidgetTester tester) {
+        tester.view.physicalSize = const Size(1170, 2532);
+        tester.view.devicePixelRatio = 3;
+        addTearDown(tester.view.reset);
+        return tester.pumpApp(
+          InheritedGoRouter(
+            goRouter: router,
+            child: BlocProvider<ProfileCubit>.value(value: cubit, child: const ProfileView()),
+          ),
+        );
+      }
+
+      testWidgets('to notifications from the bell', (tester) async {
+        when(() => cubit.state).thenReturn(ProfileState.success(profile));
+        await pumpRouted(tester);
+
+        await tester.tap(find.byTooltip('Notifications'));
+        await tester.pump();
+
+        verify(() => router.push<void>('/profile/notifications')).called(1);
+      });
+
+      testWidgets('to notifications from the menu row', (tester) async {
+        when(() => cubit.state).thenReturn(ProfileState.success(profile));
+        await pumpRouted(tester);
+
+        await tester.tap(find.widgetWithText(ProfileMenuRow, 'Notifications'));
+        await tester.pump();
+
+        verify(() => router.push<void>('/profile/notifications')).called(1);
       });
     });
 

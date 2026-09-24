@@ -1,19 +1,27 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
-import { randomBytes } from 'crypto';
+import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { randomBytes, randomInt } from 'crypto';
 import { CacheService } from '@cache/cache.service';
 import { PaginationDetailsDto } from '@common/dto/pagination.dto';
+import { HashingService } from '@common/hashing/hashing.service';
 import {
   ProfileRecord,
   ProfileRepository,
   ProfileUpdate,
   StreakRecord,
 } from '@db/repositories/users/profile.repository';
+import { UsersRepository } from '@db/repositories/users/users.repository';
+import { IdentityRepository } from '@db/repositories/auth/identity.repository';
+import { DBService } from '@db/db.service';
 import { WalletRepository, WalletView } from '@db/repositories/tokenomics/wallet.repository';
 import { LedgerEntry, LedgerRepository } from '@db/repositories/tokenomics/ledger.repository';
 import { NotificationRepository } from '@db/repositories/notifications/notification.repository';
 import { ReferralRepository } from '@db/repositories/auth/referral.repository';
 import { ActiveSubscription, SubscriptionRepository } from '@db/repositories/subscriptions/subscription.repository';
 import { LeaderboardRepository, MyRank } from '@db/repositories/progression/leaderboard.repository';
+import { TokenService } from '@auth/services/token.service';
+import { FirebaseAdminService } from '@auth/services/firebase-admin.service';
+import { QueueService } from '@queue/queue.service';
+import { JobName, QueueName } from '@queue/queue.constant';
 import { UpdateProfileDto } from '../dto/update-profile.dto';
 import { EarnsQueryDto } from '../dto/profile-query.dto';
 
@@ -40,6 +48,8 @@ const EDITABLE_KEYS = [
 export class ProfileService {
   constructor(
     private readonly profiles: ProfileRepository,
+    private readonly users: UsersRepository,
+    private readonly identity: IdentityRepository,
     private readonly wallets: WalletRepository,
     private readonly ledger: LedgerRepository,
     private readonly notifications: NotificationRepository,
@@ -47,6 +57,11 @@ export class ProfileService {
     private readonly subscriptions: SubscriptionRepository,
     private readonly leaderboard: LeaderboardRepository,
     private readonly cache: CacheService,
+    private readonly hashing: HashingService,
+    private readonly tokens: TokenService,
+    private readonly queue: QueueService,
+    private readonly db: DBService,
+    private readonly firebase: FirebaseAdminService,
   ) {}
 
   /** Current leaderboard period key ('YYYY-MM-01'). */
@@ -152,6 +167,109 @@ export class ProfileService {
     if (!updated) {
       throw new NotFoundException('Profile not found');
     }
+    await this.cache.invalidateTag(this.tag(userId));
+    return updated;
+  }
+
+  // ─── Email verification (temp-token flow) ───────────────────────────────────────
+  //
+  // Two-step:
+  //   1. requestEmailVerification (needs Bearer) — validates email is free, mints OTP,
+  //      enqueues an email job, returns a SIGNED CHALLENGE JWT (otpToken) binding
+  //      { email, userId, purpose: 'email_verification' }, 10-min TTL.
+  //   2. confirmEmailVerification (Public — no Bearer) — verifies the challenge JWT,
+  //      looks up the hashed code in `otp_codes`, compares, and (on match) atomically
+  //      writes users.email + isEmailVerified=true. Uses the userId embedded in the JWT
+  //      so the flow keeps working even if the caller's session expired mid-way.
+  //
+  // Nothing is written to users.email on step 1 — a typo can't leave the account with a
+  // broken contact address. Only a successful step 2 mutates the row.
+
+  /** Send a 6-digit OTP to the given email. Nothing is written to `users.email` until the
+   *  user confirms the code — a typo can't leave the account with a broken contact address.
+   *  The returned `otpToken` binds this challenge to (email, userId) so /confirm needs no Bearer. */
+  async requestEmailVerification(userId: string, email: string): Promise<{ otpToken: string; delivery: 'sent' }> {
+    const existing = await this.users.findByEmail(email);
+    if (existing && existing.id !== userId) {
+      throw new ConflictException('That email is already in use');
+    }
+    const code = randomInt(0, 1_000_000).toString().padStart(6, '0');
+    const codeHash = await this.hashing.hash(code);
+    await this.identity.createOtp({
+      userId,
+      destination: email,
+      channel: 'email',
+      purpose: 'email_verification',
+      codeHash,
+      expiresInSeconds: 10 * 60,
+    });
+    await this.queue.send(QueueName.EMAIL, JobName.OTP_EMAIL, { email, otp: Number(code) });
+    const otpToken = this.tokens.signOtpChallenge(email, 'email_verification', userId);
+    return { otpToken, delivery: 'sent' };
+  }
+
+  /** Confirm the OTP → atomically set `users.email` + `isEmailVerified=true`.
+   *  Auth here is the otpToken itself (holds `sub`) — verified upstream by TempTokenGuard,
+   *  which passes `userId` (challenge.sub) and `email` (challenge.destination) as args. */
+  async confirmEmailVerification(userId: string, email: string, code: string): Promise<ProfileRecord> {
+    // Scope by userId as well as destination: defence-in-depth against another user having
+    // created an OTP for the same email in the narrow window before the uniqueness check.
+    const otp = await this.identity.findActiveOtp(email, 'email_verification', { userId });
+    if (!otp) {
+      throw new UnauthorizedException('No active verification code — request a new one');
+    }
+    if (otp.attempts >= otp.maxAttempts) {
+      throw new UnauthorizedException('Too many attempts — request a new code');
+    }
+    const ok = await this.hashing.compare(code, otp.codeHash);
+    if (!ok) {
+      await this.identity.incrementOtpAttempts(otp.id);
+      throw new UnauthorizedException('Incorrect code');
+    }
+    // Consume + write email atomically: if the profile update fails, the OTP stays valid
+    // and the user isn't forced to request a fresh code.
+    const updated = await this.db.transaction(async (tx) => {
+      const conflict = await this.users.findByEmail(email, tx);
+      if (conflict && conflict.id !== userId) {
+        throw new ConflictException('That email is already in use');
+      }
+      await this.identity.consumeOtp(otp.id, tx);
+      const row = await this.profiles.updateProfile(userId, { email, isEmailVerified: true }, tx);
+      if (!row) {
+        throw new NotFoundException('Profile not found');
+      }
+      return row;
+    });
+    await this.cache.invalidateTag(this.tag(userId));
+    return updated;
+  }
+
+  // ─── Phone update (Firebase-only) ──────────────────────────────────────────────
+  //
+  // The client runs Firebase Phone Auth and posts the resulting Firebase ID token here.
+  // The phone number lives inside the token (Firebase already verified it), so there's
+  // no server-side OTP send/verify. One call:
+  //   Bearer + { firebaseToken } → verify token → uniqueness check → write users.phone.
+
+  async updatePhoneFromFirebase(userId: string, firebaseToken: string): Promise<ProfileRecord> {
+    const identity = await this.firebase.verifyIdToken(firebaseToken).catch(() => {
+      throw new UnauthorizedException('Firebase token is invalid or expired');
+    });
+    const phone = identity.phone;
+    if (!phone) {
+      throw new UnauthorizedException('Firebase token has no verified phone number');
+    }
+    const updated = await this.db.transaction(async (tx) => {
+      const conflict = await this.users.findByPhone(phone, tx);
+      if (conflict && conflict.id !== userId) {
+        throw new ConflictException('That phone number is already in use');
+      }
+      const row = await this.profiles.updateProfile(userId, { phone, isPhoneVerified: true }, tx);
+      if (!row) {
+        throw new NotFoundException('Profile not found');
+      }
+      return row;
+    });
     await this.cache.invalidateTag(this.tag(userId));
     return updated;
   }

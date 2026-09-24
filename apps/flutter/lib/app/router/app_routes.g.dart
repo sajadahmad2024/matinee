@@ -17,6 +17,7 @@ List<RouteBase> get $appRoutes => [
   $dailyStreakRoute,
   $predictionGamesRoute,
   $editProfileRoute,
+  $notificationsRoute,
   $auctionRoute,
   $exclusiveLibraryRoute,
   $onboardingRoute,
@@ -482,6 +483,31 @@ mixin $EditProfileRoute on GoRouteData {
 
   @override
   String get location => GoRouteData.$location('/profile/edit');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) => context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+RouteBase get $notificationsRoute => GoRouteData.$route(
+  path: '/profile/notifications',
+  hasOverriddenOnExit: false,
+  factory: $NotificationsRoute._fromState,
+);
+
+mixin $NotificationsRoute on GoRouteData {
+  static NotificationsRoute _fromState(GoRouterState state) => const NotificationsRoute();
+
+  @override
+  String get location => GoRouteData.$location('/profile/notifications');
 
   @override
   void go(BuildContext context) => context.go(location);

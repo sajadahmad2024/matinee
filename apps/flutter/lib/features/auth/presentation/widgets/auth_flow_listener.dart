@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:matinee/core/l10n/app_exception_l10n.dart';
 import 'package:matinee/core/l10n/l10n.dart';
 import 'package:matinee/features/auth/data/models/auth_outcome.dart';

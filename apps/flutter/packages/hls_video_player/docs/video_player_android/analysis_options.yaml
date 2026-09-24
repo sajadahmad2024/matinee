@@ -1,0 +1,5 @@
+analyzer:
+  exclude:
+    - pigeons/**
+    - build/**
+    - android/**

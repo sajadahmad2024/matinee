@@ -2,7 +2,7 @@ import { RouteNames } from '@common/route-names';
 import { ApiEnvelope } from '@common/swagger/api-envelope.decorator';
 import { Body, Controller, Get, HttpCode, HttpStatus, Param, ParseUUIDPipe, Patch, Post } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { CustomerOrGuest } from '../../auth/decorators/account-type.decorator';
+import { CustomerOnly } from '../../auth/decorators/account-type.decorator';
 import { CurrentUser } from '../../auth/decorators/current-user.decorator';
 import { ViewService } from './view.service';
 import {
@@ -16,11 +16,11 @@ import {
 
 /**
  * Watch tracking: view sessions, resume progress, and watch-event ingestion.
- * CustomerOrGuest — guests watch the feed too, so their sessions/analytics count.
+ * CustomerOnly — a customer session is required to watch and to record analytics.
  */
 @ApiTags('Engagement · Views')
 @ApiBearerAuth()
-@CustomerOrGuest()
+@CustomerOnly()
 @Controller({ path: RouteNames.CONTENT, version: '1' })
 export class ViewController {
   constructor(private readonly views: ViewService) {}

@@ -1,7 +1,7 @@
 ---
 name: create-feature
 description: Scaffolds one feature-first Flutter feature wired to the repo architecture. Emits models (or wires a generated API client), repository, service, Cubit and freezed state, screen, typed route, DI file, composition-root append, ARB strings and bloc_test tests, then runs codegen, format, analyze and test. Use when asked to "create a feature", "add a feature", "new screen with its cubit and data", "new cubit", or "new repository". Runs once per feature; bootstrap must have run first. Turning a Figma frame into the widget tree of an existing feature is implement-screen.
-argument-hint: "<feature_name> [--bloc]"
+argument-hint: '<feature_name> [--bloc]'
 allowed-tools: Bash(dart *) Bash(flutter *)
 ---
 
@@ -22,6 +22,8 @@ Scaffold `features/<feature>/` end to end. The shapes in [references/templates.m
 
 ## Workflow
 
+Keep progress in a file, not in the conversation: append a `## Progress` checklist of the steps below to the plan in `docs/plan/` that covers this feature (if none does, create a dated one that starts with a `**Type:**` line, which the commit skill reads) and tick items off as they land. A long run gets its older turns summarised; the file survives that.
+
 1. **Name and shape.** `<feature>` in `snake_case`, `<Feature>` in `PascalCase`. Decide Cubit or Bloc from the invariant above.
 2. **Data source.** If the API is described by an OpenAPI spec, run the add-api skill first and inject the generated client; skip the DTO and service templates. Otherwise emit the DTO and the hand-written service.
 3. **Emit the tree.**
@@ -41,6 +43,7 @@ Scaffold `features/<feature>/` end to end. The shapes in [references/templates.m
    ```
 
    A `domain/` folder with use-cases appears only when logic merges several repositories or is reused across cubits. A separate domain model appears only when the API shape does not fit the screen.
+
 4. **Wire DI.** Register the service and repository in `<feature>_di.dart`; import it in `di/service_locator.dart` and append one `register<Feature>Dependencies();` line inside `registerDependencies`.
 5. **Route.** Add a `@TypedGoRoute<<Feature>Route>` class to `app/router/app_routes.dart`. Identifiers go in the path, filters in query parameters, never `extra`.
 6. **Strings.** Add the screen's keys to `lib/l10n/arb/app_en.arb` with `@` descriptions where the key alone is ambiguous.
@@ -57,6 +60,7 @@ Scaffold `features/<feature>/` end to end. The shapes in [references/templates.m
    ```
 
    Fix every finding; never add `// ignore:`.
+
 10. **Review.** Run `/code-review` on the result and address its findings before reporting done.
 
 ## Emit checklist
@@ -69,7 +73,7 @@ Scaffold `features/<feature>/` end to end. The shapes in [references/templates.m
 - `app_routes.dart` gained one typed route; `app_routes.g.dart` regenerated
 - `app_en.arb` gained the screen's strings; `lib/l10n/gen` regenerated
 - Cubit test has a failure case for every method
-- No comment block over two lines; every comment carries a non-obvious *why*, not a restatement of the line below it
+- No comment block over two lines; every comment carries a non-obvious _why_, not a restatement of the line below it
 - `flutter analyze --fatal-infos` and `flutter test` clean; `/code-review` findings addressed
 
 ## Follow-up once `lib/features/example` exists

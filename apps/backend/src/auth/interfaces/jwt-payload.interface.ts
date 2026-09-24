@@ -1,4 +1,13 @@
-export type AccountType = 'guest' | 'customer' | 'admin';
+/** Runtime bag of the string literals — use `AccountType.CUSTOMER` etc instead of raw
+ *  strings at call sites. The type and value share the name; TS keeps them in separate
+ *  namespaces so `AccountType.CUSTOMER` (value) and `x: AccountType` (type) both work. */
+export const AccountType = {
+  GUEST: 'guest',
+  CUSTOMER: 'customer',
+  ADMIN: 'admin',
+} as const;
+export type AccountType = (typeof AccountType)[keyof typeof AccountType];
+
 export type Platform = 'web' | 'mobile';
 export type TokenType = 'access' | 'refresh';
 export type AccountStatus = 'active' | 'suspended' | 'banned' | 'disabled';

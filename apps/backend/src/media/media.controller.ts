@@ -2,8 +2,10 @@ import { RouteNames } from '@common/route-names';
 import { ApiEnvelope } from '@common/swagger/api-envelope.decorator';
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { AdminOnly } from '@auth/decorators/account-type.decorator';
+import { AccountTypes, AdminOnly } from '@auth/decorators/account-type.decorator';
 import { CurrentUser } from '@auth/decorators/current-user.decorator';
+import { AuthContext } from '@auth/interfaces/auth-context.interface';
+import { AccountType } from '@auth/interfaces/jwt-payload.interface';
 import { MediaService } from './media.service';
 import { RequestUploadDto } from './dto/request-upload.dto';
 import { CompleteUploadDto } from './dto/complete-upload.dto';
@@ -17,7 +19,7 @@ export class MediaController {
   constructor(private readonly media: MediaService) {}
 
   @Post('uploads')
-  @AdminOnly()
+  @AccountTypes(AccountType.ADMIN, AccountType.CUSTOMER)
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     summary:
@@ -27,12 +29,12 @@ export class MediaController {
       'ObjectCreated event fires (whether or not /complete is called).',
   })
   @ApiEnvelope(UploadTicketDto, { status: 201 })
-  requestUpload(@CurrentUser('id') userId: string, @Body() dto: RequestUploadDto) {
-    return this.media.requestUpload(dto, userId);
+  requestUpload(@CurrentUser() user: AuthContext, @Body() dto: RequestUploadDto) {
+    return this.media.requestUpload(dto, user);
   }
 
   @Post(':id/complete')
-  @AdminOnly()
+  @AccountTypes(AccountType.ADMIN, AccountType.CUSTOMER)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary:
@@ -42,8 +44,8 @@ export class MediaController {
       'metadata (sizeBytes/checksum) and short-circuits early errors.',
   })
   @ApiEnvelope(MediaDto)
-  completeUpload(@Param('id') id: string, @Body() dto: CompleteUploadDto) {
-    return this.media.completeUpload(id, dto);
+  completeUpload(@CurrentUser() user: AuthContext, @Param('id') id: string, @Body() dto: CompleteUploadDto) {
+    return this.media.completeUpload(id, dto, user);
   }
 
   // Reads are intentionally available to ANY authenticated account type (guest/customer/admin) —

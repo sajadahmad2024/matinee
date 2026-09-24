@@ -51,4 +51,9 @@ export class FirebaseAdminService {
       signInProvider: (decoded.firebase?.sign_in_provider as string | undefined) ?? null,
     };
   }
+
+  /** Cloud Messaging handle (FCM) — shares the same Firebase app singleton as auth. */
+  getMessaging(): admin.messaging.Messaging {
+    return this.getApp().messaging();
+  }
 }

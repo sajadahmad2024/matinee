@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:matinee/app/shell/app_shell.dart';
 import 'package:matinee/app/startup/splash_screen.dart';
 import 'package:matinee/features/auth/presentation/create_account_screen.dart';
@@ -9,7 +9,7 @@ import 'package:matinee/features/auth/presentation/verify_otp_screen.dart';
 import 'package:matinee/features/earns/data/models/earn_source.dart';
 import 'package:matinee/features/earns/presentation/earn_detail_screen.dart';
 import 'package:matinee/features/earns/presentation/earns_screen.dart';
-import 'package:matinee/features/home/presentation/home_screen.dart';
+import 'package:matinee/features/notifications/presentation/notifications_screen.dart';
 import 'package:matinee/features/onboarding/presentation/onboarding_screen.dart';
 import 'package:matinee/features/p2p/presentation/daily_streak_screen.dart';
 import 'package:matinee/features/p2p/presentation/p2p_screen.dart';
@@ -20,6 +20,7 @@ import 'package:matinee/features/p2p/presentation/quest_progress_screen.dart';
 import 'package:matinee/features/p2p/presentation/weekly_quests_screen.dart';
 import 'package:matinee/features/profile/presentation/edit_profile_screen.dart';
 import 'package:matinee/features/profile/presentation/profile_screen.dart';
+import 'package:matinee/features/reels/presentation/reels_screen.dart';
 import 'package:matinee/features/rewards/presentation/auction_screen.dart';
 import 'package:matinee/features/rewards/presentation/exclusive_library_screen.dart';
 import 'package:matinee/features/rewards/presentation/rewards_screen.dart';
@@ -85,7 +86,7 @@ class HomeRoute extends GoRouteData with $HomeRoute {
   const HomeRoute();
 
   @override
-  Widget build(BuildContext context, GoRouterState state) => const HomeScreen();
+  Widget build(BuildContext context, GoRouterState state) => const ReelsScreen();
 }
 
 class P2pRoute extends GoRouteData with $P2pRoute {
@@ -242,6 +243,14 @@ class EditProfileRoute extends GoRouteData with $EditProfileRoute {
 
   @override
   Widget build(BuildContext context, GoRouterState state) => const EditProfileScreen();
+}
+
+@TypedGoRoute<NotificationsRoute>(path: '/profile/notifications')
+class NotificationsRoute extends GoRouteData with $NotificationsRoute {
+  const NotificationsRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) => const NotificationsScreen();
 }
 
 ///

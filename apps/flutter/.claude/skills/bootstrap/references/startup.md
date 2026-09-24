@@ -67,7 +67,7 @@ Future<void> bootstrap(Env env) async {
 ## `lib/app/bootstrap_error_app.dart`
 
 ```dart
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:matinee/core/theme/app_spacing.dart';
 
 ///
@@ -172,7 +172,7 @@ class AppStartupCubit extends SafeCubit<AppStartupState> {
 ## `lib/app/startup/splash_screen.dart`
 
 ```dart
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:matinee/app/startup/app_startup_cubit.dart';
 import 'package:matinee/app/startup/app_startup_state.dart';
@@ -238,7 +238,7 @@ Future<void> guardPostInit(Future<void> Function() task) async {
 ```dart
 import 'dart:async';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:matinee/app/router/app_router.dart';
@@ -313,7 +313,7 @@ class _AppViewState extends State<_AppView> {
             theme: appTheme.light(),
             darkTheme: appTheme.dark(),
             themeMode: themeState.themeMode,
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            localizationsDelegates: const [AppLocalizations.delegate, ...GlobalMaterialLocalizations.delegates],
             supportedLocales: AppLocalizations.supportedLocales,
           );
         },

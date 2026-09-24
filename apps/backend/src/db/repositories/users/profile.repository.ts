@@ -45,6 +45,8 @@ export type ProfileUpdate = Partial<{
   // identity (handled specially by the service — setting/changing email resets verification)
   email: string;
   isEmailVerified: boolean;
+  phone: string;
+  isPhoneVerified: boolean;
 }>;
 
 @Injectable()

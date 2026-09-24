@@ -229,6 +229,31 @@ export class EnvConfig {
   @IsString()
   FCM_CLIENT_EMAIL?: string;
 
+  @IsOptional()
+  @IsBoolean()
+  FCM_DRY_RUN?: boolean;
+
+  @IsOptional()
+  @IsString()
+  FCM_DEFAULT_ANDROID_CHANNEL_ID?: string;
+
+  @IsOptional()
+  @IsString()
+  FCM_DEFAULT_WEB_ICON_URL?: string;
+
+  // ─── Email provider strategy ────────────────────────────────────────────
+  @IsOptional()
+  @IsString()
+  EMAIL_PROVIDER?: string;
+
+  @IsOptional()
+  @IsString()
+  SENDGRID_FROM_EMAIL?: string;
+
+  @IsOptional()
+  @IsString()
+  SENDGRID_FROM_NAME?: string;
+
   // ─── AI / OpenAI ──────────────────────────────────────────────────────────
 
   @IsOptional()

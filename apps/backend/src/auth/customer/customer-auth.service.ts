@@ -4,14 +4,12 @@ import { CacheService } from '@cache/cache.service';
 import { UsersRepository, UserRecord } from '@db/repositories/users/users.repository';
 import { IdentityRepository } from '@db/repositories/auth/identity.repository';
 import { ReferralRepository } from '@db/repositories/auth/referral.repository';
-import { DeviceRepository } from '@db/repositories/auth/device.repository';
 import {
   BadRequestException,
   ConflictException,
   HttpException,
   HttpStatus,
   Injectable,
-  Logger,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -38,15 +36,12 @@ export interface AuthResult {
 
 @Injectable()
 export class CustomerAuthService {
-  private readonly logger = new Logger(CustomerAuthService.name);
-
   constructor(
     private readonly db: DBService,
     private readonly cache: CacheService,
     private readonly users: UsersRepository,
     private readonly identity: IdentityRepository,
     private readonly referral: ReferralRepository,
-    private readonly devices: DeviceRepository,
     private readonly tokens: TokenService,
     private readonly session: SessionService,
     private readonly phoneProvider: PhoneVerificationProvider,
@@ -78,13 +73,6 @@ export class CustomerAuthService {
     };
   }
 
-  // ─── Guest ───────────────────────────────────────────────────────────────────
-
-  async bootstrapGuest(): Promise<AuthResult> {
-    const guest = await this.users.createGuest();
-    return this.result(guest, true);
-  }
-
   // ─── Phone ─────────────────────────────────────────────────────────────────
 
   async requestPhoneOtp(phone: string): Promise<{ delivery: 'sent' | 'client_managed'; otpToken: string }> {
@@ -99,7 +87,6 @@ export class CustomerAuthService {
     otpToken: string;
     code?: string | undefined;
     firebaseToken?: string | undefined;
-    guestToken?: string | undefined;
   }): Promise<AuthResult> {
     let challenge;
     try {
@@ -119,19 +106,15 @@ export class CustomerAuthService {
 
     const existing = await this.users.findByPhone(phone);
     if (existing) {
-      await this.mergeGuestIfAny(input.guestToken, existing.id);
       await this.users.touchLastLogin(existing.id);
       return this.result(existing, false);
     }
 
-    // New customer: create/upgrade + own referral code in ONE transaction so a
+    // New customer: create + own referral code in ONE transaction so a
     // signup can never land without its referral code (or vice-versa).
-    const guestId = await this.extractGuestId(input.guestToken);
     try {
       const user = await this.db.transaction(async (tx) => {
-        const created = guestId
-          ? await this.users.upgradeGuestToCustomer(guestId, { phone, primaryAuthMethod: 'phone', isPhoneVerified: true }, tx)
-          : await this.users.createCustomer({ phone, primaryAuthMethod: 'phone', isPhoneVerified: true }, tx);
+        const created = await this.users.createCustomer({ phone, primaryAuthMethod: 'phone', isPhoneVerified: true }, tx);
         await this.ensureOwnReferralCode(created.id, tx);
         return created;
       });
@@ -157,15 +140,14 @@ export class CustomerAuthService {
     return this.providerFor(provider).getAuthorizationUrl(state);
   }
 
-  /** Signed (tamper-proof) OAuth state carrying the guest token + chosen redirect. */
-  encodeOAuthState(data: { guestToken?: string | undefined; redirect?: string | undefined }): string {
+  /** Signed (tamper-proof) OAuth state carrying the chosen redirect. */
+  encodeOAuthState(data: { redirect?: string | undefined }): string {
     return this.tokens.signOAuthState({
-      ...(data.guestToken ? { guestToken: data.guestToken } : {}),
       ...(this.isAllowedRedirect(data.redirect) ? { redirect: data.redirect } : {}),
     });
   }
 
-  decodeOAuthState(state?: string): { guestToken?: string | undefined; redirect?: string | undefined } {
+  decodeOAuthState(state?: string): { redirect?: string | undefined } {
     if (!state) {
       return {};
     }
@@ -206,26 +188,21 @@ export class CustomerAuthService {
   }
 
   /** Handle the provider callback: exchange the code, then sign in / sign up. */
-  async completeSocialLogin(provider: SocialProviderName, code: string, guestToken?: string): Promise<AuthResult> {
+  async completeSocialLogin(provider: SocialProviderName, code: string): Promise<AuthResult> {
     const profile = await this.providerFor(provider).exchangeCode(code);
     if (!profile.providerUserId) {
       throw new UnauthorizedException('Social profile is missing a subject');
     }
-    return this.resolveSocialUser(provider, profile, guestToken);
+    return this.resolveSocialUser(provider, profile);
   }
 
   private providerFor(provider: SocialProviderName): SocialAuthProvider {
     return provider === 'apple' ? this.apple : this.google;
   }
 
-  private async resolveSocialUser(
-    provider: SocialProviderName,
-    profile: SocialProfile,
-    guestToken?: string,
-  ): Promise<AuthResult> {
+  private async resolveSocialUser(provider: SocialProviderName, profile: SocialProfile): Promise<AuthResult> {
     const existingLink = await this.identity.findOauth(provider, profile.providerUserId);
     if (existingLink) {
-      await this.mergeGuestIfAny(guestToken, existingLink.userId);
       const user = await this.users.findById(existingLink.userId);
       if (!user) {
         throw new NotFoundException('Linked account not found');
@@ -242,15 +219,22 @@ export class CustomerAuthService {
     if (profile.email && profile.emailVerified) {
       const byEmail = await this.users.findByEmail(profile.email);
       if (byEmail && byEmail.accountType === 'customer') {
-        await this.identity.upsertOauth({
-          userId: byEmail.id,
-          provider,
-          providerUserId: profile.providerUserId,
-          email: profile.email,
-          rawProfile: { name: profile.name, picture: profile.picture },
+        await this.db.transaction(async (tx) => {
+          await this.identity.upsertOauth(
+            {
+              userId: byEmail.id,
+              provider,
+              providerUserId: profile.providerUserId,
+              email: profile.email,
+              rawProfile: { name: profile.name, picture: profile.picture },
+            },
+            tx,
+          );
+          if (profile.picture) {
+            await this.users.setAvatarIfEmpty(byEmail.id, profile.picture, tx);
+          }
+          await this.users.touchLastLogin(byEmail.id, tx);
         });
-        await this.mergeGuestIfAny(guestToken, byEmail.id);
-        await this.users.touchLastLogin(byEmail.id);
         return this.result(byEmail, false);
       }
     }
@@ -259,20 +243,18 @@ export class CustomerAuthService {
     // leave it null so a later verified login can still claim/link it.
     const verifiedEmail = profile.email && profile.emailVerified ? profile.email : null;
 
-    // New social identity → create/upgrade + link + referral code, all atomic.
-    const guestId = await this.extractGuestId(guestToken);
+    // New social identity → create + link + referral code, all atomic.
     try {
       const user = await this.db.transaction(async (tx) => {
-        const created = guestId
-          ? await this.users.upgradeGuestToCustomer(
-              guestId,
-              { ...(verifiedEmail ? { email: verifiedEmail } : {}), primaryAuthMethod: provider, isEmailVerified: !!verifiedEmail },
-              tx,
-            )
-          : await this.users.createCustomer(
-              { ...(verifiedEmail ? { email: verifiedEmail } : {}), primaryAuthMethod: provider, isEmailVerified: !!verifiedEmail },
-              tx,
-            );
+        const created = await this.users.createCustomer(
+          {
+            ...(verifiedEmail ? { email: verifiedEmail } : {}),
+            ...(profile.picture ? { avatarUrl: profile.picture } : {}),
+            primaryAuthMethod: provider,
+            isEmailVerified: !!verifiedEmail,
+          },
+          tx,
+        );
         await this.identity.upsertOauth(
           { userId: created.id, provider, providerUserId: profile.providerUserId, email: profile.email, rawProfile: { name: profile.name, picture: profile.picture } },
           tx,
@@ -301,6 +283,13 @@ export class CustomerAuthService {
   }
 
   // ─── Profile completion (username + referral) ────────────────────────────────
+
+  /** Debounced pre-check for the Create Account screen. `available=false` means someone else
+   *  has this username. Case-insensitively unique — the DB has a lowercase unique index. */
+  async isUsernameAvailable(username: string): Promise<boolean> {
+    const taken = await this.users.findByUsername(username);
+    return !taken;
+  }
 
   async completeProfile(
     userId: string,
@@ -381,41 +370,6 @@ export class CustomerAuthService {
   }
 
   // ─── Helpers ─────────────────────────────────────────────────────────────────
-
-  private async extractGuestId(guestToken?: string): Promise<string | null> {
-    if (!guestToken) {
-      return null;
-    }
-    try {
-      const payload = this.tokens.verifyAccess(guestToken);
-      return payload.act === 'guest' ? payload.sub : null;
-    } catch {
-      try {
-        const payload = this.tokens.verifyRefresh(guestToken);
-        return payload.act === 'guest' ? payload.sub : null;
-      } catch {
-        return null;
-      }
-    }
-  }
-
-  /** Guest merge — idempotent + atomic. Repoints devices only if this call did the merge. */
-  private async mergeGuestIfAny(guestToken: string | undefined, targetUserId: string): Promise<void> {
-    const guestId = await this.extractGuestId(guestToken);
-    if (!guestId || guestId === targetUserId) {
-      return;
-    }
-    const merged = await this.db.transaction(async (tx) => {
-      const ok = await this.users.mergeGuestInto(guestId, targetUserId, tx);
-      if (ok) {
-        await this.devices.repointUser(guestId, targetUserId, tx);
-      }
-      return ok;
-    });
-    if (merged) {
-      this.logger.debug(`Merged guest ${guestId} into ${targetUserId}`);
-    }
-  }
 
   /** Guarantees a PERSISTED unique referral code (retries on collision); never returns an unsaved code. */
   private async ensureOwnReferralCode(userId: string, tx?: DBExecutor): Promise<string> {
