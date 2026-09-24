@@ -43,7 +43,6 @@ export enum MediaStatus {
 /** Provider DI tokens (env-selected concrete impls bound in MediaModule). */
 export const STORAGE_PROVIDER = Symbol('STORAGE_PROVIDER');
 export const MEDIA_DELIVERY_PROVIDER = Symbol('MEDIA_DELIVERY_PROVIDER');
-export const TRANSCODER_PROVIDER = Symbol('TRANSCODER_PROVIDER');
 
 /** Cache tag for media reads (invalidate on status change / delete). */
 export const MEDIA_CACHE_TAG = 'media';

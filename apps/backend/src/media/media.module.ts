@@ -3,16 +3,13 @@ import { Logger, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MediaController } from './media.controller';
 import { MediaService } from './media.service';
-import { MEDIA_DELIVERY_PROVIDER, STORAGE_PROVIDER, TRANSCODER_PROVIDER } from './constants/media.constant';
+import { MEDIA_DELIVERY_PROVIDER, STORAGE_PROVIDER } from './constants/media.constant';
 import { StorageProvider } from './providers/storage.provider';
 import { S3StorageProvider } from './providers/s3-storage.provider';
 import { LocalStorageProvider } from './providers/local-storage.provider';
 import { MediaDeliveryProvider } from './providers/delivery.provider';
 import { CloudFrontDeliveryProvider } from './providers/cloudfront-delivery.provider';
 import { LocalDeliveryProvider } from './providers/local-delivery.provider';
-import { TranscoderProvider } from './providers/transcoder.provider';
-import { MediaConvertTranscoder } from './providers/mediaconvert-transcoder.provider';
-import { LocalTranscoder } from './providers/local-transcoder.provider';
 
 const logger = new Logger('MediaModule');
 
@@ -36,25 +33,16 @@ const deliveryProviderFactory = {
   inject: [ConfigService],
 };
 
-const transcoderProviderFactory = {
-  provide: TRANSCODER_PROVIDER,
-  useFactory: (config: ConfigService<EnvConfig>): TranscoderProvider => {
-    const driver = config.get<string>('MEDIA_TRANSCODER') ?? 'local';
-    logger.log(`Initializing media transcoder: ${driver}`);
-    return driver === 'mediaconvert' ? new MediaConvertTranscoder(config) : new LocalTranscoder();
-  },
-  inject: [ConfigService],
-};
-
 /**
- * Independent media module: secure upload (presigned), HLS transcode (MediaConvert),
- * and signed delivery (CloudFront). Other modules associate assets by `id` only.
- * Storage/delivery/transcoder are env-selected (local for dev, AWS in cloud).
+ * Media module — secure upload (presigned S3 PUT), signed delivery (CloudFront). Transcoding
+ * runs OUT OF PROCESS: S3 → SQS → Lambda pipeline (see infra/floci/lambda.tf +
+ * docker/dummy-transcoder/). The Lambda writes HLS output to S3 and updates the media_metadata
+ * row directly via pg — this NestJS process never sees the transcode work.
  */
 @Module({
   imports: [ConfigModule],
   controllers: [MediaController],
-  providers: [MediaService, storageProviderFactory, deliveryProviderFactory, transcoderProviderFactory],
-  exports: [MediaService, STORAGE_PROVIDER, MEDIA_DELIVERY_PROVIDER, TRANSCODER_PROVIDER],
+  providers: [MediaService, storageProviderFactory, deliveryProviderFactory],
+  exports: [MediaService, STORAGE_PROVIDER, MEDIA_DELIVERY_PROVIDER],
 })
 export class MediaModule {}

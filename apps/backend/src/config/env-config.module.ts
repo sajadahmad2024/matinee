@@ -83,6 +83,13 @@ const envConfig = registerAs(
       CSRF_ENABLED: (process.env['CSRF_ENABLED'] || 'false').toLowerCase() === 'true',
       PHONE_VERIFICATION_PROVIDER: process.env['PHONE_VERIFICATION_PROVIDER'] || 'twilio',
       APPLE_CLIENT_ID: process.env['APPLE_CLIENT_ID'] || '',
+      // Deployment target — flips AWS SDK clients (S3, SQS, Lambda, MediaConvert)
+      // between real AWS and Floci (LocalStack-compatible emulator) via FLOCI_ENDPOINT.
+      DEPLOYMENT_TARGET: process.env['DEPLOYMENT_TARGET'] || 'local',
+      FLOCI_ENDPOINT: process.env['FLOCI_ENDPOINT'] || '',
+      FLOCI_PORT: parseInt(process.env['FLOCI_PORT'] || '4566', 10),
+      // AWS Secrets Manager blob hydrated by src/config/secrets-bootstrap.ts
+      SECRETS_MANAGER_SECRET_ID: process.env['SECRETS_MANAGER_SECRET_ID'] || '',
     }) as EnvConfig
 );
 
@@ -178,7 +185,11 @@ const validationSchema = Joi.object({
   // Media (storage / delivery / transcode) — coerced for flat get()
   MEDIA_STORAGE_DRIVER: Joi.string().valid('s3', 'local').default('local'),
   MEDIA_DELIVERY_DRIVER: Joi.string().valid('cloudfront', 'local').default('local'),
-  MEDIA_TRANSCODER: Joi.string().valid('mediaconvert', 'local').default('local'),
+  // Deployment target (see `getAwsEndpointOverride` / `getFlociCredentials`)
+  DEPLOYMENT_TARGET: Joi.string().valid('local', 'aws').default('local'),
+  FLOCI_ENDPOINT: Joi.string().allow('').default(''),
+  FLOCI_PORT: Joi.number().default(4566),
+  SECRETS_MANAGER_SECRET_ID: Joi.string().allow('').default(''),
   MEDIA_S3_BUCKET: Joi.string().allow('').default(''),
   MEDIA_S3_REGION: Joi.string().allow('').default('us-east-1'),
   MEDIA_S3_ENDPOINT: Joi.string().allow('').default(''),

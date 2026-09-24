@@ -1,4 +1,5 @@
 import { EnvConfig } from '@config/env.config';
+import { getAwsEndpointOverride, getFlociCredentials } from '@common/helpers/aws-endpoint.util';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
@@ -28,13 +29,27 @@ export class S3StorageProvider extends StorageProvider {
     super();
     this.bucket = config.get<string>('MEDIA_S3_BUCKET') ?? '';
     const region = config.get<string>('MEDIA_S3_REGION') ?? 'us-east-1';
-    const endpoint = config.get<string>('MEDIA_S3_ENDPOINT') ?? '';
-    const accessKeyId = config.get<string>('MEDIA_S3_ACCESS_KEY_ID') ?? '';
-    const secretAccessKey = config.get<string>('MEDIA_S3_SECRET_ACCESS_KEY') ?? '';
+
+    // Endpoint resolution: Floci (DEPLOYMENT_TARGET=aws + FLOCI_ENDPOINT) wins;
+    // otherwise fall back to the per-service MEDIA_S3_ENDPOINT (MinIO/other local S3);
+    // otherwise let the SDK resolve real AWS.
+    const flociEndpoint = getAwsEndpointOverride(config);
+    const legacyEndpoint = config.get<string>('MEDIA_S3_ENDPOINT') ?? '';
+    const endpoint = flociEndpoint ?? (legacyEndpoint || undefined);
+
+    // Credentials: Floci accepts anything (dummy pair); real AWS uses the default chain
+    // when no explicit creds are set; explicit legacy creds win over both.
+    const legacyAccessKeyId = config.get<string>('MEDIA_S3_ACCESS_KEY_ID') ?? '';
+    const legacySecretKey = config.get<string>('MEDIA_S3_SECRET_ACCESS_KEY') ?? '';
+    const credentials =
+      legacyAccessKeyId && legacySecretKey
+        ? { accessKeyId: legacyAccessKeyId, secretAccessKey: legacySecretKey }
+        : (getFlociCredentials(config) ?? undefined);
+
     this.client = new S3Client({
       region,
       ...(endpoint ? { endpoint, forcePathStyle: true } : {}),
-      ...(accessKeyId && secretAccessKey ? { credentials: { accessKeyId, secretAccessKey } } : {}),
+      ...(credentials ? { credentials } : {}),
     });
   }
 
@@ -51,8 +66,16 @@ export class S3StorageProvider extends StorageProvider {
     try {
       const out = await this.client.send(new HeadObjectCommand({ Bucket: this.bucket, Key: key }));
       return { exists: true, size: out.ContentLength, contentType: out.ContentType, etag: out.ETag };
-    } catch {
-      return { exists: false };
+    } catch (err) {
+      // 404 / 403 (object not there / no perms) → treat as "does not exist" — the caller uses
+      // this as a boolean pre-check. Any OTHER failure (transport, auth, region mismatch) should
+      // NOT be silently squashed — throw so the operation surfaces the real problem.
+      const errName = (err as { name?: string; $metadata?: { httpStatusCode?: number } }).name;
+      const status = (err as { $metadata?: { httpStatusCode?: number } }).$metadata?.httpStatusCode;
+      if (errName === 'NotFound' || errName === 'NoSuchKey' || status === 404 || status === 403) {
+        return { exists: false };
+      }
+      throw err;
     }
   }
 

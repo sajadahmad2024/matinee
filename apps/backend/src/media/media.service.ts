@@ -1,8 +1,6 @@
 import { EnvConfig } from '@config/env.config';
 import { MediaRepository, MediaRecord } from '@db/repositories/media/media.repository';
-import { QueueService } from '@queue/queue.service';
-import { JobName, QueueName } from '@queue/queue.constant';
-import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { randomUUID } from 'crypto';
 import {
@@ -19,15 +17,27 @@ import { MediaDto, MediaStatusEventDto, PlaybackDto, UploadTicketDto } from './d
 import { RequestUploadDto } from './dto/request-upload.dto';
 import { CompleteUploadDto } from './dto/complete-upload.dto';
 import { toMediaDto } from './mappers/media.mapper';
-import { MediaCleanupJob } from './interfaces/media-jobs.interface';
 
+/**
+ * Media service — the API-side of the pipeline. Responsibilities:
+ *  1. Create the media_metadata row + hand back a presigned S3 PUT URL (client upload)
+ *  2. Read: metadata, event history, playback descriptor
+ *  3. Soft-delete (also purges S3 storage inline)
+ *
+ * Transcoding is OUT OF PROCESS. When the client PUTs to S3, S3 fires an ObjectCreated
+ * notification into the `media-source-events` SQS queue, which triggers the transcoder
+ * Lambda (see docker/dummy-transcoder/ + infra/floci/lambda.tf). The Lambda writes HLS
+ * output back to S3 and updates the media_metadata row directly via `pg`. This NestJS
+ * process is never in the transcode path.
+ */
 @Injectable()
 export class MediaService {
+  private readonly logger = new Logger(MediaService.name);
+
   constructor(
     private readonly media: MediaRepository,
     @Inject(STORAGE_PROVIDER) private readonly storage: StorageProvider,
     @Inject(MEDIA_DELIVERY_PROVIDER) private readonly delivery: MediaDeliveryProvider,
-    private readonly queue: QueueService,
     private readonly config: ConfigService<EnvConfig>,
   ) {}
 
@@ -35,7 +45,7 @@ export class MediaService {
     return this.config.get<number>('MEDIA_SIGNED_URL_TTL') ?? 900;
   }
 
-  // ─── Upload (request → client PUTs to storage → complete) ─────────────────────
+  // ─── Upload (request → client PUTs to S3 → Lambda triggered by S3 event) ─────
 
   async requestUpload(input: RequestUploadDto, uploaderId?: string): Promise<UploadTicketDto> {
     const accessLevel = input.accessLevel ?? this.defaultAccess(input.usageType);
@@ -62,6 +72,22 @@ export class MediaService {
     return { mediaId: record.id, status: record.status, upload };
   }
 
+  /**
+   * Client's "I finished PUTting to S3" confirmation. Two jobs:
+   *  1. Explicit integrity check — HEAD the S3 object; 400 if the bytes never actually landed
+   *     (client-side error is caught HERE instead of silently by a stuck-pending sweep)
+   *  2. For NON-VIDEO uploads (images/docs), synchronously flip to READY so `GET /playback`
+   *     works immediately. Videos still need the async Lambda transcode → stay UPLOADED
+   *
+   * Idempotent w.r.t. the S3-event Lambda path: for videos, both this endpoint and the
+   * Lambda try to move the row from PENDING → UPLOADED / → READY. Whichever wins first, the
+   * other is a no-op (Lambda's `WHERE status IN (pending, uploaded)` guard, and this endpoint's
+   * `if status !== PENDING && !== UPLOADED` guard).
+   *
+   * This is OPTIONAL for clients — a client that walks away after the PUT will still see the
+   * row go READY once the Lambda-via-S3-event fires. But calling it gives faster feedback and
+   * catches PUT failures at the API boundary.
+   */
   async completeUpload(id: string, input: CompleteUploadDto): Promise<MediaDto> {
     const record = await this.media.findById(id);
     if (!record) {
@@ -86,13 +112,16 @@ export class MediaService {
     const row = updated ?? record;
 
     if (record.mediaType === MediaType.VIDEO) {
-      // Async hand-off to the worker (SQS); the worker owns the processing → ready
-      // transitions. Returns status `uploaded` — poll /events or GET for progress.
-      await this.queue.send(QueueName.MEDIA, JobName.TRANSCODE_VIDEO, { mediaId: id });
+      // Videos: don't finalize here. The transcoder Lambda (SQS-triggered by the S3
+      // ObjectCreated event that fired when the client PUT completed) owns the
+      // UPLOADED → PROCESSING → READY transitions. Return the current row unchanged
+      // so the client can poll.
       return toMediaDto(row, null);
     }
 
-    // Non-video → immediately servable; delivery prefix = the object key itself.
+    // Non-video (images, docs) — no transcode needed, flip straight to READY here so the
+    // Lambda's later invocation short-circuits on its `status IN (pending, uploaded)` guard.
+    // `delivery_prefix` = the object key itself (there's no separate HLS output layout).
     const ready = (await this.media.markReady(id, { deliveryPrefix: row.storageKey ?? undefined, isHls: false })) ?? row;
     return toMediaDto(ready, this.resolveUrl(ready));
   }
@@ -130,17 +159,67 @@ export class MediaService {
     return { kind: 'file', url, cookies: {}, expiresInSeconds: ttl };
   }
 
+  /**
+   * Soft-delete the row and purge every storage object under its asset root (original +
+   * HLS outputs + poster). Runs inline — cheap because deletePrefix batches DELETEs.
+   * If your storage grows to millions of objects per asset (unlikely), move this to a
+   * cleanup Lambda triggered off a "media-deleted" SQS message instead.
+   */
   async remove(id: string): Promise<void> {
     const removed = await this.media.softDelete(id);
     if (!removed) {
       throw new NotFoundException('Media not found');
     }
-    const job: MediaCleanupJob = {
-      mediaId: id,
-      storageKey: removed.storageKey,
-      deliveryPrefix: this.assetRoot(removed),
-    };
-    await this.queue.send(QueueName.MEDIA, JobName.MEDIA_CLEANUP, job);
+    const assetRoot = this.assetRoot(removed);
+    if (assetRoot) {
+      await this.storage.deletePrefix(assetRoot);
+    }
+  }
+
+  // ─── Maintenance crons (invoked by CronScheduler in the worker) ──────────────
+
+  /**
+   * Safety net for rows stuck in PROCESSING. Runs every 10 minutes (see cron.scheduler.ts).
+   *
+   * In v1 the worker's poll chain could break (lost message, DLQ'd poll, crash) and leave a
+   * row stuck. In v2 the transcoder Lambda's SQS event source mapping retries + DLQs on its
+   * own, but a Lambda that succeeds at half of its work (wrote HLS but failed the DB UPDATE)
+   * still leaves a row stuck in PROCESSING. This cron catches those.
+   *
+   * Behaviour: rows in PROCESSING for > MEDIA_TRANSCODE_MAX_SECONDS (default 6h) are marked
+   * FAILED. Under the new architecture there's nothing to "resume" — the Lambda already
+   * retried up to its DLQ threshold — so we just fail loud and let ops surface it.
+   */
+  async reconcileStuck(): Promise<void> {
+    const maxSeconds = this.config.get<number>('MEDIA_TRANSCODE_MAX_SECONDS') ?? 21_600;
+    const rows = await this.media.findStuckProcessing(maxSeconds, 50);
+    for (const row of rows) {
+      await this.media.markFailed(row.id, 'transcode stalled — exceeded max processing time');
+      this.logger.warn(`reconcile: failed stuck media ${row.id}`);
+    }
+    if (rows.length > 0) {
+      this.logger.log(`reconcile: failed ${rows.length} stuck-processing row(s)`);
+    }
+  }
+
+  /**
+   * Delete rows stuck in PENDING (never got the client's PUT / never got the S3 event).
+   * Runs hourly. Any row created > MEDIA_ORPHAN_AGE_SECONDS ago (default 24 h) that's still
+   * PENDING gets soft-deleted + storage-purged (in case a partial upload landed).
+   */
+  async sweepOrphans(): Promise<void> {
+    const ageSeconds = this.config.get<number>('MEDIA_ORPHAN_AGE_SECONDS') ?? 86_400;
+    const orphans = await this.media.findStalePending(ageSeconds, 100);
+    for (const row of orphans) {
+      await this.media.softDelete(row.id);
+      const assetRoot = this.assetRoot(row);
+      if (assetRoot) {
+        await this.storage.deletePrefix(assetRoot);
+      }
+    }
+    if (orphans.length > 0) {
+      this.logger.log(`orphan-sweep: purged ${orphans.length} stale-pending row(s)`);
+    }
   }
 
   // ─── Helpers ──────────────────────────────────────────────────────────────────

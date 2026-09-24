@@ -1,0 +1,21 @@
+aws_region             = "us-east-1"
+environment            = "development"
+app_name               = "maintinee"
+floci_endpoint         = "http://localhost:4566"
+
+# Transcoder Lambda (dummy locally, real FFmpeg/MediaConvert-invoker in prod)
+transcoder_lambda_image_uri       = "dummy-transcoder:latest"
+transcoder_lambda_memory_mb       = 512
+transcoder_lambda_timeout_seconds = 60
+transcoder_lambda_database_url    = "postgresql://postgres:postgres@host.docker.internal:5432/postgres"
+
+# Opaque app secrets merged into the Secrets Manager JSON blob. Do NOT commit real values
+# — copy this file to terraform.tfvars (gitignored) and fill in there.
+app_secrets = {
+  JWT_SECRET                = "change-me"
+  JWT_REFRESH_SECRET        = "change-me"
+  GOOGLE_CLIENT_ID          = ""
+  GOOGLE_CLIENT_SECRET      = ""
+  APPLE_CLIENT_ID           = ""
+  # Twilio / SendGrid keys, DB password overrides, etc. go here.
+}

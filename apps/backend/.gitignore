@@ -62,3 +62,11 @@ test-results/
 # Environment Files
 .env
 apm/prometheus.yml
+
+# Terraform (infra/floci and any future infra/*)
+infra/**/.terraform/
+infra/**/.terraform.lock.hcl
+infra/**/terraform.tfstate
+infra/**/terraform.tfstate.*
+infra/**/terraform.tfvars
+infra/**/*.tfplan

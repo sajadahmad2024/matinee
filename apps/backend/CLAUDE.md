@@ -20,6 +20,15 @@ pnpm db:introspect          # Generate Drizzle schema from DB
 pnpm db:create-migration <name>  # Create new empty SQL migration file
 pnpm db:seed                # Run raw SQL seed files (roles, admin user)
 pnpm db:studio              # Open Drizzle Studio
+
+# Floci (local AWS emulator) — S3 + SQS + Lambda + Secrets Manager on port 4566
+pnpm floci:up               # Start Floci container (assumes db:dev:up already ran)
+pnpm floci:down             # Stop Floci
+pnpm infra:floci:init       # terraform init (run once after clone)
+pnpm infra:floci:apply      # terraform apply — create S3 buckets, SQS queues, Lambda, IAM
+pnpm infra:floci:destroy    # Tear down all Floci-provisioned resources
+pnpm media:lambda:build     # Build the dummy transcoder Lambda container image locally
+pnpm local:floci:up         # Full local Floci setup: docker + Floci + terraform + migrate + start
 ```
 
 ## TypeScript Strictness
@@ -114,6 +123,63 @@ src/db/repositories/<module>/          # Data access (separate from business mod
 | Dev Tools | `src/api/dev-tools/` | Developer tools dashboard |
 
 > **Removed for now** (reintroduce module-by-module later): Media, Notifications, AI/RAG, Webhooks, Gateway, Audit, UsersV2. Their boilerplate code lives in git history.
+
+## Video Pipeline (Media Module) — v2 (Lambda-owned)
+
+Full design: `apps/documentation/docs/backend/media/video-pipeline.md`.
+
+**Flow:** client `POST /v1/media/uploads` → API creates row (PENDING) + returns presigned S3
+PUT URL → client PUTs bytes → **S3 fires `ObjectCreated` → SQS `media-source-events` → SQS
+event source mapping triggers transcoder Lambda directly** → Lambda parses S3 key, looks up
+media row via `pg`, writes placeholder HLS to output bucket, `UPDATE`s `media_metadata`
+status=`ready` + `hls_master_key` + `delivery_prefix` → client `GET /v1/media/:id/playback`
+gets the `.m3u8` URL.
+
+**The NestJS worker doesn't touch media at all.** All media state transitions beyond the
+initial PENDING row are owned by the Lambda (`docker/dummy-transcoder/handler.js`).
+
+**Env-selected components:**
+
+| Env var | Values | Purpose |
+|---|---|---|
+| `DEPLOYMENT_TARGET` | `local` \| `aws` | Flips AWS SDK clients to Floci when `aws` + `FLOCI_ENDPOINT` set |
+| `FLOCI_ENDPOINT` | `http://localhost:4566` | Floci unified edge endpoint (local only) |
+| `MEDIA_STORAGE_DRIVER` | `s3` \| `local` | `s3` uses `MEDIA_S3_BUCKET`; `local` uses disk |
+| `MEDIA_S3_BUCKET` | | Source bucket (client PUTs land here) |
+| `MEDIA_OUTPUT_BUCKET` | | HLS output bucket (Lambda writes here) |
+
+**No `MEDIA_TRANSCODER` env** — the transcoder is the Lambda itself, wired by Terraform.
+
+**Dummy transcoder Lambda** — `docker/dummy-transcoder/` (Dockerfile + handler.js + package.json).
+Node 20 base, no FFmpeg. Reads S3 key from SQS event → writes placeholder `master.m3u8` +
+`poster.jpg` to output bucket → UPDATE `media_metadata` via `pg`. **Swap
+`writePlaceholderOutputs()` for FFmpeg spawn OR `MediaConvertClient.CreateJob(...)` in prod** —
+everything else stays.
+
+**Floci infrastructure** — `infra/floci/*.tf`. Provisions:
+- Two S3 buckets (source + output; source has CORS + `ObjectCreated:*` → SQS notification)
+- SQS queues + DLQs, including the `media-source-events` bridge queue
+- Transcoder Lambda + `aws_lambda_event_source_mapping` (SQS → Lambda auto-trigger)
+- IAM role: S3 read source, S3 write output, SQS consume, CloudWatch logs
+- Secrets Manager blob (single JSON, hydrated pre-boot by `src/config/secrets-bootstrap.ts`)
+
+**Startup:**
+```bash
+pnpm local:floci:up      # all-in-one: db + floci + lambda build + terraform + migrate + start
+```
+
+Or step-by-step (after `pnpm infra:floci:init` one-time):
+```bash
+pnpm db:dev:up
+pnpm floci:up
+pnpm media:lambda:build  # docker build -t dummy-transcoder:latest ./docker/dummy-transcoder
+pnpm infra:floci:apply
+pnpm db:migrate
+pnpm start:dev
+```
+
+**Testing** — `POST /v1/media/uploads` → PUT → check `media_metadata.status='ready'`. Full
+walkthrough: `apps/documentation/docs/backend/media/video-pipeline-api.md`.
 
 ## Auth System
 

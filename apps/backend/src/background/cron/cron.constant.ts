@@ -5,8 +5,8 @@
  */
 export enum CronName {
   DAILY_MAIL = 'daily-mail',                 // async → QueueName.CRON
-  MEDIA_RECONCILE = 'media-reconcile',       // async → QueueName.MEDIA (resume/fail stuck transcodes)
-  MEDIA_ORPHAN_SWEEP = 'media-orphan-sweep', // async → QueueName.MEDIA (delete never-completed uploads)
+  MEDIA_RECONCILE = 'media-reconcile',       // inline (calls MediaService.reconcileStuck)
+  MEDIA_ORPHAN_SWEEP = 'media-orphan-sweep', // inline (calls MediaService.sweepOrphans)
   PUBLISH_SCHEDULED = 'publish-scheduled',   // async → QueueName.CONTENT (go-live scheduled content)
   LICENSE_EXPIRY_REMINDER = 'license-expiry-reminder', // async → QueueName.CONTENT (expiring licenses)
   HEARTBEAT = 'heartbeat',                   // sync example (in-process, trivial)

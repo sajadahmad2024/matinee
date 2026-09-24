@@ -1,3 +1,4 @@
+import { getAwsEndpointOverride, getFlociCredentials } from '@common/helpers/aws-endpoint.util';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { SESClient, SendRawEmailCommand } from '@aws-sdk/client-ses';
@@ -18,9 +19,18 @@ export class SesEmailProvider extends EmailProvider {
     const secretAccessKey = this.configService.get<string>('AWS_SECRET_ACCESS_KEY') ?? '';
     this.defaultFrom = this.configService.get<string>('EMAIL_FROM') ?? 'noreply@example.com';
 
+    const endpoint = getAwsEndpointOverride(this.configService);
+    const flociCredentials = getFlociCredentials(this.configService);
+
     const clientConfig: ConstructorParameters<typeof SESClient>[0] = { region };
+    if (endpoint) {
+      clientConfig.endpoint = endpoint;
+    }
+    // Explicit creds win over the Floci dummy; both win over the SDK default chain.
     if (accessKeyId && secretAccessKey) {
       clientConfig.credentials = { accessKeyId, secretAccessKey };
+    } else if (flociCredentials) {
+      clientConfig.credentials = flociCredentials;
     }
     this.sesClient = new SESClient(clientConfig);
   }
