@@ -343,6 +343,84 @@ abstract class AppLocalizations {
   /// **'Comments, {count}'**
   String reelsCommentAction(String count);
 
+  /// No description provided for @reelsCommentsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Comments'**
+  String get reelsCommentsTitle;
+
+  /// No description provided for @reelsCommentsClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close comments'**
+  String get reelsCommentsClose;
+
+  /// No description provided for @reelsCommentsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No comments yet'**
+  String get reelsCommentsEmpty;
+
+  /// Placeholder of the comment bar's field at the bottom of the comments sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a comment…'**
+  String get reelsCommentsInputHint;
+
+  /// No description provided for @reelsCommentsSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send comment'**
+  String get reelsCommentsSend;
+
+  /// No description provided for @reelsCommentsReply.
+  ///
+  /// In en, this message translates to:
+  /// **'Reply'**
+  String get reelsCommentsReply;
+
+  /// Expands a comment whose text is cut off after a few lines.
+  ///
+  /// In en, this message translates to:
+  /// **'See more'**
+  String get reelsCommentsSeeMore;
+
+  /// A commenter's handle as the comment card shows it.
+  ///
+  /// In en, this message translates to:
+  /// **'@{handle}'**
+  String reelsCommentsHandle(String handle);
+
+  /// Expands the replies under a comment.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{View 1 reply} other{View {count} replies}}'**
+  String reelsCommentsViewReplies(int count);
+
+  /// No description provided for @reelsCommentsHideReplies.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide replies'**
+  String get reelsCommentsHideReplies;
+
+  /// No description provided for @reelsCommentsViewMoreReplies.
+  ///
+  /// In en, this message translates to:
+  /// **'View more replies'**
+  String get reelsCommentsViewMoreReplies;
+
+  /// Shown above the comment field after tapping Reply on a comment.
+  ///
+  /// In en, this message translates to:
+  /// **'Replying to @{handle}'**
+  String reelsCommentsReplyingTo(String handle);
+
+  /// No description provided for @reelsCommentsCancelReply.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel reply'**
+  String get reelsCommentsCancelReply;
+
   /// No description provided for @reelsInfoAction.
   ///
   /// In en, this message translates to:

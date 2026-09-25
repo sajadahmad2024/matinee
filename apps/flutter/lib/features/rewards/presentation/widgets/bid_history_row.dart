@@ -1,11 +1,10 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:matinee/core/theme/app_elevation.dart';
 import 'package:matinee/core/theme/app_radius.dart';
-import 'package:matinee/core/theme/app_sizes.dart';
 import 'package:matinee/core/theme/app_spacing.dart';
 import 'package:matinee/core/theme/app_text_styles.dart';
 import 'package:matinee/core/theme/extensions/build_context_extensions.dart';
-import 'package:matinee/core/utils/initials.dart';
+import 'package:matinee/core/widgets/app_avatar.dart';
 
 ///
 /// One bid in the history. The bid that currently holds the lot is drawn in
@@ -57,7 +56,8 @@ class BidHistoryRow extends StatelessWidget {
           child: Row(
             spacing: AppSpacing.md,
             children: [
-              _Avatar(name: bidderName),
+              // The bidders have no pictures in the data, so the disc shows initials.
+              AppAvatar(name: bidderName),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -84,31 +84,6 @@ class BidHistoryRow extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-///
-/// The bidders have no pictures in the data, so the disc carries an initial
-/// the way the avatar component does everywhere else.
-///
-class _Avatar extends StatelessWidget {
-  const _Avatar({required this.name});
-
-  final String name;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.appColors;
-    return Container(
-      width: AppAvatarSize.comment,
-      height: AppAvatarSize.comment,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(color: colors.avatar.background, shape: BoxShape.circle),
-      child: Text(
-        initialsOf(name),
-        style: Theme.of(context).textTheme.titleSmall?.copyWith(color: colors.text.primary),
       ),
     );
   }

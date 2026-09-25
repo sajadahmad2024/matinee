@@ -540,6 +540,7 @@ Screen padding: main 16, auth 24, onboarding 20, sheet 20, modal 24
 | button | 32 |
 | buttonMini | 28 |
 | input | 52 |
+| commentField | 40 |
 | otpBox | 64 |
 | chip | 32 |
 | tag | 20 |
@@ -622,6 +623,8 @@ Emoji (🔥 🎖️ 🏆 🎬 🌍 ✨ 🧠 🔮 🎟️ 🤝 💎 🔗) are use
 | **Inter Medium (500)** | The 58 Inter Medium texts (10–14 px small print) are folded into the Inter Regular roles (caption, bodySmall, bodyMedium) — the weight step is invisible at those sizes and the design uses Medium inconsistently. Weight 500 is therefore not declared and no Inter-Medium font file is bundled. |
 | **Notifications screen** | Notifications (1167:2170) sits outside the Visuals extraction and is kept to the frame's own values: a scoped notifications palette (AppPalette.notification*, AppColors.notification), the urgent-card gradient #161C27→#121620 at 158.7° (AppGradients.notificationUrgentCard), and the frame's exact spacing and radii (AppNotificationLayout). Borders are solid: #F5C451@40% unread, white@5% read; chips #141A24 with white@10% (inactive) or #F5C451@12% fill and @40% border (active). Type stays on the shared roles, so text minimums hold. The frame's Bid Now and Check In Now buttons are not built: a card that leads somewhere is tapped whole and carries a trailing chevron (Icons.chevron_right, meta colour) instead. |
 
+| **Comments sheet** | Video comments (30:3890): the comment bar's field keeps the frame's 40 height as `AppControlHeight.commentField` (confirmed with the user); its radius 7 snaps to `sm` 8 and its send glyph 18 to `md` 20. The liked state tints `like.svg` with `icon.accent`. Replies, their toggles and load-more rows are not drawn: they use `caption` in `text.muted`, indented 48 to the parent's text column, one level only. |
+
 ## 10. Open items for design
 
 - Nav Bar library component needs Rewards/Profile active variants (only Home/P2P exist).
@@ -632,3 +635,4 @@ Emoji (🔥 🎖️ 🏆 🎬 🌍 ✨ 🧠 🔮 🎟️ 🤝 💎 🔗) are use
 - Confirm the points-pill stroke gradient approximation and the 8/9px → 10/11px size bumps with design.
 - Figma file has moved on since this 2026-09-03 snapshot (checked 2026-09-18): 10 cited nodes no longer exist (Home top-left icon area #25:3071/#25:3073, Daily Streak containers #397:9215/#397:9220/#397:9362/#397:9388, Weekly Quest frame #381:5991, Subscribe/P2P screen #433:1005/#433:1007/#433:1044) and new frames appeared (Home V2, Subscription pop-up section, Prediction game, Live Auction options + Buy Points payment method, Subscribe redesign, Weekly Quest Completed). Re-run the extract-design-system skill before implementing those screens; values for unchanged screens remain valid.
 - Notifications screen (1167:2170) uses its own scoped palette; design should confirm whether it joins the shared tokens.
+- Video comments (30:3890): the send glyph is not exported, and replies, reply toggles and load-more rows are not designed.
