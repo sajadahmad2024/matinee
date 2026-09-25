@@ -5,9 +5,8 @@ import { Body, Controller, Get, Param, ParseUUIDPipe, Post, Query } from '@nestj
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CustomerOnly } from '../../auth/decorators/account-type.decorator';
 import { CurrentUser } from '../../auth/decorators/current-user.decorator';
-import { PageQuery } from '../dto/engagement-query.dto';
 import { CommentService } from './comment.service';
-import { CommentDto, CreateCommentDto } from './dto/comment.dto';
+import { CommentDto, CommentListQueryDto, CreateCommentDto } from './dto/comment.dto';
 
 /** Content-scoped comments: the thread under a content. */
 @ApiTags('Engagement · Comments')
@@ -18,10 +17,10 @@ export class CommentController {
   constructor(private readonly comments: CommentService) {}
 
   @Get(':id/comments')
-  @ApiOperation({ summary: 'List top-level comments for a content (newest first)' })
+  @ApiOperation({ summary: 'List top-level comments for a content (sort: newest | oldest | alphabetical)' })
   @ApiPaginatedEnvelope(CommentDto)
-  list(@CurrentUser('id') userId: string, @Param('id', ParseUUIDPipe) id: string, @Query() q: PageQuery) {
-    return this.comments.list(id, userId, q.page, q.limit);
+  list(@CurrentUser('id') userId: string, @Param('id', ParseUUIDPipe) id: string, @Query() q: CommentListQueryDto) {
+    return this.comments.list(id, userId, q.page, q.limit, q.sort ?? 'newest');
   }
 
   @Post(':id/comments')

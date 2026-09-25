@@ -6,9 +6,15 @@ import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseUUIDPi
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CustomerOnly } from '../../auth/decorators/account-type.decorator';
 import { CurrentUser } from '../../auth/decorators/current-user.decorator';
-import { PageQuery } from '../dto/engagement-query.dto';
 import { CommentService } from './comment.service';
-import { CommentDto, CreateCommentDto, ReportCommentDto, ReportResultDto, SetCommentReactionDto } from './dto/comment.dto';
+import {
+  CommentDto,
+  CommentListQueryDto,
+  CreateCommentDto,
+  ReportCommentDto,
+  ReportResultDto,
+  SetCommentReactionDto,
+} from './dto/comment.dto';
 
 /** Comment-scoped actions: replies, reactions, delete-own, report. */
 @ApiTags('Engagement · Comments')
@@ -19,14 +25,14 @@ export class CommentThreadController {
   constructor(private readonly comments: CommentService) {}
 
   @Get(':id/replies')
-  @ApiOperation({ summary: 'List replies under a comment (oldest first)' })
+  @ApiOperation({ summary: 'List replies under a comment (default oldest first)' })
   @ApiPaginatedEnvelope(CommentDto)
-  replies(@CurrentUser('id') userId: string, @Param('id', ParseUUIDPipe) id: string, @Query() q: PageQuery) {
-    return this.comments.listReplies(id, userId, q.page, q.limit);
+  replies(@CurrentUser('id') userId: string, @Param('id', ParseUUIDPipe) id: string, @Query() q: CommentListQueryDto) {
+    return this.comments.listReplies(id, userId, q.page, q.limit, q.sort ?? 'oldest');
   }
 
   @Post(':id/replies')
-  @ApiOperation({ summary: 'Reply to a comment' })
+  @ApiOperation({ summary: 'Reply to a comment (a reply to a reply attaches to the top-level comment)' })
   @ApiEnvelope(CommentDto, { status: 201 })
   reply(@CurrentUser('id') userId: string, @Param('id', ParseUUIDPipe) id: string, @Body() dto: CreateCommentDto) {
     return this.comments.reply(userId, id, dto.body);

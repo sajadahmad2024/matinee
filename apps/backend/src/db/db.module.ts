@@ -45,6 +45,7 @@ import { AdminUser360Repository } from './repositories/users/user-360.repository
 import { NotificationCampaignRepository } from './repositories/notifications/notification-campaign.repository';
 import { NotificationLogsRepository } from './repositories/notifications/notification-logs.repository';
 import { AppSettingsRepository } from './repositories/platform/app-settings.repository';
+import { AdminAuditRepository } from './repositories/platform/admin-audit.repository';
 import { GamesMetaRepository } from './repositories/games/games-meta.repository';
 import { EventRepository } from './repositories/events/event.repository';
 
@@ -91,6 +92,7 @@ const repositories = [
   NotificationCampaignRepository,
   NotificationLogsRepository,
   AppSettingsRepository,
+  AdminAuditRepository,
   GamesMetaRepository,
   EventRepository,
 ];
