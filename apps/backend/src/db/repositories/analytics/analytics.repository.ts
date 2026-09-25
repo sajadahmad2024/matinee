@@ -38,6 +38,8 @@ export interface ContentAnalytics {
   avgCompletion: number;
   totalWatchSeconds: number;
   daily: Array<{ date: string; views: number; uniqueViewers: number; watchSeconds: number; avgCompletion: number }>;
+  /** Days in `[rollupFrom, rollupThrough]` come from content_daily_stats; the rest are live. */
+  dailySource: { rollupFrom: string | null; rollupThrough: string | null };
   from: string;
   to: string;
   periodChange: { views: number; prevViews: number; viewsPct: number; watchSeconds: number; prevWatchSeconds: number; watchSecondsPct: number };
@@ -251,7 +253,12 @@ export class AnalyticsRepository {
    * blocks over `[from, to)`: period change, retention, traffic sources, demographics, geo, BTS.
    * `games` is lifetime (quest participations carry no timestamp).
    */
-  async content(contentId: string, window: AnalyticsWindow, tx?: DBExecutor): Promise<ContentAnalytics | null> {
+  async content(
+    contentId: string,
+    window: AnalyticsWindow,
+    coverage: { coveredFrom: string | null; coveredThrough: string | null } = { coveredFrom: null, coveredThrough: null },
+    tx?: DBExecutor,
+  ): Promise<ContentAnalytics | null> {
     const db = this.exec(tx);
     const { from, to } = window;
     const cRows = await db
@@ -275,8 +282,8 @@ export class AnalyticsRepository {
         })
         .from(contentViews)
         .where(eq(contentViews.contentId, contentId)),
-      // Daily series (UTC days, zero-filled, newest first) from the raw view sessions —
-      // content_daily_stats has no rollup job populating it yet.
+      // Daily series (UTC days, zero-filled, newest first). Days inside the rollup watermark
+      // come from content_daily_stats; the rest (today / never-rolled days) from raw sessions.
       this.rows(db, sql`
         with days as (
           select generate_series(
@@ -285,15 +292,28 @@ export class AnalyticsRepository {
             interval '1 day'
           ) as d
         ),
+        cov as (select ${coverage.coveredFrom}::date as cf, ${coverage.coveredThrough}::date as ct),
         agg as (
           select date_trunc('day', cv.started_at at time zone 'UTC') as d, count(*)::int as views,
             count(distinct cv.user_id)::int as "uniqueViewers", coalesce(sum(cv.watched_seconds),0)::bigint as "watchSeconds",
             coalesce(avg(cv.completion_percent),0)::float as "avgCompletion"
-          from content_views cv where ${inWindow} group by 1
+          from content_views cv, cov where ${inWindow}
+            and not coalesce((cv.started_at at time zone 'UTC')::date between cov.cf and cov.ct, false)
+          group by 1
+        ),
+        roll as (
+          select cds.stat_date::timestamp as d, cds.views, cds.unique_viewers as "uniqueViewers",
+            cds.watch_seconds as "watchSeconds", cds.avg_completion::float as "avgCompletion"
+          from content_daily_stats cds, cov
+          where cds.content_id = ${contentId} and cds.stat_date between cov.cf and cov.ct
         )
-        select to_char(days.d, 'YYYY-MM-DD') as date, coalesce(agg.views,0) as views, coalesce(agg."uniqueViewers",0) as "uniqueViewers",
-          coalesce(agg."watchSeconds",0) as "watchSeconds", coalesce(agg."avgCompletion",0) as "avgCompletion"
-        from days left join agg on agg.d = days.d order by days.d desc`),
+        select to_char(days.d, 'YYYY-MM-DD') as date,
+          coalesce(roll.views, agg.views, 0) as views,
+          coalesce(roll."uniqueViewers", agg."uniqueViewers", 0) as "uniqueViewers",
+          coalesce(roll."watchSeconds", agg."watchSeconds", 0) as "watchSeconds",
+          coalesce(roll."avgCompletion", agg."avgCompletion", 0) as "avgCompletion"
+        from days left join agg on agg.d = days.d left join roll on roll.d = days.d
+        order by days.d desc`),
       // Window vs the previous window of equal length.
       this.one(db, sql`
         with w as (select ${from}::timestamptz as f, ${to}::timestamptz as t)
@@ -369,6 +389,7 @@ export class AnalyticsRepository {
       dislikeCount: c.dislikeCount, commentCount: c.commentCount, shareCount: c.shareCount,
       sessions: num(agg?.sessions), distinctViewers: num(agg?.distinctViewers), avgCompletion: num(agg?.avgCompletion), totalWatchSeconds: num(agg?.totalWatchSeconds),
       daily: daily.map((d) => ({ date: String(d['date']), views: num(d['views']), uniqueViewers: num(d['uniqueViewers']), watchSeconds: num(d['watchSeconds']), avgCompletion: Math.round(num(d['avgCompletion']) * 100) / 100 })),
+      dailySource: { rollupFrom: coverage.coveredFrom, rollupThrough: coverage.coveredThrough },
       from,
       to,
       periodChange: {

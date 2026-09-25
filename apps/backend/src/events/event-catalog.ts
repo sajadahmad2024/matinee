@@ -36,6 +36,8 @@ export enum AppEventName {
   // ── lifecycle / auth ────────────────────────────────────────────────────
   AppOpen = 'app_open',
   AppBackground = 'app_background',
+  /** App returned to the foreground within the same client session (BG↔FG re-entry). */
+  AppForeground = 'app_foreground',
   SignupStarted = 'signup_started',
   SignupCompleted = 'signup_completed',
   LoginCompleted = 'login_completed',
@@ -109,6 +111,7 @@ export const EVENT_CATALOG = {
 
   [AppEventName.AppOpen]: AppEventType.Lifecycle,
   [AppEventName.AppBackground]: AppEventType.Lifecycle,
+  [AppEventName.AppForeground]: AppEventType.Lifecycle,
   [AppEventName.SignupStarted]: AppEventType.Lifecycle,
   [AppEventName.SignupCompleted]: AppEventType.Lifecycle,
   [AppEventName.LoginCompleted]: AppEventType.Lifecycle,

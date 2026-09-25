@@ -11,6 +11,7 @@ import {
   TrendMetric,
   TrendPoint,
 } from '@db/repositories/analytics/analytics.repository';
+import { AnalyticsRollupRepository, CONTENT_DAILY_JOB } from '@db/repositories/analytics/analytics-rollup.repository';
 import { AnalyticsWindowQueryDto, ContentLibraryQueryDto, TrendsQueryDto } from './dto/analytics.dto';
 
 const OVERVIEW_TTL = 60; // dashboard KPIs — light caching (seconds)
@@ -33,14 +34,15 @@ export class AnalyticsService {
   constructor(
     private readonly analytics: AnalyticsRepository,
     private readonly cache: CacheService,
+    private readonly rollups: AnalyticsRollupRepository,
   ) {}
 
   /**
-   * Resolve a `[from, to)` window. `to` defaults to now (floored to the minute so cache keys
+   * Resolve a `[from, to)` window. `to` defaults to the end of the current minute (so cache keys
    * are stable), `from` to `to − 30 days`. Rejects `from ≥ to` and spans over 366 days.
    */
   resolveWindow(q: AnalyticsWindowQueryDto, now: Date = new Date()): AnalyticsWindow {
-    const to = q.to !== undefined ? new Date(q.to) : new Date(Math.floor(now.getTime() / 60_000) * 60_000);
+    const to = q.to !== undefined ? new Date(q.to) : new Date((Math.floor(now.getTime() / 60_000) + 1) * 60_000);
     const from = q.from !== undefined ? new Date(q.from) : new Date(to.getTime() - DEFAULT_WINDOW_DAYS * DAY_MS);
     if (Number.isNaN(from.getTime()) || Number.isNaN(to.getTime())) {
       throw new BadRequestException('from/to must be valid ISO-8601 timestamps');
@@ -82,7 +84,9 @@ export class AnalyticsService {
 
   async content(contentId: string, q: AnalyticsWindowQueryDto = {}): Promise<ContentAnalytics> {
     const window = this.resolveWindow(q);
-    const a = await this.analytics.content(contentId, window);
+    // Closed days inside the rollup watermark are read from content_daily_stats.
+    const { coveredFrom, coveredThrough } = await this.rollups.getCoverage(CONTENT_DAILY_JOB);
+    const a = await this.analytics.content(contentId, window, { coveredFrom, coveredThrough });
     if (!a) {
       throw new NotFoundException('Content not found');
     }

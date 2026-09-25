@@ -171,6 +171,11 @@ export class ContentDailyStatDto {
   @ApiProperty() avgCompletion!: number;
 }
 
+export class ContentDailySourceDto {
+  @ApiProperty({ nullable: true, type: String, description: 'First day served from content_daily_stats (YYYY-MM-DD)' }) rollupFrom!: string | null;
+  @ApiProperty({ nullable: true, type: String, description: 'Last day served from content_daily_stats; other days are live' }) rollupThrough!: string | null;
+}
+
 export class ContentPeriodChangeDto {
   @ApiProperty({ description: 'Views in the window' }) views!: number;
   @ApiProperty({ description: 'Views in the previous window of equal length' }) prevViews!: number;
@@ -250,6 +255,7 @@ export class ContentAnalyticsDto {
   @ApiProperty({ description: 'Average completion % (lifetime)' }) avgCompletion!: number;
   @ApiProperty({ description: 'Lifetime watch seconds' }) totalWatchSeconds!: number;
   @ApiProperty({ type: [ContentDailyStatDto], description: 'Daily rollups within the window (newest first)' }) daily!: ContentDailyStatDto[];
+  @ApiProperty({ type: ContentDailySourceDto, description: 'Which days of `daily` came from the rollup' }) dailySource!: ContentDailySourceDto;
   @ApiProperty({ description: 'Window start (ISO)' }) from!: string;
   @ApiProperty({ description: 'Window end, exclusive (ISO)' }) to!: string;
   @ApiProperty({ type: ContentPeriodChangeDto }) periodChange!: ContentPeriodChangeDto;

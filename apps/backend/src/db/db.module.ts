@@ -41,6 +41,11 @@ import { AuctionRepository } from './repositories/games/auction.repository';
 import { StreakRepository } from './repositories/games/streak.repository';
 import { ModerationRepository } from './repositories/moderation/moderation.repository';
 import { AnalyticsRepository } from './repositories/analytics/analytics.repository';
+import { AnalyticsRollupRepository } from './repositories/analytics/analytics-rollup.repository';
+import { DashboardAnalyticsRepository } from './repositories/analytics/dashboard-analytics.repository';
+import { MarketingRepository } from './repositories/analytics/marketing.repository';
+import { SessionRepository } from './repositories/analytics/session.repository';
+import { UserMetricRepository } from './repositories/analytics/user-metric.repository';
 import { AdminUser360Repository } from './repositories/users/user-360.repository';
 import { NotificationCampaignRepository } from './repositories/notifications/notification-campaign.repository';
 import { NotificationLogsRepository } from './repositories/notifications/notification-logs.repository';
@@ -88,6 +93,11 @@ const repositories = [
   StreakRepository,
   ModerationRepository,
   AnalyticsRepository,
+  AnalyticsRollupRepository,
+  DashboardAnalyticsRepository,
+  MarketingRepository,
+  SessionRepository,
+  UserMetricRepository,
   AdminUser360Repository,
   NotificationCampaignRepository,
   NotificationLogsRepository,

@@ -3,7 +3,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ReactionKind, ReactionRepository } from '@db/repositories/engagement/reaction.repository';
 import { ContentAccessService } from '../services/content-access.service';
 import { ContentReactedPayload, EngagementEvent } from '../events/engagement.events';
-import { ReactionStateDto } from './dto/reaction.dto';
+import { BatchReactionsDto, ReactionStateDto } from './dto/reaction.dto';
 
 @Injectable()
 export class ReactionService {
@@ -38,5 +38,18 @@ export class ReactionService {
   async get(userId: string, contentId: string): Promise<ReactionStateDto> {
     await this.access.assertPublished(contentId);
     return this.state(userId, contentId);
+  }
+
+  /**
+   * Batch "my reactions" for feed cards (avoids N+1 GET :id/reaction). No publish check —
+   * it only reveals the caller's own reactions; unknown ids map to null.
+   */
+  async mine(userId: string, contentIds: readonly string[]): Promise<BatchReactionsDto> {
+    const found = await this.reactions.getUserReactions(userId, contentIds);
+    const reactions: Record<string, 'like' | 'dislike' | null> = {};
+    for (const id of contentIds) {
+      reactions[id] = found.get(id) ?? null;
+    }
+    return { reactions };
   }
 }

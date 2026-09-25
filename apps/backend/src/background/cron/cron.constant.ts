@@ -9,6 +9,7 @@ export enum CronName {
   MEDIA_ORPHAN_SWEEP = 'media-orphan-sweep', // inline (calls MediaService.sweepOrphans)
   PUBLISH_SCHEDULED = 'publish-scheduled',   // async → QueueName.CONTENT (go-live scheduled content)
   LICENSE_EXPIRY_REMINDER = 'license-expiry-reminder', // async → QueueName.CONTENT (expiring licenses)
+  ANALYTICS_CONTENT_ROLLUP = 'analytics-content-rollup', // inline (AnalyticsRollupService.rollupRecent)
   HEARTBEAT = 'heartbeat',                   // sync example (in-process, trivial)
 }
 

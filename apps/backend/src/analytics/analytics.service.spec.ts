@@ -1,6 +1,7 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { CacheService } from '@cache/cache.service';
 import { AnalyticsRepository, TREND_METRICS } from '@db/repositories/analytics/analytics.repository';
+import { AnalyticsRollupRepository } from '@db/repositories/analytics/analytics-rollup.repository';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
 import { AnalyticsService, DEFAULT_HIT_THRESHOLD } from './analytics.service';
@@ -17,18 +18,25 @@ function build() {
   const cache = {
     getOrSet: jest.fn((_key: string, _ttl: number, fn: () => Promise<unknown>) => fn()),
   };
-  const svc = new AnalyticsService(repo as unknown as AnalyticsRepository, cache as unknown as CacheService);
-  return { svc, repo, cache };
+  const rollups = {
+    getCoverage: jest.fn().mockResolvedValue({ coveredFrom: '2026-09-01', coveredThrough: '2026-09-05', lastRunAt: null }),
+  };
+  const svc = new AnalyticsService(
+    repo as unknown as AnalyticsRepository,
+    cache as unknown as CacheService,
+    rollups as unknown as AnalyticsRollupRepository,
+  );
+  return { svc, repo, cache, rollups };
 }
 
 describe('AnalyticsService', () => {
   describe('resolveWindow', () => {
     const now = new Date('2026-09-25T10:15:42.123Z');
 
-    it('defaults to the last 30 days ending now (floored to the minute)', () => {
+    it('defaults to the last 30 days ending at the end of the current minute', () => {
       const { svc } = build();
       const w = svc.resolveWindow({}, now);
-      expect(w.to).toBe('2026-09-25T10:15:00.000Z');
+      expect(w.to).toBe('2026-09-25T10:16:00.000Z');
       expect(new Date(w.to).getTime() - new Date(w.from).getTime()).toBe(30 * DAY_MS);
     });
 
@@ -62,7 +70,11 @@ describe('AnalyticsService', () => {
     it('passes the resolved window to the repository', async () => {
       const { svc, repo } = build();
       await svc.content('c1', { from: '2026-09-01T00:00:00Z', to: '2026-09-10T00:00:00Z' });
-      expect(repo.content).toHaveBeenCalledWith('c1', { from: '2026-09-01T00:00:00.000Z', to: '2026-09-10T00:00:00.000Z' });
+      expect(repo.content).toHaveBeenCalledWith(
+        'c1',
+        { from: '2026-09-01T00:00:00.000Z', to: '2026-09-10T00:00:00.000Z' },
+        { coveredFrom: '2026-09-01', coveredThrough: '2026-09-05' },
+      );
     });
 
     it('throws NotFound when the content does not exist', async () => {

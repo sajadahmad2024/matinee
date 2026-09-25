@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DBService, DBExecutor } from '@db/db.service';
 import { contentReactions } from '@db/drizzle/schema';
-import { and, eq } from 'drizzle-orm';
+import { and, eq, inArray } from 'drizzle-orm';
 
 export type ReactionKind = 'like' | 'dislike';
 
@@ -44,5 +44,21 @@ export class ReactionRepository {
       .where(and(eq(contentReactions.contentId, contentId), eq(contentReactions.userId, userId)))
       .limit(1);
     return (rows[0]?.reaction as ReactionKind | undefined) ?? null;
+  }
+
+  /** The user's reactions on many contents at once (feed cards) — only rows that exist. */
+  async getUserReactions(userId: string, contentIds: readonly string[], tx?: DBExecutor): Promise<Map<string, ReactionKind>> {
+    const out = new Map<string, ReactionKind>();
+    if (contentIds.length === 0) {
+      return out;
+    }
+    const rows = await this.exec(tx)
+      .select({ contentId: contentReactions.contentId, reaction: contentReactions.reaction })
+      .from(contentReactions)
+      .where(and(eq(contentReactions.userId, userId), inArray(contentReactions.contentId, [...contentIds])));
+    for (const r of rows) {
+      out.set(r.contentId, r.reaction as ReactionKind);
+    }
+    return out;
   }
 }
