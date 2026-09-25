@@ -72,6 +72,49 @@
       }
     }
   },
+  "reelsCommentsTitle": "Comments",
+  "reelsCommentsClose": "Close comments",
+  "reelsCommentsEmpty": "No comments yet",
+  "reelsCommentsInputHint": "Add a comment\u2026",
+  "@reelsCommentsInputHint": {
+    "description": "Placeholder of the comment bar's field at the bottom of the comments sheet."
+  },
+  "reelsCommentsSend": "Send comment",
+  "reelsCommentsReply": "Reply",
+  "reelsCommentsSeeMore": "See more",
+  "@reelsCommentsSeeMore": {
+    "description": "Expands a comment whose text is cut off after a few lines."
+  },
+  "reelsCommentsHandle": "@{handle}",
+  "@reelsCommentsHandle": {
+    "description": "A commenter's handle as the comment card shows it.",
+    "placeholders": {
+      "handle": {
+        "type": "String"
+      }
+    }
+  },
+  "reelsCommentsViewReplies": "{count, plural, =1{View 1 reply} other{View {count} replies}}",
+  "@reelsCommentsViewReplies": {
+    "description": "Expands the replies under a comment.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reelsCommentsHideReplies": "Hide replies",
+  "reelsCommentsViewMoreReplies": "View more replies",
+  "reelsCommentsReplyingTo": "Replying to @{handle}",
+  "@reelsCommentsReplyingTo": {
+    "description": "Shown above the comment field after tapping Reply on a comment.",
+    "placeholders": {
+      "handle": {
+        "type": "String"
+      }
+    }
+  },
+  "reelsCommentsCancelReply": "Cancel reply",
   "reelsInfoAction": "Info",
   "reelsShareAction": "Share",
   "tabPlaceholder": "{tab} is not built yet.",

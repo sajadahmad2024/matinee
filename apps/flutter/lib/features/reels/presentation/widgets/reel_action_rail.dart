@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:matinee/core/assets/app_icon_assets.dart';
 import 'package:matinee/core/l10n/l10n.dart';
@@ -7,6 +10,7 @@ import 'package:matinee/core/theme/app_text_styles.dart';
 import 'package:matinee/core/theme/extensions/build_context_extensions.dart';
 import 'package:matinee/core/widgets/svg_icon.dart';
 import 'package:matinee/features/reels/data/models/reel.dart';
+import 'package:matinee/features/reels/presentation/widgets/comments/comments_preview.dart';
 
 ///
 /// The Home video overlay's action rail: like, comments, info, share, stacked
@@ -52,7 +56,8 @@ class _ReelActionRailState extends State<ReelActionRail> {
           iconColor: icon.primary,
           label: commentCount,
           semanticLabel: l10n.reelsCommentAction(commentCount),
-          onTap: () {},
+          // Sample comments until comments have a data layer; debug only.
+          onTap: kDebugMode ? () => unawaited(showCommentsPreview(context)) : () {},
         ),
         _RailButton(
           asset: AppIconAssets.info,

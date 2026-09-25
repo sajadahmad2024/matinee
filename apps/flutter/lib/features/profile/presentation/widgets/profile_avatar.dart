@@ -1,13 +1,11 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:matinee/core/theme/app_sizes.dart';
 import 'package:matinee/core/theme/extensions/build_context_extensions.dart';
-import 'package:matinee/core/utils/initials.dart';
+import 'package:matinee/core/widgets/app_avatar.dart';
 
 ///
-/// The circular portrait the profile screens open with.
-///
-/// The mock has no photo and a real one can fail, so the initials stand in
-/// rather than an empty disc. [editBadge] adds the edit screen's camera disc.
+/// The profile variant of [AppAvatar], plus the edit screen's camera disc
+/// when [editBadge] is set.
 ///
 class ProfileAvatar extends StatelessWidget {
   const ProfileAvatar({
@@ -32,33 +30,12 @@ class ProfileAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.appColors;
-    final url = imageUrl;
     final avatar = SizedBox.square(
-      dimension: AppAvatarSize.profile,
+      dimension: AppAvatarVariant.profile.size,
       child: Stack(
         children: [
           Positioned.fill(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: colors.card.background,
-                border: Border.all(color: colors.avatar.ring),
-                image: url == null || url.isEmpty ? null : DecorationImage(image: NetworkImage(url), fit: BoxFit.cover),
-              ),
-              child: url == null || url.isEmpty
-                  // Excluded, not labelled: the initials stand in for a photo,
-                  // and the name they are drawn from is announced beside them.
-                  ? ExcludeSemantics(
-                      child: Center(
-                        child: Text(
-                          initialsOf(name),
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(color: colors.text.primary),
-                        ),
-                      ),
-                    )
-                  : null,
-            ),
+            child: AppAvatar(name: name, imageUrl: imageUrl, variant: AppAvatarVariant.profile),
           ),
           if (editBadge) const PositionedDirectional(end: 0, bottom: 0, child: _EditBadge()),
         ],

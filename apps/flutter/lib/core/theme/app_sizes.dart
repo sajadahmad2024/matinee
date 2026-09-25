@@ -35,6 +35,9 @@ abstract final class AppControlHeight {
   static const double button = 32;
   static const double buttonMini = 28;
   static const double input = 52;
+
+  /// The single-line field of the comment bar, shorter than a form input.
+  static const double commentField = 40;
   static const double otpBox = 64;
   static const double chip = 32;
   static const double tag = 20;

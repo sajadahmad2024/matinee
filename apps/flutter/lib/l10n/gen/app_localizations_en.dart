@@ -141,6 +141,57 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get reelsCommentsTitle => 'Comments';
+
+  @override
+  String get reelsCommentsClose => 'Close comments';
+
+  @override
+  String get reelsCommentsEmpty => 'No comments yet';
+
+  @override
+  String get reelsCommentsInputHint => 'Add a comment…';
+
+  @override
+  String get reelsCommentsSend => 'Send comment';
+
+  @override
+  String get reelsCommentsReply => 'Reply';
+
+  @override
+  String get reelsCommentsSeeMore => 'See more';
+
+  @override
+  String reelsCommentsHandle(String handle) {
+    return '@$handle';
+  }
+
+  @override
+  String reelsCommentsViewReplies(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'View $count replies',
+      one: 'View 1 reply',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get reelsCommentsHideReplies => 'Hide replies';
+
+  @override
+  String get reelsCommentsViewMoreReplies => 'View more replies';
+
+  @override
+  String reelsCommentsReplyingTo(String handle) {
+    return 'Replying to @$handle';
+  }
+
+  @override
+  String get reelsCommentsCancelReply => 'Cancel reply';
+
+  @override
   String get reelsInfoAction => 'Info';
 
   @override

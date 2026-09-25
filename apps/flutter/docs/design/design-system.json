@@ -2022,6 +2022,7 @@
    "button": 32,
    "buttonMini": 28,
    "input": 52,
+   "commentField": 40,
    "otpBox": 64,
    "chip": 32,
    "tag": 20,
