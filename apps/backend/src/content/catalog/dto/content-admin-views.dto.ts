@@ -6,6 +6,7 @@ import {
   SponsorshipResponseDto,
 } from '../../extras/dto/content-extras-response.dto';
 import { ContentResponseDto } from './content-response.dto';
+import { AdMetricsDto } from '../../../ads/dto/ads.dto';
 
 export class LinkedGameDto {
   @ApiProperty() id!: string;
@@ -32,6 +33,8 @@ export class ContentFullDto {
   @ApiProperty({ type: ContentResponseDto }) content!: ContentResponseDto;
   @ApiPropertyOptional({ type: LicenseResponseDto, nullable: true }) license!: LicenseResponseDto | null;
   @ApiPropertyOptional({ type: SponsorshipResponseDto, nullable: true }) sponsorship!: SponsorshipResponseDto | null;
+  @ApiPropertyOptional({ type: AdMetricsDto, nullable: true, description: 'Lifetime ad metrics of the active sponsorship' })
+  adPerformance!: AdMetricsDto | null;
   @ApiProperty({ type: RegionsResponseDto }) regions!: RegionsResponseDto;
   @ApiProperty({ type: [ContentHistoryEntryDto] }) history!: ContentHistoryEntryDto[];
   @ApiProperty({ type: LinkedGamesDto }) linkedGames!: LinkedGamesDto;

@@ -1,6 +1,9 @@
 # Admin Content Management API — integration pass
 
 > Status: **implemented** (branch `feat/video-pipeline`). Migration `0020_admin_content_management`.
+> Gap-closing pass (TTLE-227): branch `feat/content-management`, migration
+> `0025_content_metadata_ads` — see §11. Related: [video-metadata.md](./video-metadata.md),
+> [../ads/ad-configuration.md](../ads/ad-configuration.md).
 >
 > Scope: everything the admin panel (`apps/web/src/app/(public)/content/**`, the dashboard, and
 > admin login) needs from the backend that was missing or mismatched after the gap analysis.
@@ -20,6 +23,7 @@
 8. [Schema changes](#8-schema-changes)
 9. [Frontend mapping notes](#9-frontend-mapping-notes)
 10. [Not covered / follow-ups](#10-not-covered--follow-ups)
+11. [TTLE-227 gap-closing pass](#11-ttle-227-gap-closing-pass)
 
 ---
 
@@ -136,8 +140,9 @@ fields plus:
 | `availableUntil` | ISO \| null | Must be in the future when set |
 | `recommendation` | enum | Now accepted on **create** too (`promoted`, `normal`, `deprioritized`) |
 
-Unknown fields are still rejected (`forbidNonWhitelisted`). Studio and cast must be sent as IDs —
-use `GET /v1/admin/content/taxonomy/{studios,people}` for pickers.
+Unknown fields are still rejected (`forbidNonWhitelisted`). Cast must be sent as IDs —
+use `GET /v1/admin/content/taxonomy/{studios,people}` for pickers. Studio and tags may also be
+sent as free text (`studioName`, `tagNames[]`) — see §11.1.
 
 Every create/update/workflow action now writes a `content_change_history` entry.
 
@@ -168,7 +173,8 @@ Clears `scheduledAt` and returns the content to `pending_approval` (needs re-app
 - The feed only ranks a boost while it's **active** (now ≥ `startsAt`, now < `until`) and when
   `channels` is empty, contains `homepage`, or contains `regional` and the viewer's region is a
   live publish region.
-- `notifications` / `subscribers` are stored intent for the notifications pipeline (see §10).
+- `notifications` / `subscribers` fan out an in-app notification campaign once the boost becomes
+  active (see §11.2).
 
 ### Licensing
 
@@ -451,8 +457,8 @@ other endpoint. `new Date(...)` parses it.
 
 ## 10. Not covered / follow-ups
 
-- **Push delivery for boost `notifications` / `subscribers` channels** — stored on the content;
-  the notifications campaign job still needs to consume it.
+- ~~Push delivery for boost `notifications` / `subscribers` channels~~ — done in §11.2 (inbox
+  campaign; FCM push for campaigns is still the notifications module's follow-up).
 - **Multi-frame auto-thumbnails** — the dummy transcoder only writes one poster; real frame
   extraction belongs in the production transcoder. The candidates endpoint picks them up once
   they're stored as `content_media` stills.
@@ -460,3 +466,90 @@ other endpoint. `new Date(...)` parses it.
 - **Revenue by geo** — revenue isn't attributed per view/country.
 - **Dashboard cohorts, K-factor, CAC/LTV, session heatmaps** — outside content management; the
   `trends` endpoint is the base for them.
+
+---
+
+## 11. TTLE-227 gap-closing pass
+
+Migration `0025_content_metadata_ads.sql` (idempotent). Metadata/playback changes are in
+[video-metadata.md](./video-metadata.md); ads in [../ads/ad-configuration.md](../ads/ad-configuration.md).
+
+### 11.1 Free-text studio and tags
+
+`POST /v1/admin/content` and `PATCH /v1/admin/content/:id` also accept:
+
+| Field | Type | Rules |
+|---|---|---|
+| `studioName` | string 1..200 | Trimmed; find-or-create a studio by **case-insensitive** name (non-deleted). Can't be combined with `studioId` (400). `studioName: ""` is rejected; to clear the studio use `studioId: null`. |
+| `tagNames` | string[] ≤ 30, each ≤ 80 | Trimmed; blank entries dropped; de-duplicated case-insensitively; find-or-create each tag by case-insensitive name. Merged with `tagIds` when both are sent; the union replaces the tag set (≤ 30). |
+| `durationSeconds` | int \| null | Manual duration override (see video-metadata.md §1). |
+
+`studioId: null` on `PATCH` now clears the studio.
+
+The comma-separated "Tags" input maps to `tagNames: value.split(',')`.
+
+### 11.2 Boost notifications (`notifications` / `subscribers` channels)
+
+When a boost with the `notifications` and/or `subscribers` channel is **active** (now ≥
+`boostStartsAt`, before `boostedUntil`) and the content is published, a notification campaign is
+created and fanned out through the existing campaign pipeline
+(`NOTIFY_CAMPAIGN_FANOUT` → `user_notifications` inbox rows):
+
+| Channels | Audience |
+|---|---|
+| contains `notifications` | every active customer (`targetType: all`) |
+| only `subscribers` | active customers with an `active` / `trialing` / `past_due` subscription (`targetType: segment`, `targetFilter: { subscribers: true }`) |
+
+- Title `Trending now: <title>`, message = first 200 chars of the description (or a default),
+  category `new_content`, deep link `matinee://content/<id>`.
+- **Idempotent per boost**: an atomic claim sets `contents.boost_notified_at` (and
+  `boost_campaign_id`) — only one sender per boost. Re-saving a boost with the same `startsAt`
+  keeps the claim; a new boost (previously un-boosted, or a different `startsAt`) resets it.
+  Clearing the boost resets it.
+- Triggered immediately by `POST /:id/boost` when the boost is already active, and by the
+  content maintenance cron (every minute) for boosts that start later or content published later.
+- Admin rows expose `boostNotifiedAt`.
+- `segment` campaigns now honour `targetFilter.subscribers = true` (alongside `region`).
+
+### 11.3 Content maintenance cron
+
+`CronName.CONTENT_MAINTENANCE` — every minute, single-flight lock, enqueued to
+`QueueName.CONTENT` / `JobName.CONTENT_MAINTENANCE` (worker). One run:
+
+1. **Boost notifications** (§11.2).
+2. **Expired boosts** — `boosted_until <= now` → `is_boosted = false`, priority 0, window and
+   channels cleared (history entry `boosted`, note "Boost expired").
+3. **Expired sponsorships** — active sponsorships with `ends_at <= now` → `is_active = false`;
+   the content's `is_sponsored` / `is_ad_commercial` are cleared (history entry `updated`).
+4. **Licences** — for the active licence of each content:
+   - `expires_at <= now` → `contents.license_status = 'expired'`; the licence's `renewal_status`
+     becomes `lapsed` unless it is `auto_renew`.
+   - `now < expires_at <= now + 30 days` → `contents.license_status = 'expiring'`.
+   - `expires_at > now + 30 days` (e.g. extended) → back to `licensed`.
+   `PUT /:id/license` computes the same status immediately instead of always writing `licensed`.
+5. Busts the `content` cache when anything changed.
+
+The daily licence reminder now also covers `expiring` content. The feed hides
+`license_status = 'expired'` content; `availableUntil` hiding is unchanged.
+
+### 11.4 New admin row fields
+
+| Field | Notes |
+|---|---|
+| `durationSource` | `media` \| `manual` |
+| `boostNotifiedAt` | ISO \| null |
+| `adImpressions`, `adClicks`, `adCtr`, `adRevenuePer1kImpressionsCents` | Lifetime, active sponsorship — see ads doc §5 |
+| `videoWidth`, `videoHeight` | From the video media |
+
+### 11.5 Content media and playback
+
+- `GET/POST/PUT/DELETE /v1/admin/content/:id/media…` — stills/posters/thumbnails management
+  (video-metadata.md §2).
+- `GET /v1/content/:id/playback` — entitlement-checked playback; customers can no longer fetch
+  content-video playback via `/v1/media/:id/playback` (video-metadata.md §4).
+
+### 11.6 Schema (content part of 0025)
+
+| Table | Change |
+|---|---|
+| `contents` | `boost_notified_at timestamptz`, `boost_campaign_id uuid` (FK `notification_campaigns`, set null), `duration_manual boolean default false` |

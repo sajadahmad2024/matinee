@@ -5,6 +5,7 @@ import {
   ContentTagRef,
   PublishRegion,
 } from '@db/repositories/content/content.repository';
+import type { FeedAd } from '../../../ads/ad.mapper';
 import { ContentResponseDto } from '../dto/content-response.dto';
 
 /** Customer-facing shape — omits operational/admin signals. */
@@ -38,6 +39,36 @@ export function toPublicContent(c: ContentRecord): ContentResponseDto {
   };
 }
 
+/** Batched per-item enrichment for the customer feed/detail card. */
+export interface PublicEnrichment {
+  studioName: string | null;
+  genres: ContentGenreRef[];
+  tags: ContentTagRef[];
+  thumbnailUrl: string | null;
+  videoWidth: number | null;
+  videoHeight: number | null;
+  sponsorName: string | null;
+  /** Commercial descriptor — only for feed-inserted commercials. */
+  commercial?: FeedAd | undefined;
+}
+
+/** Customer shape + mobile-card enrichment (studio, genres, tags, thumbnail, sponsor/commercial). */
+export function toEnrichedPublicContent(c: ContentRecord, e: PublicEnrichment): ContentResponseDto {
+  return {
+    ...toPublicContent(c),
+    studioName: e.studioName,
+    genres: e.genres,
+    tags: e.tags,
+    thumbnailUrl: e.thumbnailUrl,
+    videoWidth: e.videoWidth,
+    videoHeight: e.videoHeight,
+    sponsored: e.commercial !== undefined || e.sponsorName !== null,
+    sponsorName: e.commercial?.sponsorName ?? e.sponsorName,
+    isCommercial: e.commercial !== undefined,
+    ad: e.commercial ?? null,
+  };
+}
+
 /** Boosted and now inside the boost window. */
 export function isBoostActive(c: ContentRecord, now: Date = new Date()): boolean {
   if (!c.isBoosted) return false;
@@ -65,6 +96,8 @@ export function toAdminContent(c: ContentRecord): ContentResponseDto {
     boostedUntil: c.boostedUntil,
     boostChannels: c.boostChannels,
     isBoostActive: isBoostActive(c),
+    boostNotifiedAt: c.boostNotifiedAt,
+    durationSource: c.durationManual ? 'manual' : 'media',
   };
 }
 
@@ -104,5 +137,12 @@ export function toEnrichedAdminContent(c: ContentRecord, e: AdminEnrichment): Co
     unresolvedFlags: s?.unresolvedFlags ?? 0,
     createdBy: c.createdBy ? { id: c.createdBy, name: s?.createdByName ?? null } : null,
     updatedBy: c.updatedBy ? { id: c.updatedBy, name: s?.updatedByName ?? null } : null,
+    videoWidth: s?.videoWidth ?? null,
+    videoHeight: s?.videoHeight ?? null,
+    adImpressions: s?.adImpressions ?? 0,
+    adClicks: s?.adClicks ?? 0,
+    adCtr: (s?.adImpressions ?? 0) > 0 ? Math.round(((s?.adClicks ?? 0) / (s?.adImpressions ?? 1)) * 10_000) / 10_000 : 0,
+    adRevenuePer1kImpressionsCents:
+      (s?.adImpressions ?? 0) > 0 ? Math.round(((s?.adRevenueCents ?? 0) / (s?.adImpressions ?? 1)) * 1000) : 0,
   };
 }

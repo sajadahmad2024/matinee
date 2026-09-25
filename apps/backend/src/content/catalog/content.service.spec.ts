@@ -4,8 +4,12 @@ import { validate } from 'class-validator';
 import { CacheService } from '@cache/cache.service';
 import { ContentExtrasRepository } from '@db/repositories/content/content-extras.repository';
 import { ContentRecord, ContentRepository } from '@db/repositories/content/content.repository';
+import { TaxonomyRepository } from '@db/repositories/content/taxonomy.repository';
+import { AppSettingsRepository } from '@db/repositories/platform/app-settings.repository';
+import { AdEventRepository } from '@db/repositories/ads/ad-event.repository';
 import { MediaService } from '../../media/media.service';
-import { ContentService } from './content.service';
+import { BoostNotifierService } from './boost-notifier.service';
+import { ContentService, normalizeNames } from './content.service';
 import { ContentListQueryDto } from './dto/content-query.dto';
 import { CreateContentDto } from './dto/content-write.dto';
 import { isBoostActive, toEnrichedAdminContent, viewsTrend } from './mappers/content.mapper';
@@ -16,9 +20,9 @@ const G2 = '0190a000-0000-7000-8000-000000000002';
 function record(over: Partial<ContentRecord> = {}): ContentRecord {
   return {
     id: 'c1', title: 'Neon Nights', slug: 'neon-nights-x', description: null, contentType: 'trailer', accessTier: 'free',
-    unlockPoints: null, studioId: null, videoMediaId: null, thumbnailMediaId: null, durationSeconds: 120, language: 'en',
+    unlockPoints: null, studioId: null, videoMediaId: null, thumbnailMediaId: null, durationSeconds: 120, durationManual: false, language: 'en',
     status: 'draft', scheduledAt: null, publishedAt: null, isBoosted: false, boostPriority: 0, boostStartsAt: null,
-    boostedUntil: null, boostChannels: [], recommendation: 'normal', isSponsored: false, isAdCommercial: false,
+    boostedUntil: null, boostChannels: [], boostNotifiedAt: null, recommendation: 'normal', isSponsored: false, isAdCommercial: false,
     rightsRegion: 'global', parentContentId: null, licenseStatus: 'original', licenseExpiresAt: null, licensorName: null,
     licenseTerms: null, availableUntil: null, watchLinks: [], createdBy: 'a1', updatedBy: 'a1', viewCount: 2000,
     likeCount: 0, dislikeCount: 0, commentCount: 0, shareCount: 0, rejectionReason: null,
@@ -41,17 +45,44 @@ function build(current: ContentRecord | null = record()) {
     getGenresFor: jest.fn().mockResolvedValue(new Map()),
     getTagsFor: jest.fn().mockResolvedValue(new Map()),
     getRegionsFor: jest.fn().mockResolvedValue(new Map()),
+    feed: jest.fn().mockResolvedValue({ items: [], total: 0 }),
+    studioNames: jest.fn().mockResolvedValue(new Map()),
   };
-  const history = { recordChange: jest.fn().mockResolvedValue(undefined) };
-  const media = { publicUrls: jest.fn().mockResolvedValue(new Map()) };
-  const cache = { invalidateTag: jest.fn().mockResolvedValue(undefined) };
+  const history = {
+    recordChange: jest.fn().mockResolvedValue(undefined),
+    liveSponsorshipsFor: jest.fn().mockResolvedValue(new Map()),
+  };
+  const media = {
+    publicUrls: jest.fn().mockResolvedValue(new Map()),
+    findRecords: jest.fn().mockResolvedValue(new Map()),
+    urlOf: jest.fn().mockReturnValue(null),
+  };
+  const cache = {
+    invalidateTag: jest.fn().mockResolvedValue(undefined),
+    getOrSetTagged: jest.fn((_k: string, _t: string[], _ttl: number, fn: () => Promise<unknown>) => fn()),
+  };
+  const taxonomy = {
+    findOrCreateStudioByName: jest.fn().mockResolvedValue({ id: 'st1', name: 'Apex Films', created: true }),
+    findOrCreateTagsByNames: jest.fn((names: string[]) =>
+      Promise.resolve(names.map((n, i) => ({ id: `t${i}`, name: n, created: true }))),
+    ),
+  };
+  const settings = { getValue: jest.fn().mockResolvedValue(false) };
+  const boostNotifier = { notifyIfActive: jest.fn().mockResolvedValue(undefined) };
+  const adEvents = { lifetime: jest.fn() };
+  const adSales = { liveCommercials: jest.fn().mockResolvedValue([]) };
   const svc = new ContentService(
     repo as unknown as ContentRepository,
     history as unknown as ContentExtrasRepository,
     media as unknown as MediaService,
     cache as unknown as CacheService,
+    taxonomy as unknown as TaxonomyRepository,
+    settings as unknown as AppSettingsRepository,
+    boostNotifier as unknown as BoostNotifierService,
+    adEvents as unknown as AdEventRepository,
+    adSales as never,
   );
-  return { svc, repo, history, cache };
+  return { svc, repo, history, cache, taxonomy, settings, boostNotifier, adSales };
 }
 
 describe('content mapper', () => {
@@ -179,5 +210,76 @@ describe('ContentService', () => {
     expect(repo.list).toHaveBeenCalledWith(
       expect.objectContaining({ statuses: ['published', 'scheduled'], region: 'EU', sort: 'most_viewed', page: 1, limit: 20 }),
     );
+  });
+
+  it('studioName: find-or-create, and not together with studioId', async () => {
+    const { svc, repo, taxonomy } = build();
+    await expect(svc.create('a1', { title: 'X', studioId: G1, studioName: 'Apex' })).rejects.toThrow(/either studioId or studioName/);
+    await svc.create('a1', { title: 'X', studioName: 'Apex Films' });
+    expect(taxonomy.findOrCreateStudioByName).toHaveBeenCalledWith('Apex Films');
+    expect(repo.createWithRelations).toHaveBeenCalledWith(expect.objectContaining({ studioId: 'st1' }), expect.anything());
+    expect(repo.createWithRelations.mock.calls[0]?.[0]).not.toHaveProperty('studioName');
+  });
+
+  it('tagNames are normalized, find-or-created and merged with tagIds', async () => {
+    const { svc, repo, taxonomy } = build();
+    await svc.update('a1', 'c1', { tagIds: [G1], tagNames: [' Noir ', 'noir', 'Heist', ''] });
+    expect(taxonomy.findOrCreateTagsByNames).toHaveBeenCalledWith(['Noir', 'Heist']);
+    expect(repo.updateWithRelations).toHaveBeenCalledWith('c1', expect.anything(), expect.objectContaining({ tagIds: [G1, 't0', 't1'] }));
+  });
+
+  it('durationSeconds: number = manual override, null = back to media', async () => {
+    const { svc, repo } = build();
+    await svc.update('a1', 'c1', { durationSeconds: 95 });
+    expect(repo.updateWithRelations.mock.calls[0]?.[1]).toMatchObject({ durationSeconds: 95, durationManual: true });
+    await svc.update('a1', 'c1', { durationSeconds: null });
+    expect(repo.updateWithRelations.mock.calls[1]?.[1]).toMatchObject({ durationManual: false });
+    expect(repo.updateWithRelations.mock.calls[1]?.[1]).not.toHaveProperty('durationSeconds');
+  });
+
+  it('boost with a notifications channel triggers the notifier', async () => {
+    const { svc, repo, boostNotifier } = build();
+    repo.setBoost.mockResolvedValueOnce(record({ isBoosted: true, boostChannels: ['notifications'] }));
+    await svc.boost('a1', 'c1', { channels: ['notifications'] });
+    expect(boostNotifier.notifyIfActive).toHaveBeenCalledWith('c1');
+    await svc.boost('a1', 'c1', { channels: ['homepage'] });
+    expect(boostNotifier.notifyIfActive).toHaveBeenCalledTimes(1);
+  });
+
+  it('feed enriches items and inserts commercials only when the flag is on', async () => {
+    const { svc, repo, history, settings, adSales } = build();
+    const organic = Array.from({ length: 4 }, (_, i) => record({ id: `o${i}`, status: 'published', studioId: 's1' }));
+    repo.feed.mockResolvedValue({ items: organic, total: 4 });
+    repo.studioNames.mockResolvedValue(new Map([['s1', 'Apex Films']]));
+    history.liveSponsorshipsFor.mockResolvedValue(new Map([['o1', { sponsorName: 'Nike', bannerMediaId: null }]]));
+    const spot = {
+      campaign: {
+        id: 'ad1', name: 'Coke Summer', creativeMediaId: 'm1', clickUrl: null, ctaLabel: 'Buy', durationSeconds: 15,
+        skippableAfterSeconds: 5, feedFrequency: 2, weight: 1, endsAt: null, createdAt: 'x', updatedAt: 'x',
+      },
+      advertiserName: 'Coke',
+      advertiserLogoMediaId: null,
+    };
+    adSales.liveCommercials.mockResolvedValue([spot]);
+
+    const off = await svc.feed({ page: 1, limit: 4 });
+    expect(off.items.map((i) => i.id)).toEqual(['o0', 'o1', 'o2', 'o3']);
+    expect(off.items[0]).toMatchObject({ studioName: 'Apex Films', isCommercial: false, sponsored: false });
+    expect(off.items[1]).toMatchObject({ sponsored: true, sponsorName: 'Nike' });
+
+    settings.getValue.mockResolvedValue(true);
+    const on = await svc.feed({ page: 1, limit: 4 });
+    expect(on.items.map((i) => i.id)).toEqual(['o0', 'o1', 'ad1', 'o2', 'o3', 'ad1']);
+    expect(on.items[2]).toMatchObject({
+      isCommercial: true, contentType: 'commercial', sponsored: true, sponsorName: 'Coke',
+      ad: expect.objectContaining({ campaignId: 'ad1', sponsorshipId: null, skippableAfterSeconds: 5, ctaLabel: 'Buy' }),
+    });
+    expect(on.pagination.totalCount).toBe(4);
+  });
+});
+
+describe('normalizeNames', () => {
+  it('trims, drops empties, dedupes case-insensitively', () => {
+    expect(normalizeNames([' a ', 'A', '', 'b'])).toEqual(['a', 'b']);
   });
 });

@@ -28,6 +28,7 @@ export enum RouteNames {
   MEDIA = 'media',
   LOCAL_CDN = '__local-cdn', // dev-only CDN stand-in (MediaModule → LocalCdnController)
   CONTENT = 'content',
+  ADS = 'ads',
   NOTIFICATIONS = 'notifications',
   AI = 'ai',
   WEBHOOKS = 'webhooks',

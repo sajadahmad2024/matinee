@@ -39,6 +39,14 @@ export class SponsorshipResponseDto {
   @ApiProperty({ enum: ['sponsored', 'commercial'] }) adFormat!: string;
   @ApiPropertyOptional({ nullable: true }) feedFrequency!: number | null;
   @ApiPropertyOptional({ nullable: true }) skippableAfterSeconds!: number | null;
+  @ApiPropertyOptional({ nullable: true }) creativeMediaId!: string | null;
+  @ApiPropertyOptional({ nullable: true }) clickUrl!: string | null;
+  @ApiPropertyOptional({ nullable: true }) ctaLabel!: string | null;
+  @ApiPropertyOptional({ nullable: true }) midRollAtSeconds!: number | null;
+  @ApiPropertyOptional({ nullable: true }) overlayStartSeconds!: number | null;
+  @ApiPropertyOptional({ nullable: true }) overlayDurationSeconds!: number | null;
+  @ApiPropertyOptional({ nullable: true }) cpmCents!: number | null;
+  @ApiPropertyOptional({ nullable: true }) cpcCents!: number | null;
 }
 
 export class RegionItemDto {

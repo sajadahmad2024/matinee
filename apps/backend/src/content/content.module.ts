@@ -12,6 +12,10 @@ import { AdminContentExtrasController } from './extras/admin-content-extras.cont
 import { ContentExtrasService } from './extras/content-extras.service';
 import { AccessController } from './access/access.controller';
 import { AccessService } from './access/access.service';
+import { ContentPlaybackController } from './access/content-playback.controller';
+import { BoostNotifierService } from './catalog/boost-notifier.service';
+import { AdminContentMediaController } from './media/admin-content-media.controller';
+import { ContentMediaService } from './media/content-media.service';
 
 /**
  * Content module — catalog + customer feed + admin review/publish workflow + taxonomy +
@@ -26,11 +30,21 @@ import { AccessService } from './access/access.service';
     AdminContentInsightsController,
     AdminContentController,
     AdminContentExtrasController,
+    AdminContentMediaController,
     TaxonomyController,
     AdminTaxonomyController,
     AccessController,
+    ContentPlaybackController,
   ],
-  providers: [ContentService, TaxonomyService, ContentExtrasService, AccessService, ContentInsightsService],
-  exports: [ContentService, TaxonomyService, ContentExtrasService, AccessService],
+  providers: [
+    ContentService,
+    TaxonomyService,
+    ContentExtrasService,
+    AccessService,
+    ContentInsightsService,
+    BoostNotifierService,
+    ContentMediaService,
+  ],
+  exports: [ContentService, TaxonomyService, ContentExtrasService, AccessService, BoostNotifierService],
 })
 export class ContentModule {}

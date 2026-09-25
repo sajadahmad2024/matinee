@@ -7,8 +7,9 @@ import {
   contentChangeHistory,
   contentMedia,
   contents,
+  mediaMetadata,
 } from '@db/drizzle/schema';
-import { and, asc, eq, inArray, sql } from 'drizzle-orm';
+import { and, asc, eq, inArray, isNull, sql } from 'drizzle-orm';
 import { PublishRegion, userDisplayName } from './content.repository';
 
 export interface LicenseInput {
@@ -36,6 +37,31 @@ export interface SponsorshipInput {
   currency?: string | undefined;
   startsAt?: string | undefined;
   endsAt?: string | undefined;
+  creativeMediaId?: string | undefined;
+  clickUrl?: string | undefined;
+  ctaLabel?: string | undefined;
+  midRollAtSeconds?: number | undefined;
+  overlayStartSeconds?: number | undefined;
+  overlayDurationSeconds?: number | undefined;
+  cpmCents?: number | undefined;
+  cpcCents?: number | undefined;
+  advertiserId?: string | undefined;
+  campaignId?: string | undefined;
+}
+
+export type SponsorshipRow = typeof contentSponsorships.$inferSelect;
+
+/** A `content_media` attachment joined to its media row. */
+export interface ContentMediaItem {
+  id: string;
+  mediaId: string;
+  kind: string;
+  sortOrder: number;
+  timecodeSeconds: number | null;
+  createdAt: string;
+  mediaStatus: string;
+  width: number | null;
+  height: number | null;
 }
 
 /** History entry joined to the acting admin's display name + role(s). */
@@ -92,13 +118,18 @@ export class ContentExtrasRepository {
           createdBy,
         })
         .returning();
+      // Status follows the expiry right away (the maintenance cron keeps it in sync afterwards).
+      const expires = input.expiresAt ?? null;
       await tx
         .update(contents)
         .set({
-          licenseStatus: 'licensed',
+          licenseStatus: sql`case when ${expires}::timestamptz is null then 'licensed'
+            when ${expires}::timestamptz <= now() then 'expired'
+            when ${expires}::timestamptz <= now() + interval '30 days' then 'expiring'
+            else 'licensed' end`,
           licensorName: input.licensorName,
-          ...(input.expiresAt ? { licenseExpiresAt: input.expiresAt } : {}),
-          ...(input.terms ? { licenseTerms: input.terms } : {}),
+          licenseExpiresAt: expires,
+          licenseTerms: input.terms ?? null,
           updatedAt: sql`now()`,
         })
         .where(eq(contents.id, contentId));
@@ -154,6 +185,16 @@ export class ContentExtrasRepository {
           ...(input.currency ? { currency: input.currency } : {}),
           ...(input.startsAt ? { startsAt: input.startsAt } : {}),
           ...(input.endsAt ? { endsAt: input.endsAt } : {}),
+          ...(input.creativeMediaId ? { creativeMediaId: input.creativeMediaId } : {}),
+          ...(input.clickUrl ? { clickUrl: input.clickUrl } : {}),
+          ...(input.ctaLabel ? { ctaLabel: input.ctaLabel } : {}),
+          ...(input.midRollAtSeconds !== undefined ? { midRollAtSeconds: input.midRollAtSeconds } : {}),
+          ...(input.overlayStartSeconds !== undefined ? { overlayStartSeconds: input.overlayStartSeconds } : {}),
+          ...(input.overlayDurationSeconds !== undefined ? { overlayDurationSeconds: input.overlayDurationSeconds } : {}),
+          ...(input.cpmCents !== undefined ? { cpmCents: input.cpmCents } : {}),
+          ...(input.cpcCents !== undefined ? { cpcCents: input.cpcCents } : {}),
+          ...(input.advertiserId ? { advertiserId: input.advertiserId } : {}),
+          ...(input.campaignId ? { campaignId: input.campaignId } : {}),
           createdBy,
         })
         .returning();
@@ -179,6 +220,56 @@ export class ContentExtrasRepository {
         .where(eq(contents.id, contentId));
       return rows.length > 0;
     });
+  }
+
+  /** Active sponsorship that is inside its deal dates right now (null otherwise). */
+  async getLiveSponsorship(contentId: string, tx?: DBExecutor): Promise<SponsorshipRow | null> {
+    const map = await this.liveSponsorshipsFor([contentId], tx);
+    return map.get(contentId) ?? null;
+  }
+
+  /** Live (active + within dates) sponsorships for many contents → map keyed by contentId. */
+  async liveSponsorshipsFor(contentIds: string[], tx?: DBExecutor): Promise<Map<string, SponsorshipRow>> {
+    const ids = [...new Set(contentIds)];
+    if (ids.length === 0) {
+      return new Map();
+    }
+    const rows = await this.exec(tx)
+      .select()
+      .from(contentSponsorships)
+      .where(
+        and(
+          inArray(contentSponsorships.contentId, ids),
+          eq(contentSponsorships.isActive, true),
+          sql`(${contentSponsorships.startsAt} is null or ${contentSponsorships.startsAt} <= now())`,
+          sql`(${contentSponsorships.endsAt} is null or ${contentSponsorships.endsAt} > now())`,
+        ),
+      );
+    return new Map(rows.map((r) => [r.contentId, r]));
+  }
+
+  /**
+   * Deactivate active sponsorships past `ends_at` and clear the sponsor flags on their contents
+   * (unless another active sponsorship remains). Returns the affected content ids.
+   */
+  async expireSponsorships(tx?: DBExecutor): Promise<string[]> {
+    const run = async (db: DBExecutor) => {
+      const rows = await db
+        .update(contentSponsorships)
+        .set({ isActive: false, updatedAt: sql`now()` })
+        .where(and(eq(contentSponsorships.isActive, true), sql`${contentSponsorships.endsAt} <= now()`))
+        .returning({ contentId: contentSponsorships.contentId });
+      const ids = [...new Set(rows.map((r) => r.contentId))];
+      if (ids.length > 0) {
+        await db.execute(sql`
+          update contents c set is_sponsored = false, is_ad_commercial = false, updated_at = now()
+           where ${inArray(sql`c.id`, ids)}
+             and not exists (select 1 from content_sponsorships s where s.content_id = c.id and s.is_active)
+        `);
+      }
+      return ids;
+    };
+    return tx ? run(tx) : this.dbService.transaction(run);
   }
 
   // ─── Publish regions (availability M2M, per-region live toggle) ──────────────
@@ -209,6 +300,76 @@ export class ContentExtrasRepository {
       .from(contentMedia)
       .where(and(eq(contentMedia.contentId, contentId), inArray(contentMedia.kind, kinds)))
       .orderBy(asc(contentMedia.sortOrder));
+  }
+
+  /** Attachments of a content with their media status/dimensions, in display order. */
+  async listContentMediaItems(contentId: string, tx?: DBExecutor): Promise<ContentMediaItem[]> {
+    const rows = await this.exec(tx)
+      .select({
+        id: contentMedia.id,
+        mediaId: contentMedia.mediaId,
+        kind: contentMedia.kind,
+        sortOrder: contentMedia.sortOrder,
+        timecodeSeconds: contentMedia.timecodeSeconds,
+        createdAt: contentMedia.createdAt,
+        mediaStatus: mediaMetadata.status,
+        width: mediaMetadata.width,
+        height: mediaMetadata.height,
+      })
+      .from(contentMedia)
+      .innerJoin(mediaMetadata, and(eq(mediaMetadata.id, contentMedia.mediaId), isNull(mediaMetadata.deletedAt)))
+      .where(eq(contentMedia.contentId, contentId))
+      .orderBy(asc(contentMedia.sortOrder), asc(contentMedia.createdAt));
+    return rows.map((r) => ({ ...r, timecodeSeconds: r.timecodeSeconds === null ? null : Number(r.timecodeSeconds) }));
+  }
+
+  /** Attach a media. Returns null when it is already attached (unique content+media). */
+  async addContentMedia(
+    contentId: string,
+    input: { mediaId: string; kind: string; sortOrder?: number | undefined; timecodeSeconds?: number | undefined },
+    tx?: DBExecutor,
+  ): Promise<string | null> {
+    const rows = await this.exec(tx)
+      .insert(contentMedia)
+      .values({
+        contentId,
+        mediaId: input.mediaId,
+        kind: input.kind,
+        sortOrder:
+          input.sortOrder ??
+          sql`(select coalesce(max(sort_order) + 1, 0) from content_media where content_id = ${contentId})`,
+        ...(input.timecodeSeconds !== undefined ? { timecodeSeconds: String(input.timecodeSeconds) } : {}),
+      })
+      .onConflictDoNothing({ target: [contentMedia.contentId, contentMedia.mediaId] })
+      .returning({ id: contentMedia.id });
+    return rows[0]?.id ?? null;
+  }
+
+  async removeContentMedia(contentId: string, mediaId: string, tx?: DBExecutor): Promise<boolean> {
+    const rows = await this.exec(tx)
+      .delete(contentMedia)
+      .where(and(eq(contentMedia.contentId, contentId), eq(contentMedia.mediaId, mediaId)))
+      .returning({ id: contentMedia.id });
+    return rows.length > 0;
+  }
+
+  /** Listed media get sort 0..n-1 (in order); the rest keep their relative order after them. */
+  async reorderContentMedia(contentId: string, mediaIds: string[]): Promise<void> {
+    await this.dbService.transaction(async (tx) => {
+      const current = await tx
+        .select({ mediaId: contentMedia.mediaId })
+        .from(contentMedia)
+        .where(eq(contentMedia.contentId, contentId))
+        .orderBy(asc(contentMedia.sortOrder), asc(contentMedia.createdAt));
+      const rest = current.map((c) => c.mediaId).filter((id) => !mediaIds.includes(id));
+      const order = [...mediaIds, ...rest];
+      for (let i = 0; i < order.length; i++) {
+        await tx
+          .update(contentMedia)
+          .set({ sortOrder: i })
+          .where(and(eq(contentMedia.contentId, contentId), eq(contentMedia.mediaId, order[i]!)));
+      }
+    });
   }
 
   // ─── Workflow / change history ──────────────────────────────────────────────

@@ -40,6 +40,19 @@ export class ActorRefDto {
   @ApiPropertyOptional({ nullable: true }) name!: string | null;
 }
 
+/** Commercial / sponsor descriptor on a feed item. */
+export class FeedAdDto {
+  @ApiPropertyOptional({ nullable: true, description: 'Legacy commercial sponsorship' }) sponsorshipId!: string | null;
+  @ApiPropertyOptional({ nullable: true, description: 'Commercial campaign → GET /v1/ads/commercials/:campaignId for the creative' })
+  campaignId!: string | null;
+  @ApiProperty() sponsorName!: string;
+  @ApiPropertyOptional({ nullable: true }) bannerUrl!: string | null;
+  @ApiPropertyOptional({ nullable: true }) clickUrl!: string | null;
+  @ApiPropertyOptional({ nullable: true }) ctaLabel!: string | null;
+  @ApiProperty() adDurationSeconds!: number;
+  @ApiPropertyOptional({ nullable: true }) skippableAfterSeconds!: number | null;
+}
+
 /** Public-facing content shape (feed item + detail; admin reuses with extra fields). */
 export class ContentResponseDto {
   @ApiProperty() id!: string;
@@ -68,7 +81,21 @@ export class ContentResponseDto {
   @ApiProperty() commentCount!: number;
   @ApiProperty() shareCount!: number;
 
+  // public enrichment (feed + detail; admin rows carry them too)
+  @ApiPropertyOptional({ nullable: true, description: 'Video media width (px)' }) videoWidth?: number | null;
+  @ApiPropertyOptional({ nullable: true, description: 'Video media height (px)' }) videoHeight?: number | null;
+  @ApiPropertyOptional({ description: 'Has a live sponsorship ("Sponsored by")' }) sponsored?: boolean;
+  @ApiPropertyOptional({ description: 'Feed-inserted commercial (ad slot), not organic content' }) isCommercial?: boolean;
+  @ApiPropertyOptional({ type: FeedAdDto, nullable: true, description: 'Commercial descriptor (isCommercial items only)' })
+  ad?: FeedAdDto | null;
+
   // admin-only signals (present on admin endpoints)
+  @ApiPropertyOptional({ enum: ['media', 'manual'] }) durationSource?: string;
+  @ApiPropertyOptional({ nullable: true, description: 'When the boost notifications campaign was claimed' }) boostNotifiedAt?: string | null;
+  @ApiPropertyOptional({ description: 'Lifetime ad impressions (active sponsorship)' }) adImpressions?: number;
+  @ApiPropertyOptional({ description: 'Lifetime ad clicks (active sponsorship)' }) adClicks?: number;
+  @ApiPropertyOptional({ description: 'clicks / impressions (0..1)' }) adCtr?: number;
+  @ApiPropertyOptional({ description: 'Sponsorship revenue per 1K ad impressions, in cents' }) adRevenuePer1kImpressionsCents?: number;
   @ApiPropertyOptional() recommendation?: string;
   @ApiPropertyOptional() isSponsored?: boolean;
   @ApiPropertyOptional() isAdCommercial?: boolean;

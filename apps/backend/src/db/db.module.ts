@@ -53,6 +53,8 @@ import { AppSettingsRepository } from './repositories/platform/app-settings.repo
 import { AdminAuditRepository } from './repositories/platform/admin-audit.repository';
 import { GamesMetaRepository } from './repositories/games/games-meta.repository';
 import { EventRepository } from './repositories/events/event.repository';
+import { AdEventRepository } from './repositories/ads/ad-event.repository';
+import { AdSalesRepository } from './repositories/ads/ad-sales.repository';
 
 const repositories = [
   UsersRepository,
@@ -105,6 +107,8 @@ const repositories = [
   AdminAuditRepository,
   GamesMetaRepository,
   EventRepository,
+  AdEventRepository,
+  AdSalesRepository,
 ];
 
 @Global()

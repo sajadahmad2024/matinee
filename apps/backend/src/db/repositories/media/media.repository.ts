@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { DBService, DBExecutor } from '@db/db.service';
-import { mediaMetadata, mediaStatusEvents } from '@db/drizzle/schema';
+import { contents, mediaMetadata, mediaStatusEvents } from '@db/drizzle/schema';
 import { and, asc, eq, inArray, isNull, lt, notInArray, sql } from 'drizzle-orm';
 import { AccessLevel, MediaStatus, MediaType, UsageType } from '@media/constants/media.constant';
 
@@ -163,7 +163,11 @@ export class MediaRepository {
    */
   async markUploaded(
     id: string,
-    data: { fileSizeBytes?: number | undefined; checksum?: string | undefined; mimeType?: string | undefined },
+    data: {
+      fileSizeBytes?: number | undefined;
+      checksum?: string | undefined;
+      mimeType?: string | undefined;
+    },
     tx?: DBExecutor,
   ): Promise<MediaRecord | null> {
     return this.inTx(tx, async (t) => {
@@ -287,6 +291,64 @@ export class MediaRepository {
       await this.logEvent(id, MediaStatus.FAILED, error.slice(0, 500), undefined, t);
       return true;
     });
+  }
+
+  /**
+   * Fill probe metadata (client-probed duration/resolution) into columns that are still empty —
+   * never overwrites a value the transcoder (or an admin) already wrote.
+   */
+  async fillProbe(
+    id: string,
+    probe: { durationSeconds?: number | undefined; width?: number | undefined; height?: number | undefined },
+    tx?: DBExecutor,
+  ): Promise<void> {
+    if (probe.durationSeconds === undefined && probe.width === undefined && probe.height === undefined) {
+      return;
+    }
+    await this.exec(tx)
+      .update(mediaMetadata)
+      .set({
+        ...(probe.durationSeconds !== undefined
+          ? { durationSeconds: sql`coalesce(${mediaMetadata.durationSeconds}, ${String(probe.durationSeconds)}::numeric)` }
+          : {}),
+        ...(probe.width !== undefined ? { width: sql`coalesce(${mediaMetadata.width}, ${probe.width}::int)` } : {}),
+        ...(probe.height !== undefined ? { height: sql`coalesce(${mediaMetadata.height}, ${probe.height}::int)` } : {}),
+        updatedAt: sql`now()`,
+      })
+      .where(and(eq(mediaMetadata.id, id), isNull(mediaMetadata.deletedAt)));
+  }
+
+  /** Admin metadata edit (null clears). Returns the updated row, or null when missing. */
+  async updateMetadata(
+    id: string,
+    patch: {
+      durationSeconds?: number | null | undefined;
+      width?: number | null | undefined;
+      height?: number | null | undefined;
+      altText?: string | null | undefined;
+    },
+    tx?: DBExecutor,
+  ): Promise<MediaRecord | null> {
+    const rows = await this.exec(tx)
+      .update(mediaMetadata)
+      .set({
+        ...(patch.durationSeconds !== undefined
+          ? { durationSeconds: patch.durationSeconds === null ? null : String(patch.durationSeconds) }
+          : {}),
+        ...(patch.width !== undefined ? { width: patch.width } : {}),
+        ...(patch.height !== undefined ? { height: patch.height } : {}),
+        ...(patch.altText !== undefined ? { altText: patch.altText } : {}),
+        updatedAt: sql`now()`,
+      })
+      .where(and(eq(mediaMetadata.id, id), isNull(mediaMetadata.deletedAt)))
+      .returning();
+    return this.map(rows[0]);
+  }
+
+  /** Is this media the video of any content (playback must then go through content entitlement)? */
+  async isContentVideo(id: string, tx?: DBExecutor): Promise<boolean> {
+    const rows = await this.exec(tx).select({ id: contents.id }).from(contents).where(eq(contents.videoMediaId, id)).limit(1);
+    return rows.length > 0;
   }
 
   async setDeliveryPrefix(id: string, deliveryPrefix: string, tx?: DBExecutor): Promise<void> {

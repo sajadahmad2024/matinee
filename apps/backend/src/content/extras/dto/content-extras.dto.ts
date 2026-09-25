@@ -8,6 +8,7 @@ import {
   IsISO8601,
   IsOptional,
   IsString,
+  IsUrl,
   IsUUID,
   Max,
   MaxLength,
@@ -32,7 +33,11 @@ export class LicenseDto {
 }
 
 export class SponsorshipDto {
-  @ApiPropertyOptional({ enum: ['sponsored', 'commercial'], default: 'sponsored' })
+  @ApiPropertyOptional({
+    enum: ['sponsored', 'commercial'],
+    default: 'sponsored',
+    description: '`commercial` is rejected — feed commercials are Ad Sales campaigns (POST /v1/admin/ads/campaigns)',
+  })
   @IsOptional() @IsIn(['sponsored', 'commercial']) adFormat?: string;
   @ApiProperty({ example: 'Nike' }) @IsString() @MinLength(1) @MaxLength(200) sponsorName!: string;
   @ApiPropertyOptional({ description: 'Sponsor banner/logo media id' }) @IsOptional() @IsUUID() bannerMediaId?: string;
@@ -55,6 +60,19 @@ export class SponsorshipDto {
   @IsOptional() @IsISO8601() endsAt?: string;
   @ApiPropertyOptional({ minimum: 1, maximum: 3650, description: 'Convenience: endsAt = (startsAt ?? now) + N days (ignored when endsAt is sent)' })
   @IsOptional() @IsInt() @Min(1) @Max(3650) overlayDays?: number;
+  @ApiPropertyOptional({ description: 'Video creative for a roll ad (video media id)' }) @IsOptional() @IsUUID() creativeMediaId?: string;
+  @ApiPropertyOptional({ example: 'https://nike.com/run' })
+  @IsOptional() @IsUrl({ protocols: ['https'], require_protocol: true }) @MaxLength(500) clickUrl?: string;
+  @ApiPropertyOptional({ example: 'Shop now' }) @IsOptional() @IsString() @MinLength(1) @MaxLength(40) ctaLabel?: string;
+  @ApiPropertyOptional({ description: 'Mid-roll cue point (required for placement=mid-roll)' }) @IsOptional() @IsInt() @Min(0) midRollAtSeconds?: number;
+  @ApiPropertyOptional({ description: 'Overlay window start inside the video' }) @IsOptional() @IsInt() @Min(0) overlayStartSeconds?: number;
+  @ApiPropertyOptional({ description: 'Overlay window length (default: whole video)' }) @IsOptional() @IsInt() @Min(1) overlayDurationSeconds?: number;
+  @ApiPropertyOptional({ description: 'Variable revenue per 1000 impressions (cents)' }) @IsOptional() @IsInt() @Min(0) cpmCents?: number;
+  @ApiPropertyOptional({ description: 'Variable revenue per click (cents)' }) @IsOptional() @IsInt() @Min(0) cpcCents?: number;
+  @ApiPropertyOptional({ format: 'uuid', description: 'Ad Sales advertiser (default: find-or-create by sponsorName)' })
+  @IsOptional() @IsUUID() advertiserId?: string;
+  @ApiPropertyOptional({ format: 'uuid', description: 'Ad Sales sponsorship campaign this deal belongs to (same advertiser)' })
+  @IsOptional() @IsUUID() campaignId?: string;
 }
 
 export class SetRegionsDto {

@@ -17,6 +17,7 @@ import { EnvConfig } from '@config/env.config';
 import { AuthModule } from './auth/auth.module';
 import { MediaModule } from './media/media.module';
 import { ContentModule } from './content/content.module';
+import { AdsModule } from './ads/ads.module';
 import { ProfileModule } from './profile/profile.module';
 import { EngagementModule } from './engagement/engagement.module';
 import { TokenomicsModule } from './tokenomics/tokenomics.module';
@@ -86,7 +87,7 @@ export async function bootstrap(): Promise<void> {
   //   3. The new docs will be available at /api/v{n}
   // ─────────────────────────────────────────────────────────────────────────────
 
-  const V1_MODULES = [AuthModule, MediaModule, ContentModule, ProfileModule, EngagementModule, TokenomicsModule, ProgressionModule, RedemptionModule, SubscriptionsModule, BadgesModule, GamesModule, ModerationModule, AnalyticsModule, NotificationsModule, PlatformModule, EventsModule];
+  const V1_MODULES = [AuthModule, MediaModule, ContentModule, AdsModule, ProfileModule, EngagementModule, TokenomicsModule, ProgressionModule, RedemptionModule, SubscriptionsModule, BadgesModule, GamesModule, ModerationModule, AnalyticsModule, NotificationsModule, PlatformModule, EventsModule];
 
   if (!isProd) {
     // V1 API docs at /api/v1

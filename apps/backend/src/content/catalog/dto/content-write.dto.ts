@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   ArrayMaxSize,
   ArrayUnique,
@@ -12,6 +12,7 @@ import {
   IsString,
   IsUrl,
   IsUUID,
+  Max,
   MaxLength,
   Min,
   MinLength,
@@ -84,10 +85,27 @@ export class CreateContentDto {
   @Min(0)
   unlockPoints?: number;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ nullable: true, description: 'Studio id; null clears (update). Use studioName for free text.' })
   @IsOptional()
+  @ValidateIf((_o, v) => v !== null)
   @IsUUID()
-  studioId?: string;
+  studioId?: string | null;
+
+  @ApiPropertyOptional({ example: 'Apex Films', description: 'Free-text studio — find-or-create (case-insensitive). Not with studioId.' })
+  @IsOptional()
+  @Transform(({ value }: { value: unknown }) => (typeof value === 'string' ? value.trim() : value))
+  @IsString()
+  @MinLength(1)
+  @MaxLength(200)
+  studioName?: string;
+
+  @ApiPropertyOptional({ nullable: true, minimum: 0, maximum: 86400, description: 'Manual duration override; null returns to the video media duration' })
+  @IsOptional()
+  @ValidateIf((_o, v) => v !== null)
+  @IsInt()
+  @Min(0)
+  @Max(86400)
+  durationSeconds?: number | null;
 
   @ApiPropertyOptional({ description: 'HLS video media id' })
   @IsOptional()
@@ -140,6 +158,18 @@ export class CreateContentDto {
   @ArrayUnique()
   @IsUUID('all', { each: true })
   tagIds?: string[];
+
+  @ApiPropertyOptional({ type: [String], example: ['noir', 'heist'], description: 'Free-text tags (≤30) — find-or-create, merged with tagIds' })
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(30)
+  // "a, b, ,c".split(',') friendly: entries are trimmed and blanks dropped
+  @Transform(({ value }: { value: unknown }) =>
+    Array.isArray(value) ? value.map((v) => (typeof v === 'string' ? v.trim() : v)).filter((v) => v !== '') : value,
+  )
+  @IsString({ each: true })
+  @MaxLength(80, { each: true })
+  tagNames?: string[];
 
   @ApiPropertyOptional({ type: [CastMemberInputDto], description: 'Full cast list (≤100); replaces when present' })
   @IsOptional()

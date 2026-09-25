@@ -43,6 +43,8 @@ export interface ContentRecord {
   videoMediaId: string | null;
   thumbnailMediaId: string | null;
   durationSeconds: number | null;
+  /** true when an admin set durationSeconds by hand (media updates no longer overwrite it) */
+  durationManual: boolean;
   language: string | null;
   status: string;
   scheduledAt: string | null;
@@ -52,6 +54,8 @@ export interface ContentRecord {
   boostStartsAt: string | null;
   boostedUntil: string | null;
   boostChannels: string[];
+  /** When the notifications/subscribers campaign for the current boost was claimed. */
+  boostNotifiedAt: string | null;
   recommendation: string;
   isSponsored: boolean;
   isAdCommercial: boolean;
@@ -82,9 +86,11 @@ export interface CreateContentInput {
   contentType?: string | undefined;
   accessTier?: string | undefined;
   unlockPoints?: number | undefined;
-  studioId?: string | undefined;
+  studioId?: string | null | undefined;
   videoMediaId?: string | undefined;
   thumbnailMediaId?: string | undefined;
+  durationSeconds?: number | undefined;
+  durationManual?: boolean | undefined;
   language?: string | undefined;
   rightsRegion?: string | undefined;
   parentContentId?: string | undefined;
@@ -111,6 +117,8 @@ export type UpdateContentInput = Partial<
     | 'recommendation'
     | 'watchLinks'
     | 'availableUntil'
+    | 'durationSeconds'
+    | 'durationManual'
   >
 > & { updatedBy?: string | undefined };
 
@@ -161,6 +169,21 @@ export interface AdminContentSignals {
   unresolvedFlags: number;
   createdByName: string | null;
   updatedByName: string | null;
+  /** Lifetime ad metrics of the active sponsorship (absent when unknown). */
+  adImpressions?: number;
+  adClicks?: number;
+  adRevenueCents?: number;
+  videoWidth?: number | null;
+  videoHeight?: number | null;
+}
+
+
+/** A content whose active boost has just been claimed for its notifications campaign. */
+export interface BoostNotificationClaim {
+  id: string;
+  title: string;
+  description: string | null;
+  boostChannels: string[];
 }
 
 export type ContentSort =
@@ -249,6 +272,7 @@ export class ContentRepository {
       videoMediaId: row.videoMediaId,
       thumbnailMediaId: row.thumbnailMediaId,
       durationSeconds: row.durationSeconds,
+      durationManual: row.durationManual,
       language: row.language,
       status: row.status,
       scheduledAt: row.scheduledAt,
@@ -258,6 +282,7 @@ export class ContentRepository {
       boostStartsAt: row.boostStartsAt,
       boostedUntil: row.boostedUntil,
       boostChannels: row.boostChannels,
+      boostNotifiedAt: row.boostNotifiedAt,
       recommendation: row.recommendation,
       isSponsored: row.isSponsored,
       isAdCommercial: row.isAdCommercial,
@@ -295,6 +320,9 @@ export class ContentRepository {
         ...(input.studioId ? { studioId: input.studioId } : {}),
         ...(input.videoMediaId ? { videoMediaId: input.videoMediaId } : {}),
         ...(input.thumbnailMediaId ? { thumbnailMediaId: input.thumbnailMediaId } : {}),
+        ...(input.durationManual && input.durationSeconds !== undefined
+          ? { durationSeconds: input.durationSeconds, durationManual: true }
+          : {}),
         ...(input.language ? { language: input.language } : {}),
         ...(input.rightsRegion ? { rightsRegion: input.rightsRegion } : {}),
         ...(input.parentContentId ? { parentContentId: input.parentContentId } : {}),
@@ -435,13 +463,51 @@ export class ContentRepository {
       then ${contents.boostPriority} else 0 end`;
   }
 
-  /** Customer feed — published, in its live window, region-available; active boosts, then recommendation, then newest. */
-  async feed(filters: FeedFilters, tx?: DBExecutor): Promise<{ items: ContentRecord[]; total: number }> {
-    const where = and(
+  /** Published, not deleted, inside its live window, licence not expired, region-available. */
+  private playableNow(region: string | undefined): SQL {
+    return and(
       isNull(contents.deletedAt),
       eq(contents.status, 'published'),
       sql`(${contents.availableUntil} is null or ${contents.availableUntil} > now())`,
-      filters.region ? this.availableIn(filters.region) : undefined,
+      sql`${contents.licenseStatus} <> 'expired'`,
+      region ? this.availableIn(region) : undefined,
+    )!;
+  }
+
+  /** Is this content available in a macro-region (live publish region / global fallback)? */
+  async isAvailableIn(id: string, region: string, tx?: DBExecutor): Promise<boolean> {
+    const rows = await this.exec(tx)
+      .select({ id: contents.id })
+      .from(contents)
+      .where(and(eq(contents.id, id), this.availableIn(region)))
+      .limit(1);
+    return rows.length > 0;
+  }
+
+
+  /** The viewer's stored region (`users.region`, free text — callers check for a macro code). */
+  async viewerRegion(userId: string, tx?: DBExecutor): Promise<string | null> {
+    const res = await this.exec(tx).execute(sql`select region from users where id = ${userId} limit 1`);
+    const row = (res as unknown as { rows: Array<{ region: string | null }> }).rows[0];
+    return row?.region ?? null;
+  }
+
+  /** Studio display names for many studios (feed/detail cards). */
+  async studioNames(studioIds: string[], tx?: DBExecutor): Promise<Map<string, string>> {
+    const ids = [...new Set(studioIds)];
+    if (ids.length === 0) {
+      return new Map();
+    }
+    const rows = await this.exec(tx).select({ id: studios.id, name: studios.name }).from(studios).where(inArray(studios.id, ids));
+    return new Map(rows.map((r) => [r.id, r.name]));
+  }
+
+  /** Customer feed — published, in its live window, region-available; active boosts, then recommendation, then newest. */
+  async feed(filters: FeedFilters, tx?: DBExecutor): Promise<{ items: ContentRecord[]; total: number }> {
+    const where = and(
+      this.playableNow(filters.region),
+      // commercials are inserted by the service (ad slots), never ranked as organic content
+      eq(contents.isAdCommercial, false),
     );
     const recommendationRank = sql`case ${contents.recommendation} when 'promoted' then 1 when 'deprioritized' then -1 else 0 end`;
     const db = this.exec(tx);
@@ -498,15 +564,28 @@ export class ContentRepository {
 
   /** Boost (or clear the boost). `boosted=false` resets every boost field. */
   async setBoost(id: string, input: BoostInput, tx?: DBExecutor): Promise<ContentRecord | null> {
+    // Same boost re-saved (still boosted, same start) keeps its notification claim; a new boost resets it.
+    const start = input.startsAt ?? null;
+    const sameBoost = sql`${contents.isBoosted} and ${contents.boostStartsAt} is not distinct from ${start}::timestamptz`;
     const patch = input.boosted
       ? {
           isBoosted: true,
           boostPriority: input.priority,
-          boostStartsAt: input.startsAt ?? null,
+          boostStartsAt: start,
           boostedUntil: input.until ?? null,
           boostChannels: input.channels ?? [],
+          boostNotifiedAt: sql`case when ${sameBoost} then ${contents.boostNotifiedAt} else null end`,
+          boostCampaignId: sql`case when ${sameBoost} then ${contents.boostCampaignId} else null end`,
         }
-      : { isBoosted: false, boostPriority: 0, boostStartsAt: null, boostedUntil: null, boostChannels: [] };
+      : {
+          isBoosted: false,
+          boostPriority: 0,
+          boostStartsAt: null,
+          boostedUntil: null,
+          boostChannels: [],
+          boostNotifiedAt: null,
+          boostCampaignId: null,
+        };
     const rows = await this.exec(tx)
       .update(contents)
       .set({ ...patch, updatedAt: sql`now()` })
@@ -763,10 +842,23 @@ export class ContentRepository {
         (select count(*) from moderation_tickets t
           where t.subject_type = 'content' and t.subject_id = c.id and t.status in ('open', 'in_review', 'escalated')) as "unresolvedFlags",
         ${userDisplayName('cu')} as "createdByName",
-        ${userDisplayName('uu')} as "updatedByName"
+        ${userDisplayName('uu')} as "updatedByName",
+        ae.impressions as "adImpressions",
+        ae.clicks as "adClicks",
+        coalesce(sp.revenue_cents, 0)
+          + round(coalesce(ae.impressions, 0) * coalesce(sp.cpm_cents, 0) / 1000.0)
+          + coalesce(ae.clicks, 0) * coalesce(sp.cpc_cents, 0) as "adRevenueCents",
+        vm.width as "videoWidth",
+        vm.height as "videoHeight"
       from contents c
       left join studios s on s.id = c.studio_id
       left join content_sponsorships sp on sp.content_id = c.id and sp.is_active
+      left join lateral (
+        select count(*) filter (where e.event_type = 'impression') as impressions,
+               count(*) filter (where e.event_type = 'click') as clicks
+          from ad_events e where e.sponsorship_id = sp.id
+      ) ae on true
+      left join media_metadata vm on vm.id = c.video_media_id
       left join users cu on cu.id = c.created_by
       left join users uu on uu.id = c.updated_by
       where ${inArray(sql`c.id`, contentIds)}
@@ -787,6 +879,11 @@ export class ContentRepository {
         unresolvedFlags: n(r['unresolvedFlags']),
         createdByName: str(r['createdByName']),
         updatedByName: str(r['updatedByName']),
+        adImpressions: n(r['adImpressions']),
+        adClicks: n(r['adClicks']),
+        adRevenueCents: n(r['adRevenueCents']),
+        videoWidth: r['videoWidth'] === null || r['videoWidth'] === undefined ? null : n(r['videoWidth']),
+        videoHeight: r['videoHeight'] === null || r['videoHeight'] === undefined ? null : n(r['videoHeight']),
       });
     }
     return out;
@@ -844,10 +941,90 @@ export class ContentRepository {
       .where(
         and(
           isNull(contents.deletedAt),
-          eq(contents.licenseStatus, 'licensed'),
+          inArray(contents.licenseStatus, ['licensed', 'expiring']),
           sql`${contents.licenseExpiresAt} is not null`,
           sql`${contents.licenseExpiresAt} <= now() + (${days} || ' days')::interval`,
         ),
       );
+  }
+
+  // ─── Boost notifications + expiry (content maintenance cron) ────────────────
+
+  /**
+   * Atomically claim active boosts that target the `notifications` / `subscribers` channels and
+   * have not been notified yet (sets `boost_notified_at`). Only one caller can win a row, so the
+   * campaign is created at most once per boost. Pass `onlyId` to claim a single content.
+   */
+  async claimBoostNotifications(limit: number, onlyId?: string, tx?: DBExecutor): Promise<BoostNotificationClaim[]> {
+    const res = await this.exec(tx).execute(sql`
+      update contents c set boost_notified_at = now()
+       where c.id in (
+         select id from contents
+          where is_boosted and boost_notified_at is null and deleted_at is null and status = 'published'
+            and (boost_starts_at is null or boost_starts_at <= now())
+            and (boosted_until is null or boosted_until > now())
+            and boost_channels && array['notifications', 'subscribers']::varchar[]
+            ${onlyId ? sql`and id = ${onlyId}` : sql``}
+          order by boost_starts_at asc nulls first
+          limit ${limit}
+          for update skip locked)
+      returning c.id, c.title, c.description, c.boost_channels as "boostChannels"
+    `);
+    return (res as unknown as { rows: BoostNotificationClaim[] }).rows;
+  }
+
+  async setBoostCampaign(id: string, campaignId: string, tx?: DBExecutor): Promise<void> {
+    await this.exec(tx).update(contents).set({ boostCampaignId: campaignId }).where(eq(contents.id, id));
+  }
+
+  /** Clear boosts whose window has ended. Returns the affected content ids. */
+  async expireBoosts(tx?: DBExecutor): Promise<string[]> {
+    const rows = await this.exec(tx)
+      .update(contents)
+      .set({
+        isBoosted: false,
+        boostPriority: 0,
+        boostStartsAt: null,
+        boostedUntil: null,
+        boostChannels: [],
+        updatedAt: sql`now()`,
+      })
+      .where(and(eq(contents.isBoosted, true), isNull(contents.deletedAt), sql`${contents.boostedUntil} <= now()`))
+      .returning({ id: contents.id });
+    return rows.map((r) => r.id);
+  }
+
+  /**
+   * Keep `contents.license_status` in sync with the active licence expiry:
+   * past → `expired`, within 30 days → `expiring`, later → `licensed`. Also lapses the licence's
+   * renewal status once expired (unless auto-renew). Returns the ids whose status changed.
+   */
+  async syncLicenseStatuses(tx?: DBExecutor): Promise<Array<{ id: string; licenseStatus: string }>> {
+    const db = this.exec(tx);
+    const res = await db.execute(sql`
+      with l as (
+        select distinct on (content_id) content_id, expires_at
+          from content_licenses
+         where is_active and expires_at is not null
+         order by content_id, created_at desc
+      ), target as (
+        select l.content_id,
+               case when l.expires_at <= now() then 'expired'
+                    when l.expires_at <= now() + interval '30 days' then 'expiring'
+                    else 'licensed' end as status
+          from l
+      )
+      update contents c set license_status = t.status, updated_at = now()
+        from target t
+       where c.id = t.content_id and c.deleted_at is null
+         and c.license_status in ('licensed', 'expiring', 'expired')
+         and c.license_status <> t.status
+      returning c.id, c.license_status as "licenseStatus"
+    `);
+    await db.execute(sql`
+      update content_licenses set renewal_status = 'lapsed', updated_at = now()
+       where is_active and expires_at <= now() and renewal_status not in ('auto_renew', 'lapsed')
+    `);
+    return (res as unknown as { rows: Array<{ id: string; licenseStatus: string }> }).rows;
   }
 }

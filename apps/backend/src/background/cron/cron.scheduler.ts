@@ -72,6 +72,14 @@ export class CronScheduler {
     return this.tick(CronName.ANALYTICS_CONTENT_ROLLUP, () => this.rollups.rollupRecent());
   }
 
+  /** Boost notifications + expiry of boosts / sponsorships / licence status (every minute). */
+  @Cron(CronExpression.EVERY_MINUTE)
+  scheduleContentMaintenance(): Promise<void> {
+    return this.tick(CronName.CONTENT_MAINTENANCE, () =>
+      this.queue.send(QueueName.CONTENT, JobName.CONTENT_MAINTENANCE, {}),
+    );
+  }
+
   // ─── SYNC tick (trivial, inline) ──────────────────────────────────────────────
 
   @Cron(CronExpression.EVERY_30_MINUTES)

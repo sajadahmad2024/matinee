@@ -1,7 +1,9 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { CacheService } from '@cache/cache.service';
 import { PaginationDetailsDto } from '@common/dto/pagination.dto';
-import { ContentExtrasRepository } from '@db/repositories/content/content-extras.repository';
+import { AdEventRepository } from '@db/repositories/ads/ad-event.repository';
+import { AdSalesRepository } from '@db/repositories/ads/ad-sales.repository';
+import { ContentExtrasRepository, SponsorshipRow } from '@db/repositories/content/content-extras.repository';
 import {
   CastInput,
   ContentListFilters,
@@ -9,12 +11,17 @@ import {
   ContentRelationsInput,
   ContentRepository,
   FeedFilters,
+  UpdateContentInput,
 } from '@db/repositories/content/content.repository';
+import { TaxonomyRepository } from '@db/repositories/content/taxonomy.repository';
+import { AppSettingsRepository } from '@db/repositories/platform/app-settings.repository';
 import { MediaService } from '../../media/media.service';
+import { AD_COMMERCIALS_FLAG, adMetrics, commercialFrequency, FeedAd, interleaveCommercials, isFlagOn, toFeedAd, toCommercialFeedItem, weightedRotation } from '../../ads/ad.mapper';
+import { BoostNotifierService } from './boost-notifier.service';
 import { ContentListQueryDto } from './dto/content-query.dto';
 import { ContentResponseDto } from './dto/content-response.dto';
 import { BoostContentDto, CreateContentDto, UpdateContentDto } from './dto/content-write.dto';
-import { toEnrichedAdminContent, toPublicContent } from './mappers/content.mapper';
+import { toEnrichedAdminContent, toEnrichedPublicContent } from './mappers/content.mapper';
 
 export interface PaginatedContent {
   items: ContentResponseDto[];
@@ -26,7 +33,25 @@ const CONTENT_TAG = 'content';
 const FEED_TTL = 30; // seconds — hot path, tolerates slight staleness
 const DETAIL_TTL = 120;
 
-type RelationFields = Pick<CreateContentDto, 'genreIds' | 'primaryGenreId' | 'tagIds' | 'cast'>;
+type RelationFields = Pick<
+  CreateContentDto,
+  'genreIds' | 'primaryGenreId' | 'tagIds' | 'cast' | 'studioName' | 'tagNames' | 'durationSeconds' | 'studioId'
+>;
+const MAX_TAGS = 30;
+
+/** Trim, drop empties, de-duplicate case-insensitively (first spelling wins). */
+export function normalizeNames(names: string[]): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const raw of names) {
+    const name = raw.trim();
+    const key = name.toLowerCase();
+    if (!name || seen.has(key)) continue;
+    seen.add(key);
+    out.push(name);
+  }
+  return out;
+}
 
 @Injectable()
 export class ContentService {
@@ -35,6 +60,11 @@ export class ContentService {
     private readonly history: ContentExtrasRepository,
     private readonly media: MediaService,
     private readonly cache: CacheService,
+    private readonly taxonomy: TaxonomyRepository,
+    private readonly settings: AppSettingsRepository,
+    private readonly boostNotifier: BoostNotifierService,
+    private readonly adEvents: AdEventRepository,
+    private readonly adSales: AdSalesRepository,
   ) {}
 
   private slugify(title: string): string {
@@ -68,11 +98,36 @@ export class ContentService {
   }
 
   // ─── Customer (cached) ───────────────────────────────────────────────────────
+
+  /** `feature.ad_commercials_enabled` (read inside the cached feed computation). */
+  private async commercialsEnabled(): Promise<boolean> {
+    return isFlagOn(await this.settings.getValue(AD_COMMERCIALS_FLAG));
+  }
+
+  /**
+   * Organic feed page (commercials excluded from ranking) with commercials inserted every N
+   * organic items when the ad-commercials flag is on. Pagination counts organic items only.
+   */
   feed(filters: FeedFilters): Promise<PaginatedContent> {
     const key = `content:feed:${filters.region ?? 'all'}:${filters.page}:${filters.limit}`;
     return this.cache.getOrSetTagged(key, [CONTENT_TAG], FEED_TTL, async () => {
-      const { items, total } = await this.repo.feed(filters);
-      return { items: items.map(toPublicContent), pagination: this.paginate(total, filters) };
+      const [{ items, total }, adsOn] = await Promise.all([this.repo.feed(filters), this.commercialsEnabled()]);
+      // Commercial slots come from live Ad Sales commercial campaigns (weight-rotated).
+      const spots = adsOn ? await this.adSales.liveCommercials(filters.region) : [];
+      const [organic, logos] = await Promise.all([
+        this.enrichPublic(items),
+        this.media.findRecords(spots.map((s) => s.advertiserLogoMediaId).filter((v): v is string => typeof v === 'string')),
+      ]);
+      const logoUrl = (id: string | null) => {
+        const m = id ? logos.get(id) : undefined;
+        return m ? this.media.urlOf(m) : null;
+      };
+      const commercials = weightedRotation(spots).map((s) => toCommercialFeedItem(s, logoUrl(s.advertiserLogoMediaId)));
+      const frequency = commercialFrequency(spots.map((s) => s.campaign.feedFrequency));
+      return {
+        items: interleaveCommercials(organic, commercials, (filters.page - 1) * filters.limit, frequency),
+        pagination: this.paginate(total, filters),
+      };
     });
   }
 
@@ -80,8 +135,49 @@ export class ContentService {
     return this.cache.getOrSetTagged(`content:detail:${id}`, [CONTENT_TAG], DETAIL_TTL, async () => {
       const c = await this.repo.findById(id);
       if (!c || c.status !== 'published') throw new NotFoundException('Content not found');
-      const cast = await this.repo.getCast(id);
-      return { ...toPublicContent(c), cast };
+      const [[enriched], cast] = await Promise.all([this.enrichPublic([c]), this.repo.getCast(id)]);
+      return { ...enriched!, cast };
+    });
+  }
+
+  /**
+   * Mobile-card enrichment for many rows with a fixed number of batched queries: studios,
+   * genres, tags, live sponsorships, then one media lookup (thumbnails + videos + sponsor banners).
+   * `commercials` maps content id → its commercial sponsorship (feed-inserted spots).
+   */
+  async enrichPublic(records: ContentRecord[], commercials: Map<string, SponsorshipRow> = new Map()): Promise<ContentResponseDto[]> {
+    if (records.length === 0) return [];
+    const ids = records.map((r) => r.id);
+    const [studioNames, genres, tags, sponsorships] = await Promise.all([
+      this.repo.studioNames(records.map((r) => r.studioId).filter((v): v is string => v !== null)),
+      this.repo.getGenresFor(ids),
+      this.repo.getTagsFor(ids),
+      this.history.liveSponsorshipsFor(ids),
+    ]);
+    const mediaIds = [
+      ...records.flatMap((r) => [r.thumbnailMediaId, r.videoMediaId]),
+      ...[...sponsorships.values(), ...commercials.values()].map((s) => s.bannerMediaId),
+    ].filter((v): v is string => typeof v === 'string');
+    const media = await this.media.findRecords(mediaIds);
+    const urlOf = (id: string | null): string | null => {
+      const m = id ? media.get(id) : undefined;
+      return m ? this.media.urlOf(m) : null;
+    };
+    return records.map((c) => {
+      const video = c.videoMediaId ? media.get(c.videoMediaId) : undefined;
+      const commercial = commercials.get(c.id);
+      const sponsorship = sponsorships.get(c.id);
+      const ad: FeedAd | undefined = commercial ? toFeedAd(commercial, urlOf(commercial.bannerMediaId)) : undefined;
+      return toEnrichedPublicContent(c, {
+        studioName: c.studioId ? (studioNames.get(c.studioId) ?? null) : null,
+        genres: genres.get(c.id) ?? [],
+        tags: tags.get(c.id) ?? [],
+        thumbnailUrl: urlOf(c.thumbnailMediaId),
+        videoWidth: video?.width ?? null,
+        videoHeight: video?.height ?? null,
+        sponsorName: sponsorship?.sponsorName ?? null,
+        commercial: ad,
+      });
     });
   }
 
@@ -201,16 +297,57 @@ export class ContentService {
   }
 
   private splitRelations<T extends RelationFields>(dto: T): { rel: ContentRelationsInput; rest: Omit<T, keyof RelationFields> } {
-    const { genreIds, primaryGenreId, tagIds, cast, ...rest } = dto;
+    const { genreIds, primaryGenreId, tagIds, cast, studioName: _s, tagNames: _t, durationSeconds: _d, studioId: _i, ...rest } = dto;
     return { rel: { genreIds, primaryGenreId, tagIds, cast }, rest };
+  }
+
+  /**
+   * Free-text studio / tags (admin form) → ids, find-or-create case-insensitively. Runs after the
+   * id-based validation so a bad tagId can't leave freshly created tags behind for nothing.
+   */
+  private async resolveFreeText(dto: RelationFields, rel: ContentRelationsInput): Promise<{ studioId: string | null | undefined }> {
+    if (dto.studioName !== undefined && dto.studioId !== undefined) {
+      throw new BadRequestException('Send either studioId or studioName, not both');
+    }
+    let studioId = dto.studioId;
+    if (dto.studioName !== undefined) {
+      studioId = (await this.taxonomy.findOrCreateStudioByName(dto.studioName)).id;
+    }
+    if (dto.tagNames !== undefined) {
+      const names = normalizeNames(dto.tagNames);
+      const created = await this.taxonomy.findOrCreateTagsByNames(names);
+      const merged = [...new Set([...(rel.tagIds ?? []), ...created.map((t) => t.id)])];
+      if (merged.length > MAX_TAGS) {
+        throw new BadRequestException(`At most ${MAX_TAGS} tags (tagIds + tagNames)`);
+      }
+      rel.tagIds = merged;
+    }
+    return { studioId };
+  }
+
+  /** durationSeconds: number → manual override; null → back to the media duration; omitted → untouched. */
+  private durationPatch(value: number | null | undefined): Pick<UpdateContentInput, 'durationSeconds' | 'durationManual'> {
+    if (value === undefined) return {};
+    if (value === null) return { durationManual: false };
+    return { durationSeconds: value, durationManual: true };
   }
 
   async create(adminId: string, dto: CreateContentDto): Promise<ContentResponseDto> {
     const { rel, rest } = this.splitRelations(dto);
-    await this.assertRelations({ ...rel, studioId: dto.studioId });
+    await this.assertRelations({ ...rel, studioId: dto.studioId ?? undefined });
     await this.assertParent(dto.parentContentId);
     this.assertFuture(dto.availableUntil, 'availableUntil');
-    const c = await this.repo.createWithRelations({ ...rest, slug: this.slugify(dto.title), createdBy: adminId }, rel);
+    const { studioId } = await this.resolveFreeText(dto, rel);
+    const c = await this.repo.createWithRelations(
+      {
+        ...rest,
+        ...(studioId ? { studioId } : {}),
+        ...this.durationPatch(dto.durationSeconds ?? undefined),
+        slug: this.slugify(dto.title),
+        createdBy: adminId,
+      },
+      rel,
+    );
     await this.history.recordChange(c.id, 'created', adminId, `Created "${c.title}"`);
     await this.bust();
     return this.getAdmin(c.id);
@@ -219,10 +356,20 @@ export class ContentService {
   async update(adminId: string, id: string, dto: UpdateContentDto): Promise<ContentResponseDto> {
     await this.requireContent(id);
     const { rel, rest } = this.splitRelations(dto);
-    await this.assertRelations({ ...rel, studioId: dto.studioId });
+    await this.assertRelations({ ...rel, studioId: dto.studioId ?? undefined });
     await this.assertParent(dto.parentContentId, id);
     this.assertFuture(dto.availableUntil, 'availableUntil');
-    const c = await this.repo.updateWithRelations(id, { ...rest, updatedBy: adminId }, rel);
+    const { studioId } = await this.resolveFreeText(dto, rel);
+    const c = await this.repo.updateWithRelations(
+      id,
+      {
+        ...rest,
+        ...(studioId !== undefined ? { studioId } : {}),
+        ...this.durationPatch(dto.durationSeconds),
+        updatedBy: adminId,
+      },
+      rel,
+    );
     if (!c) throw new NotFoundException('Content not found');
     const changed = Object.keys(dto).filter((k) => (dto as Record<string, unknown>)[k] !== undefined);
     await this.history.recordChange(id, 'updated', adminId, `Updated: ${changed.join(', ') || 'no fields'}`, {
@@ -310,8 +457,12 @@ export class ContentService {
         })`
       : 'Boost cleared';
     await this.history.recordChange(id, 'boosted', adminId, note);
+    if (boosted && c.boostChannels.some((ch) => ch === 'notifications' || ch === 'subscribers')) {
+      await this.boostNotifier.notifyIfActive(id); // no-op unless active + published + not yet announced
+    }
     await this.bust();
-    return this.enrichOne(c);
+    const fresh = await this.repo.findById(id);
+    return this.enrichOne(fresh ?? c);
   }
 
   async remove(adminId: string, id: string): Promise<{ message: string }> {
@@ -332,10 +483,12 @@ export class ContentService {
       this.history.listHistory(id),
       this.linkedGames(id),
     ]);
+    const adPerformance = sponsorship ? adMetrics(await this.adEvents.lifetime(sponsorship.id)) : null;
     return {
       content,
       license,
       sponsorship,
+      adPerformance,
       regions: { regions: regions.map((r) => r.region), liveRegions: regions.filter((r) => r.live).map((r) => r.region), items: regions },
       history,
       linkedGames: games,

@@ -24,6 +24,12 @@ export class AppSettingsRepository {
       .where(eq(appSettings.category, category));
   }
 
+  /** Raw value of one setting (undefined when absent). */
+  async getValue(key: string, tx?: DBExecutor): Promise<unknown> {
+    const rows = await this.exec(tx).select({ value: appSettings.value }).from(appSettings).where(eq(appSettings.key, key)).limit(1);
+    return rows[0]?.value;
+  }
+
   /** Upsert a setting (creates if absent). */
   async upsert(key: string, value: unknown, category: string, adminId: string, description?: string, tx?: DBExecutor): Promise<void> {
     await this.exec(tx)

@@ -32,6 +32,7 @@ export enum JobName {
   // Content
   PUBLISH_SCHEDULED = 'publish-scheduled',         // cron: flip scheduled→published when go-live passes
   LICENSE_EXPIRY_REMINDER = 'license-expiry-reminder', // cron: surface licenses expiring soon
+  CONTENT_MAINTENANCE = 'content-maintenance',     // cron: boost notifications + boost/sponsorship/licence expiry
 }
 
 /** Dead-letter queue name for a given logical queue (SQS redrive target). */

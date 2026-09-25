@@ -263,4 +263,52 @@ export class TaxonomyRepository {
   async deletePerson(id: string, tx?: DBExecutor): Promise<void> {
     await this.exec(tx).delete(people).where(eq(people.id, id));
   }
+
+  // ─── Find-or-create by free-text name (admin form: studio + comma tags) ──────
+
+  /** Non-deleted studio with this name (case-insensitive), created when absent. */
+  async findOrCreateStudioByName(name: string, tx?: DBExecutor): Promise<{ id: string; name: string; created: boolean }> {
+    const db = this.exec(tx);
+    const found = await db
+      .select({ id: studios.id, name: studios.name })
+      .from(studios)
+      .where(and(isNull(studios.deletedAt), sql`lower(${studios.name}) = lower(${name})`))
+      .orderBy(asc(studios.createdAt))
+      .limit(1);
+    if (found[0]) {
+      return { ...found[0], created: false };
+    }
+    const created = await this.createStudio({ name }, tx);
+    return { id: created.id, name: created.name, created: true };
+  }
+
+  /** Tags by name (case-insensitive), creating the missing ones. Keeps the input order. */
+  async findOrCreateTagsByNames(names: string[], tx?: DBExecutor): Promise<Array<{ id: string; name: string; created: boolean }>> {
+    if (names.length === 0) {
+      return [];
+    }
+    const db = this.exec(tx);
+    const lowered = names.map((n) => n.toLowerCase());
+    const existing = await db
+      .select({ id: tags.id, name: tags.name, lname: sql<string>`lower(${tags.name})` })
+      .from(tags)
+      .where(inArray(sql`lower(${tags.name})`, lowered))
+      .orderBy(asc(tags.createdAt));
+    const byName = new Map<string, { id: string; name: string }>();
+    for (const t of existing) {
+      if (!byName.has(t.lname)) byName.set(t.lname, { id: t.id, name: t.name });
+    }
+    const out: Array<{ id: string; name: string; created: boolean }> = [];
+    for (const name of names) {
+      const hit = byName.get(name.toLowerCase());
+      if (hit) {
+        out.push({ ...hit, created: false });
+        continue;
+      }
+      const created = await this.createTag(name, tx);
+      byName.set(name.toLowerCase(), created);
+      out.push({ id: created.id, name: created.name, created: true });
+    }
+    return out;
+  }
 }

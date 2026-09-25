@@ -28,6 +28,7 @@ import { AuthModule } from './auth/auth.module';
 // Media (independent asset registry + secure upload/delivery)
 import { MediaModule } from './media/media.module';
 import { ContentModule } from './content/content.module';
+import { AdsModule } from './ads/ads.module';
 import { ProfileModule } from './profile/profile.module';
 import { EngagementModule } from './engagement/engagement.module';
 import { TokenomicsModule } from './tokenomics/tokenomics.module';
@@ -84,6 +85,7 @@ const rateLimit = ThrottlerModule.forRoot([
 
     // Content
     ContentModule,
+    AdsModule,
 
     // Profile (customer self-service + admin read views)
     ProfileModule,

@@ -42,7 +42,8 @@ export class NotificationCampaignRepository {
     };
   }
 
-  async create(input: CampaignCreate, status: 'draft' | 'scheduled', adminId: string, tx?: DBExecutor): Promise<string> {
+  /** `adminId` null = system-generated (e.g. boost notifications from the maintenance cron). */
+  async create(input: CampaignCreate, status: 'draft' | 'scheduled', adminId: string | null, tx?: DBExecutor): Promise<string> {
     const rows = await this.exec(tx)
       .insert(notificationCampaigns)
       .values({
@@ -50,7 +51,7 @@ export class NotificationCampaignRepository {
         message: input.message,
         targetType: input.targetType,
         status,
-        createdBy: adminId,
+        ...(adminId ? { createdBy: adminId } : {}),
         ...(input.deepLink ? { deepLink: input.deepLink } : {}),
         ...(input.targetFilter ? { targetFilter: input.targetFilter } : {}),
         ...(input.scheduledAt ? { scheduledAt: input.scheduledAt } : {}),
@@ -96,6 +97,12 @@ export class NotificationCampaignRepository {
     const conds = [eq(users.accountType, 'customer'), eq(users.status, 'active'), isNull(users.deletedAt)];
     if (targetType === 'segment' && typeof targetFilter['region'] === 'string') {
       conds.push(eq(users.region, targetFilter['region'] as string));
+    }
+    if (targetType === 'segment' && targetFilter['subscribers'] === true) {
+      // currently subscribed (same statuses that gate premium elsewhere)
+      conds.push(
+        sql`exists (select 1 from subscriptions s where s.user_id = ${users.id} and s.status in ('active', 'trialing', 'past_due'))`,
+      );
     }
     const rows = await db.select({ id: users.id }).from(users).where(and(...conds));
     return rows.map((r) => r.id);

@@ -3,6 +3,7 @@
 //
 // Per uploaded object (shared rules in lib.js — claim, size check, non-video, retries):
 //   video     → claim row (processing) → write PLACEHOLDER HLS + poster → ready
+//               (duration/width/height: keeps client-probed values, fills gaps from `probe`)
 //   non-video → ready (no transcode)
 //
 // The placeholder is valid HLS syntax but not playable video. Going to prod = swap this file
@@ -38,10 +39,24 @@ const PIXEL_JPEG = Buffer.from([
   0x08, 0x01, 0x01, 0x00, 0x00, 0x3f, 0x00, 0xfb, 0xd0, 0xff, 0xd9,
   ]);
 
-/** Placeholder HLS layout — same shape MediaConvert produces, so playback code is exercised. */
-function placeholderOutputs(prefix) {
+/** Positive finite number or null. */
+function positive(v) {
+  const n = Number(v);
+  return v !== null && v !== undefined && Number.isFinite(n) && n > 0 ? n : null;
+}
+
+/**
+ * Placeholder HLS layout — same shape MediaConvert produces, so playback code is exercised.
+ * When the duration is known (client probe / probe hook) the single segment claims it, so the
+ * player shows the right length.
+ */
+function placeholderOutputs(prefix, durationSeconds = null) {
+  const seg = positive(durationSeconds) ?? 6;
   const master = ['#EXTM3U', '#EXT-X-VERSION:3', '#EXT-X-STREAM-INF:BANDWIDTH=800000,RESOLUTION=640x360', '360p/index.m3u8'];
-  const variant = ['#EXTM3U', '#EXT-X-VERSION:3', '#EXT-X-TARGETDURATION:6', '#EXT-X-PLAYLIST-TYPE:VOD', '#EXTINF:6.0,', 'seg_000.ts', '#EXT-X-ENDLIST'];
+  const variant = [
+    '#EXTM3U', '#EXT-X-VERSION:3', `#EXT-X-TARGETDURATION:${Math.ceil(seg)}`, '#EXT-X-PLAYLIST-TYPE:VOD',
+    `#EXTINF:${seg.toFixed(3)},`, 'seg_000.ts', '#EXT-X-ENDLIST',
+  ];
   return [
     { key: `${prefix}master.m3u8`, body: master.join('\n') + '\n', contentType: 'application/vnd.apple.mpegurl' },
     { key: `${prefix}360p/index.m3u8`, body: variant.join('\n') + '\n', contentType: 'application/vnd.apple.mpegurl' },
@@ -50,16 +65,30 @@ function placeholderOutputs(prefix) {
   ];
 }
 
-/** Build a handler around injected deps (tests pass fakes; prod uses buildDefaultDeps). */
-function createHandler({ s3, openDb, outputBucket, maxReceiveCount = 5, log = consoleLogger() }) {
+/**
+ * Build a handler around injected deps (tests pass fakes; prod uses buildDefaultDeps).
+ * `probe(upload)` may resolve `{ durationSeconds, width, height }` for the source object (no
+ * FFmpeg in this image, so the default knows nothing); values only fill columns that are empty.
+ */
+function createHandler({ s3, openDb, outputBucket, maxReceiveCount = 5, log = consoleLogger(), probe = async () => null }) {
   async function processUpload(upload, { db, messageId, finalAttempt }) {
     const admitted = await admitUpload({ db, s3, DeleteObjectCommand, upload, messageId, provider: PROVIDER, log });
     if (admitted.kind !== 'transcode') {
       return;
     }
     const { row, outputPrefix } = admitted;
-    const outputs = placeholderOutputs(outputPrefix);
+    let outputs = [];
     try {
+      const probed = (await probe(upload).catch(() => null)) || {};
+      const known = await db.query(
+        `/* select-probe */ SELECT duration_seconds, width, height FROM media_metadata WHERE id = $1`,
+        [row.id],
+      );
+      const current = (known && known.rows && known.rows[0]) || {};
+      const durationSeconds = positive(current.duration_seconds) ?? positive(probed.durationSeconds);
+      const width = positive(current.width) ?? positive(probed.width);
+      const height = positive(current.height) ?? positive(probed.height);
+      outputs = placeholderOutputs(outputPrefix, durationSeconds);
       await Promise.all(
         outputs.map((o) =>
           s3.send(new PutObjectCommand({ Bucket: outputBucket, Key: o.key, Body: o.body, ContentType: o.contentType })),
@@ -70,10 +99,17 @@ function createHandler({ s3, openDb, outputBucket, maxReceiveCount = 5, log = co
         const r = await db.query(
           `/* finalize */ UPDATE media_metadata
            SET status='ready', is_hls=true, hls_master_key=$3, delivery_prefix=$4,
+               duration_seconds=COALESCE(duration_seconds, $5::numeric),
+               width=COALESCE(width, $6::int), height=COALESCE(height, $7::int),
                processing_progress=100, processed_at=NOW(), updated_at=NOW()
            WHERE id=$1 AND status='processing' AND processing_job_id=$2 AND deleted_at IS NULL
            RETURNING id`,
-          [row.id, messageId, outputs[0].key, outputPrefix],
+          [
+            row.id, messageId, outputs[0].key, outputPrefix,
+            durationSeconds === null ? null : String(durationSeconds),
+            width === null ? null : Math.round(width),
+            height === null ? null : Math.round(height),
+          ],
         );
         if (r.rows.length) {
           await insertEvent(db, row.id, 'ready', 'dummy transcode complete', 100);
@@ -122,3 +158,4 @@ exports.handler = async function handler(event) {
   return defaultHandler(event);
 };
 exports.createHandler = createHandler;
+exports.placeholderOutputs = placeholderOutputs;

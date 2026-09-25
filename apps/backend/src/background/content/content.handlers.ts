@@ -13,6 +13,15 @@ export class ContentPublishScheduledHandler implements JobHandler<unknown> {
   }
 }
 
+@QueueHandler({ queue: QueueName.CONTENT, name: JobName.CONTENT_MAINTENANCE })
+@Injectable()
+export class ContentMaintenanceHandler implements JobHandler<unknown> {
+  constructor(private readonly jobs: ContentJobService) {}
+  async handle(_message: QueueMessage<unknown>): Promise<void> {
+    await this.jobs.maintenance();
+  }
+}
+
 @QueueHandler({ queue: QueueName.CONTENT, name: JobName.LICENSE_EXPIRY_REMINDER })
 @Injectable()
 export class ContentLicenseExpiryHandler implements JobHandler<unknown> {
