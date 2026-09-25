@@ -754,9 +754,9 @@ export class ContentRepository {
         sp.placement as "adPlacement",
         (select coalesce(avg(v.completion_percent), 0) from content_views v where v.content_id = c.id) as "completionRate",
         (select count(*) from content_views v
-          where v.content_id = c.id and v.started_at > now() - interval '7 days') as "views7d",
+          where v.content_id = c.id and v.counted and v.started_at > now() - interval '7 days') as "views7d",
         (select count(*) from content_views v
-          where v.content_id = c.id and v.started_at <= now() - interval '7 days'
+          where v.content_id = c.id and v.counted and v.started_at <= now() - interval '7 days'
             and v.started_at > now() - interval '14 days') as "viewsPrev7d",
         coalesce((select sum(l.revenue_generated_cents) from content_licenses l where l.content_id = c.id and l.is_active), 0)
           + coalesce(sp.revenue_cents, 0) as "revenueCents",

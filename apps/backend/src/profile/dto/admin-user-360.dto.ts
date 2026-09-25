@@ -15,6 +15,33 @@ export class WatchHistoryDto {
   items!: WatchHistoryItemDto[];
 }
 
+// ─── Watch stats (user detail "Watch" tab) ─────────────────────────────────────
+export class FavoriteGenreDto {
+  @ApiProperty() genreId!: string;
+  @ApiProperty() name!: string;
+  @ApiProperty({ description: "User's watch seconds attributed to the genre" }) watchSeconds!: number;
+  @ApiProperty({ description: '% of genre-attributed watch time' }) percent!: number;
+}
+
+export class WatchStreakSummaryDto {
+  @ApiProperty({ description: '0 when broken' }) currentStreak!: number;
+  @ApiProperty() longestStreak!: number;
+  @ApiProperty() level!: number;
+  @ApiProperty() activeDays!: number;
+}
+
+export class WatchStatsDto {
+  @ApiProperty({ description: 'Distinct contents with a counted view' }) videosWatched!: number;
+  @ApiProperty({ description: 'All viewing sessions' }) sessions!: number;
+  @ApiProperty({ description: 'Counted views' }) views!: number;
+  @ApiProperty() totalWatchSeconds!: number;
+  @ApiProperty({ description: 'Avg watch seconds per session ("Avg. Session")' }) avgSessionSeconds!: number;
+  @ApiProperty({ description: '% of counted views completed' }) completionRate!: number;
+  @ApiPropertyOptional({ nullable: true }) lastWatchedAt!: string | null;
+  @ApiProperty({ type: [FavoriteGenreDto], description: 'Top 10 by watch time' }) favoriteGenres!: FavoriteGenreDto[];
+  @ApiProperty({ type: WatchStreakSummaryDto }) streak!: WatchStreakSummaryDto;
+}
+
 // ─── Referrals ─────────────────────────────────────────────────────────────────
 export class ReferralInviteDto {
   @ApiPropertyOptional({ nullable: true }) refereeId!: string | null;

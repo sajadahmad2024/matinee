@@ -218,7 +218,7 @@ export class AnalyticsRepository {
     const res = (await this.exec(tx).execute(sql`
       select
         (select count(distinct user_id)::int from content_views where last_heartbeat_at > now()-interval '5 minutes') as "liveViewers",
-        (select count(*)::int from content_views where started_at > now()-interval '1 hour') as "viewsLastHour",
+        (select count(*)::int from content_views where counted and started_at > now()-interval '1 hour') as "viewsLastHour",
         (select count(*)::int from users where account_type='customer' and created_at > date_trunc('day', now())) as "signupsToday",
         (select coalesce(sum(amount),0)::bigint from ledger_transactions where currency='points' and direction='earn' and created_at > date_trunc('day', now())) as "pointsEarnedToday"
     `) as unknown as { rows: Record<string, number>[] }).rows[0];
@@ -263,7 +263,7 @@ export class AnalyticsRepository {
     if (!c) {
       return null;
     }
-    const inWindow = sql`cv.content_id = ${contentId} and cv.started_at >= ${from}::timestamptz and cv.started_at < ${to}::timestamptz`;
+    const inWindow = sql`cv.content_id = ${contentId} and cv.counted and cv.started_at >= ${from}::timestamptz and cv.started_at < ${to}::timestamptz`;
 
     const [aggRows, daily, period, retentionRows, sourceRows, genderRows, deviceRows, geoRows, games, childRows, btsRow] = await Promise.all([
       db
@@ -340,7 +340,7 @@ export class AnalyticsRepository {
       this.rows(db, sql`
         select c.id, c.title, c.content_type as "contentType",
           (select count(*)::int from content_views cv
-            where cv.content_id = c.id and cv.started_at >= ${from}::timestamptz and cv.started_at < ${to}::timestamptz) as views
+            where cv.content_id = c.id and cv.counted and cv.started_at >= ${from}::timestamptz and cv.started_at < ${to}::timestamptz) as views
         from contents c where c.parent_content_id = ${contentId} and c.deleted_at is null
         order by views desc, c.created_at asc`),
       // BTS click-through: parent viewers in the window who also viewed any child in the window.
@@ -349,7 +349,7 @@ export class AnalyticsRepository {
         kv as (
           select distinct cv.user_id from content_views cv join contents k on k.id = cv.content_id
           where k.parent_content_id = ${contentId} and k.deleted_at is null
-            and cv.started_at >= ${from}::timestamptz and cv.started_at < ${to}::timestamptz
+            and cv.counted and cv.started_at >= ${from}::timestamptz and cv.started_at < ${to}::timestamptz
         )
         select (select count(*)::int from pv) as "parentViewers",
                (select count(*)::int from pv join kv using (user_id)) as "childViewers"`),
@@ -411,7 +411,7 @@ export class AnalyticsRepository {
       rv as (
         select cv.content_id, cv.user_id, cv.watched_seconds, cv.completion_percent, coalesce(u.region,'unknown') as region
         from content_views cv join users u on u.id = cv.user_id
-        where ${win(sql`cv.started_at`)} ${regionFilter}
+        where cv.counted and ${win(sql`cv.started_at`)} ${regionFilter}
       )`;
 
     const [totals, byRegion, hit, conv, revenue, bts, shareVel, top] = await Promise.all([
@@ -587,15 +587,15 @@ export class AnalyticsRepository {
         break;
       case 'active_users':
         source = sql`select ${bucket(sql`cv.started_at`)} as b, count(distinct cv.user_id)::bigint as v
-          from content_views cv join users u on u.id = cv.user_id where ${win(sql`cv.started_at`)} ${regionFilter} group by 1`;
+          from content_views cv join users u on u.id = cv.user_id where cv.counted and ${win(sql`cv.started_at`)} ${regionFilter} group by 1`;
         break;
       case 'views':
         source = sql`select ${bucket(sql`cv.started_at`)} as b, count(*)::bigint as v
-          from content_views cv join users u on u.id = cv.user_id where ${win(sql`cv.started_at`)} ${regionFilter} group by 1`;
+          from content_views cv join users u on u.id = cv.user_id where cv.counted and ${win(sql`cv.started_at`)} ${regionFilter} group by 1`;
         break;
       case 'watch_seconds':
         source = sql`select ${bucket(sql`cv.started_at`)} as b, coalesce(sum(cv.watched_seconds),0)::bigint as v
-          from content_views cv join users u on u.id = cv.user_id where ${win(sql`cv.started_at`)} ${regionFilter} group by 1`;
+          from content_views cv join users u on u.id = cv.user_id where cv.counted and ${win(sql`cv.started_at`)} ${regionFilter} group by 1`;
         break;
       case 'points_earned':
         source = sql`select ${bucket(sql`lt.created_at`)} as b, coalesce(sum(lt.amount),0)::bigint as v

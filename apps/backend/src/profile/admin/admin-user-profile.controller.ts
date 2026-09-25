@@ -18,6 +18,7 @@ import {
   UserRolesDto,
   UserWarnedDto,
   WatchHistoryDto,
+  WatchStatsDto,
 } from '../dto/admin-user-360.dto';
 
 /**
@@ -67,6 +68,14 @@ export class AdminUserProfileController {
   @ApiEnvelope(WatchHistoryDto)
   watchHistory(@Param('id', ParseUUIDPipe) id: string) {
     return this.user360.watchHistory(id);
+  }
+
+  @Get(':id/watch-stats')
+  @Permissions('users:read')
+  @ApiOperation({ summary: "A customer's watch stats — sessions, completion, favourite genres, streak" })
+  @ApiEnvelope(WatchStatsDto)
+  watchStats(@Param('id', ParseUUIDPipe) id: string) {
+    return this.user360.watchStats(id);
   }
 
   @Get(':id/referrals')

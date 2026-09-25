@@ -28,6 +28,41 @@ export class AdminUser360Repository {
     return rows(res);
   }
 
+  /** "Watch" tab stats: counted views, sessions, time, completion, favourite genres, streak. */
+  async watchStats(userId: string, tx?: DBExecutor): Promise<{ totals: Row; genres: Row[]; streak: Row | null }> {
+    const db = this.exec(tx);
+    const [totals, genres, streak] = await Promise.all([
+      db.execute(sql`
+        select count(distinct cv.content_id) filter (where cv.counted)::int as "videosWatched",
+               count(*)::int as sessions,
+               count(*) filter (where cv.counted)::int as views,
+               count(*) filter (where cv.counted and cv.is_completed)::int as completed,
+               coalesce(sum(cv.watched_seconds), 0)::bigint as "totalWatchSeconds",
+               coalesce(avg(cv.watched_seconds) filter (where cv.watched_seconds > 0), 0)::float as "avgSessionSeconds",
+               max(cv.started_at) as "lastWatchedAt"
+          from content_views cv where cv.user_id = ${userId}`),
+      // A content's watch time is split evenly across its genres.
+      db.execute(sql`
+        with per_content as (
+          select cv.content_id, sum(cv.watched_seconds)::float as secs
+            from content_views cv where cv.user_id = ${userId} group by cv.content_id
+        ), shares as (
+          select cg.genre_id, pc.secs / count(*) over (partition by pc.content_id) as secs
+            from per_content pc join content_genres cg on cg.content_id = pc.content_id
+        )
+        select g.id as "genreId", g.name, round(sum(s.secs))::bigint as "watchSeconds"
+          from shares s join genres g on g.id = s.genre_id
+         group by g.id, g.name
+         order by "watchSeconds" desc
+         limit 10`),
+      db.execute(sql`
+        select current_streak as "currentStreak", longest_streak as "longestStreak", current_level as level,
+               total_qualified_days as "activeDays", last_qualified_date::text as "lastQualifiedDate"
+          from user_streaks where user_id = ${userId}`),
+    ]);
+    return { totals: rows(totals)[0] ?? {}, genres: rows(genres), streak: rows(streak)[0] ?? null };
+  }
+
   async referrals(userId: string, tx?: DBExecutor): Promise<{ code: string | null; invited: Row[]; counts: Row }> {
     const code = await this.exec(tx).execute(sql`select code from referral_codes where user_id = ${userId} limit 1`);
     const invited = await this.exec(tx).execute(sql`

@@ -1,42 +1,78 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ProgressRecord, ViewRepository, WatchEventInput } from '@db/repositories/engagement/view.repository';
+import { EngagementEvent, WatchProgressPayload } from '../events/engagement.events';
 import { ContentAccessService } from '../services/content-access.service';
 import { HeartbeatDto, IngestWatchEventsDto, StartViewDto } from './dto/view.dto';
+
+/** A session becomes a counted view after this much watching. */
+export const VIEW_COUNT_MIN_SECONDS = 3;
+/** Unfinished sessions younger than this are reused by `start` (no new view). */
+export const VIEW_REUSE_MINUTES = 30;
+/** A user's views of the same content count at most once per this window. */
+export const VIEW_RECOUNT_MINUTES = 30;
+
+export interface StreakToday {
+  date: string;
+  watchSeconds: number;
+  requiredSeconds: number;
+  remainingSeconds: number;
+  qualified: boolean;
+}
 
 @Injectable()
 export class ViewService {
   constructor(
     private readonly views: ViewRepository,
     private readonly access: ContentAccessService,
+    private readonly events: EventEmitter2,
   ) {}
 
-  /** Open a viewing session (bumps view_count via trigger). */
-  async start(userId: string, contentId: string, dto: StartViewDto): Promise<{ viewId: string }> {
+  /** Open (or reuse) a viewing session. Doesn't count a view yet — see heartbeat. */
+  async start(userId: string, contentId: string, dto: StartViewDto): Promise<{ viewId: string; resumed: boolean }> {
     await this.access.assertPublished(contentId);
-    const viewId = await this.views.startView(userId, contentId, {
+    return this.views.startView(userId, contentId, {
       ...(dto.sessionId ? { sessionId: dto.sessionId } : {}),
       ...(dto.device ? { device: dto.device } : {}),
       ...(dto.source ? { source: dto.source } : {}),
+      reuseMinutes: VIEW_REUSE_MINUTES,
     });
-    return { viewId };
   }
 
-  /** Heartbeat: update the session's metrics + the resume point. Idempotent-ish (monotonic). */
-  async heartbeat(userId: string, contentId: string, viewId: string, dto: HeartbeatDto): Promise<ProgressRecord> {
+  /**
+   * Heartbeat: credit wall-clock-capped watch time, count the view once it's real, save the
+   * resume point, then let the streak engine qualify the day (awaited so `today` is current).
+   */
+  async heartbeat(
+    userId: string,
+    contentId: string,
+    viewId: string,
+    dto: HeartbeatDto,
+  ): Promise<ProgressRecord & { today?: StreakToday }> {
     await this.access.assertPublished(contentId);
     const completed = dto.completed ?? false;
-    await this.views.updateView(userId, viewId, {
+    const result = await this.views.recordHeartbeat({
+      userId,
+      contentId,
+      viewId,
       watchedSeconds: dto.watchedSeconds,
       positionSeconds: dto.positionSeconds,
       completionPercent: dto.completionPercent ?? 0,
-      isCompleted: completed,
+      completed,
+      countMinSeconds: VIEW_COUNT_MIN_SECONDS,
+      recountMinutes: VIEW_RECOUNT_MINUTES,
     });
-    await this.views.upsertProgress(userId, contentId, dto.positionSeconds, completed);
-    return (await this.views.getProgress(userId, contentId)) ?? {
+    if (!result) {
+      throw new NotFoundException('Viewing session not found');
+    }
+    const payload: WatchProgressPayload = { userId, contentId, dayWatchSeconds: result.dayWatchSeconds };
+    const [today] = (await this.events.emitAsync(EngagementEvent.WatchProgress, payload)) as Array<StreakToday | undefined>;
+    const progress = (await this.views.getProgress(userId, contentId)) ?? {
       lastPositionSeconds: dto.positionSeconds,
       isCompleted: completed,
       updatedAt: '',
     };
+    return today ? { ...progress, today } : progress;
   }
 
   /** Resume point for a content (0 if never watched). */

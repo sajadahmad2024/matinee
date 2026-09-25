@@ -1375,7 +1375,10 @@ export const contentViews = pgTable("content_views", {
 	isCompleted: boolean("is_completed").default(false).notNull(),
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
 	source: varchar({ length: 20 }),
+	counted: boolean().default(false).notNull(),
+	countedAt: timestamp("counted_at", { withTimezone: true, mode: 'string' }),
 }, (table) => [
+	index("idx_content_views_user_recent").using("btree", table.userId.asc().nullsLast().op("uuid_ops"), table.contentId.asc().nullsLast().op("uuid_ops"), table.startedAt.desc().nullsFirst().op("timestamptz_ops")),
 	index("idx_content_views_started_at").using("btree", table.startedAt.asc().nullsLast().op("timestamptz_ops")),
 	index("idx_content_views_content").using("btree", table.contentId.asc().nullsLast().op("uuid_ops")),
 	index("idx_content_views_user").using("btree", table.userId.asc().nullsLast().op("uuid_ops"), table.contentId.asc().nullsLast().op("uuid_ops")),
@@ -1476,12 +1479,35 @@ export const userStreaks = pgTable("user_streaks", {
 	lastQualifiedDate: date("last_qualified_date"),
 	totalQualifiedDays: integer("total_qualified_days").default(0).notNull(),
 	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	currentLevel: integer("current_level").default(1).notNull(),
+	levelProgressDays: integer("level_progress_days").default(0).notNull(),
+	levelsCompleted: integer("levels_completed").default(0).notNull(),
 }, (table) => [
 	foreignKey({
 			columns: [table.userId],
 			foreignColumns: [users.id],
 			name: "user_streaks_user_id_fkey"
 		}).onDelete("cascade"),
+]);
+
+export const userStreakDays = pgTable("user_streak_days", {
+	userId: uuid("user_id").notNull(),
+	day: date().notNull(),
+	level: integer().notNull(),
+	watchSeconds: integer("watch_seconds").notNull(),
+	requiredSeconds: integer("required_seconds").notNull(),
+	streakDay: integer("streak_day").notNull(),
+	pointsAwarded: integer("points_awarded").default(0).notNull(),
+	levelCompleted: boolean("level_completed").default(false).notNull(),
+	completionBonus: integer("completion_bonus").default(0).notNull(),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+}, (table) => [
+	foreignKey({
+			columns: [table.userId],
+			foreignColumns: [users.id],
+			name: "user_streak_days_user_id_fkey"
+		}).onDelete("cascade"),
+	primaryKey({ columns: [table.userId, table.day], name: "user_streak_days_pkey"}),
 ]);
 
 export const ledgerTransactions = pgTable("ledger_transactions", {

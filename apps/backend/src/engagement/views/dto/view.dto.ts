@@ -100,12 +100,24 @@ export class IngestWatchEventsDto {
 // ─── Responses ───────────────────────────────────────────────────────────────
 export class ViewStartedDto {
   @ApiProperty({ format: 'uuid' }) viewId!: string;
+  @ApiProperty({ description: 'true when an existing session was reused (same sessionId, or unfinished within 30 min)' })
+  resumed!: boolean;
+}
+
+export class StreakTodayDto {
+  @ApiProperty({ example: '2026-09-25', description: 'UTC day' }) date!: string;
+  @ApiProperty({ description: 'Credited watch seconds today' }) watchSeconds!: number;
+  @ApiProperty({ description: "Current level's daily requirement" }) requiredSeconds!: number;
+  @ApiProperty() remainingSeconds!: number;
+  @ApiProperty({ description: 'Today already counts toward the streak' }) qualified!: boolean;
 }
 
 export class ProgressResponseDto {
   @ApiProperty() lastPositionSeconds!: number;
   @ApiProperty() isCompleted!: boolean;
   @ApiPropertyOptional({ nullable: true }) updatedAt!: string | null;
+  @ApiPropertyOptional({ type: StreakTodayDto, description: 'Heartbeat only — streak progress for today' })
+  today?: StreakTodayDto;
 }
 
 export class IngestResultDto {
