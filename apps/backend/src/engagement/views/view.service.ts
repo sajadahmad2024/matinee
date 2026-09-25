@@ -16,6 +16,7 @@ export class ViewService {
     const viewId = await this.views.startView(userId, contentId, {
       ...(dto.sessionId ? { sessionId: dto.sessionId } : {}),
       ...(dto.device ? { device: dto.device } : {}),
+      ...(dto.source ? { source: dto.source } : {}),
     });
     return { viewId };
   }

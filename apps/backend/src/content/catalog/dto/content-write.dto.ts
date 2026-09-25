@@ -2,15 +2,20 @@ import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   ArrayMaxSize,
+  ArrayUnique,
   IsArray,
+  IsBoolean,
   IsIn,
   IsInt,
+  IsISO8601,
   IsOptional,
   IsString,
+  IsUrl,
   IsUUID,
   MaxLength,
   Min,
   MinLength,
+  ValidateIf,
   ValidateNested,
 } from 'class-validator';
 
@@ -18,6 +23,37 @@ const TYPES = ['trailer', 'bts', 'clip'];
 const TIERS = ['free', 'exclusive'];
 const REGIONS = ['global', 'NA', 'EU', 'APAC', 'LATAM', 'MEA'];
 const RECS = ['promoted', 'normal', 'deprioritized'];
+export const WATCH_PLATFORMS = ['Netflix', 'Prime Video', 'Disney+', 'Apple TV', 'In cinemas', 'Other'];
+export const BOOST_CHANNELS = ['homepage', 'notifications', 'regional', 'subscribers'];
+export const CAST_ROLES = ['actor', 'director', 'writer', 'producer', 'other'];
+
+export class WatchLinkInputDto {
+  @ApiProperty({ enum: WATCH_PLATFORMS })
+  @IsIn(WATCH_PLATFORMS)
+  platform!: string;
+
+  @ApiPropertyOptional({ maxLength: 60, description: 'Required when platform = Other' })
+  @ValidateIf((o: WatchLinkInputDto) => o.platform === 'Other' || o.label !== undefined)
+  @IsString()
+  @MinLength(1)
+  @MaxLength(60)
+  label?: string;
+
+  @ApiPropertyOptional({ example: 'https://netflix.com/title/80192098' })
+  @IsOptional()
+  @IsUrl({ protocols: ['https'], require_protocol: true })
+  @MaxLength(500)
+  url?: string;
+}
+
+export class CastMemberInputDto {
+  @ApiProperty({ format: 'uuid', description: 'people.id' }) @IsUUID() personId!: string;
+  @ApiPropertyOptional({ enum: CAST_ROLES, default: 'actor' })
+  @IsOptional() @IsIn(CAST_ROLES) role?: string;
+  @ApiPropertyOptional({ example: 'Tony Stark' }) @IsOptional() @IsString() @MaxLength(200) characterName?: string;
+  @ApiPropertyOptional({ minimum: 0, description: 'Lower sorts first; defaults to array order' })
+  @IsOptional() @IsInt() @Min(0) billingOrder?: number;
+}
 
 export class CreateContentDto {
   @ApiProperty({ example: 'Neon Nights — Official Trailer' })
@@ -78,14 +114,56 @@ export class CreateContentDto {
   @IsOptional()
   @IsUUID()
   parentContentId?: string;
-}
 
-export class UpdateContentDto extends PartialType(CreateContentDto) {
-  @ApiPropertyOptional({ enum: RECS })
+  @ApiPropertyOptional({ enum: RECS, default: 'normal' })
   @IsOptional()
   @IsIn(RECS)
   recommendation?: string;
+
+  @ApiPropertyOptional({ type: [String], format: 'uuid', description: 'Full genre set (≤10); replaces when present' })
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(10)
+  @ArrayUnique()
+  @IsUUID('all', { each: true })
+  genreIds?: string[];
+
+  @ApiPropertyOptional({ format: 'uuid', description: 'Must be one of genreIds' })
+  @IsOptional()
+  @IsUUID()
+  primaryGenreId?: string;
+
+  @ApiPropertyOptional({ type: [String], format: 'uuid', description: 'Full tag set (≤30); replaces when present' })
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(30)
+  @ArrayUnique()
+  @IsUUID('all', { each: true })
+  tagIds?: string[];
+
+  @ApiPropertyOptional({ type: [CastMemberInputDto], description: 'Full cast list (≤100); replaces when present' })
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(100)
+  @ValidateNested({ each: true })
+  @Type(() => CastMemberInputDto)
+  cast?: CastMemberInputDto[];
+
+  @ApiPropertyOptional({ type: [WatchLinkInputDto], description: '"Where to watch" CTAs (≤3)' })
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(3)
+  @ValidateNested({ each: true })
+  @Type(() => WatchLinkInputDto)
+  watchLinks?: WatchLinkInputDto[];
+
+  @ApiPropertyOptional({ nullable: true, example: '2026-12-31T00:00:00Z', description: 'End of the live window; null clears' })
+  @IsOptional()
+  @IsISO8601()
+  availableUntil?: string | null;
 }
+
+export class UpdateContentDto extends PartialType(CreateContentDto) {}
 
 export class RejectContentDto {
   @ApiProperty({ example: 'Audio out of sync after 0:12' })
@@ -96,19 +174,11 @@ export class RejectContentDto {
 }
 
 export class ScheduleContentDto {
-  @ApiProperty({ example: '2026-07-01T09:00:00Z', description: 'Go-live timestamp (ISO)' })
-  @IsString()
+  @ApiProperty({ example: '2026-07-01T09:00:00Z', description: 'Go-live timestamp (ISO, future)' })
+  @IsISO8601()
   scheduledAt!: string;
 }
 
-export class CastMemberInputDto {
-  @ApiProperty({ format: 'uuid', description: 'people.id' }) @IsUUID() personId!: string;
-  @ApiPropertyOptional({ enum: ['actor', 'director', 'writer', 'producer', 'other'], default: 'actor' })
-  @IsOptional() @IsIn(['actor', 'director', 'writer', 'producer', 'other']) role?: string;
-  @ApiPropertyOptional({ example: 'Tony Stark' }) @IsOptional() @IsString() @MaxLength(200) characterName?: string;
-  @ApiPropertyOptional({ minimum: 0, description: 'Lower sorts first; defaults to array order' })
-  @IsOptional() @IsInt() @Min(0) billingOrder?: number;
-}
 
 export class SetCastDto {
   @ApiProperty({ type: [CastMemberInputDto], description: 'Full replacement cast list (≤100)' })
@@ -120,15 +190,31 @@ export class SetCastDto {
 }
 
 export class BoostContentDto {
-  @ApiPropertyOptional({ default: true, description: 'true to boost, false to clear' })
+  @ApiPropertyOptional({ default: true, description: 'true to boost, false to clear every boost field' })
   @IsOptional()
+  @IsBoolean()
   boosted?: boolean;
+
   @ApiPropertyOptional({ minimum: 0, default: 100, description: 'Higher = ranked first in the feed' })
   @IsOptional()
   @IsInt()
+  @Min(0)
   priority?: number;
-  @ApiPropertyOptional({ description: 'Auto-expire boost at (ISO)' })
+
+  @ApiPropertyOptional({ description: 'Boost starts at (ISO); default now' })
   @IsOptional()
-  @IsString()
+  @IsISO8601()
+  startsAt?: string;
+
+  @ApiPropertyOptional({ description: 'Auto-expire boost at (ISO); must be after startsAt' })
+  @IsOptional()
+  @IsISO8601()
   until?: string;
+
+  @ApiPropertyOptional({ enum: BOOST_CHANNELS, isArray: true, description: 'Empty = everywhere in the feed' })
+  @IsOptional()
+  @IsArray()
+  @ArrayUnique()
+  @IsIn(BOOST_CHANNELS, { each: true })
+  channels?: string[];
 }

@@ -972,6 +972,7 @@ export const studios = pgTable("studios", {
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
 	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
 	deletedAt: timestamp("deleted_at", { withTimezone: true, mode: 'string' }),
+	countryCode: varchar("country_code", { length: 2 }),
 }, (table) => [
 	foreignKey({
 			columns: [table.logoMediaId],
@@ -989,6 +990,7 @@ export const people = pgTable("people", {
 	bio: text(),
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
 	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	knownFor: varchar("known_for", { length: 20 }),
 }, (table) => [
 	foreignKey({
 			columns: [table.photoMediaId],
@@ -996,6 +998,7 @@ export const people = pgTable("people", {
 			name: "people_photo_media_id_fkey"
 		}).onDelete("set null"),
 	unique("people_slug_key").on(table.slug),
+	check("people_known_for_check", sql`(known_for IS NULL) OR ((known_for)::text = ANY ((ARRAY['actor'::character varying, 'director'::character varying, 'writer'::character varying, 'producer'::character varying, 'other'::character varying])::text[]))`),
 ]);
 
 export const contentMedia = pgTable("content_media", {
@@ -1112,7 +1115,13 @@ export const contents = pgTable("contents", {
 	parentContentId: uuid("parent_content_id"),
 	isAdCommercial: boolean("is_ad_commercial").default(false).notNull(),
 	rightsRegion: varchar("rights_region", { length: 10 }).default('global').notNull(),
+	watchLinks: jsonb("watch_links").default([]).notNull(),
+	availableUntil: timestamp("available_until", { withTimezone: true, mode: 'string' }),
+	boostStartsAt: timestamp("boost_starts_at", { withTimezone: true, mode: 'string' }),
+	boostChannels: varchar("boost_channels", { length: 20 }).array().default(sql`'{}'`).notNull(),
 }, (table) => [
+	index("idx_contents_available_until").using("btree", table.availableUntil.asc().nullsLast().op("timestamptz_ops")).where(sql`((available_until IS NOT NULL) AND (deleted_at IS NULL))`),
+	index("idx_contents_created_at").using("btree", table.createdAt.desc().nullsFirst().op("timestamptz_ops")).where(sql`(deleted_at IS NULL)`),
 	index("idx_contents_boost").using("btree", table.boostPriority.desc().nullsFirst().op("int4_ops")).where(sql`(is_boosted AND (deleted_at IS NULL))`),
 	index("idx_contents_license_expiry").using("btree", table.licenseExpiresAt.asc().nullsLast().op("timestamptz_ops")).where(sql`((license_status)::text = ANY ((ARRAY['licensed'::character varying, 'expiring'::character varying])::text[]))`),
 	index("idx_contents_parent").using("btree", table.parentContentId.asc().nullsLast().op("uuid_ops")).where(sql`(parent_content_id IS NOT NULL)`),
@@ -1168,6 +1177,7 @@ export const contents = pgTable("contents", {
 	check("contents_rights_region_check", sql`(rights_region)::text = ANY ((ARRAY['global'::character varying, 'NA'::character varying, 'EU'::character varying, 'APAC'::character varying, 'LATAM'::character varying, 'MEA'::character varying])::text[])`),
 	check("contents_content_type_check", sql`(content_type)::text = ANY ((ARRAY['trailer'::character varying, 'bts'::character varying, 'clip'::character varying])::text[])`),
 	check("contents_access_tier_check", sql`(access_tier)::text = ANY ((ARRAY['free'::character varying, 'exclusive'::character varying])::text[])`),
+	check("contents_boost_channels_check", sql`boost_channels <@ ARRAY['homepage'::character varying, 'notifications'::character varying, 'regional'::character varying, 'subscribers'::character varying]`),
 	check("contents_status_check", sql`(status)::text = ANY ((ARRAY['draft'::character varying, 'pending_approval'::character varying, 'scheduled'::character varying, 'published'::character varying, 'rejected'::character varying, 'archived'::character varying])::text[])`),
 ]);
 
@@ -1191,7 +1201,7 @@ export const contentChangeHistory = pgTable("content_change_history", {
 			foreignColumns: [users.id],
 			name: "content_change_history_changed_by_fkey"
 		}).onDelete("set null"),
-	check("content_change_history_action_check", sql`(action)::text = ANY ((ARRAY['created'::character varying, 'updated'::character varying, 'submitted'::character varying, 'approved'::character varying, 'rejected'::character varying, 'scheduled'::character varying, 'published'::character varying, 'boosted'::character varying, 'archived'::character varying])::text[])`),
+	check("content_change_history_action_check", sql`(action)::text = ANY ((ARRAY['created'::character varying, 'updated'::character varying, 'submitted'::character varying, 'approved'::character varying, 'rejected'::character varying, 'scheduled'::character varying, 'published'::character varying, 'boosted'::character varying, 'archived'::character varying, 'unscheduled'::character varying, 'deleted'::character varying])::text[])`),
 ]);
 
 export const contentReactions = pgTable("content_reactions", {
@@ -1364,7 +1374,9 @@ export const contentViews = pgTable("content_views", {
 	completionPercent: numeric("completion_percent", { precision: 5, scale:  2 }).default('0').notNull(),
 	isCompleted: boolean("is_completed").default(false).notNull(),
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	source: varchar({ length: 20 }),
 }, (table) => [
+	index("idx_content_views_started_at").using("btree", table.startedAt.asc().nullsLast().op("timestamptz_ops")),
 	index("idx_content_views_content").using("btree", table.contentId.asc().nullsLast().op("uuid_ops")),
 	index("idx_content_views_user").using("btree", table.userId.asc().nullsLast().op("uuid_ops"), table.contentId.asc().nullsLast().op("uuid_ops")),
 	foreignKey({
@@ -1377,6 +1389,7 @@ export const contentViews = pgTable("content_views", {
 			foreignColumns: [users.id],
 			name: "content_views_user_id_fkey"
 		}).onDelete("cascade"),
+	check("content_views_source_check", sql`(source IS NULL) OR ((source)::text = ANY ((ARRAY['feed'::character varying, 'search'::character varying, 'share'::character varying, 'notification'::character varying, 'profile'::character varying, 'deeplink'::character varying, 'other'::character varying])::text[]))`),
 ]);
 
 export const rewardRuleVersions = pgTable("reward_rule_versions", {
@@ -1737,6 +1750,7 @@ export const badgeTriggers = pgTable("badge_triggers", {
 export const contentRegions = pgTable("content_regions", {
 	contentId: uuid("content_id").notNull(),
 	region: varchar({ length: 10 }).notNull(),
+	isLive: boolean("is_live").default(true).notNull(),
 }, (table) => [
 	index("idx_content_regions_region").using("btree", table.region.asc().nullsLast().op("text_ops")),
 	foreignKey({

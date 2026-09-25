@@ -7,15 +7,36 @@ import { AdminOnly } from '../../auth/decorators/account-type.decorator';
 import { CurrentUser } from '../../auth/decorators/current-user.decorator';
 import { Permissions } from '../../auth/decorators/permissions.decorator';
 import { CommentService } from './comment.service';
-import { CommentActionResultDto, CommentReportDto, ModerateCommentDto, ReportsQueryDto, ResolveReportDto } from './dto/comment.dto';
+import {
+  AdminCommentDto,
+  AdminCommentsQueryDto,
+  CommentActionResultDto,
+  CommentReportDto,
+  ModerateCommentDto,
+  ReportsQueryDto,
+  ResolveReportDto,
+} from './dto/comment.dto';
 
-/** Admin comment moderation: review reports, action/dismiss, hide/restore comments. */
+/** Admin comment moderation: list comments, review reports, action/dismiss, hide/restore comments. */
 @ApiTags('Admin · Comment Moderation')
 @ApiBearerAuth()
 @AdminOnly()
 @Controller({ path: `${RouteNames.ADMIN}/${RouteNames.COMMENTS}`, version: '1' })
 export class AdminCommentController {
   constructor(private readonly comments: CommentService) {}
+
+  @Get()
+  @Permissions('content:read')
+  @ApiOperation({ summary: 'List comments (any status), newest first — filter by content / status' })
+  @ApiPaginatedEnvelope(AdminCommentDto)
+  list(@Query() q: AdminCommentsQueryDto) {
+    return this.comments.adminListComments({
+      page: q.page,
+      limit: q.limit,
+      ...(q.contentId ? { contentId: q.contentId } : {}),
+      ...(q.status ? { status: q.status } : {}),
+    });
+  }
 
   @Get('reports')
   @Permissions('content:write')

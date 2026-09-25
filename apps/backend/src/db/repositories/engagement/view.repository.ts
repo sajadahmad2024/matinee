@@ -29,7 +29,7 @@ export class ViewRepository {
   async startView(
     userId: string,
     contentId: string,
-    opts: { sessionId?: string; device?: string },
+    opts: { sessionId?: string; device?: string; source?: string },
     tx?: DBExecutor,
   ): Promise<string> {
     const rows = await this.exec(tx)
@@ -39,6 +39,7 @@ export class ViewRepository {
         userId,
         ...(opts.sessionId ? { sessionId: opts.sessionId } : {}),
         ...(opts.device ? { device: opts.device } : {}),
+        ...(opts.source ? { source: opts.source } : {}),
       })
       .returning({ id: contentViews.id });
     return rows[0]!.id;

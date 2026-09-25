@@ -18,6 +18,10 @@ import {
 
 const EVENT_TYPES = ['play', 'pause', 'seek', 'heartbeat', 'complete'];
 
+/** Where the viewer came from — persisted on `content_views.source` (DB check constraint). */
+export const VIEW_SOURCES = ['feed', 'search', 'share', 'notification', 'profile', 'deeplink', 'other'] as const;
+export type ViewSource = (typeof VIEW_SOURCES)[number];
+
 // ─── Write ───────────────────────────────────────────────────────────────────
 export class StartViewDto {
   @ApiPropertyOptional({ maxLength: 64, description: 'Client session id (dedupe)' })
@@ -30,6 +34,11 @@ export class StartViewDto {
   @IsOptional()
   @IsIn(['ios', 'android', 'web'])
   device?: string;
+
+  @ApiPropertyOptional({ enum: VIEW_SOURCES, description: 'Traffic source (drives admin traffic-source analytics)' })
+  @IsOptional()
+  @IsIn(VIEW_SOURCES)
+  source?: ViewSource;
 }
 
 export class HeartbeatDto {

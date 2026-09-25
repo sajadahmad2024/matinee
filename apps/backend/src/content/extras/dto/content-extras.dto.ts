@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 import {
   ArrayUnique,
   IsArray,
@@ -8,6 +9,7 @@ import {
   IsOptional,
   IsString,
   IsUUID,
+  Max,
   MaxLength,
   Min,
   MinLength,
@@ -35,18 +37,37 @@ export class SponsorshipDto {
   @ApiProperty({ example: 'Nike' }) @IsString() @MinLength(1) @MaxLength(200) sponsorName!: string;
   @ApiPropertyOptional({ description: 'Sponsor banner/logo media id' }) @IsOptional() @IsUUID() bannerMediaId?: string;
   @ApiPropertyOptional({ example: 15 }) @IsOptional() @IsInt() @Min(0) adDurationSeconds?: number;
-  @ApiPropertyOptional({ enum: ['pre-roll', 'mid-roll', 'post-roll', 'overlay'] })
-  @IsOptional() @IsIn(['pre-roll', 'mid-roll', 'post-roll', 'overlay']) placement?: string;
+  @ApiPropertyOptional({
+    enum: ['pre-roll', 'mid-roll', 'post-roll', 'overlay', 'icon-overlay'],
+    description: '`icon-overlay` is accepted as an alias and stored/returned as `overlay`',
+  })
+  @IsOptional()
+  @Transform(({ value }: { value: unknown }) => (value === 'icon-overlay' ? 'overlay' : value))
+  @IsIn(['pre-roll', 'mid-roll', 'post-roll', 'overlay'])
+  placement?: string;
   @ApiPropertyOptional({ description: 'Commercial: insert every N videos in the feed' }) @IsOptional() @IsInt() @Min(1) feedFrequency?: number;
   @ApiPropertyOptional() @IsOptional() @IsInt() @Min(0) skippableAfterSeconds?: number;
   @ApiPropertyOptional() @IsOptional() @IsInt() @Min(0) revenueCents?: number;
   @ApiPropertyOptional({ example: 'USD' }) @IsOptional() @IsString() @MaxLength(3) currency?: string;
+  @ApiPropertyOptional({ example: '2026-10-01T00:00:00Z', description: 'Deal start (default now)' })
+  @IsOptional() @IsISO8601() startsAt?: string;
+  @ApiPropertyOptional({ example: '2026-10-31T00:00:00Z', description: 'Deal end; must be after startsAt' })
+  @IsOptional() @IsISO8601() endsAt?: string;
+  @ApiPropertyOptional({ minimum: 1, maximum: 3650, description: 'Convenience: endsAt = (startsAt ?? now) + N days (ignored when endsAt is sent)' })
+  @IsOptional() @IsInt() @Min(1) @Max(3650) overlayDays?: number;
 }
 
 export class SetRegionsDto {
-  @ApiProperty({ enum: REGIONS, isArray: true, example: ['NA', 'EU'], description: 'Macro-regions to publish to' })
+  @ApiProperty({ enum: REGIONS, isArray: true, example: ['NA', 'EU', 'APAC'], description: 'Macro-regions to publish to' })
   @IsArray()
   @ArrayUnique()
   @IsIn(REGIONS, { each: true })
   regions!: string[];
+
+  @ApiPropertyOptional({ enum: REGIONS, isArray: true, example: ['APAC'], description: 'Selected but switched Off (subset of regions)' })
+  @IsOptional()
+  @IsArray()
+  @ArrayUnique()
+  @IsIn(REGIONS, { each: true })
+  offRegions?: string[];
 }

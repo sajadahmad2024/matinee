@@ -41,9 +41,16 @@ export class SponsorshipResponseDto {
   @ApiPropertyOptional({ nullable: true }) skippableAfterSeconds!: number | null;
 }
 
+export class RegionItemDto {
+  @ApiProperty({ enum: ['NA', 'EU', 'APAC', 'LATAM', 'MEA'] }) region!: string;
+  @ApiProperty() live!: boolean;
+}
+
 /** Publish-regions (availability) for a content item. */
 export class RegionsResponseDto {
-  @ApiProperty({ isArray: true, type: String, example: ['NA', 'EU'] }) regions!: string[];
+  @ApiProperty({ isArray: true, type: String, example: ['NA', 'EU', 'APAC'], description: 'All selected regions' }) regions!: string[];
+  @ApiProperty({ isArray: true, type: String, example: ['NA', 'EU'], description: 'Regions switched Live' }) liveRegions!: string[];
+  @ApiProperty({ type: [RegionItemDto] }) items!: RegionItemDto[];
 }
 
 /** One workflow / change-history entry (mirrors `content_change_history`). */
@@ -51,8 +58,10 @@ export class ContentHistoryEntryDto {
   @ApiProperty() id!: string;
   @ApiProperty() contentId!: string;
   @ApiPropertyOptional({ nullable: true }) changedBy!: string | null;
+  @ApiPropertyOptional({ nullable: true, description: 'Actor display name' }) changedByName!: string | null;
+  @ApiPropertyOptional({ nullable: true, description: 'Actor role name(s), comma-joined' }) changedByRole!: string | null;
   @ApiProperty({
-    enum: ['created', 'updated', 'submitted', 'approved', 'rejected', 'scheduled', 'published', 'boosted', 'archived'],
+    enum: ['created', 'updated', 'submitted', 'approved', 'rejected', 'scheduled', 'published', 'boosted', 'archived', 'unscheduled', 'deleted'],
   })
   action!: string;
   @ApiProperty({ type: 'object', additionalProperties: true }) changes!: Record<string, unknown>;

@@ -5,9 +5,11 @@ import {
   contentSponsorships,
   contentRegions,
   contentChangeHistory,
+  contentMedia,
   contents,
 } from '@db/drizzle/schema';
-import { and, desc, eq, sql } from 'drizzle-orm';
+import { and, asc, eq, inArray, sql } from 'drizzle-orm';
+import { PublishRegion, userDisplayName } from './content.repository';
 
 export interface LicenseInput {
   licensorName: string;
@@ -32,6 +34,21 @@ export interface SponsorshipInput {
   skippableAfterSeconds?: number | undefined;
   revenueCents?: number | undefined;
   currency?: string | undefined;
+  startsAt?: string | undefined;
+  endsAt?: string | undefined;
+}
+
+/** History entry joined to the acting admin's display name + role(s). */
+export interface ContentHistoryEntry {
+  id: string;
+  contentId: string;
+  changedBy: string | null;
+  changedByName: string | null;
+  changedByRole: string | null;
+  action: string;
+  changes: Record<string, unknown>;
+  note: string | null;
+  createdAt: string;
 }
 
 @Injectable()
@@ -89,6 +106,22 @@ export class ContentExtrasRepository {
     });
   }
 
+  /** Deactivate the active license and mark the content `original`. Returns whether one existed. */
+  async removeLicense(contentId: string): Promise<boolean> {
+    return this.dbService.transaction(async (tx) => {
+      const rows = await tx
+        .update(contentLicenses)
+        .set({ isActive: false, updatedAt: sql`now()` })
+        .where(and(eq(contentLicenses.contentId, contentId), eq(contentLicenses.isActive, true)))
+        .returning({ id: contentLicenses.id });
+      await tx
+        .update(contents)
+        .set({ licenseStatus: 'original', licensorName: null, licenseExpiresAt: null, licenseTerms: null, updatedAt: sql`now()` })
+        .where(eq(contents.id, contentId));
+      return rows.length > 0;
+    });
+  }
+
   // ─── Sponsorship / Ad-Sales ─────────────────────────────────────────────────
   async getSponsorship(contentId: string, tx?: DBExecutor) {
     const rows = await this.exec(tx)
@@ -119,6 +152,8 @@ export class ContentExtrasRepository {
           ...(input.skippableAfterSeconds !== undefined ? { skippableAfterSeconds: input.skippableAfterSeconds } : {}),
           ...(input.revenueCents !== undefined ? { revenueCents: input.revenueCents } : {}),
           ...(input.currency ? { currency: input.currency } : {}),
+          ...(input.startsAt ? { startsAt: input.startsAt } : {}),
+          ...(input.endsAt ? { endsAt: input.endsAt } : {}),
           createdBy,
         })
         .returning();
@@ -130,23 +165,50 @@ export class ContentExtrasRepository {
     });
   }
 
-  // ─── Publish regions (availability M2M) ─────────────────────────────────────
-  async getRegions(contentId: string, tx?: DBExecutor): Promise<string[]> {
-    const rows = await this.exec(tx)
-      .select({ region: contentRegions.region })
-      .from(contentRegions)
-      .where(eq(contentRegions.contentId, contentId));
-    return rows.map((r) => r.region);
+  /** Back to organic: deactivate the active sponsorship + clear the sponsor flags. Returns whether one existed. */
+  async removeSponsorship(contentId: string): Promise<boolean> {
+    return this.dbService.transaction(async (tx) => {
+      const rows = await tx
+        .update(contentSponsorships)
+        .set({ isActive: false, updatedAt: sql`now()` })
+        .where(and(eq(contentSponsorships.contentId, contentId), eq(contentSponsorships.isActive, true)))
+        .returning({ id: contentSponsorships.id });
+      await tx
+        .update(contents)
+        .set({ isSponsored: false, isAdCommercial: false, updatedAt: sql`now()` })
+        .where(eq(contents.id, contentId));
+      return rows.length > 0;
+    });
   }
 
-  async setRegions(contentId: string, regions: string[]): Promise<string[]> {
+  // ─── Publish regions (availability M2M, per-region live toggle) ──────────────
+  async getRegions(contentId: string, tx?: DBExecutor): Promise<PublishRegion[]> {
+    return this.exec(tx)
+      .select({ region: contentRegions.region, live: contentRegions.isLive })
+      .from(contentRegions)
+      .where(eq(contentRegions.contentId, contentId))
+      .orderBy(asc(contentRegions.region));
+  }
+
+  async setRegions(contentId: string, regions: string[], offRegions: string[] = []): Promise<PublishRegion[]> {
     return this.dbService.transaction(async (tx) => {
       await tx.delete(contentRegions).where(eq(contentRegions.contentId, contentId));
       if (regions.length > 0) {
-        await tx.insert(contentRegions).values(regions.map((region) => ({ contentId, region })));
+        await tx
+          .insert(contentRegions)
+          .values(regions.map((region) => ({ contentId, region, isLive: !offRegions.includes(region) })));
       }
-      return regions;
+      return this.getRegions(contentId, tx);
     });
+  }
+
+  // ─── Content media (stills / posters / alt thumbnails) ──────────────────────
+  async listContentMedia(contentId: string, kinds: string[] = ['thumbnail', 'poster', 'still'], tx?: DBExecutor) {
+    return this.exec(tx)
+      .select({ mediaId: contentMedia.mediaId, kind: contentMedia.kind, sortOrder: contentMedia.sortOrder })
+      .from(contentMedia)
+      .where(and(eq(contentMedia.contentId, contentId), inArray(contentMedia.kind, kinds)))
+      .orderBy(asc(contentMedia.sortOrder));
   }
 
   // ─── Workflow / change history ──────────────────────────────────────────────
@@ -169,11 +231,20 @@ export class ContentExtrasRepository {
       });
   }
 
-  async listHistory(contentId: string, tx?: DBExecutor) {
-    return this.exec(tx)
-      .select()
-      .from(contentChangeHistory)
-      .where(eq(contentChangeHistory.contentId, contentId))
-      .orderBy(desc(contentChangeHistory.createdAt));
+  /** Newest first, with the actor's display name and role names (comma-joined). */
+  async listHistory(contentId: string, tx?: DBExecutor): Promise<ContentHistoryEntry[]> {
+    const res = await this.exec(tx).execute(sql`
+      select h.id, h.content_id as "contentId", h.changed_by as "changedBy",
+             ${userDisplayName('u')} as "changedByName",
+             (select string_agg(r.name, ', ' order by r.name)
+                from user_roles ur join roles r on r.id = ur.role_id
+               where ur.user_id = h.changed_by) as "changedByRole",
+             h.action, h.changes, h.note, h.created_at as "createdAt"
+        from ${contentChangeHistory} h
+        left join users u on u.id = h.changed_by
+       where h.content_id = ${contentId}
+       order by h.created_at desc
+    `);
+    return (res as unknown as { rows: ContentHistoryEntry[] }).rows;
   }
 }

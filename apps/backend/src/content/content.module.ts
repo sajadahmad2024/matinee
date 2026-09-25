@@ -1,4 +1,7 @@
 import { Module } from '@nestjs/common';
+import { MediaModule } from '../media/media.module';
+import { AdminContentInsightsController } from './insights/admin-content-insights.controller';
+import { ContentInsightsService } from './insights/content-insights.service';
 import { ContentController } from './catalog/content.controller';
 import { AdminContentController } from './catalog/admin-content.controller';
 import { ContentService } from './catalog/content.service';
@@ -16,15 +19,18 @@ import { AccessService } from './access/access.service';
  * Repositories live in the global DBModule; this module owns the HTTP + business layer.
  */
 @Module({
+  imports: [MediaModule],
   controllers: [
     ContentController,
+    // static /admin/content/{stats,licenses} must register before AdminContentController's /:id
+    AdminContentInsightsController,
     AdminContentController,
     AdminContentExtrasController,
     TaxonomyController,
     AdminTaxonomyController,
     AccessController,
   ],
-  providers: [ContentService, TaxonomyService, ContentExtrasService, AccessService],
+  providers: [ContentService, TaxonomyService, ContentExtrasService, AccessService, ContentInsightsService],
   exports: [ContentService, TaxonomyService, ContentExtrasService, AccessService],
 })
 export class ContentModule {}

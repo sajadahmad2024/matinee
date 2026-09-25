@@ -144,6 +144,18 @@ export class MediaRepository {
     return this.map(rows[0]);
   }
 
+  /** Batch lookup (e.g. resolving thumbnail URLs for a content page). Missing/deleted ids are dropped. */
+  async findByIds(ids: string[], tx?: DBExecutor): Promise<MediaRecord[]> {
+    if (ids.length === 0) {
+      return [];
+    }
+    const rows = await this.exec(tx)
+      .select()
+      .from(mediaMetadata)
+      .where(and(inArray(mediaMetadata.id, ids), isNull(mediaMetadata.deletedAt)));
+    return rows.map((r) => this.map(r)).filter((r): r is MediaRecord => r !== null);
+  }
+
   /**
    * PENDING/UPLOADED → UPLOADED (bytes verified in storage). Status-guarded: returns `null`
    * when the row has already moved on (e.g. the transcoder Lambda finished first), so a late

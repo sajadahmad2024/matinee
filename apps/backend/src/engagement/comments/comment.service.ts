@@ -1,6 +1,11 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { PaginationDetailsDto } from '@common/dto/pagination.dto';
-import { CommentRecord, CommentRepository } from '@db/repositories/engagement/comment.repository';
+import {
+  AdminCommentRecord,
+  CommentRecord,
+  CommentRepository,
+  CommentStatus,
+} from '@db/repositories/engagement/comment.repository';
 import { CommentReactionKind, CommentReactionRepository } from '@db/repositories/engagement/comment-reaction.repository';
 import { CommentReportRepository, ReportRecord, ReportReason } from '@db/repositories/engagement/comment-report.repository';
 import { ModerationRepository } from '@db/repositories/moderation/moderation.repository';
@@ -118,6 +123,12 @@ export class CommentService {
       throw new NotFoundException('Comment not found');
     }
     return { id: commentId, status };
+  }
+
+  /** Admin comment list (any status), newest first — optionally scoped to one content. */
+  async adminListComments(q: { contentId?: string; status?: CommentStatus; page: number; limit: number }): Promise<Paged<AdminCommentRecord>> {
+    const { items, total } = await this.comments.adminList(q);
+    return { items, pagination: this.page(total, q.page, q.limit) };
   }
 
   async adminListReports(p: number, limit: number, status?: string): Promise<Paged<ReportRecord>> {

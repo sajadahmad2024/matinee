@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsIn, IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
+import { IsIn, IsOptional, IsString, IsUUID, MaxLength, MinLength } from 'class-validator';
 import { PageQuery } from '../../dto/engagement-query.dto';
 
 const REPORT_REASONS = ['nudity_sexual', 'violence_gore', 'hate_speech', 'harassment_bullying', 'other'];
@@ -51,6 +51,18 @@ export class ReportsQueryDto extends PageQuery {
   status?: string;
 }
 
+export class AdminCommentsQueryDto extends PageQuery {
+  @ApiPropertyOptional({ format: 'uuid', description: 'Only comments on this content' })
+  @IsOptional()
+  @IsUUID()
+  contentId?: string;
+
+  @ApiPropertyOptional({ enum: ['visible', 'hidden', 'deleted'], description: 'Omit for every status' })
+  @IsOptional()
+  @IsIn(['visible', 'hidden', 'deleted'])
+  status?: 'visible' | 'hidden' | 'deleted';
+}
+
 // ─── Responses ───────────────────────────────────────────────────────────────
 export class CommentAuthorDto {
   @ApiProperty() id!: string;
@@ -93,5 +105,29 @@ export class CommentReportDto {
   @ApiProperty() status!: string;
   @ApiProperty() reportedBy!: string;
   @ApiPropertyOptional({ nullable: true }) reporterUsername!: string | null;
+  @ApiProperty() createdAt!: string;
+}
+
+export class AdminCommentAuthorDto {
+  @ApiProperty({ format: 'uuid' }) id!: string;
+  @ApiProperty({ description: '"First Last", else username, else "Unknown user"' }) name!: string;
+  @ApiPropertyOptional({ nullable: true }) username!: string | null;
+  @ApiPropertyOptional({ nullable: true }) avatarUrl!: string | null;
+}
+
+/** Admin comment row (any status). */
+export class AdminCommentDto {
+  @ApiProperty({ format: 'uuid' }) id!: string;
+  @ApiProperty({ format: 'uuid' }) contentId!: string;
+  @ApiPropertyOptional({ nullable: true }) contentTitle!: string | null;
+  @ApiPropertyOptional({ nullable: true, format: 'uuid' }) parentCommentId!: string | null;
+  @ApiProperty() body!: string;
+  @ApiProperty({ enum: ['visible', 'hidden', 'deleted'] }) status!: string;
+  @ApiProperty() likeCount!: number;
+  @ApiProperty() dislikeCount!: number;
+  @ApiProperty() replyCount!: number;
+  @ApiProperty() flagCount!: number;
+  @ApiProperty() isFlagged!: boolean;
+  @ApiProperty({ type: AdminCommentAuthorDto }) author!: AdminCommentAuthorDto;
   @ApiProperty() createdAt!: string;
 }

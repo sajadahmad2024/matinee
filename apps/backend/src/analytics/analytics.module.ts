@@ -4,8 +4,8 @@ import { AnalyticsService } from './analytics.service';
 
 /**
  * Analytics module — admin dashboard KPIs + per-content analytics. Aggregates live tables
- * (users, subscriptions, ledger, invoices, content) plus the rollup tables (content_daily_stats)
- * populated from the ingested content_watch_events. Read-only; cached briefly.
+ * (users, subscriptions, ledger, invoices, content) plus the raw engagement tables (content_views, reactions, shares, games)
+ * — content_daily_stats has no rollup job yet. Read-only; cached briefly.
  */
 @Module({
   controllers: [AdminAnalyticsController],

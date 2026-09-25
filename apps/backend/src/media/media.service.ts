@@ -167,6 +167,57 @@ export class MediaService {
     return events.map((e) => ({ id: e.id, status: e.status, detail: e.detail, progress: e.progress, createdAt: e.createdAt }));
   }
 
+  /** Batch-resolve direct URLs (ready + public only; others map to null). Used for list thumbnails. */
+  async publicUrls(ids: string[]): Promise<Map<string, string | null>> {
+    const unique = [...new Set(ids)];
+    const records = await this.media.findByIds(unique);
+    return new Map(records.map((r) => [r.id, this.resolveUrl(r)]));
+  }
+
+  /** Key of the poster frame the transcoder writes next to the HLS output, if the video is ready. */
+  private posterKey(video: MediaRecord): string | null {
+    if (video.status !== MediaStatus.READY || !video.isHls || !video.deliveryPrefix) {
+      return null;
+    }
+    const prefix = video.deliveryPrefix.endsWith('/') ? video.deliveryPrefix : `${video.deliveryPrefix}/`;
+    return `${prefix}poster.jpg`;
+  }
+
+  /** Short-lived URL to preview the transcoder poster of a video (admin thumbnail picker). */
+  async posterPreviewUrl(videoMediaId: string): Promise<string | null> {
+    const video = await this.media.findById(videoMediaId);
+    const key = video ? this.posterKey(video) : null;
+    return key ? this.delivery.signedUrl(key, this.signedTtl) : null;
+  }
+
+  /**
+   * Register the transcoder poster of a video as its own public image media row, so it can be
+   * used as a content thumbnail. Returns the new media id.
+   */
+  async registerPosterAsThumbnail(videoMediaId: string, actorId: string): Promise<MediaDto> {
+    const video = await this.requireRecord(videoMediaId);
+    const key = this.posterKey(video);
+    if (!key) {
+      throw new BadRequestException('Video has no transcoder poster yet (must be a ready HLS video)');
+    }
+    const created = await this.media.create({
+      mediaType: MediaType.IMAGE,
+      usageType: UsageType.CONTENT_THUMBNAIL,
+      accessLevel: AccessLevel.PUBLIC,
+      storageProvider: this.storage.name,
+      storageBucket: this.config.get<string>('MEDIA_OUTPUT_BUCKET') || undefined,
+      storageKey: key,
+      cdnProvider: this.delivery.name,
+      originalFilename: 'poster.jpg',
+      mimeType: 'image/jpeg',
+      uploadedBy: actorId,
+      metadata: { derivedFrom: videoMediaId, kind: 'transcoder_poster' },
+    });
+    const ready = await this.media.markReady(created.id, { deliveryPrefix: key, isHls: false });
+    const record = ready ?? created;
+    return toMediaDto(record, this.resolveUrl(record));
+  }
+
   async getPlayback(id: string): Promise<PlaybackDto> {
     const record = await this.requireRecord(id);
     if (record.status !== MediaStatus.READY) {

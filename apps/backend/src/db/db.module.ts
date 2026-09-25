@@ -13,6 +13,7 @@ import { MediaRepository } from './repositories/media/media.repository';
 import { ContentRepository } from './repositories/content/content.repository';
 import { TaxonomyRepository } from './repositories/content/taxonomy.repository';
 import { ContentExtrasRepository } from './repositories/content/content-extras.repository';
+import { ContentInsightsRepository } from './repositories/content/content-insights.repository';
 import { ContentUnlockRepository } from './repositories/content/unlock.repository';
 import { ProfileRepository } from './repositories/users/profile.repository';
 import { WalletRepository } from './repositories/tokenomics/wallet.repository';
@@ -58,6 +59,7 @@ const repositories = [
   ContentRepository,
   TaxonomyRepository,
   ContentExtrasRepository,
+  ContentInsightsRepository,
   ContentUnlockRepository,
   ProfileRepository,
   WalletRepository,

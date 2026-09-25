@@ -1,17 +1,22 @@
 import { RouteNames } from '@common/route-names';
 import { ApiEnvelope } from '@common/swagger/api-envelope.decorator';
-import { Controller, Get, Param, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Param, ParseUUIDPipe, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AdminOnly } from '../auth/decorators/account-type.decorator';
 import { Permissions } from '../auth/decorators/permissions.decorator';
 import { AnalyticsService } from './analytics.service';
 import {
+  AnalyticsWindowQueryDto,
   ContentAnalyticsDto,
+  ContentLibraryAnalyticsDto,
+  ContentLibraryQueryDto,
   DashboardOverviewDto,
   GameAnalyticsDto,
   LicensingAnalyticsDto,
   RealtimeAnalyticsDto,
   SubscriptionAnalyticsDto,
+  TrendsDto,
+  TrendsQueryDto,
   UserAnalyticsDto,
 } from './dto/analytics.dto';
 
@@ -71,11 +76,27 @@ export class AdminAnalyticsController {
     return this.analytics.licensing();
   }
 
-  @Get('content/:id')
+  @Get('trends')
   @Permissions('users:read')
-  @ApiOperation({ summary: 'Per-content analytics (views / engagement / watch-time + 30-day trend)' })
+  @ApiOperation({ summary: 'Dashboard time series (signups / active users / views / watch time / points / revenue), zero-filled' })
+  @ApiEnvelope(TrendsDto)
+  trends(@Query() query: TrendsQueryDto) {
+    return this.analytics.trends(query);
+  }
+
+  @Get('content-library')
+  @Permissions('content:read')
+  @ApiOperation({ summary: 'Catalog-wide content analytics for a window (totals, regions, hit rate, funnel, revenue, BTS, sentiment, top content)' })
+  @ApiEnvelope(ContentLibraryAnalyticsDto)
+  contentLibrary(@Query() query: ContentLibraryQueryDto) {
+    return this.analytics.contentLibrary(query);
+  }
+
+  @Get('content/:id')
+  @Permissions('content:read')
+  @ApiOperation({ summary: 'Per-content analytics (lifetime counters + windowed trend, retention, sources, demographics, geo, games, BTS)' })
   @ApiEnvelope(ContentAnalyticsDto)
-  content(@Param('id', ParseUUIDPipe) id: string) {
-    return this.analytics.content(id);
+  content(@Param('id', ParseUUIDPipe) id: string, @Query() query: AnalyticsWindowQueryDto) {
+    return this.analytics.content(id, query);
   }
 }

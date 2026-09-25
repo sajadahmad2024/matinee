@@ -4,7 +4,6 @@ import { Body, Controller, Get, HttpCode, HttpStatus, Post, Req, Res, Unauthoriz
 import { ApiBearerAuth, ApiCookieAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import { Request, Response } from 'express';
-import { randomUUID } from 'crypto';
 import { Public } from '../decorators/public.decorator';
 import { AdminOnly } from '../decorators/account-type.decorator';
 import { CurrentUser } from '../decorators/current-user.decorator';
@@ -52,7 +51,8 @@ export class AdminAuthController {
     const { accessToken } = await this.adminAuth.refresh(token, platform);
     if (platform === 'web') {
       this.tokens.setAccessCookie(res, accessToken);
-      return { accessToken: '' };
+      // Rotate the CSRF token too so a cross-site panel (which can't read our cookie) stays in sync.
+      return { accessToken: '', csrfToken: this.tokens.setCsrfCookie(res) };
     }
     return { accessToken };
   }
@@ -66,7 +66,6 @@ export class AdminAuthController {
   @ApiEnvelope(MessageResponseDto)
   logout(@Res({ passthrough: true }) res: Response) {
     this.tokens.clearAuthCookies(res);
-    res.clearCookie('csrf', { path: '/' });
     return { message: 'Logged out' };
   }
 
@@ -111,8 +110,8 @@ export class AdminAuthController {
   private deliverSession(res: Response, platform: Platform, result: AdminLoginResult): AdminSessionResponseDto {
     if (platform === 'web') {
       this.tokens.setAuthCookies(res, result.tokens, result.refreshTtl);
-      res.cookie('csrf', randomUUID(), { httpOnly: false, sameSite: 'lax', path: '/' });
-      return { user: result.user };
+      const csrfToken = this.tokens.setCsrfCookie(res);
+      return { user: result.user, csrfToken };
     }
     return { user: result.user, accessToken: result.tokens.accessToken, refreshToken: result.tokens.refreshToken };
   }

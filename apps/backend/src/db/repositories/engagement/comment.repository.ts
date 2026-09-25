@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { DBService, DBExecutor } from '@db/db.service';
-import { comments, commentReactions, users } from '@db/drizzle/schema';
+import { comments, commentReactions, contents, users } from '@db/drizzle/schema';
 import { and, desc, eq, isNull, sql } from 'drizzle-orm';
 
 export interface CommentRecord {
@@ -16,6 +16,25 @@ export interface CommentRecord {
   author: { id: string; username: string | null; firstName: string | null; avatarUrl: string | null };
   myReaction: 'like' | 'dislike' | null;
 }
+
+/** Admin moderation row: any status, with the author's display name and the content title. */
+export interface AdminCommentRecord {
+  id: string;
+  contentId: string;
+  contentTitle: string | null;
+  parentCommentId: string | null;
+  body: string;
+  status: string;
+  likeCount: number;
+  dislikeCount: number;
+  replyCount: number;
+  flagCount: number;
+  isFlagged: boolean;
+  createdAt: string;
+  author: { id: string; name: string; username: string | null; avatarUrl: string | null };
+}
+
+export type CommentStatus = 'visible' | 'hidden' | 'deleted';
 
 @Injectable()
 export class CommentRepository {
@@ -137,5 +156,70 @@ export class CommentRepository {
   async exists(id: string, tx?: DBExecutor): Promise<boolean> {
     const rows = await this.exec(tx).select({ id: comments.id }).from(comments).where(eq(comments.id, id)).limit(1);
     return rows.length > 0;
+  }
+
+  /** Admin list: every status (optionally filtered), any content (optionally filtered), newest first. */
+  async adminList(
+    filter: { contentId?: string; status?: CommentStatus; page: number; limit: number },
+    tx?: DBExecutor,
+  ): Promise<{ items: AdminCommentRecord[]; total: number }> {
+    const db = this.exec(tx);
+    const where = and(
+      filter.contentId ? eq(comments.contentId, filter.contentId) : undefined,
+      filter.status ? eq(comments.status, filter.status) : undefined,
+    );
+    // "First Last" → username → "Unknown user" (display name for the moderation table).
+    const authorName = sql<string>`coalesce(
+      nullif(trim(concat_ws(' ', ${users.firstName}, ${users.lastName})), ''),
+      ${users.username},
+      'Unknown user'
+    )`;
+    const [rows, totalRes] = await Promise.all([
+      db
+        .select({
+          id: comments.id,
+          contentId: comments.contentId,
+          contentTitle: contents.title,
+          parentCommentId: comments.parentCommentId,
+          body: comments.body,
+          status: comments.status,
+          likeCount: comments.likeCount,
+          dislikeCount: comments.dislikeCount,
+          replyCount: comments.replyCount,
+          flagCount: comments.flagCount,
+          isFlagged: comments.isFlagged,
+          createdAt: comments.createdAt,
+          authorId: comments.userId,
+          authorName,
+          authorUsername: users.username,
+          authorAvatarUrl: users.avatarUrl,
+        })
+        .from(comments)
+        .leftJoin(users, eq(users.id, comments.userId))
+        .leftJoin(contents, eq(contents.id, comments.contentId))
+        .where(where)
+        .orderBy(desc(comments.createdAt), desc(comments.id))
+        .limit(filter.limit)
+        .offset((filter.page - 1) * filter.limit),
+      db.select({ n: sql<number>`count(*)::int` }).from(comments).where(where),
+    ]);
+    return {
+      items: rows.map((r) => ({
+        id: r.id,
+        contentId: r.contentId,
+        contentTitle: r.contentTitle,
+        parentCommentId: r.parentCommentId,
+        body: r.body,
+        status: r.status,
+        likeCount: r.likeCount,
+        dislikeCount: r.dislikeCount,
+        replyCount: r.replyCount,
+        flagCount: r.flagCount,
+        isFlagged: r.isFlagged,
+        createdAt: r.createdAt,
+        author: { id: r.authorId, name: r.authorName, username: r.authorUsername, avatarUrl: r.authorAvatarUrl },
+      })),
+      total: totalRes[0]?.n ?? 0,
+    };
   }
 }

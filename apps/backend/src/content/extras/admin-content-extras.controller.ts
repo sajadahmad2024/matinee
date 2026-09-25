@@ -1,5 +1,6 @@
 import { RouteNames } from '@common/route-names';
-import { Body, Controller, Get, Param, ParseUUIDPipe, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Put } from '@nestjs/common';
+import { MessageResponseDto } from '@common/dto/message-response.dto';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ApiEnvelope } from '@common/swagger/api-envelope.decorator';
 import { AdminOnly } from '../../auth/decorators/account-type.decorator';
@@ -29,6 +30,10 @@ export class AdminContentExtrasController {
   setLicense(@CurrentUser('id') adminId: string, @Param('id', ParseUUIDPipe) id: string, @Body() dto: LicenseDto) {
     return this.extras.setLicense(adminId, id, dto);
   }
+  @Delete(':id/license') @Permissions('content:write') @ApiOperation({ summary: 'Remove licence — mark content original' }) @ApiEnvelope(MessageResponseDto)
+  removeLicense(@CurrentUser('id') adminId: string, @Param('id', ParseUUIDPipe) id: string) {
+    return this.extras.removeLicense(adminId, id);
+  }
 
   // Sponsorship / ad-sales
   @Get(':id/sponsorship') @Permissions('content:read') @ApiOperation({ summary: 'Get active sponsorship/commercial' }) @ApiEnvelope(SponsorshipResponseDto)
@@ -36,6 +41,10 @@ export class AdminContentExtrasController {
   @Put(':id/sponsorship') @Permissions('content:write') @ApiOperation({ summary: 'Set sponsorship / ad-commercial' }) @ApiEnvelope(SponsorshipResponseDto)
   setSponsorship(@CurrentUser('id') adminId: string, @Param('id', ParseUUIDPipe) id: string, @Body() dto: SponsorshipDto) {
     return this.extras.setSponsorship(adminId, id, dto);
+  }
+  @Delete(':id/sponsorship') @Permissions('content:write') @ApiOperation({ summary: 'Remove sponsorship — back to organic' }) @ApiEnvelope(MessageResponseDto)
+  removeSponsorship(@CurrentUser('id') adminId: string, @Param('id', ParseUUIDPipe) id: string) {
+    return this.extras.removeSponsorship(adminId, id);
   }
 
   // Publish regions (availability)

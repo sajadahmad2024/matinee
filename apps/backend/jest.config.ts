@@ -27,6 +27,14 @@ const config: Config = {
     '^@notification-queue/(.*)$': '<rootDir>/background/queue/notification/$1',
     '^@metrics/(.*)$': '<rootDir>/api/metrics/$1',
     '^@health/(.*)$': '<rootDir>/api/health/$1',
+    '^@cache/(.*)$': '<rootDir>/cache/$1',
+    '^@queue/(.*)$': '<rootDir>/queue/$1',
+    '^@auth/(.*)$': '<rootDir>/auth/$1',
+    '^@users/(.*)$': '<rootDir>/users/$1',
+    '^@media/(.*)$': '<rootDir>/media/$1',
+    '^@email/(.*)$': '<rootDir>/email/$1',
+    '^@sms/(.*)$': '<rootDir>/sms/$1',
+    '^@notifications/(.*)$': '<rootDir>/notifications/$1',
   },
 };
 

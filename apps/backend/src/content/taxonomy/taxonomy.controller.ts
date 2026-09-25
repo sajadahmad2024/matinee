@@ -17,7 +17,7 @@ export class TaxonomyController {
   @ApiOperation({ summary: 'Active genres (for filtering the feed)' })
   @ApiEnvelope(GenreResponseDto, { isArray: true })
   genres() {
-    return this.taxonomy.listGenres(true);
+    return this.taxonomy.listPublicGenres();
   }
 
   @Get('tags')
@@ -25,6 +25,6 @@ export class TaxonomyController {
   @ApiOperation({ summary: 'All tags' })
   @ApiEnvelope(TagResponseDto, { isArray: true })
   tags() {
-    return this.taxonomy.listTags();
+    return this.taxonomy.listPublicTags();
   }
 }
