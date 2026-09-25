@@ -30,10 +30,13 @@ export const gameWidgetConfigs = pgTable("game_widget_configs", {
 export const contentSponsorships = pgTable("content_sponsorships", {
 	id: uuid().default(sql`uuidv7()`).primaryKey().notNull(),
 	contentId: uuid("content_id").notNull(),
+	adFormat: varchar("ad_format", { length: 20 }).default('sponsored').notNull(),
 	sponsorName: varchar("sponsor_name", { length: 200 }).notNull(),
 	bannerMediaId: uuid("banner_media_id"),
 	adDurationSeconds: integer("ad_duration_seconds").default(0).notNull(),
 	placement: varchar({ length: 20 }).default('pre-roll').notNull(),
+	feedFrequency: integer("feed_frequency"),
+	skippableAfterSeconds: integer("skippable_after_seconds"),
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
 	revenueCents: bigint("revenue_cents", { mode: "number" }).default(0).notNull(),
 	currency: varchar({ length: 3 }).default('USD').notNull(),
@@ -43,29 +46,55 @@ export const contentSponsorships = pgTable("content_sponsorships", {
 	createdBy: uuid("created_by"),
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
 	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
-	adFormat: varchar("ad_format", { length: 20 }).default('sponsored').notNull(),
-	feedFrequency: integer("feed_frequency"),
-	skippableAfterSeconds: integer("skippable_after_seconds"),
+	creativeMediaId: uuid("creative_media_id"),
+	clickUrl: varchar("click_url", { length: 500 }),
+	ctaLabel: varchar("cta_label", { length: 40 }),
+	midRollAtSeconds: integer("mid_roll_at_seconds"),
+	overlayStartSeconds: integer("overlay_start_seconds"),
+	overlayDurationSeconds: integer("overlay_duration_seconds"),
+	cpmCents: integer("cpm_cents"),
+	cpcCents: integer("cpc_cents"),
+	advertiserId: uuid("advertiser_id"),
+	campaignId: uuid("campaign_id"),
 }, (table) => [
+	index("idx_content_sponsorships_advertiser").using("btree", table.advertiserId.asc().nullsLast().op("uuid_ops")).where(sql`(advertiser_id IS NOT NULL)`),
+	index("idx_content_sponsorships_campaign").using("btree", table.campaignId.asc().nullsLast().op("uuid_ops")).where(sql`(campaign_id IS NOT NULL)`),
 	index("idx_content_sponsorships_commercial").using("btree", table.contentId.asc().nullsLast().op("uuid_ops")).where(sql`(is_active AND ((ad_format)::text = 'commercial'::text))`),
 	index("idx_content_sponsorships_content").using("btree", table.contentId.asc().nullsLast().op("uuid_ops")).where(sql`is_active`),
+	index("idx_content_sponsorships_ends").using("btree", table.endsAt.asc().nullsLast().op("timestamptz_ops")).where(sql`(is_active AND (ends_at IS NOT NULL))`),
 	foreignKey({
-			columns: [table.contentId],
-			foreignColumns: [contents.id],
-			name: "content_sponsorships_content_id_fkey"
-		}).onDelete("cascade"),
+			columns: [table.advertiserId],
+			foreignColumns: [advertisers.id],
+			name: "content_sponsorships_advertiser_id_fkey"
+		}).onDelete("set null"),
 	foreignKey({
 			columns: [table.bannerMediaId],
 			foreignColumns: [mediaMetadata.id],
 			name: "content_sponsorships_banner_media_id_fkey"
 		}).onDelete("set null"),
 	foreignKey({
+			columns: [table.campaignId],
+			foreignColumns: [adCampaigns.id],
+			name: "content_sponsorships_campaign_id_fkey"
+		}).onDelete("set null"),
+	foreignKey({
+			columns: [table.contentId],
+			foreignColumns: [contents.id],
+			name: "content_sponsorships_content_id_fkey"
+		}).onDelete("cascade"),
+	foreignKey({
 			columns: [table.createdBy],
 			foreignColumns: [users.id],
 			name: "content_sponsorships_created_by_fkey"
 		}).onDelete("set null"),
-	check("content_sponsorships_placement_check", sql`(placement)::text = ANY ((ARRAY['pre-roll'::character varying, 'mid-roll'::character varying, 'post-roll'::character varying, 'overlay'::character varying])::text[])`),
+	foreignKey({
+			columns: [table.creativeMediaId],
+			foreignColumns: [mediaMetadata.id],
+			name: "content_sponsorships_creative_media_id_fkey"
+		}).onDelete("set null"),
 	check("content_sponsorships_ad_format_check", sql`(ad_format)::text = ANY ((ARRAY['sponsored'::character varying, 'commercial'::character varying])::text[])`),
+	check("content_sponsorships_ad_numbers_check", sql`((mid_roll_at_seconds IS NULL) OR (mid_roll_at_seconds >= 0)) AND ((overlay_start_seconds IS NULL) OR (overlay_start_seconds >= 0)) AND ((overlay_duration_seconds IS NULL) OR (overlay_duration_seconds > 0)) AND ((cpm_cents IS NULL) OR (cpm_cents >= 0)) AND ((cpc_cents IS NULL) OR (cpc_cents >= 0))`),
+	check("content_sponsorships_placement_check", sql`(placement)::text = ANY ((ARRAY['pre-roll'::character varying, 'mid-roll'::character varying, 'post-roll'::character varying, 'overlay'::character varying])::text[])`),
 ]);
 
 export const contentLicenses = pgTable("content_licenses", {
@@ -255,6 +284,11 @@ export const moderationTickets = pgTable("moderation_tickets", {
 	index("idx_moderation_tickets_offender").using("btree", table.offenderUserId.asc().nullsLast().op("uuid_ops")),
 	index("idx_moderation_tickets_queue").using("btree", table.status.asc().nullsLast().op("text_ops"), table.severity.asc().nullsLast().op("text_ops")).where(sql`((status)::text = ANY ((ARRAY['open'::character varying, 'in_review'::character varying, 'escalated'::character varying])::text[]))`),
 	index("idx_moderation_tickets_subject").using("btree", table.subjectType.asc().nullsLast().op("uuid_ops"), table.subjectId.asc().nullsLast().op("uuid_ops")),
+	uniqueIndex("uq_moderation_tickets_open_subject").using("btree", table.subjectType.asc().nullsLast().op("text_ops"), table.subjectId.asc().nullsLast().op("uuid_ops")).where(sql`((status)::text = ANY ((ARRAY['open'::character varying, 'in_review'::character varying, 'escalated'::character varying])::text[]))`),
+	index("idx_moderation_tickets_created").using("btree", table.createdAt.desc().nullsFirst().op("timestamptz_ops")),
+	index("idx_moderation_tickets_resolved_at").using("btree", table.resolvedAt.desc().nullsFirst().op("timestamptz_ops")).where(sql`(resolved_at IS NOT NULL)`),
+	index("idx_moderation_tickets_assignee").using("btree", table.assignedTo.asc().nullsLast().op("uuid_ops")).where(sql`((status)::text = ANY ((ARRAY['open'::character varying, 'in_review'::character varying, 'escalated'::character varying])::text[]))`),
+	index("idx_moderation_tickets_offender_time").using("btree", table.offenderUserId.asc().nullsLast().op("uuid_ops"), table.createdAt.desc().nullsFirst().op("timestamptz_ops")),
 	foreignKey({
 			columns: [table.offenderUserId],
 			foreignColumns: [users.id],
@@ -292,6 +326,7 @@ export const adminAuditLog = pgTable("admin_audit_log", {
 }, (table) => [
 	index("idx_admin_audit_log_actor").using("btree", table.actorId.asc().nullsLast().op("timestamptz_ops"), table.createdAt.desc().nullsFirst().op("timestamptz_ops")),
 	index("idx_admin_audit_log_target").using("btree", table.targetType.asc().nullsLast().op("text_ops"), table.targetId.asc().nullsLast().op("text_ops")),
+	index("idx_admin_audit_log_target_time").using("btree", table.targetType.asc().nullsLast().op("text_ops"), table.targetId.asc().nullsLast().op("uuid_ops"), table.createdAt.desc().nullsFirst().op("timestamptz_ops")),
 	index("idx_admin_audit_log_time").using("btree", table.createdAt.desc().nullsFirst().op("timestamptz_ops")),
 	foreignKey({
 			columns: [table.actorId],
@@ -414,7 +449,13 @@ export const userSessions = pgTable("user_sessions", {
 	platform: varchar({ length: 20 }),
 	appVersion: varchar("app_version", { length: 20 }),
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	clientSessionId: varchar("client_session_id", { length: 64 }),
+	lastEventAt: timestamp("last_event_at", { withTimezone: true, mode: 'string' }),
+	backgroundCount: integer("background_count").default(0).notNull(),
+	engagementActions: integer("engagement_actions").default(0).notNull(),
 }, (table) => [
+	uniqueIndex("uq_user_sessions_client").using("btree", table.userId.asc().nullsLast().op("uuid_ops"), table.clientSessionId.asc().nullsLast().op("text_ops")).where(sql`(client_session_id IS NOT NULL)`),
+	index("idx_user_sessions_last_event").using("btree", table.lastEventAt.asc().nullsLast().op("timestamptz_ops")),
 	index("idx_user_sessions_region").using("btree", table.region.asc().nullsLast().op("text_ops")),
 	index("idx_user_sessions_time").using("btree", table.startedAt.asc().nullsLast().op("timestamptz_ops")),
 	index("idx_user_sessions_user").using("btree", table.userId.asc().nullsLast().op("timestamptz_ops"), table.startedAt.desc().nullsFirst().op("timestamptz_ops")),
@@ -458,7 +499,9 @@ export const socialMentions = pgTable("social_mentions", {
 	isViralMoment: boolean("is_viral_moment").default(false).notNull(),
 	mentionedAt: timestamp("mentioned_at", { withTimezone: true, mode: 'string' }),
 	ingestedAt: timestamp("ingested_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	countryCode: varchar("country_code", { length: 2 }),
 }, (table) => [
+	uniqueIndex("uq_social_mentions_external").using("btree", table.platform.asc().nullsLast().op("text_ops"), table.externalId.asc().nullsLast().op("text_ops")).where(sql`(external_id IS NOT NULL)`),
 	index("idx_social_mentions_platform").using("btree", table.platform.asc().nullsLast().op("timestamptz_ops"), table.mentionedAt.desc().nullsFirst().op("text_ops")),
 	index("idx_social_mentions_sentiment").using("btree", table.sentiment.asc().nullsLast().op("text_ops")),
 	index("idx_social_mentions_viral").using("btree", table.isViralMoment.asc().nullsLast().op("bool_ops")).where(sql`is_viral_moment`),
@@ -708,7 +751,7 @@ export const userEnforcementActions = pgTable("user_enforcement_actions", {
 			foreignColumns: [users.id],
 			name: "user_enforcement_actions_performed_by_fkey"
 		}).onDelete("set null"),
-	check("user_enforcement_actions_action_check", sql`(action)::text = ANY ((ARRAY['suspend'::character varying, 'ban'::character varying, 'reinstate'::character varying, 'disable'::character varying, 'enable'::character varying])::text[])`),
+	check("user_enforcement_actions_action_check", sql`(action)::text = ANY ((ARRAY['suspend'::character varying, 'ban'::character varying, 'reinstate'::character varying, 'disable'::character varying, 'enable'::character varying, 'warn'::character varying])::text[])`),
 ]);
 
 export const moderationReports = pgTable("moderation_reports", {
@@ -720,6 +763,9 @@ export const moderationReports = pgTable("moderation_reports", {
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
 }, (table) => [
 	index("idx_moderation_reports_ticket").using("btree", table.ticketId.asc().nullsLast().op("uuid_ops")),
+	uniqueIndex("uq_moderation_reports_ticket_reporter").using("btree", table.ticketId.asc().nullsLast().op("uuid_ops"), table.reporterUserId.asc().nullsLast().op("uuid_ops")).where(sql`(reporter_user_id IS NOT NULL)`),
+	index("idx_moderation_reports_created").using("btree", table.createdAt.desc().nullsFirst().op("timestamptz_ops")),
+	index("idx_moderation_reports_reporter").using("btree", table.reporterUserId.asc().nullsLast().op("uuid_ops")),
 	foreignKey({
 			columns: [table.ticketId],
 			foreignColumns: [moderationTickets.id],
@@ -731,6 +777,26 @@ export const moderationReports = pgTable("moderation_reports", {
 			name: "moderation_reports_reporter_user_id_fkey"
 		}).onDelete("set null"),
 	check("moderation_reports_reason_check", sql`(reason)::text = ANY ((ARRAY['hate_speech'::character varying, 'spam'::character varying, 'nudity'::character varying, 'violence'::character varying, 'harassment'::character varying, 'other'::character varying])::text[])`),
+]);
+
+export const moderationTicketNotes = pgTable("moderation_ticket_notes", {
+	id: uuid().default(sql`uuidv7()`).primaryKey().notNull(),
+	ticketId: uuid("ticket_id").notNull(),
+	authorId: uuid("author_id"),
+	body: varchar({ length: 1000 }).notNull(),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+}, (table) => [
+	index("idx_moderation_ticket_notes_ticket").using("btree", table.ticketId.asc().nullsLast().op("uuid_ops"), table.createdAt.desc().nullsFirst().op("timestamptz_ops")),
+	foreignKey({
+			columns: [table.ticketId],
+			foreignColumns: [moderationTickets.id],
+			name: "moderation_ticket_notes_ticket_id_fkey"
+		}).onDelete("cascade"),
+	foreignKey({
+			columns: [table.authorId],
+			foreignColumns: [users.id],
+			name: "moderation_ticket_notes_author_id_fkey"
+		}).onDelete("set null"),
 ]);
 
 export const roles = pgTable("roles", {
@@ -1008,7 +1074,10 @@ export const contentMedia = pgTable("content_media", {
 	kind: varchar({ length: 20 }).default('still').notNull(),
 	sortOrder: integer("sort_order").default(0).notNull(),
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	timecodeSeconds: numeric("timecode_seconds", { precision: 10, scale:  3 }),
 }, (table) => [
+	uniqueIndex("uq_content_media_content_media").using("btree", table.contentId.asc().nullsLast().op("uuid_ops"), table.mediaId.asc().nullsLast().op("uuid_ops")),
+	check("content_media_timecode_check", sql`(timecode_seconds IS NULL) OR (timecode_seconds >= (0)::numeric)`),
 	index("idx_content_media_content").using("btree", table.contentId.asc().nullsLast().op("uuid_ops")),
 	foreignKey({
 			columns: [table.contentId],
@@ -1119,7 +1188,16 @@ export const contents = pgTable("contents", {
 	availableUntil: timestamp("available_until", { withTimezone: true, mode: 'string' }),
 	boostStartsAt: timestamp("boost_starts_at", { withTimezone: true, mode: 'string' }),
 	boostChannels: varchar("boost_channels", { length: 20 }).array().default(sql`'{}'`).notNull(),
+	boostNotifiedAt: timestamp("boost_notified_at", { withTimezone: true, mode: 'string' }),
+	boostCampaignId: uuid("boost_campaign_id"),
+	durationManual: boolean("duration_manual").default(false).notNull(),
 }, (table) => [
+	index("idx_contents_boost_notify_pending").using("btree", table.boostStartsAt.asc().nullsLast().op("timestamptz_ops")).where(sql`(is_boosted AND (boost_notified_at IS NULL) AND (deleted_at IS NULL))`),
+	foreignKey({
+			columns: [table.boostCampaignId],
+			foreignColumns: [notificationCampaigns.id],
+			name: "contents_boost_campaign_id_fkey"
+		}).onDelete("set null"),
 	index("idx_contents_available_until").using("btree", table.availableUntil.asc().nullsLast().op("timestamptz_ops")).where(sql`((available_until IS NOT NULL) AND (deleted_at IS NULL))`),
 	index("idx_contents_created_at").using("btree", table.createdAt.desc().nullsFirst().op("timestamptz_ops")).where(sql`(deleted_at IS NULL)`),
 	index("idx_contents_boost").using("btree", table.boostPriority.desc().nullsFirst().op("int4_ops")).where(sql`(is_boosted AND (deleted_at IS NULL))`),
@@ -1293,7 +1371,7 @@ export const commentReports = pgTable("comment_reports", {
 			name: "comment_reports_reviewed_by_fkey"
 		}).onDelete("set null"),
 	unique("comment_reports_comment_id_reported_by_key").on(table.commentId, table.reportedBy),
-	check("comment_reports_reason_check", sql`(reason)::text = ANY ((ARRAY['nudity_sexual'::character varying, 'violence_gore'::character varying, 'hate_speech'::character varying, 'harassment_bullying'::character varying, 'other'::character varying])::text[])`),
+	check("comment_reports_reason_check", sql`(reason)::text = ANY ((ARRAY['nudity_sexual'::character varying, 'violence_gore'::character varying, 'hate_speech'::character varying, 'harassment_bullying'::character varying, 'spam'::character varying, 'other'::character varying])::text[])`),
 	check("comment_reports_status_check", sql`(status)::text = ANY ((ARRAY['pending'::character varying, 'actioned'::character varying, 'dismissed'::character varying])::text[])`),
 ]);
 
@@ -1303,7 +1381,9 @@ export const contentShares = pgTable("content_shares", {
 	userId: uuid("user_id").notNull(),
 	channel: varchar({ length: 30 }),
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	shareDate: date("share_date").default(sql`((now() AT TIME ZONE 'UTC'::text))::date`).notNull(),
 }, (table) => [
+	index("idx_content_shares_date").using("btree", table.shareDate.asc().nullsLast().op("date_ops")),
 	index("idx_content_shares_content").using("btree", table.contentId.asc().nullsLast().op("uuid_ops")),
 	index("idx_content_shares_user").using("btree", table.userId.asc().nullsLast().op("uuid_ops")),
 	foreignKey({
@@ -2137,7 +2217,15 @@ export const contentDailyStats = pgTable("content_daily_stats", {
 			name: "content_daily_stats_content_id_fkey"
 		}).onDelete("cascade"),
 	primaryKey({ columns: [table.contentId, table.statDate], name: "content_daily_stats_pkey"}),
+	index("idx_content_daily_stats_date").using("btree", table.statDate.asc().nullsLast().op("date_ops")),
 ]);
+
+export const analyticsRollupState = pgTable("analytics_rollup_state", {
+	jobKey: varchar("job_key", { length: 50 }).primaryKey().notNull(),
+	coveredFrom: date("covered_from"),
+	coveredThrough: date("covered_through"),
+	lastRunAt: timestamp("last_run_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+});
 
 export const notificationLogs = pgTable("notification_logs", {
 	id: uuid().default(sql`uuidv7()`).primaryKey().notNull(),
@@ -2170,4 +2258,178 @@ export const notificationLogs = pgTable("notification_logs", {
 			name: "notification_logs_device_token_id_fkey"
 		}).onDelete("set null"),
 	check("notification_logs_status_check", sql`(status)::text = ANY ((ARRAY['sent'::character varying, 'failed'::character varying])::text[])`),
+]);
+
+export const adEvents = pgTable("ad_events", {
+	id: uuid().default(sql`uuidv7()`).primaryKey().notNull(),
+	sponsorshipId: uuid("sponsorship_id"),
+	contentId: uuid("content_id"),
+	userId: uuid("user_id"),
+	viewKey: varchar("view_key", { length: 64 }).notNull(),
+	eventType: varchar("event_type", { length: 20 }).notNull(),
+	positionSeconds: integer("position_seconds"),
+	region: varchar({ length: 100 }),
+	occurredAt: timestamp("occurred_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	campaignId: uuid("campaign_id"),
+}, (table) => [
+	index("idx_ad_events_campaign").using("btree", table.campaignId.asc().nullsLast().op("timestamptz_ops"), table.occurredAt.asc().nullsLast().op("timestamptz_ops")).where(sql`(campaign_id IS NOT NULL)`),
+	index("idx_ad_events_content").using("btree", table.contentId.asc().nullsLast().op("uuid_ops"), table.occurredAt.asc().nullsLast().op("timestamptz_ops")),
+	index("idx_ad_events_sponsorship").using("btree", table.sponsorshipId.asc().nullsLast().op("timestamptz_ops"), table.occurredAt.asc().nullsLast().op("timestamptz_ops")),
+	index("idx_ad_events_user_day").using("btree", table.userId.asc().nullsLast().op("timestamptz_ops"), table.campaignId.asc().nullsLast().op("uuid_ops"), table.occurredAt.asc().nullsLast().op("uuid_ops")).where(sql`(campaign_id IS NOT NULL)`),
+	uniqueIndex("uq_ad_events_campaign_dedupe").using("btree", table.campaignId.asc().nullsLast().op("uuid_ops"), table.userId.asc().nullsLast().op("text_ops"), table.viewKey.asc().nullsLast().op("uuid_ops"), table.eventType.asc().nullsLast().op("text_ops")).where(sql`((campaign_id IS NOT NULL) AND (sponsorship_id IS NULL))`),
+	uniqueIndex("uq_ad_events_dedupe").using("btree", table.sponsorshipId.asc().nullsLast().op("text_ops"), table.userId.asc().nullsLast().op("uuid_ops"), table.viewKey.asc().nullsLast().op("uuid_ops"), table.eventType.asc().nullsLast().op("uuid_ops")),
+	foreignKey({
+			columns: [table.campaignId],
+			foreignColumns: [adCampaigns.id],
+			name: "ad_events_campaign_id_fkey"
+		}).onDelete("cascade"),
+	foreignKey({
+			columns: [table.contentId],
+			foreignColumns: [contents.id],
+			name: "ad_events_content_id_fkey"
+		}).onDelete("cascade"),
+	foreignKey({
+			columns: [table.sponsorshipId],
+			foreignColumns: [contentSponsorships.id],
+			name: "ad_events_sponsorship_id_fkey"
+		}).onDelete("cascade"),
+	foreignKey({
+			columns: [table.userId],
+			foreignColumns: [users.id],
+			name: "ad_events_user_id_fkey"
+		}).onDelete("set null"),
+	check("ad_events_event_type_check", sql`(event_type)::text = ANY ((ARRAY['impression'::character varying, 'click'::character varying, 'skip'::character varying, 'complete'::character varying])::text[])`),
+	check("ad_events_position_check", sql`(position_seconds IS NULL) OR (position_seconds >= 0)`),
+	check("ad_events_target_check", sql`(sponsorship_id IS NOT NULL) OR (campaign_id IS NOT NULL)`),
+]);
+
+export const advertisers = pgTable("advertisers", {
+	id: uuid().default(sql`uuidv7()`).primaryKey().notNull(),
+	name: varchar({ length: 200 }).notNull(),
+	logoMediaId: uuid("logo_media_id"),
+	website: varchar({ length: 500 }),
+	contactName: varchar("contact_name", { length: 200 }),
+	contactEmail: varchar("contact_email", { length: 255 }),
+	billingEmail: varchar("billing_email", { length: 255 }),
+	currency: varchar({ length: 3 }).default('USD').notNull(),
+	status: varchar({ length: 20 }).default('active').notNull(),
+	notes: varchar({ length: 2000 }),
+	createdBy: uuid("created_by"),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	deletedAt: timestamp("deleted_at", { withTimezone: true, mode: 'string' }),
+}, (table) => [
+	uniqueIndex("uq_advertisers_name").using("btree", sql`lower((name)::text)`).where(sql`(deleted_at IS NULL)`),
+	foreignKey({
+			columns: [table.createdBy],
+			foreignColumns: [users.id],
+			name: "advertisers_created_by_fkey"
+		}).onDelete("set null"),
+	foreignKey({
+			columns: [table.logoMediaId],
+			foreignColumns: [mediaMetadata.id],
+			name: "advertisers_logo_media_id_fkey"
+		}).onDelete("set null"),
+	check("advertisers_status_check", sql`(status)::text = ANY ((ARRAY['active'::character varying, 'paused'::character varying, 'archived'::character varying])::text[])`),
+]);
+
+export const adCampaigns = pgTable("ad_campaigns", {
+	id: uuid().default(sql`uuidv7()`).primaryKey().notNull(),
+	advertiserId: uuid("advertiser_id").notNull(),
+	name: varchar({ length: 200 }).notNull(),
+	type: varchar({ length: 20 }).notNull(),
+	status: varchar({ length: 20 }).default('draft').notNull(),
+	startsAt: timestamp("starts_at", { withTimezone: true, mode: 'string' }),
+	endsAt: timestamp("ends_at", { withTimezone: true, mode: 'string' }),
+	regions: varchar({ length: 10 }).array().default(sql`'{}'`).notNull(),
+	creativeMediaId: uuid("creative_media_id"),
+	clickUrl: varchar("click_url", { length: 1000 }),
+	ctaLabel: varchar("cta_label", { length: 40 }),
+	durationSeconds: integer("duration_seconds"),
+	skippableAfterSeconds: integer("skippable_after_seconds"),
+	feedFrequency: integer("feed_frequency").default(5).notNull(),
+	weight: integer().default(1).notNull(),
+	frequencyCapPerUserDay: integer("frequency_cap_per_user_day"),
+	pricingModel: varchar("pricing_model", { length: 10 }).default('flat').notNull(),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	flatFeeCents: bigint("flat_fee_cents", { mode: "number" }).default(0).notNull(),
+	cpmCents: integer("cpm_cents").default(0).notNull(),
+	cpcCents: integer("cpc_cents").default(0).notNull(),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	budgetCents: bigint("budget_cents", { mode: "number" }),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	dailyBudgetCents: bigint("daily_budget_cents", { mode: "number" }),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	impressionGoal: bigint("impression_goal", { mode: "number" }),
+	currency: varchar({ length: 3 }).default('USD').notNull(),
+	endedReason: varchar("ended_reason", { length: 30 }),
+	notes: varchar({ length: 2000 }),
+	createdBy: uuid("created_by"),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	deletedAt: timestamp("deleted_at", { withTimezone: true, mode: 'string' }),
+}, (table) => [
+	index("idx_ad_campaigns_advertiser").using("btree", table.advertiserId.asc().nullsLast().op("uuid_ops")).where(sql`(deleted_at IS NULL)`),
+	index("idx_ad_campaigns_live").using("btree", table.type.asc().nullsLast().op("text_ops"), table.status.asc().nullsLast().op("text_ops"), table.startsAt.asc().nullsLast().op("text_ops"), table.endsAt.asc().nullsLast().op("text_ops")).where(sql`(deleted_at IS NULL)`),
+	foreignKey({
+			columns: [table.advertiserId],
+			foreignColumns: [advertisers.id],
+			name: "ad_campaigns_advertiser_id_fkey"
+		}).onDelete("restrict"),
+	foreignKey({
+			columns: [table.createdBy],
+			foreignColumns: [users.id],
+			name: "ad_campaigns_created_by_fkey"
+		}).onDelete("set null"),
+	foreignKey({
+			columns: [table.creativeMediaId],
+			foreignColumns: [mediaMetadata.id],
+			name: "ad_campaigns_creative_media_id_fkey"
+		}).onDelete("set null"),
+	check("ad_campaigns_dates_check", sql`(starts_at IS NULL) OR (ends_at IS NULL) OR (ends_at > starts_at)`),
+	check("ad_campaigns_numbers_check", sql`(feed_frequency >= 1) AND (weight >= 1) AND (flat_fee_cents >= 0) AND (cpm_cents >= 0) AND (cpc_cents >= 0) AND ((budget_cents IS NULL) OR (budget_cents >= 0)) AND ((daily_budget_cents IS NULL) OR (daily_budget_cents >= 0)) AND ((frequency_cap_per_user_day IS NULL) OR (frequency_cap_per_user_day >= 1)) AND ((duration_seconds IS NULL) OR (duration_seconds >= 0)) AND ((skippable_after_seconds IS NULL) OR (skippable_after_seconds >= 0))`),
+	check("ad_campaigns_pricing_check", sql`(pricing_model)::text = ANY ((ARRAY['flat'::character varying, 'cpm'::character varying, 'cpc'::character varying])::text[])`),
+	check("ad_campaigns_regions_check", sql`regions <@ ARRAY['NA'::character varying, 'EU'::character varying, 'APAC'::character varying, 'LATAM'::character varying, 'MEA'::character varying]`),
+	check("ad_campaigns_status_check", sql`(status)::text = ANY ((ARRAY['draft'::character varying, 'scheduled'::character varying, 'active'::character varying, 'paused'::character varying, 'ended'::character varying])::text[])`),
+	check("ad_campaigns_type_check", sql`(type)::text = ANY ((ARRAY['commercial'::character varying, 'sponsorship'::character varying])::text[])`),
+]);
+
+export const adLedgerEntries = pgTable("ad_ledger_entries", {
+	id: uuid().default(sql`uuidv7()`).primaryKey().notNull(),
+	advertiserId: uuid("advertiser_id").notNull(),
+	campaignId: uuid("campaign_id"),
+	kind: varchar({ length: 20 }).notNull(),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	amountCents: bigint("amount_cents", { mode: "number" }).notNull(),
+	currency: varchar({ length: 3 }).default('USD').notNull(),
+	entryDate: date("entry_date").default(sql`((now() AT TIME ZONE 'UTC'))::date`).notNull(),
+	invoiceNumber: varchar("invoice_number", { length: 60 }),
+	dueDate: date("due_date"),
+	reference: varchar({ length: 200 }),
+	note: varchar({ length: 1000 }),
+	metadata: jsonb().default({}).notNull(),
+	createdBy: uuid("created_by"),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+}, (table) => [
+	index("idx_ad_ledger_advertiser").using("btree", table.advertiserId.asc().nullsLast().op("date_ops"), table.entryDate.asc().nullsLast().op("uuid_ops")),
+	index("idx_ad_ledger_campaign").using("btree", table.campaignId.asc().nullsLast().op("date_ops"), table.entryDate.asc().nullsLast().op("uuid_ops")),
+	uniqueIndex("uq_ad_ledger_accrual").using("btree", table.campaignId.asc().nullsLast().op("date_ops"), table.entryDate.asc().nullsLast().op("date_ops")).where(sql`((kind)::text = 'accrued'::text)`),
+	foreignKey({
+			columns: [table.advertiserId],
+			foreignColumns: [advertisers.id],
+			name: "ad_ledger_entries_advertiser_id_fkey"
+		}).onDelete("restrict"),
+	foreignKey({
+			columns: [table.campaignId],
+			foreignColumns: [adCampaigns.id],
+			name: "ad_ledger_entries_campaign_id_fkey"
+		}).onDelete("set null"),
+	foreignKey({
+			columns: [table.createdBy],
+			foreignColumns: [users.id],
+			name: "ad_ledger_entries_created_by_fkey"
+		}).onDelete("set null"),
+	check("ad_ledger_amount_check", sql`amount_cents >= 0`),
+	check("ad_ledger_kind_check", sql`(kind)::text = ANY ((ARRAY['booked'::character varying, 'accrued'::character varying, 'invoiced'::character varying, 'paid'::character varying, 'credit'::character varying])::text[])`),
 ]);

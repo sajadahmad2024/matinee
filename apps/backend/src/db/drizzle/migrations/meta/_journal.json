@@ -155,6 +155,41 @@
       "when": 1790323111961,
       "tag": "0021_watch_tracking_and_streak_levels",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1790340072901,
+      "tag": "0022_comment_fixes",
+      "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1790340073901,
+      "tag": "0023_engagement_analytics",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1790340074901,
+      "tag": "0024_moderation",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1790340075901,
+      "tag": "0025_content_metadata_ads",
+      "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1790340076901,
+      "tag": "0026_ad_sales",
+      "breakpoints": true
     }
   ]
 }
