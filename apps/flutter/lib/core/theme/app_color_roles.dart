@@ -631,17 +631,22 @@ class AppAvatarColors {
     required this.ring,
     required this.ringEmphasis,
     required this.background,
+    required this.outline,
   });
 
   static final AppAvatarColors dark = AppAvatarColors(
     ring: AppPalette.gold.a30,
     ringEmphasis: AppPalette.gold,
     background: AppPalette.pointsPillBg,
+    outline: AppPalette.outline,
   );
 
   final Color ring;
   final Color ringEmphasis;
   final Color background;
+
+  /// The neutral ring round a cast photo, and the edge of a logo tile.
+  final Color outline;
 }
 
 class AppSheetColors {

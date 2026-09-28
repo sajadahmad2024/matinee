@@ -11,6 +11,7 @@ import 'package:matinee/core/theme/extensions/build_context_extensions.dart';
 import 'package:matinee/core/widgets/svg_icon.dart';
 import 'package:matinee/features/reels/data/models/reel.dart';
 import 'package:matinee/features/reels/presentation/widgets/comments/comments_preview.dart';
+import 'package:matinee/features/reels/presentation/widgets/details/video_details_sheet.dart';
 
 ///
 /// The Home video overlay's action rail: like, comments, info, share, stacked
@@ -20,9 +21,10 @@ import 'package:matinee/features/reels/presentation/widgets/comments/comments_pr
 /// so its toggle and optimistic count stay local, never persisted.
 ///
 class ReelActionRail extends StatefulWidget {
-  const ReelActionRail({required this.reel, super.key});
+  const ReelActionRail({required this.reel, super.key, this.onShare});
 
   final Reel reel;
+  final VoidCallback? onShare;
 
   @override
   State<ReelActionRail> createState() => _ReelActionRailState();
@@ -64,14 +66,14 @@ class _ReelActionRailState extends State<ReelActionRail> {
           iconColor: icon.primary,
           label: l10n.reelsInfoAction,
           semanticLabel: l10n.reelsInfoAction,
-          onTap: () {},
+          onTap: () => unawaited(showVideoDetailsSheet(context, reel: widget.reel)),
         ),
         _RailButton(
           asset: AppIconAssets.share,
           iconColor: icon.primary,
           label: l10n.reelsShareAction,
           semanticLabel: l10n.reelsShareAction,
-          onTap: () {},
+          onTap: widget.onShare ?? () {},
         ),
       ],
     );

@@ -427,11 +427,131 @@ abstract class AppLocalizations {
   /// **'Info'**
   String get reelsInfoAction;
 
+  /// No description provided for @reelsDetailsClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close details'**
+  String get reelsDetailsClose;
+
+  /// No description provided for @reelsDetailsStreamingOn.
+  ///
+  /// In en, this message translates to:
+  /// **'STREAMING ON'**
+  String get reelsDetailsStreamingOn;
+
+  /// No description provided for @reelsDetailsCast.
+  ///
+  /// In en, this message translates to:
+  /// **'CAST'**
+  String get reelsDetailsCast;
+
   /// No description provided for @reelsShareAction.
   ///
   /// In en, this message translates to:
   /// **'Share'**
   String get reelsShareAction;
+
+  /// No description provided for @reelsPointsEarnedClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get reelsPointsEarnedClose;
+
+  /// What a share paid, on the gold chip.
+  ///
+  /// In en, this message translates to:
+  /// **'+{points} PTS'**
+  String reelsPointsEarnedChip(String points);
+
+  /// No description provided for @reelsPointsEarnedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Points Earned!'**
+  String get reelsPointsEarnedTitle;
+
+  /// No description provided for @reelsPointsEarnedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You earned {points} points for sharing this video. Keep sharing to unlock more exclusive content!'**
+  String reelsPointsEarnedBody(String points);
+
+  /// No description provided for @reelsPointsEarnedProgressLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Progress to Next Level'**
+  String get reelsPointsEarnedProgressLabel;
+
+  /// Follows the balance, which is drawn in gold.
+  ///
+  /// In en, this message translates to:
+  /// **' / {target} PTS'**
+  String reelsPointsEarnedProgressTarget(String target);
+
+  /// No description provided for @reelsPointsEarnedProgressSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{points} of {target} points to the next level'**
+  String reelsPointsEarnedProgressSummary(String points, String target);
+
+  /// No description provided for @reelsPointsEarnedCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscribe Now'**
+  String get reelsPointsEarnedCta;
+
+  /// No description provided for @reelsPremiumClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get reelsPremiumClose;
+
+  /// No description provided for @reelsPremiumTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock Premium'**
+  String get reelsPremiumTitle;
+
+  /// No description provided for @reelsPremiumBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Experience unlimited streaming in ultra 4K, completely ad-free, with exclusive director cuts.'**
+  String get reelsPremiumBody;
+
+  /// No description provided for @reelsPremiumMonthlyName.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly Plan'**
+  String get reelsPremiumMonthlyName;
+
+  /// No description provided for @reelsPremiumMonthlyTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'Flexible, cancel anytime'**
+  String get reelsPremiumMonthlyTerms;
+
+  /// No description provided for @reelsPremiumMonthlyPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'\$1'**
+  String get reelsPremiumMonthlyPrice;
+
+  /// No description provided for @reelsPremiumPerMonth.
+  ///
+  /// In en, this message translates to:
+  /// **' / month'**
+  String get reelsPremiumPerMonth;
+
+  /// No description provided for @reelsPremiumCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscribe Now'**
+  String get reelsPremiumCta;
+
+  /// No description provided for @reelsPremiumLater.
+  ///
+  /// In en, this message translates to:
+  /// **'MAYBE LATER'**
+  String get reelsPremiumLater;
 
   /// Body of the stand-in screen behind a bottom-nav tab whose feature does not exist yet.
   ///
@@ -703,6 +823,12 @@ abstract class AppLocalizations {
   /// **'Select country'**
   String get authDialCodeSheetTitle;
 
+  /// No description provided for @authDialCodeSheetClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get authDialCodeSheetClose;
+
   /// No description provided for @authCountryIN.
   ///
   /// In en, this message translates to:
@@ -936,6 +1062,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Skip for now'**
   String get subscribeSkip;
+
+  /// No description provided for @subscribeClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get subscribeClose;
 
   /// No description provided for @subscribeTitle.
   ///
@@ -2205,6 +2337,12 @@ abstract class AppLocalizations {
   /// **'Claim Reward'**
   String get questModalClaim;
 
+  /// No description provided for @questModalClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get questModalClose;
+
   /// No description provided for @questClaimedBadge.
   ///
   /// In en, this message translates to:
@@ -2576,6 +2714,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'CONTINUE WATCHING'**
   String get streakLevelDoneDismiss;
+
+  /// No description provided for @streakLevelDoneClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get streakLevelDoneClose;
 
   /// No description provided for @predictionsTitle.
   ///

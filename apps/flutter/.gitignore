@@ -52,3 +52,5 @@ app.*.map.json
 .env.development.local
 .env.test.local
 .env.production.local
+# Widget Preview related
+.widget_preview/

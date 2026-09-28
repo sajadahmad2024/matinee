@@ -33,6 +33,32 @@ class ReelsFeedApiService {
     displayName: 'Studio',
   );
 
+  static const ReelStreamingService _prime = ReelStreamingService(
+    id: 'prime',
+    name: 'Prime Video',
+    logoUrl: 'https://www.google.com/s2/favicons?domain=primevideo.com&sz=128',
+  );
+  static const ReelStreamingService _netflix = ReelStreamingService(
+    id: 'netflix',
+    name: 'Netflix',
+    logoUrl: 'https://www.google.com/s2/favicons?domain=netflix.com&sz=128',
+  );
+  static const ReelStreamingService _hotstar = ReelStreamingService(
+    id: 'hotstar',
+    name: 'Disney+ Hotstar',
+    logoUrl: 'https://www.google.com/s2/favicons?domain=hotstar.com&sz=128',
+  );
+
+  static const ReelCastMember _elena = ReelCastMember(name: 'Elena Cruz', imageUrl: 'https://i.pravatar.cc/156?img=47');
+  static const ReelCastMember _andy = ReelCastMember(name: 'Andy Brown', imageUrl: 'https://i.pravatar.cc/156?img=12');
+
+  static const List<ReelCastMember> _sampleCast = [
+    _elena,
+    _andy,
+    ReelCastMember(name: 'Jordan Pete', imageUrl: 'https://i.pravatar.cc/156?img=33'),
+    ReelCastMember(name: 'Jay Menon', imageUrl: 'https://i.pravatar.cc/156?img=68'),
+  ];
+
   static const List<Reel> _feed = [
     Reel(
       id: 'reel-1',
@@ -51,6 +77,11 @@ class ReelsFeedApiService {
       unlockCost: 500,
       preview: 'Behind the scenes: how the short was rendered frame by frame.',
       castAndCrew: 'Blender Foundation',
+      synopsis:
+          'A gentle giant of a rabbit wakes to a perfect spring morning, only to find three woodland bullies '
+          'set on ruining it. Pushed too far, he plans a revenge as elaborate as it is ridiculous.',
+      cast: _sampleCast,
+      streamingOn: [_prime, _netflix, _hotstar],
     ),
     Reel(
       id: 'reel-2',
@@ -64,6 +95,8 @@ class ReelsFeedApiService {
       durationMs: 45000,
       playback: _clearLive,
       genres: ['Drama'],
+      cast: [_elena, _andy],
+      streamingOn: [_netflix],
     ),
     Reel(
       id: 'reel-3',
@@ -103,6 +136,11 @@ class ReelsFeedApiService {
       durationMs: 734000,
       playback: _clearLive,
       genres: ['Sci-Fi', 'Action'],
+      synopsis:
+          'In a future Amsterdam overrun by giant robots, a band of warriors and scientists stage one last '
+          'attempt to save the world by reliving the moment a relationship fell apart.',
+      cast: _sampleCast,
+      streamingOn: [_prime, _hotstar],
     ),
     Reel(
       id: 'reel-6',

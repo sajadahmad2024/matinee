@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:matinee/features/reels/data/models/reel.dart';
 import 'package:matinee/features/reels/data/models/reel_playback.dart';
+import 'package:matinee/features/reels/presentation/widgets/details/video_details_sheet.dart';
 import 'package:matinee/features/reels/presentation/widgets/reel_action_rail.dart';
 
 import '../../../../helpers/helpers.dart';
@@ -51,6 +52,35 @@ void main() {
         await tester.pumpApp(const Material(child: ReelActionRail(reel: _reel)));
 
         await expectMeetsGuidelines(tester);
+      });
+    });
+
+    group('share', () {
+      testWidgets('calls onShare', (tester) async {
+        var shares = 0;
+        await tester.pumpApp(
+          Material(
+            child: ReelActionRail(reel: _reel, onShare: () => shares++),
+          ),
+        );
+        await tester.tap(find.text('Share'));
+
+        expect(shares, 1);
+      });
+    });
+
+    group('info', () {
+      testWidgets('opens the video details sheet', (tester) async {
+        usePhoneSurface(tester);
+        await tester.pumpApp(
+          const Scaffold(
+            body: Center(child: ReelActionRail(reel: _reel)),
+          ),
+        );
+        await tester.tap(find.text('Info'));
+        await tester.pumpAndSettle();
+
+        expect(find.byType(VideoDetailsSheet), findsOneWidget);
       });
     });
 

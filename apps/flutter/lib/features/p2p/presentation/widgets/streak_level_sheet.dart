@@ -8,8 +8,8 @@ import 'package:matinee/core/theme/app_sizes.dart';
 import 'package:matinee/core/theme/app_spacing.dart';
 import 'package:matinee/core/theme/app_text_styles.dart';
 import 'package:matinee/core/theme/extensions/build_context_extensions.dart';
+import 'package:matinee/core/widgets/app_bottom_sheet.dart';
 import 'package:matinee/core/widgets/screen_title.dart';
-import 'package:matinee/core/widgets/sheet_surface.dart';
 import 'package:matinee/core/widgets/svg_icon.dart';
 import 'package:matinee/features/p2p/presentation/widgets/reward_stat_card.dart';
 
@@ -25,11 +25,8 @@ Future<void> showStreakLevelSheet(
   required int days,
   required String pointsLabel,
 }) {
-  return showModalBottomSheet<void>(
-    context: context,
-    useRootNavigator: true,
-    backgroundColor: context.appColors.sheet.routeBackground,
-    showDragHandle: false,
+  return showAppBottomSheet<void>(
+    context,
     builder: (_) => StreakLevelSheet(days: days, pointsLabel: pointsLabel),
   );
 }
@@ -46,9 +43,10 @@ class StreakLevelSheet extends StatelessWidget {
     final l10n = context.l10n;
     final colors = context.appColors;
     final title = l10n.streakLevelDoneTitle(days);
-    return SheetSurface(
+    return AppBottomSheet(
       isModal: true,
-      child: ContentContainer(
+      closeLabel: l10n.streakLevelDoneClose,
+      body: ContentContainer(
         maxWidth: ContentContainer.form,
         // Hugging, not filling: the drawer is as tall as its copy.
         shrinkWrapHeight: true,

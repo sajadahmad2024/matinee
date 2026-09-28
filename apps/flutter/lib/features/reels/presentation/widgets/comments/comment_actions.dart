@@ -93,7 +93,7 @@ class _LikeButton extends StatelessWidget {
               SvgIcon(
                 AppIconAssets.like,
                 color: isLiked ? colors.icon.accent : colors.text.secondary,
-                size: AppIconSize.sm,
+                size: AppIconSize.xs,
               ),
               Text(count, style: AppTextStyle.caption.copyWith(color: colors.text.secondary)),
             ],

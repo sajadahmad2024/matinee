@@ -5,6 +5,7 @@ import 'package:matinee/core/theme/app_sizes.dart';
 import 'package:matinee/core/theme/app_spacing.dart';
 import 'package:matinee/core/theme/app_text_styles.dart';
 import 'package:matinee/core/theme/extensions/build_context_extensions.dart';
+import 'package:matinee/core/widgets/app_bottom_sheet.dart';
 import 'package:matinee/features/auth/data/models/dial_code.dart';
 
 ///
@@ -17,6 +18,7 @@ class DialCodePicker extends StatelessWidget {
     required this.onChanged,
     required this.tooltip,
     required this.sheetTitle,
+    required this.sheetCloseLabel,
     required this.countryName,
     super.key,
   });
@@ -25,6 +27,7 @@ class DialCodePicker extends StatelessWidget {
   final ValueChanged<DialCode> onChanged;
   final String tooltip;
   final String sheetTitle;
+  final String sheetCloseLabel;
 
   /// Resolves a country code to its localised name, since a shared widget does
   /// not read the strings itself.
@@ -69,15 +72,12 @@ class DialCodePicker extends StatelessWidget {
   Future<void> _open(BuildContext context) async {
     // The keyboard would otherwise sit over the sheet it opens behind.
     FocusScope.of(context).unfocus();
-    final surface = context.appColors.auth.surfaceContainer;
-    final chosen = await showModalBottomSheet<DialCode>(
-      context: context,
-      // The sheet opens from an auth screen, so it takes the warm container
-      // rather than the navy one the app-wide sheet theme carries.
-      backgroundColor: surface,
+    final chosen = await showAppBottomSheet<DialCode>(
+      context,
       builder: (context) => _DialCodeSheet(
         selected: value,
         title: sheetTitle,
+        closeLabel: sheetCloseLabel,
         countryName: countryName,
       ),
     );
@@ -88,62 +88,54 @@ class DialCodePicker extends StatelessWidget {
 }
 
 class _DialCodeSheet extends StatelessWidget {
-  const _DialCodeSheet({required this.selected, required this.title, required this.countryName});
+  const _DialCodeSheet({
+    required this.selected,
+    required this.title,
+    required this.closeLabel,
+    required this.countryName,
+  });
 
   final DialCode selected;
   final String title;
+  final String closeLabel;
   final String Function(String countryCode) countryName;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
     final textTheme = Theme.of(context).textTheme;
-    return SafeArea(
-      bottom: false,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppScreenPadding.sheet,
-              vertical: AppSpacing.sm,
-            ),
-            child: Text(title, style: textTheme.titleMedium?.copyWith(color: colors.auth.onSurface)),
-          ),
-          // The list scrolls inside whatever height the sheet gets, so adding
-          // a country does not push the last row past the bottom.
-          Flexible(
-            child: SingleChildScrollView(
-              padding: EdgeInsets.only(bottom: context.bottomInset(AppSpacing.xxl)),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  for (final dialCode in DialCodes.all)
-                    ListTile(
-                      onTap: () => Navigator.of(context).pop(dialCode),
-                      selected: dialCode == selected,
-                      selectedColor: colors.text.link,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: AppScreenPadding.sheet),
-                      title: Text(
-                        countryName(dialCode.countryCode),
-                        style: textTheme.bodyMedium?.copyWith(
-                          color: dialCode == selected ? colors.text.link : colors.auth.onSurface,
-                        ),
-                      ),
-                      trailing: Text(
-                        dialCode.code,
-                        style: AppTextStyle.numeralPill.copyWith(
-                          color: dialCode == selected ? colors.text.link : colors.auth.onSurfaceVariant,
-                        ),
-                      ),
-                    ),
-                ],
+    return AppBottomSheet(
+      title: title,
+      closeLabel: closeLabel,
+      // The list scrolls inside whatever height the sheet gets, so adding a
+      // country does not push the last row past the bottom.
+      body: SingleChildScrollView(
+        padding: EdgeInsets.only(bottom: context.bottomInset(AppSpacing.xxl)),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            for (final dialCode in DialCodes.all)
+              ListTile(
+                onTap: () => Navigator.of(context).pop(dialCode),
+                selected: dialCode == selected,
+                selectedColor: colors.text.link,
+                contentPadding: const EdgeInsets.symmetric(horizontal: AppScreenPadding.sheet),
+                title: Text(
+                  countryName(dialCode.countryCode),
+                  style: textTheme.bodyMedium?.copyWith(
+                    color: dialCode == selected ? colors.text.link : colors.text.primary,
+                  ),
+                ),
+                trailing: Text(
+                  dialCode.code,
+                  style: AppTextStyle.numeralPill.copyWith(
+                    color: dialCode == selected ? colors.text.link : colors.text.secondary,
+                  ),
+                ),
               ),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

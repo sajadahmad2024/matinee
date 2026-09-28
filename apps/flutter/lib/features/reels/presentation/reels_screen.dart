@@ -18,10 +18,12 @@ import 'package:matinee/features/reels/data/reels_repository.dart';
 import 'package:matinee/features/reels/presentation/cubit/reels_cubit.dart';
 import 'package:matinee/features/reels/presentation/cubit/reels_state.dart';
 import 'package:matinee/features/reels/presentation/reel_to_hls_item.dart';
+import 'package:matinee/features/reels/presentation/widgets/points_earned_sheet.dart';
 import 'package:matinee/features/reels/presentation/widgets/reel_action_rail.dart';
 import 'package:matinee/features/reels/presentation/widgets/reel_meta.dart';
 import 'package:matinee/features/reels/presentation/widgets/swipe_through_overscroll.dart';
 import 'package:matinee/features/reels/presentation/widgets/unlock_overlay.dart';
+import 'package:matinee/features/reels/presentation/widgets/unlock_premium_sheet.dart';
 
 class ReelsScreen extends StatelessWidget {
   const ReelsScreen({super.key});
@@ -75,6 +77,10 @@ class _Feed extends StatefulWidget {
 }
 
 class _FeedState extends State<_Feed> {
+  // Sample values until sharing and levels have a points API.
+  static const int _shareRewardPoints = 50;
+  static const int _levelTargetPoints = 1000;
+
   // Owned here, not by HlsReelPager, so a swipe over UnlockOverlay can drive
   // it the same as a swipe on the pager itself.
   final _pageController = PageController();
@@ -91,6 +97,18 @@ class _FeedState extends State<_Feed> {
   void dispose() {
     _pageController.dispose();
     super.dispose();
+  }
+
+  Future<void> _share() async {
+    final subscribe = await showPointsEarnedSheet(
+      context,
+      earnedPoints: _shareRewardPoints,
+      balance: widget.pointsBalance,
+      levelTarget: _levelTargetPoints,
+    );
+    if (subscribe && mounted) {
+      await showUnlockPremiumSheet(context);
+    }
   }
 
   void _handleLockedReelVisibilityChanged(bool showing) {
@@ -133,6 +151,7 @@ class _FeedState extends State<_Feed> {
               pageController: _pageController,
               onUnlocked: () => setState(() => _unlockedReelIds.add(reel.id)),
               onOverlayVisibleChanged: _handleLockedReelVisibilityChanged,
+              onShare: () => unawaited(_share()),
             );
           },
         ),
@@ -181,6 +200,7 @@ class _ReelPage extends StatelessWidget {
     required this.pageController,
     required this.onUnlocked,
     required this.onOverlayVisibleChanged,
+    required this.onShare,
   });
 
   final Reel reel;
@@ -200,6 +220,8 @@ class _ReelPage extends StatelessWidget {
   /// Reports whether this page's overlay is showing, whenever this is the
   /// focused page — lets `_Feed` hide the points pill behind it.
   final ValueChanged<bool> onOverlayVisibleChanged;
+
+  final VoidCallback onShare;
 
   @override
   Widget build(BuildContext context) {
@@ -235,7 +257,7 @@ class _ReelPage extends StatelessWidget {
                     alignment: AlignmentDirectional.centerEnd,
                     child: Padding(
                       padding: const EdgeInsetsDirectional.only(end: AppSpacing.lg),
-                      child: ReelActionRail(reel: reel),
+                      child: ReelActionRail(reel: reel, onShare: onShare),
                     ),
                   ),
                   ReelMeta(reel: reel),

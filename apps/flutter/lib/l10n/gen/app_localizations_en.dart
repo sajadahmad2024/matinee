@@ -195,7 +195,76 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reelsInfoAction => 'Info';
 
   @override
+  String get reelsDetailsClose => 'Close details';
+
+  @override
+  String get reelsDetailsStreamingOn => 'STREAMING ON';
+
+  @override
+  String get reelsDetailsCast => 'CAST';
+
+  @override
   String get reelsShareAction => 'Share';
+
+  @override
+  String get reelsPointsEarnedClose => 'Close';
+
+  @override
+  String reelsPointsEarnedChip(String points) {
+    return '+$points PTS';
+  }
+
+  @override
+  String get reelsPointsEarnedTitle => 'Points Earned!';
+
+  @override
+  String reelsPointsEarnedBody(String points) {
+    return 'You earned $points points for sharing this video. Keep sharing to unlock more exclusive content!';
+  }
+
+  @override
+  String get reelsPointsEarnedProgressLabel => 'Progress to Next Level';
+
+  @override
+  String reelsPointsEarnedProgressTarget(String target) {
+    return ' / $target PTS';
+  }
+
+  @override
+  String reelsPointsEarnedProgressSummary(String points, String target) {
+    return '$points of $target points to the next level';
+  }
+
+  @override
+  String get reelsPointsEarnedCta => 'Subscribe Now';
+
+  @override
+  String get reelsPremiumClose => 'Close';
+
+  @override
+  String get reelsPremiumTitle => 'Unlock Premium';
+
+  @override
+  String get reelsPremiumBody =>
+      'Experience unlimited streaming in ultra 4K, completely ad-free, with exclusive director cuts.';
+
+  @override
+  String get reelsPremiumMonthlyName => 'Monthly Plan';
+
+  @override
+  String get reelsPremiumMonthlyTerms => 'Flexible, cancel anytime';
+
+  @override
+  String get reelsPremiumMonthlyPrice => '\$1';
+
+  @override
+  String get reelsPremiumPerMonth => ' / month';
+
+  @override
+  String get reelsPremiumCta => 'Subscribe Now';
+
+  @override
+  String get reelsPremiumLater => 'MAYBE LATER';
 
   @override
   String tabPlaceholder(String tab) {
@@ -338,6 +407,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get authDialCodeSheetTitle => 'Select country';
 
   @override
+  String get authDialCodeSheetClose => 'Close';
+
+  @override
   String get authCountryIN => 'India';
 
   @override
@@ -467,6 +539,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get subscribeSkip => 'Skip for now';
+
+  @override
+  String get subscribeClose => 'Close';
 
   @override
   String get subscribeTitle => 'Level Up Your Cinema Experience';
@@ -1309,6 +1384,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get questModalClaim => 'Claim Reward';
 
   @override
+  String get questModalClose => 'Close';
+
+  @override
   String get questClaimedBadge => 'REWARD CLAIMED';
 
   @override
@@ -1547,6 +1625,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get streakLevelDoneDismiss => 'CONTINUE WATCHING';
+
+  @override
+  String get streakLevelDoneClose => 'Close';
 
   @override
   String get predictionsTitle => 'Prediction Games';

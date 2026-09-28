@@ -46,6 +46,18 @@ void main() {
       });
     });
 
+    group('renders the cast variant', () {
+      testWidgets('at the cast size on the card fill, in the outline ring', (tester) async {
+        await pump(tester, const AppAvatar(name: 'Elena Cruz', variant: AppAvatarVariant.cast));
+        final [fill, overlay] = decorations(tester);
+
+        expect(tester.getSize(find.byType(AppAvatar)), const Size.square(AppAvatarSize.cast));
+        expect(fill.color, colors.card.background);
+        expect(overlay.border, Border.all(color: colors.avatar.outline, width: AppBorderWidth.focus));
+        expect(tester.widget<Text>(find.text('EC')).style?.fontSize, textTheme.titleMedium?.fontSize);
+      });
+    });
+
     group('announces', () {
       testWidgets('nothing by default, since the name sits beside it', (tester) async {
         final handle = tester.ensureSemantics();

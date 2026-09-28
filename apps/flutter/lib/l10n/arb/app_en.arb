@@ -116,7 +116,60 @@
   },
   "reelsCommentsCancelReply": "Cancel reply",
   "reelsInfoAction": "Info",
+  "reelsDetailsClose": "Close details",
+  "reelsDetailsStreamingOn": "STREAMING ON",
+  "reelsDetailsCast": "CAST",
   "reelsShareAction": "Share",
+  "reelsPointsEarnedClose": "Close",
+  "reelsPointsEarnedChip": "+{points} PTS",
+  "@reelsPointsEarnedChip": {
+    "description": "What a share paid, on the gold chip.",
+    "placeholders": {
+      "points": {
+        "type": "String"
+      }
+    }
+  },
+  "reelsPointsEarnedTitle": "Points Earned!",
+  "reelsPointsEarnedBody": "You earned {points} points for sharing this video. Keep sharing to unlock more exclusive content!",
+  "@reelsPointsEarnedBody": {
+    "placeholders": {
+      "points": {
+        "type": "String"
+      }
+    }
+  },
+  "reelsPointsEarnedProgressLabel": "Progress to Next Level",
+  "reelsPointsEarnedProgressTarget": " / {target} PTS",
+  "@reelsPointsEarnedProgressTarget": {
+    "description": "Follows the balance, which is drawn in gold.",
+    "placeholders": {
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "reelsPointsEarnedProgressSummary": "{points} of {target} points to the next level",
+  "@reelsPointsEarnedProgressSummary": {
+    "placeholders": {
+      "points": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "reelsPointsEarnedCta": "Subscribe Now",
+  "reelsPremiumClose": "Close",
+  "reelsPremiumTitle": "Unlock Premium",
+  "reelsPremiumBody": "Experience unlimited streaming in ultra 4K, completely ad-free, with exclusive director cuts.",
+  "reelsPremiumMonthlyName": "Monthly Plan",
+  "reelsPremiumMonthlyTerms": "Flexible, cancel anytime",
+  "reelsPremiumMonthlyPrice": "$1",
+  "reelsPremiumPerMonth": " / month",
+  "reelsPremiumCta": "Subscribe Now",
+  "reelsPremiumLater": "MAYBE LATER",
   "tabPlaceholder": "{tab} is not built yet.",
   "@tabPlaceholder": {
     "description": "Body of the stand-in screen behind a bottom-nav tab whose feature does not exist yet.",
@@ -177,6 +230,7 @@
   "authPhoneHint": "Enter phone number",
   "authDialCodeLabel": "Country dialling code",
   "authDialCodeSheetTitle": "Select country",
+  "authDialCodeSheetClose": "Close",
   "authCountryIN": "India",
   "authCountryUS": "United States",
   "authCountryGB": "United Kingdom",
@@ -273,6 +327,7 @@
   "authCreateAccount": "Create Account",
   "subscribeEyebrow": "PREMIUM ACCESS",
   "subscribeSkip": "Skip for now",
+  "subscribeClose": "Close",
   "subscribeTitle": "Level Up Your Cinema Experience",
   "subscribeUnlockChip": "UNLOCK",
   "subscribeFeature1Title": "Daily Streaks",
@@ -1410,6 +1465,7 @@
   },
   "questModalPointsUnit": "pts",
   "questModalClaim": "Claim Reward",
+  "questModalClose": "Close",
   "questClaimedBadge": "REWARD CLAIMED",
   "questClaimedEyebrow": "COMPLETED QUEST",
   "questClaimedTitle": "Congratulations! 🎉",
@@ -1722,6 +1778,7 @@
   "streakLevelDoneStatus": "Streak Master",
   "streakLevelDoneClaim": "Claim Reward",
   "streakLevelDoneDismiss": "CONTINUE WATCHING",
+  "streakLevelDoneClose": "Close",
   "predictionsTitle": "Prediction Games",
   "predictionsSection": "PREDICTIONS",
   "predictionsActiveBadge": "{count} ACTIVE",
