@@ -9,7 +9,10 @@ enum AppAvatarVariant {
   compact(AppAvatarSize.comment),
 
   /// The portrait the profile screens open with, in its gold ring.
-  profile(AppAvatarSize.profile);
+  profile(AppAvatarSize.profile),
+
+  /// A cast member on the video details sheet, in a neutral ring.
+  cast(AppAvatarSize.cast);
 
   const AppAvatarVariant(this.size);
 
@@ -45,6 +48,11 @@ class AppAvatar extends StatelessWidget {
     final (fill, ring, initialsStyle) = switch (variant) {
       AppAvatarVariant.compact => (colors.avatar.background, null, textTheme.titleSmall),
       AppAvatarVariant.profile => (colors.card.background, Border.all(color: colors.avatar.ring), textTheme.titleLarge),
+      AppAvatarVariant.cast => (
+        colors.card.background,
+        Border.all(color: colors.avatar.outline, width: AppBorderWidth.focus),
+        textTheme.titleMedium,
+      ),
     };
 
     final avatar = ExcludeSemantics(

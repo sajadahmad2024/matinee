@@ -168,6 +168,7 @@ class _SignInViewState extends State<SignInView> {
               onChanged: _onDialCodeChanged,
               tooltip: l10n.authDialCodeLabel,
               sheetTitle: l10n.authDialCodeSheetTitle,
+              sheetCloseLabel: l10n.authDialCodeSheetClose,
               countryName: (countryCode) => countryNameOf(l10n, countryCode),
             ),
             onSubmitted: _submit,

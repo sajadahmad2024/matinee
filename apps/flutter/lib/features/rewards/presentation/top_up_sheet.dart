@@ -12,6 +12,7 @@ import 'package:matinee/core/theme/app_sizes.dart';
 import 'package:matinee/core/theme/app_spacing.dart';
 import 'package:matinee/core/theme/app_text_styles.dart';
 import 'package:matinee/core/theme/extensions/build_context_extensions.dart';
+import 'package:matinee/core/widgets/app_bottom_sheet.dart';
 import 'package:matinee/core/widgets/error_view.dart';
 import 'package:matinee/core/widgets/loading_view.dart';
 import 'package:matinee/core/widgets/screen_title.dart';
@@ -26,16 +27,8 @@ import 'package:matinee/features/rewards/presentation/cubit/top_up_state.dart';
 /// can be swiped away after a purchase, so a caller refetches the balance.
 ///
 Future<void> showTopUpSheet(BuildContext context) {
-  return showModalBottomSheet<void>(
-    context: context,
-    isScrollControlled: true,
-    useSafeArea: true,
-    // The frame sets the handle and the close button on one line, which the
-    // sheet theme's own handle sits above; this one draws the row itself.
-    showDragHandle: false,
-    // Above the shell, so the sheet covers the bottom nav as the design draws
-    // it rather than being boxed inside the current tab.
-    useRootNavigator: true,
+  return showAppBottomSheet<void>(
+    context,
     builder: (_) => BlocProvider(
       create: (_) {
         final cubit = TopUpCubit(getIt<RewardsRepository>());
@@ -67,35 +60,39 @@ class TopUpSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    return ContentContainer(
-      maxWidth: ContentContainer.form,
-      alignment: Alignment.bottomCenter,
-      shrinkWrapHeight: true,
-      // Scrollable, because the sheet is content-sized: at a large text scale
-      // the packs and the CTA run past the bottom with no way to reach them.
-      child: SingleChildScrollView(
-        // The packs arrive after the sheet is up, and the receipt replaces them
-        // with another height again, so the sheet settles instead of snapping.
-        child: AnimatedSize(
-          duration: MediaQuery.disableAnimationsOf(context) ? Duration.zero : _resize,
-          alignment: Alignment.bottomCenter,
-          curve: Curves.easeOut,
-          child: BlocBuilder<TopUpCubit, TopUpState>(
-            builder: (context, state) => switch (state) {
-              TopUpInitial() => const SizedBox.shrink(),
-              TopUpLoading() => const _Pending(
-                height: _packsHeight,
-                child: LoadingView(),
-              ),
-              TopUpFailure(:final error) => _Pending(
-                height: _packsHeight,
-                child: ErrorView(
-                  message: error.localizedMessage(l10n),
-                  onRetry: () => unawaited(context.read<TopUpCubit>().load()),
+    return AppBottomSheet(
+      isModal: true,
+      closeLabel: l10n.topUpClose,
+      body: ContentContainer(
+        maxWidth: ContentContainer.form,
+        alignment: Alignment.bottomCenter,
+        shrinkWrapHeight: true,
+        // Scrollable, because the sheet is content-sized: at a large text scale
+        // the packs and the CTA run past the bottom with no way to reach them.
+        child: SingleChildScrollView(
+          // The packs arrive after the sheet is up, and the receipt replaces them
+          // with another height again, so the sheet settles instead of snapping.
+          child: AnimatedSize(
+            duration: MediaQuery.disableAnimationsOf(context) ? Duration.zero : _resize,
+            alignment: Alignment.bottomCenter,
+            curve: Curves.easeOut,
+            child: BlocBuilder<TopUpCubit, TopUpState>(
+              builder: (context, state) => switch (state) {
+                TopUpInitial() => const SizedBox.shrink(),
+                TopUpLoading() => const _Pending(
+                  height: _packsHeight,
+                  child: LoadingView(),
                 ),
-              ),
-              TopUpSuccess(:final data) => _Body(data: data),
-            },
+                TopUpFailure(:final error) => _Pending(
+                  height: _packsHeight,
+                  child: ErrorView(
+                    message: error.localizedMessage(l10n),
+                    onRetry: () => unawaited(context.read<TopUpCubit>().load()),
+                  ),
+                ),
+                TopUpSuccess(:final data) => _Body(data: data),
+              },
+            ),
           ),
         ),
       ),
@@ -115,14 +112,12 @@ class _Pending extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = context.l10n;
     return Padding(
       padding: _sheetPadding(context),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _SheetHeader(closeLabel: l10n.topUpClose),
           const _Heading(),
           Padding(
             padding: const EdgeInsets.only(top: AppSpacing.xxl),
@@ -169,7 +164,6 @@ class _Body extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _SheetHeader(closeLabel: l10n.topUpClose),
           if (data.purchased) _Receipt(points: data.selected.points) else _Packs(data: data),
           Padding(
             // The receipt stands the CTA further off than the picker does, so
@@ -185,50 +179,6 @@ class _Body extends StatelessWidget {
               icon: const Icon(Icons.arrow_forward, size: AppIconSize.xs),
               label: Text(
                 data.purchased ? l10n.topUpDone : l10n.topUpCta(data.selected.priceLabel),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-///
-/// The grab handle with the close button level beside it, as the frame draws
-/// them.
-///
-class _SheetHeader extends StatelessWidget {
-  const _SheetHeader({required this.closeLabel});
-
-  final String closeLabel;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.appColors.sheet;
-    return Padding(
-      // The frame sets the row 20 below the sheet edge and 12 above the title;
-      // the close button lays out 48 for its 32, so both gaps are 8 short.
-      padding: const EdgeInsets.only(top: AppSpacing.md, bottom: AppSpacing.xs),
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          Container(
-            width: AppControlHeight.sheetHandle.width,
-            height: AppControlHeight.sheetHandle.height,
-            decoration: ShapeDecoration(color: colors.handleModal, shape: const StadiumBorder()),
-          ),
-          Align(
-            alignment: Alignment.centerRight,
-            child: IconButton(
-              onPressed: () => Navigator.of(context).pop(),
-              tooltip: closeLabel,
-              iconSize: AppIconSize.xs,
-              icon: const Icon(Icons.close),
-              style: IconButton.styleFrom(
-                backgroundColor: colors.closeBackground,
-                fixedSize: const Size.square(AppControlHeight.button),
-                padding: EdgeInsets.zero,
               ),
             ),
           ),

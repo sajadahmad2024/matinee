@@ -7,9 +7,8 @@ import 'package:matinee/core/theme/app_sizes.dart';
 import 'package:matinee/core/theme/app_spacing.dart';
 import 'package:matinee/core/theme/app_text_styles.dart';
 import 'package:matinee/core/theme/extensions/build_context_extensions.dart';
+import 'package:matinee/core/widgets/app_bottom_sheet.dart';
 import 'package:matinee/core/widgets/progress_bar.dart';
-import 'package:matinee/core/widgets/screen_title.dart';
-import 'package:matinee/core/widgets/sheet_surface.dart';
 
 /// One side's share, ready to draw.
 @immutable
@@ -28,11 +27,8 @@ Future<void> showPredictionAnalysisSheet(
   required String question,
   required List<AnalysisShare> shares,
 }) {
-  return showModalBottomSheet<void>(
-    context: context,
-    useRootNavigator: true,
-    backgroundColor: context.appColors.sheet.routeBackground,
-    showDragHandle: false,
+  return showAppBottomSheet<void>(
+    context,
     builder: (_) => PredictionAnalysisSheet(question: question, shares: shares),
   );
 }
@@ -47,10 +43,13 @@ class PredictionAnalysisSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final colors = context.appColors;
-    return SheetSurface(
+    return AppBottomSheet(
       isModal: true,
-      child: ContentContainer(
+      eyebrow: l10n.predictionAnalysisEyebrow,
+      title: question,
+      titleStyle: AppTextStyle.headlineSmall,
+      closeLabel: l10n.predictionAnalysisClose,
+      body: ContentContainer(
         maxWidth: ContentContainer.form,
         // Hugging, not filling: the sheet is as tall as the shares it lists.
         shrinkWrapHeight: true,
@@ -63,31 +62,9 @@ class PredictionAnalysisSheet extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Text(
-                      l10n.predictionAnalysisEyebrow,
-                      style: AppTextStyle.overline.copyWith(color: colors.text.muted),
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    tooltip: l10n.predictionAnalysisClose,
-                    icon: const Icon(Icons.close),
-                  ),
-                ],
-              ),
-              ScreenTitle(
-                label: question,
-                child: Text(
-                  question,
-                  style: AppTextStyle.headlineSmall.copyWith(color: colors.text.primary),
-                ),
-              ),
               Padding(
-                padding: const EdgeInsets.only(top: AppSpacing.xl),
+                // With the header's own gap, the frame's 20 under the question.
+                padding: const EdgeInsets.only(top: AppSpacing.xs),
                 child: Semantics(
                   role: SemanticsRole.list,
                   explicitChildNodes: true,

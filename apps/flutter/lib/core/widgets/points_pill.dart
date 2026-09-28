@@ -48,7 +48,7 @@ class PointsPill extends StatelessWidget {
             if (showsAdd) Icon(Icons.add, size: AppIconSize.sm, color: colors.pointsValue),
             Icon(Icons.local_fire_department, size: AppIconSize.xs, color: colors.pointsIcon),
             if (value != null) Text(value!, style: AppTextStyle.numeralPill.copyWith(color: colors.pointsValue)),
-            if (unit != null) Text(unit!, style: AppTextStyle.labelSmall.copyWith(color: colors.pointsIcon)),
+            if (unit != null) Text(unit!, style: AppTextStyle.labelSmall.copyWith(color: colors.pointsValue)),
           ],
         ),
       ),

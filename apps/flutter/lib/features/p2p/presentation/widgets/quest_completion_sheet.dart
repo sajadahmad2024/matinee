@@ -8,8 +8,8 @@ import 'package:matinee/core/theme/app_sizes.dart';
 import 'package:matinee/core/theme/app_spacing.dart';
 import 'package:matinee/core/theme/app_text_styles.dart';
 import 'package:matinee/core/theme/extensions/build_context_extensions.dart';
+import 'package:matinee/core/widgets/app_bottom_sheet.dart';
 import 'package:matinee/core/widgets/screen_title.dart';
-import 'package:matinee/core/widgets/sheet_surface.dart';
 import 'package:matinee/core/widgets/svg_icon.dart';
 import 'package:matinee/features/p2p/presentation/widgets/reward_stat_card.dart';
 
@@ -29,11 +29,8 @@ Future<void> showQuestCompletionSheet(
   required String pointsLabel,
   required String badgeName,
 }) {
-  return showModalBottomSheet<void>(
-    context: context,
-    useRootNavigator: true,
-    backgroundColor: context.appColors.sheet.routeBackground,
-    showDragHandle: false,
+  return showAppBottomSheet<void>(
+    context,
     builder: (_) => QuestCompletionSheet(
       questTitle: questTitle,
       pointsLabel: pointsLabel,
@@ -59,9 +56,10 @@ class QuestCompletionSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final colors = context.appColors;
-    return SheetSurface(
+    return AppBottomSheet(
       isModal: true,
-      child: ContentContainer(
+      closeLabel: l10n.questModalClose,
+      body: ContentContainer(
         maxWidth: ContentContainer.form,
         // Hugging, not filling: the sheet is as tall as its copy, which is
         // what the design draws.

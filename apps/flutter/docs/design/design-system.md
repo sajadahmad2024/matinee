@@ -237,6 +237,7 @@ Dark-only. Roles not listed here (surfaceDim/Bright, inverse*, info, fixed/dim v
 | `avatar.ring` | `{gold@30%}` |
 | `avatar.ring.emphasis` | `{gold}` |
 | `avatar.background` | `{pointsPillBg}` |
+| `avatar.outline` | `{outline}` |
 | `sheet.background` | `{surfaceCard}` |
 | `sheet.border` | `{outline}` |
 | `sheet.handle` | `{textMuted}` |
@@ -532,7 +533,7 @@ Screen padding: main 16, auth 24, onboarding 20, sheet 20, modal 24
 | action rail / nav / badge disc | 24 |
 | modal / hero badge | 32 |
 
-**Avatars** profile 80, cast 52, comment 36, ring 1 (profile) / 2 (emphasis); badge discs sm 40, md 48, lg 56, xl 64
+**Avatars** profile 80, cast 52, comment 36, ring 1 (profile) / 1.5 (cast) / 2 (emphasis); badge discs sm 40, md 48, lg 56, xl 64
 
 | Control | Height / size |
 |---|---|
@@ -624,6 +625,9 @@ Emoji (🔥 🎖️ 🏆 🎬 🌍 ✨ 🧠 🔮 🎟️ 🤝 💎 🔗) are use
 | **Notifications screen** | Notifications (1167:2170) sits outside the Visuals extraction and is kept to the frame's own values: a scoped notifications palette (AppPalette.notification*, AppColors.notification), the urgent-card gradient #161C27→#121620 at 158.7° (AppGradients.notificationUrgentCard), and the frame's exact spacing and radii (AppNotificationLayout). Borders are solid: #F5C451@40% unread, white@5% read; chips #141A24 with white@10% (inactive) or #F5C451@12% fill and @40% border (active). Type stays on the shared roles, so text minimums hold. The frame's Bid Now and Check In Now buttons are not built: a card that leads somewhere is tapped whole and carries a trailing chevron (Icons.chevron_right, meta colour) instead. |
 
 | **Comments sheet** | Video comments (30:3890): the comment bar's field keeps the frame's 40 height as `AppControlHeight.commentField` (confirmed with the user); its radius 7 snaps to `sm` 8 and its send glyph 18 to `md` 20. The liked state tints `like.svg` with `icon.accent`. Replies, their toggles and load-more rows are not drawn: they use `caption` in `text.muted`, indented 48 to the parent's text column, one level only. |
+| **Video details sheet** | Video details (35:4491): the title takes `headlineSmall` through `AppBottomSheet.titleStyle`. Cast avatars ring in `avatar.outline` at `AppBorderWidth.focus` 1.5 (the frame's 1.66, confirmed with the user). The Streaming on row post-dates the extraction: logo tiles are 52 square (`AppAvatarSize.cast`), radius `md` 12, gap `md` 12, edged in `avatar.outline`; its eyebrow sits 20 above like Cast's. |
+| **Sheet scaffold** | Every bottom sheet is `AppBottomSheet` on the one navy `sheet.background` surface, the auth paywall and dial-code picker included (confirmed with the user); `surfaceColor` exists but is unused. Every sheet carries top up's close, required by the scaffold: a 32 disc in `sheet.closeBackground` with `close.svg` at `xs` in `icon.primary`, level with the handle (confirmed with the user). Below it, eyebrow `overline` `text.muted` and title `titleMedium` (or the sheet's own style), 16 above the body. |
+| **Points Earned / Unlock Premium** | Frames 1005:1488 and 1005:1293, built from screenshots while the Figma API was rate-limited; values map to existing roles only (title `text.warning`, chip `tag.gold*`, plan card `card.*`, `star.svg` for the sparkle) and are to be checked against the frames. |
 
 ## 10. Open items for design
 
