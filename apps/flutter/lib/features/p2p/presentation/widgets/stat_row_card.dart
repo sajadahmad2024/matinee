@@ -83,9 +83,11 @@ class StatRowCard extends StatelessWidget {
                     child: _Column(
                       label: rankLabel,
                       summary: rankSummary,
-                      value: Text(
-                        rank,
-                        style: AppTextStyle.numeralMd.copyWith(color: colors.text.numeral),
+                      value: _Value(
+                        child: Text(
+                          rank,
+                          style: AppTextStyle.numeralMd.copyWith(color: colors.text.numeral),
+                        ),
                       ),
                       // Wrapped, so a scaled-up caption drops its words rather than
                       // pushing the column past its third of the card.
@@ -111,26 +113,27 @@ class StatRowCard extends StatelessWidget {
                     child: _Column(
                       label: streakLabel,
                       summary: streakSummary,
-                      // Wrapped for the same reason: the flame, the figure and
-                      // its unit are three pieces on a third of the width.
-                      value: Wrap(
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        spacing: AppSpacing.xs,
-                        children: [
-                          Icon(
-                            Icons.local_fire_department,
-                            size: AppIconSize.sm,
-                            color: colors.icon.accent,
-                          ),
-                          Text(
-                            streak,
-                            style: AppTextStyle.numeralPill.copyWith(color: colors.text.primary),
-                          ),
-                          Text(
-                            pointsUnit,
-                            style: AppTextStyle.labelSmall.copyWith(color: colors.text.primary),
-                          ),
-                        ],
+                      // Set like its neighbours' figures, so the three values share a line.
+                      value: _Value(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          spacing: AppSpacing.xs,
+                          children: [
+                            Icon(
+                              Icons.local_fire_department,
+                              size: AppIconSize.sm,
+                              color: colors.icon.accent,
+                            ),
+                            Text(
+                              streak,
+                              style: AppTextStyle.numeralMd.copyWith(color: colors.text.numeral),
+                            ),
+                            Text(
+                              pointsUnit,
+                              style: AppTextStyle.labelSmall.copyWith(color: colors.text.primary),
+                            ),
+                          ],
+                        ),
                       ),
                       caption: Text(
                         streakCaption,
@@ -143,9 +146,11 @@ class StatRowCard extends StatelessWidget {
                     child: _Column(
                       label: pointsLabel,
                       summary: pointsSummary,
-                      value: Text(
-                        points,
-                        style: AppTextStyle.numeralMd.copyWith(color: colors.text.numeral),
+                      value: _Value(
+                        child: Text(
+                          points,
+                          style: AppTextStyle.numeralMd.copyWith(color: colors.text.numeral),
+                        ),
                       ),
                       caption: Text(
                         pointsUnit,
@@ -212,6 +217,25 @@ class _Column extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+///
+/// Keeps a column's figure on one line, shrinking it as the count grows rather
+/// than wrapping it and pushing the row taller than its neighbours.
+///
+class _Value extends StatelessWidget {
+  const _Value({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      alignment: AlignmentDirectional.centerStart,
+      child: child,
     );
   }
 }

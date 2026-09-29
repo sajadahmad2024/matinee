@@ -242,10 +242,16 @@ class _TopBar extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               // The first slide has nowhere to go back to, so the control is
-              // disabled rather than silently doing nothing when tapped.
-              BackDiscButton(
-                tooltip: l10n.onboardingBack,
-                onPressed: isFirstSlide ? null : () => unawaited(cubit.previous()),
+              // hidden there; its space is kept so skip stays put.
+              Visibility(
+                visible: !isFirstSlide,
+                maintainSize: true,
+                maintainAnimation: true,
+                maintainState: true,
+                child: BackDiscButton(
+                  tooltip: l10n.onboardingBack,
+                  onPressed: () => unawaited(cubit.previous()),
+                ),
               ),
               // Announced from here: the label is upper case, and screen readers
               // spell a short capitalised run out letter by letter.

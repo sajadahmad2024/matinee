@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hls_video_player/hls_video_player.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:matinee/core/config/share_links.dart';
 import 'package:matinee/core/l10n/app_exception_l10n.dart';
 import 'package:matinee/core/l10n/l10n.dart';
 import 'package:matinee/core/theme/app_sizes.dart';
@@ -24,6 +25,7 @@ import 'package:matinee/features/reels/presentation/widgets/reel_meta.dart';
 import 'package:matinee/features/reels/presentation/widgets/swipe_through_overscroll.dart';
 import 'package:matinee/features/reels/presentation/widgets/unlock_overlay.dart';
 import 'package:matinee/features/reels/presentation/widgets/unlock_premium_sheet.dart';
+import 'package:share_plus/share_plus.dart';
 
 class ReelsScreen extends StatelessWidget {
   const ReelsScreen({super.key});
@@ -99,7 +101,23 @@ class _FeedState extends State<_Feed> {
     super.dispose();
   }
 
-  Future<void> _share() async {
+  ///
+  /// Opens the system share sheet, and once it closes shows what the share paid.
+  ///
+  Future<void> _share(Reel reel) async {
+    final box = context.findRenderObject() as RenderBox?;
+    final link = AppShareLinks.reel(reel.id).toString();
+    await SharePlus.instance.share(
+      ShareParams(
+        text: context.l10n.reelsShareMessage(reel.title, link),
+        subject: reel.title,
+        // iPad anchors its share popover here; phones ignore it.
+        sharePositionOrigin: box == null ? null : box.localToGlobal(Offset.zero) & box.size,
+      ),
+    );
+    if (!mounted) {
+      return;
+    }
     final subscribe = await showPointsEarnedSheet(
       context,
       earnedPoints: _shareRewardPoints,
@@ -151,7 +169,7 @@ class _FeedState extends State<_Feed> {
               pageController: _pageController,
               onUnlocked: () => setState(() => _unlockedReelIds.add(reel.id)),
               onOverlayVisibleChanged: _handleLockedReelVisibilityChanged,
-              onShare: () => unawaited(_share()),
+              onShare: () => unawaited(_share(reel)),
             );
           },
         ),

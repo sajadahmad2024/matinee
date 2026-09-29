@@ -73,10 +73,6 @@ class ReelsFeedApiService {
       thumbnailUrl: 'https://test-streams.mux.dev/x36xhzz/poster.jpg',
       playback: _clearLive,
       genres: ['Animation', 'Comedy'],
-      isExclusive: true,
-      unlockCost: 500,
-      preview: 'Behind the scenes: how the short was rendered frame by frame.',
-      castAndCrew: 'Blender Foundation',
       synopsis:
           'A gentle giant of a rabbit wakes to a perfect spring morning, only to find three woodland bullies '
           'set on ruining it. Pushed too far, he plans a revenge as elaborate as it is ridiculous.',
@@ -167,6 +163,12 @@ class ReelsFeedApiService {
       durationMs: 1800000,
       playback: _clearLive,
       genres: ['Drama'],
+      // The last reel the feed plays, so the lock arrives once the viewer has
+      // watched everything free.
+      isExclusive: true,
+      unlockCost: 500,
+      preview: 'Behind the scenes: how the classic test stream was put together.',
+      castAndCrew: 'Apple Streaming',
     ),
     Reel(
       id: 'reel-signed-1',
