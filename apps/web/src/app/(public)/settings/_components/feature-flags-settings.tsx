@@ -8,14 +8,13 @@ import { toast } from "sonner";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 
-// Mirrors app_settings (category='feature_flag' + a few security toggles).
+// Mirrors app_settings (category='feature_flag').
 const INITIAL_FLAGS = [
   { key: "feature.games_enabled", label: "Game Centre", description: "Master switch for all games", on: true },
   { key: "feature.subscriptions_enabled", label: "Subscriptions", description: "Paywall + plans", on: true },
   { key: "feature.shared_content_enabled", label: "Shared Content earning", description: "Points for sharing/referrals", on: true },
   { key: "feature.predictions_enabled", label: "Predictive games", description: "Spend points to predict", on: true },
   { key: "feature.ad_commercials_enabled", label: "Ad-Sales commercials", description: "Insert commercials in the feed", on: false },
-  { key: "security.require_2fa_for_admins", label: "Require 2FA for admins", description: "Force MFA on all admin accounts", on: true },
 ];
 
 export function FeatureFlagsSettings() {

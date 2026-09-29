@@ -17,13 +17,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 
 import type { User } from "./user-list-table";
@@ -37,7 +30,6 @@ export function UserAdminActions({ user }: { user: User }) {
   const [reason, setReason] = useState("");
   const [days, setDays] = useState("7");
   const [pointsAmount, setPointsAmount] = useState(0);
-  const [currency, setCurrency] = useState<"points" | "xp">("points");
   const [roles, setRoles] = useState<string[]>(["user"]);
 
   const close = () => {
@@ -59,7 +51,7 @@ export function UserAdminActions({ user }: { user: User }) {
         toast.success(`Reinstated ${user.name}`);
         break;
       case "points":
-        toast.success(`${pointsAmount >= 0 ? "Credited" : "Debited"} ${Math.abs(pointsAmount)} ${currency} to ${user.name}`);
+        toast.success(`${pointsAmount >= 0 ? "Credited" : "Debited"} ${Math.abs(pointsAmount)} points to ${user.name}`);
         break;
       case "roles":
         toast.success(`Updated roles for ${user.name}: ${roles.join(", ")}`);
@@ -124,21 +116,9 @@ export function UserAdminActions({ user }: { user: User }) {
 
           {action === "points" && (
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Amount (+ credit / − debit)</Label>
-                  <Input type="number" value={pointsAmount} onChange={(e) => setPointsAmount(Number(e.target.value))} />
-                </div>
-                <div className="space-y-2">
-                  <Label>Currency</Label>
-                  <Select value={currency} onValueChange={(v) => setCurrency(v as "points" | "xp")}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent className="border-border bg-card">
-                      <SelectItem value="points">Points</SelectItem>
-                      <SelectItem value="xp">XP</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+              <div className="space-y-2">
+                <Label>Points (+ credit / − debit)</Label>
+                <Input type="number" value={pointsAmount} onChange={(e) => setPointsAmount(Number(e.target.value))} />
               </div>
               <div className="space-y-2">
                 <Label>Reason</Label>

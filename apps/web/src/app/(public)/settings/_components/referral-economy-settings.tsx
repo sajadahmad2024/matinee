@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { Calendar, Coins, Gift, Users, Zap } from "lucide-react";
+import { Calendar, Coins, Gift, Users } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -24,7 +24,6 @@ export function ReferralEconomySettings() {
 
   // Daily bonus settings
   const [dailyRewardPoints, setDailyRewardPoints] = useState("10");
-  const [dailyXP, setDailyXP] = useState("5");
 
   const handleReferralToggle = (checked: boolean) => {
     if (!checked) {
@@ -77,10 +76,10 @@ export function ReferralEconomySettings() {
                     onChange={(e) => setPointsPerInvite(e.target.value)}
                     className="bg-background/50"
                   />
-                  <span className="text-muted-foreground self-center text-sm">XP</span>
+                  <span className="text-muted-foreground self-center text-sm">Pts</span>
                 </div>
                 <p className="text-muted-foreground text-xs">
-                  XP awarded when an invited user signs up
+                  Points awarded when an invited user signs up
                 </p>
               </div>
               <div className="space-y-2">
@@ -105,7 +104,7 @@ export function ReferralEconomySettings() {
             <div className="bg-accent/10 border-border/30 rounded-lg border p-3">
               <p className="text-muted-foreground text-sm">
                 <strong className="text-foreground">Current config:</strong> Users earn{" "}
-                <span className="text-success font-medium">{pointsPerInvite} XP</span> per
+                <span className="text-success font-medium">{pointsPerInvite} Pts</span> per
                 successful invite, up to{" "}
                 <span className="text-warning font-medium">{maxInvites} invites</span> per month.
               </p>
@@ -150,27 +149,12 @@ export function ReferralEconomySettings() {
                   <span className="text-muted-foreground self-center text-sm">Pts</span>
                 </div>
               </div>
-              <div className="space-y-2">
-                <Label className="flex items-center gap-2">
-                  <Zap className="text-primary h-4 w-4" />
-                  Experience Points (XP)
-                </Label>
-                <div className="flex gap-2">
-                  <Input
-                    type="number"
-                    value={dailyXP}
-                    onChange={(e) => setDailyXP(e.target.value)}
-                    className="bg-background/50"
-                  />
-                  <span className="text-muted-foreground self-center text-sm">XP</span>
-                </div>
-              </div>
             </div>
             <div className="border-success/30 bg-success/10 rounded-lg border p-3">
               <p className="text-muted-foreground text-sm">
                 <strong className="text-foreground">Daily reward:</strong> Users receive{" "}
-                <span className="text-warning font-medium">{dailyRewardPoints} Pts</span> +{" "}
-                <span className="text-primary font-medium">{dailyXP} XP</span> each day they log in.
+                <span className="text-warning font-medium">{dailyRewardPoints} Pts</span> each day
+                they log in.
               </p>
             </div>
           </CardContent>

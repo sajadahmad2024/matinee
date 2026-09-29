@@ -8,7 +8,6 @@ export interface Admin {
   role: "super_admin" | "admin";
   status: "active" | "invited";
   lastActive: string;
-  has2FA: boolean;
 }
 
 export interface AuditLog {
@@ -29,7 +28,6 @@ export const mockAdmins: Admin[] = [
     role: "super_admin",
     status: "active",
     lastActive: "2 mins ago",
-    has2FA: true,
   },
   {
     id: "2",
@@ -39,7 +37,6 @@ export const mockAdmins: Admin[] = [
     role: "admin",
     status: "active",
     lastActive: "1 hour ago",
-    has2FA: true,
   },
   {
     id: "3",
@@ -49,7 +46,6 @@ export const mockAdmins: Admin[] = [
     role: "admin",
     status: "active",
     lastActive: "3 hours ago",
-    has2FA: false,
   },
   {
     id: "4",
@@ -59,7 +55,6 @@ export const mockAdmins: Admin[] = [
     role: "admin",
     status: "invited",
     lastActive: "-",
-    has2FA: false,
   },
 ];
 

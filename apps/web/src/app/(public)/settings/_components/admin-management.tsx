@@ -28,7 +28,6 @@ export function AdminManagement() {
       role: adminData.role || "admin",
       status: "invited",
       lastActive: "-",
-      has2FA: false,
     };
     setAdmins((prev) => [...prev, newAdmin]);
     toast.success(`Invitation sent to ${newAdmin.email}`);
