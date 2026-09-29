@@ -6,6 +6,7 @@ import 'package:matinee/app/router/app_routes.dart';
 import 'package:matinee/core/l10n/app_exception_l10n.dart';
 import 'package:matinee/core/l10n/l10n.dart';
 import 'package:matinee/core/responsive/responsive.dart';
+import 'package:matinee/core/widgets/back_app_bar.dart';
 import 'package:matinee/core/widgets/error_view.dart';
 import 'package:matinee/core/widgets/exclusive_unlock_content.dart';
 import 'package:matinee/core/widgets/loading_view.dart';
@@ -45,6 +46,8 @@ class UnlockContentView extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     return Scaffold(
+      // No title: the offer below carries the screen's heading.
+      appBar: const BackAppBar(),
       // No scrim of its own: on the Scaffold it composites over black and comes
       // out darker, not lighter. A transparent route once Home exists.
       body: SafeArea(

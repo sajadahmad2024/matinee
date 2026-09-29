@@ -120,6 +120,13 @@
   "reelsDetailsStreamingOn": "STREAMING ON",
   "reelsDetailsCast": "CAST",
   "reelsShareAction": "Share",
+  "reelsShareMessage": "Watch {title} on Matinee: {link}",
+  "@reelsShareMessage": {
+    "placeholders": {
+      "title": { "type": "String" },
+      "link": { "type": "String" }
+    }
+  },
   "reelsPointsEarnedClose": "Close",
   "reelsPointsEarnedChip": "+{points} PTS",
   "@reelsPointsEarnedChip": {

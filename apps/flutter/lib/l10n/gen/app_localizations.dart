@@ -451,6 +451,12 @@ abstract class AppLocalizations {
   /// **'Share'**
   String get reelsShareAction;
 
+  /// No description provided for @reelsShareMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch {title} on Matinee: {link}'**
+  String reelsShareMessage(String title, String link);
+
   /// No description provided for @reelsPointsEarnedClose.
   ///
   /// In en, this message translates to:

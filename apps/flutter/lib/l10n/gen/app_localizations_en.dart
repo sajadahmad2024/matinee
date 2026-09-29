@@ -207,6 +207,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reelsShareAction => 'Share';
 
   @override
+  String reelsShareMessage(String title, String link) {
+    return 'Watch $title on Matinee: $link';
+  }
+
+  @override
   String get reelsPointsEarnedClose => 'Close';
 
   @override

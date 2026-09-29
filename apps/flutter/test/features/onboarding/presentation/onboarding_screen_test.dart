@@ -135,13 +135,21 @@ void main() {
         verify(cubit.previous).called(1);
       });
 
-      testWidgets('never from the first slide, where back is disabled', (tester) async {
+      testWidgets('never from the first slide, where back is hidden', (tester) async {
         whenShowingFirstSlide();
 
         await pumpView(tester);
-        await tester.tap(find.byType(BackDiscButton));
+        await tester.tap(find.byType(BackDiscButton), warnIfMissed: false);
         await tester.pump();
 
+        expect(
+          tester
+              .widget<Visibility>(
+                find.ancestor(of: find.byType(BackDiscButton), matching: find.byType(Visibility)).first,
+              )
+              .visible,
+          isFalse,
+        );
         verifyNever(cubit.previous);
       });
     });
