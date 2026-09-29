@@ -60,9 +60,9 @@ export interface VideoItem {
   // ad sales / sponsorship
   sponsored?: boolean;
   sponsor?: string;
-  adPlacement?: "pre-roll" | "icon-overlay";
-  adDurationSecs?: number; // pre-roll only
-  adOverlayDays?: number; // icon-overlay only — length of the sponsorship deal
+  // Pre-roll moved out to Ads Management (/ads) — per-video sponsorship is icon overlay only.
+  adPlacement?: "icon-overlay";
+  adOverlayDays?: number; // length of the sponsorship deal
   /** Consumer-app "where to watch" CTA destinations, set at publish time (spec-05 §1.4). */
   watchLinks?: { platform: string; url?: string }[];
   // workflow history (newest first)
@@ -147,8 +147,8 @@ export const MOCK_VIDEOS: VideoItem[] = [
     uploadDate: "2026-04-28",
     sponsored: true,
     sponsor: "Nike",
-    adPlacement: "pre-roll",
-    adDurationSecs: 15,
+    adPlacement: "icon-overlay",
+    adOverlayDays: 14,
   },
   {
     id: "3",

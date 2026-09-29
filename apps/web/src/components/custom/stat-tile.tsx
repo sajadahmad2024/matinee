@@ -34,6 +34,8 @@ export interface SubStat {
 
 interface StatTileProps {
   label: string;
+  /** one-line explanation shown under the label */
+  description?: string;
   value: string | number;
   icon?: React.ElementType;
   accent?: Accent;
@@ -50,6 +52,7 @@ interface StatTileProps {
 
 export function StatTile({
   label,
+  description,
   value,
   icon: Icon,
   accent = "default",
@@ -76,9 +79,17 @@ export function StatTile({
         </span>
       )}
       <div className="flex items-start justify-between gap-2">
-        <div className="text-muted-foreground flex items-center gap-1.5 text-xs font-medium">
-          {Icon && <Icon className={cn("h-4 w-4", ACCENT_TEXT[accent])} />}
-          {label}
+        <div>
+          <div
+            className={cn(
+              "flex items-center gap-1.5",
+              // described tiles lead with the heading; plain tiles keep the compact label
+              description ? "text-foreground text-sm font-semibold" : "text-muted-foreground text-xs font-medium",
+            )}>
+            {Icon && <Icon className={cn("h-4 w-4", ACCENT_TEXT[accent])} />}
+            {label}
+          </div>
+          {description && <p className="text-muted-foreground/80 mt-0.5 text-[11px]">{description}</p>}
         </div>
         {trend && !interactive && <TrendChip {...trend} />}
       </div>

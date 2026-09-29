@@ -175,11 +175,7 @@ export function VideoListItem({
                       className="border-featured/40 text-featured gap-1 text-[10px]">
                       <Megaphone className="h-3 w-3" />
                       Sponsored
-                      {video.adPlacement === "icon-overlay" && video.adOverlayDays
-                        ? ` · ${video.adOverlayDays}d overlay`
-                        : video.adDurationSecs
-                          ? ` · ${video.adDurationSecs}s ad`
-                          : ""}
+                      {video.adOverlayDays ? ` · ${video.adOverlayDays}d overlay` : ""}
                     </Badge>
                   )}
                   {video.boosted && <StatusBadge status="boosted" />}
