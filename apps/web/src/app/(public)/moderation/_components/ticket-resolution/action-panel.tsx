@@ -24,7 +24,7 @@ interface ActionPanelProps {
 
 export function ActionPanel({ onAction, onClose, onNext }: ActionPanelProps) {
   const [banDuration, setBanDuration] = useState<string>("24h");
-  const [xpFine, setXpFine] = useState<string>("500");
+  const [pointsFine, setPointsFine] = useState<string>("500");
   const [internalNote, setInternalNote] = useState("");
   const [confirmDialog, setConfirmDialog] = useState<{
     open: boolean;
@@ -141,7 +141,7 @@ export function ActionPanel({ onAction, onClose, onNext }: ActionPanelProps) {
 
       <Separator />
 
-      {/* XP Penalty */}
+      {/* Points Penalty */}
       <div>
         <h3 className="text-muted-foreground mb-3 text-sm font-medium uppercase">
           Gamified Penalty
@@ -149,20 +149,20 @@ export function ActionPanel({ onAction, onClose, onNext }: ActionPanelProps) {
         <div className="border-warning/30 bg-warning/5 space-y-3 rounded-lg border p-3">
           <div className="flex items-center gap-2">
             <MinusCircle className="text-warning h-4 w-4" />
-            <Label className="text-sm font-medium">Deduct XP / Level Down</Label>
+            <Label className="text-sm font-medium">Deduct Points</Label>
           </div>
           <div className="flex gap-2">
             <Input
               type="number"
-              value={xpFine}
-              onChange={(e) => setXpFine(e.target.value)}
+              value={pointsFine}
+              onChange={(e) => setPointsFine(e.target.value)}
               className="w-24"
               placeholder="500"
             />
-            <span className="text-muted-foreground self-center text-sm">XP</span>
+            <span className="text-muted-foreground self-center text-sm">Pts</span>
           </div>
           <p className="text-muted-foreground text-xs">
-            If deduction drops user below level threshold, they will be auto-downgraded.
+            Deducted from the user&apos;s points balance.
           </p>
           <Button
             variant="outline"
@@ -171,13 +171,13 @@ export function ActionPanel({ onAction, onClose, onNext }: ActionPanelProps) {
             onClick={() =>
               handleConfirmAction(
                 "warn",
-                "Apply XP Fine",
-                `Are you sure you want to deduct ${xpFine} XP from this user?`,
-                () => onAction(`xp_fine_${xpFine}`),
+                "Apply Points Fine",
+                `Are you sure you want to deduct ${pointsFine} points from this user?`,
+                () => onAction(`points_fine_${pointsFine}`),
               )
             }>
             <MinusCircle className="h-4 w-4" />
-            Apply -{xpFine} XP Fine
+            Apply -{pointsFine} Points Fine
           </Button>
         </div>
       </div>

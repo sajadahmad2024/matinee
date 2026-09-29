@@ -16,9 +16,9 @@ const winLossData = [
 ];
 
 const gameHistory = [
-  { game: "Weekly Contest", date: "Today", result: "Won", xp: 150 },
-  { game: "Predict Outcome", date: "Yesterday", result: "Lost", xp: 25 },
-  { game: "Watch Streak", date: "2 days ago", result: "Completed", xp: 200 },
+  { game: "Weekly Contest", date: "Today", result: "Won", points: 150 },
+  { game: "Predict Outcome", date: "Yesterday", result: "Lost", points: 25 },
+  { game: "Watch Streak", date: "2 days ago", result: "Completed", points: 200 },
 ];
 
 export function UserGamesTab() {
@@ -64,7 +64,7 @@ export function UserGamesTab() {
                 <TableHead className="text-muted-foreground">Game</TableHead>
                 <TableHead className="text-muted-foreground">Date</TableHead>
                 <TableHead className="text-muted-foreground">Result</TableHead>
-                <TableHead className="text-muted-foreground text-right">XP</TableHead>
+                <TableHead className="text-muted-foreground text-right">Points</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -85,7 +85,7 @@ export function UserGamesTab() {
                       {g.result}
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-success text-right font-mono">+{g.xp}</TableCell>
+                  <TableCell className="text-success text-right font-mono">+{g.points}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
