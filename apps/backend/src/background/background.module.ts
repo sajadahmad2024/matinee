@@ -20,7 +20,9 @@ import { ContentJobService } from './content/content-job.service';
 import {
   ContentPublishScheduledHandler,
   ContentLicenseExpiryHandler,
+  ContentMaintenanceHandler,
 } from './content/content.handlers';
+import { BoostNotifierService } from '../content/catalog/boost-notifier.service';
 
 /**
  * Worker-scoped ASYNC job CONSUMERS — the @QueueHandler providers discovered by the
@@ -50,6 +52,8 @@ import {
     ContentJobService,
     ContentPublishScheduledHandler,
     ContentLicenseExpiryHandler,
+    ContentMaintenanceHandler,
+    BoostNotifierService,
   ],
 })
 export class BackgroundModule {}

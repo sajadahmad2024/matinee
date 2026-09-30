@@ -12,7 +12,9 @@ export class TransformInterceptor<T> implements NestInterceptor<T, ApiResponse<T
       const request = context.switchToHttp().getRequest();
 
       // Exclude specific routes
-      if (request.url.includes(RouteNames.METRICS) || request.url.includes(RouteNames.HEALTH)) {
+      // Match the first path segment only — a query like `?metrics=views` must still be wrapped.
+      const firstSegment = String(request.url ?? '').split('?')[0]!.split('/').filter(Boolean)[0] ?? '';
+      if (firstSegment.startsWith(RouteNames.METRICS) || firstSegment.startsWith(RouteNames.HEALTH)) {
         return next.handle();
       }
 

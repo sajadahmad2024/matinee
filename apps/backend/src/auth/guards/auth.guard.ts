@@ -42,20 +42,24 @@ export class AuthGuard implements CanActivate {
 
     // ── Hot path: validate the access token with crypto only (no DB) ──────────
     if (accessToken) {
+      let payload: ReturnType<TokenService['verifyAccess']> | null = null;
       try {
-        const payload = this.tokenService.verifyAccess(accessToken);
+        payload = this.tokenService.verifyAccess(accessToken);
+      } catch (error) {
+        if ((error as Error).name !== 'TokenExpiredError') {
+          throw new UnauthorizedException('Invalid access token');
+        }
+        // expired → fall through to transparent refresh
+      }
+      if (payload) {
         const user = this.tokenService.contextFromPayload(payload, platform);
+        // Outside the try: a suspended/banned account must surface as 403 ACCOUNT_*, not a 401.
         this.enforceStatus(user.status);
         req.user = user;
         if (this.tokenService.isWithinRenewWindow(payload)) {
           req.newAccessToken = this.tokenService.signAccessFromContext(user); // sliding renewal — no DB
         }
         return true;
-      } catch (error) {
-        if ((error as Error).name !== 'TokenExpiredError') {
-          throw new UnauthorizedException('Invalid access token');
-        }
-        // expired → fall through to transparent refresh
       }
     }
 

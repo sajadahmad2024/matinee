@@ -1,7 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { EventRepository, EventInput } from '@db/repositories/events/event.repository';
+import { SessionRepository } from '@db/repositories/analytics/session.repository';
+import { macroForCountry } from '../analytics/dashboard/regions';
 import { EventsQueryDto, IngestEventsDto } from './dto/event.dto';
 import { EVENT_CATALOG_LIST, eventTypeOf } from './event-catalog';
+import { foldSessions } from './session-fold';
 
 /**
  * Events service — the single client-telemetry ingestion seam. Customers/guests post batched
@@ -10,7 +13,12 @@ import { EVENT_CATALOG_LIST, eventTypeOf } from './event-catalog';
  */
 @Injectable()
 export class EventsService {
-  constructor(private readonly events: EventRepository) {}
+  private readonly logger = new Logger(EventsService.name);
+
+  constructor(
+    private readonly events: EventRepository,
+    private readonly sessions: SessionRepository,
+  ) {}
 
   async ingest(userId: string | null, dto: IngestEventsDto): Promise<{ accepted: number }> {
     const rows: EventInput[] = dto.events.map((e) => ({
@@ -23,7 +31,31 @@ export class EventsService {
       occurredAt: e.occurredAt,
     }));
     const accepted = await this.events.ingest(userId, dto.platform, rows);
+    if (userId) {
+      await this.trackSessions(userId, dto);
+    }
     return { accepted };
+  }
+
+  /**
+   * Derive / extend `user_sessions` rows from the batch (one per client session id). Best
+   * effort: telemetry ingestion never fails because session accounting did.
+   */
+  private async trackSessions(userId: string, dto: IngestEventsDto): Promise<void> {
+    const deltas = foldSessions(dto.events);
+    if (deltas.length === 0) {
+      return;
+    }
+    try {
+      const countryCode = await this.sessions.userCountry(userId);
+      await this.sessions.upsertFromEvents(
+        userId,
+        { platform: dto.platform ?? null, countryCode, region: macroForCountry(countryCode) },
+        deltas,
+      );
+    } catch (err) {
+      this.logger.warn(`session tracking failed for ${userId}: ${(err as Error).message}`);
+    }
   }
 
   /** The canonical event catalog (name → category) — lets non-SDK clients introspect valid events. */

@@ -13,4 +13,6 @@ export class ShareContentDto {
 export class ShareResultDto {
   @ApiProperty({ format: 'uuid' }) shareId!: string;
   @ApiProperty() shareCount!: number;
+  @ApiProperty({ description: 'true when this user already shared this content to this channel today (not counted again)' })
+  deduped!: boolean;
 }

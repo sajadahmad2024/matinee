@@ -13,6 +13,7 @@ import { MediaRepository } from './repositories/media/media.repository';
 import { ContentRepository } from './repositories/content/content.repository';
 import { TaxonomyRepository } from './repositories/content/taxonomy.repository';
 import { ContentExtrasRepository } from './repositories/content/content-extras.repository';
+import { ContentInsightsRepository } from './repositories/content/content-insights.repository';
 import { ContentUnlockRepository } from './repositories/content/unlock.repository';
 import { ProfileRepository } from './repositories/users/profile.repository';
 import { WalletRepository } from './repositories/tokenomics/wallet.repository';
@@ -40,12 +41,20 @@ import { AuctionRepository } from './repositories/games/auction.repository';
 import { StreakRepository } from './repositories/games/streak.repository';
 import { ModerationRepository } from './repositories/moderation/moderation.repository';
 import { AnalyticsRepository } from './repositories/analytics/analytics.repository';
+import { AnalyticsRollupRepository } from './repositories/analytics/analytics-rollup.repository';
+import { DashboardAnalyticsRepository } from './repositories/analytics/dashboard-analytics.repository';
+import { MarketingRepository } from './repositories/analytics/marketing.repository';
+import { SessionRepository } from './repositories/analytics/session.repository';
+import { UserMetricRepository } from './repositories/analytics/user-metric.repository';
 import { AdminUser360Repository } from './repositories/users/user-360.repository';
 import { NotificationCampaignRepository } from './repositories/notifications/notification-campaign.repository';
 import { NotificationLogsRepository } from './repositories/notifications/notification-logs.repository';
 import { AppSettingsRepository } from './repositories/platform/app-settings.repository';
+import { AdminAuditRepository } from './repositories/platform/admin-audit.repository';
 import { GamesMetaRepository } from './repositories/games/games-meta.repository';
 import { EventRepository } from './repositories/events/event.repository';
+import { AdEventRepository } from './repositories/ads/ad-event.repository';
+import { AdSalesRepository } from './repositories/ads/ad-sales.repository';
 
 const repositories = [
   UsersRepository,
@@ -58,6 +67,7 @@ const repositories = [
   ContentRepository,
   TaxonomyRepository,
   ContentExtrasRepository,
+  ContentInsightsRepository,
   ContentUnlockRepository,
   ProfileRepository,
   WalletRepository,
@@ -85,12 +95,20 @@ const repositories = [
   StreakRepository,
   ModerationRepository,
   AnalyticsRepository,
+  AnalyticsRollupRepository,
+  DashboardAnalyticsRepository,
+  MarketingRepository,
+  SessionRepository,
+  UserMetricRepository,
   AdminUser360Repository,
   NotificationCampaignRepository,
   NotificationLogsRepository,
   AppSettingsRepository,
+  AdminAuditRepository,
   GamesMetaRepository,
   EventRepository,
+  AdEventRepository,
+  AdSalesRepository,
 ];
 
 @Global()

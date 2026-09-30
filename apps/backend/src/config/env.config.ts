@@ -1,4 +1,4 @@
-import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsIn, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class EnvConfig {
   @IsNotEmpty()
@@ -375,6 +375,11 @@ export class EnvConfig {
   @IsOptional()
   @IsBoolean()
   COOKIE_SECURE?: boolean;
+
+  /** SameSite policy for auth cookies: `lax` (default) | `strict` | `none` (forces Secure). */
+  @IsOptional()
+  @IsIn(['lax', 'strict', 'none'])
+  COOKIE_SAMESITE?: 'lax' | 'strict' | 'none';
 
   @IsOptional()
   @IsBoolean()

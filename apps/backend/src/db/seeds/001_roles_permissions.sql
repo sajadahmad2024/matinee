@@ -31,7 +31,10 @@ INSERT INTO permissions (name, description, resource, action) VALUES
     -- Content module
     ('content:read',      'View content',                        'content',     'read'),
     ('content:write',     'Create and update content',           'content',     'write'),
-    ('content:publish',   'Approve, publish and reject content', 'content',     'publish')
+    ('content:publish',   'Approve, publish and reject content', 'content',     'publish'),
+    -- Ads module (Ad Sales)
+    ('ads:read',          'View advertisers, campaigns, ad performance and the ad-sales ledger', 'ads', 'read'),
+    ('ads:write',         'Manage advertisers, campaigns and ad-sales ledger entries',            'ads', 'write')
 ON CONFLICT (name) DO NOTHING;
 
 -- super_admin → ALL permissions. Re-applied on every seed so module-added

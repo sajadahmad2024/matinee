@@ -2,7 +2,7 @@ import { EnvConfig } from '@config/env.config';
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { Request, Response } from 'express';
+import { CookieOptions, Request, Response } from 'express';
 import { randomUUID } from 'crypto';
 import { AccountStatus, AccountType, JwtPayload, Platform } from '../interfaces/jwt-payload.interface';
 import { AuthContext } from '../interfaces/auth-context.interface';
@@ -10,8 +10,12 @@ import { TokenPair } from '../interfaces/token.interface';
 
 const ACCESS_COOKIE = 'access_token';
 const REFRESH_COOKIE = 'refresh_token';
+const CSRF_COOKIE = 'csrf';
 const DEFAULT_ACCESS_SECRET = 'dev-access-secret-change-me';
 const OTP_CHALLENGE_TTL = 600; // 10 minutes
+
+export type CookieSameSite = 'lax' | 'strict' | 'none';
+export type AuthCookieKind = 'access' | 'refresh' | 'csrf';
 
 /** Short-lived token issued when an OTP is requested; required to verify it.
  *  `sub` is set when the OTP is bound to an already-known user (e.g. verifying email of a
@@ -201,44 +205,47 @@ export class TokenService implements OnModuleInit {
 
   // ─── Cookie writers (web only) ──────────────────────────────────────────────
 
-  setAuthCookies(res: Response, pair: TokenPair, refreshTtlSeconds: number): void {
-    const secure = this.config.get<boolean>('COOKIE_SECURE') ?? false;
+  /** Configured SameSite policy (`COOKIE_SAMESITE`, default `lax`). */
+  get cookieSameSite(): CookieSameSite {
+    const raw = (this.config.get<string>('COOKIE_SAMESITE') ?? 'lax').toLowerCase();
+    return raw === 'strict' || raw === 'none' ? raw : 'lax';
+  }
+
+  /**
+   * Base options shared by every auth cookie (access, refresh, csrf) — also used when clearing,
+   * since browsers only drop a cookie when domain/path/sameSite/secure match the original.
+   * `sameSite=none` forces `secure=true` (browsers reject `SameSite=None` without `Secure`).
+   */
+  cookieOptions(kind: AuthCookieKind): CookieOptions {
+    const configured = this.cookieSameSite;
+    // The refresh cookie is only ever sent to /auth/refresh by same-site code, so it stays
+    // `strict` — unless the panel is cross-site (`none`), where `strict` would never be sent.
+    const sameSite: CookieSameSite = kind === 'refresh' && configured !== 'none' ? 'strict' : configured;
+    const secure = configured === 'none' ? true : (this.config.get<boolean>('COOKIE_SECURE') ?? false);
     const domain = this.config.get<string>('COOKIE_DOMAIN') ?? 'localhost';
-    res.cookie(ACCESS_COOKIE, pair.accessToken, {
-      httpOnly: true,
-      secure,
-      sameSite: 'lax',
-      domain,
-      path: '/',
-      maxAge: this.accessTtl * 1000,
-    });
-    res.cookie(REFRESH_COOKIE, pair.refreshToken, {
-      httpOnly: true,
-      secure,
-      sameSite: 'strict',
-      domain,
-      path: '/',
-      maxAge: refreshTtlSeconds * 1000,
-    });
+    return { httpOnly: kind !== 'csrf', secure, sameSite, domain, path: '/' };
+  }
+
+  setAuthCookies(res: Response, pair: TokenPair, refreshTtlSeconds: number): void {
+    res.cookie(ACCESS_COOKIE, pair.accessToken, { ...this.cookieOptions('access'), maxAge: this.accessTtl * 1000 });
+    res.cookie(REFRESH_COOKIE, pair.refreshToken, { ...this.cookieOptions('refresh'), maxAge: refreshTtlSeconds * 1000 });
   }
 
   setAccessCookie(res: Response, accessToken: string): void {
-    const secure = this.config.get<boolean>('COOKIE_SECURE') ?? false;
-    const domain = this.config.get<string>('COOKIE_DOMAIN') ?? 'localhost';
-    res.cookie(ACCESS_COOKIE, accessToken, {
-      httpOnly: true,
-      secure,
-      sameSite: 'lax',
-      domain,
-      path: '/',
-      maxAge: this.accessTtl * 1000,
-    });
+    res.cookie(ACCESS_COOKIE, accessToken, { ...this.cookieOptions('access'), maxAge: this.accessTtl * 1000 });
+  }
+
+  /** Issue a fresh double-submit CSRF token as a JS-readable cookie and return it (for the body). */
+  setCsrfCookie(res: Response): string {
+    const token = randomUUID();
+    res.cookie(CSRF_COOKIE, token, this.cookieOptions('csrf'));
+    return token;
   }
 
   clearAuthCookies(res: Response): void {
-    const domain = this.config.get<string>('COOKIE_DOMAIN') ?? 'localhost';
-    res.clearCookie(ACCESS_COOKIE, { domain, path: '/' });
-    res.clearCookie(REFRESH_COOKIE, { domain, path: '/' });
+    res.clearCookie(ACCESS_COOKIE, this.cookieOptions('access'));
+    res.clearCookie(REFRESH_COOKIE, this.cookieOptions('refresh'));
+    res.clearCookie(CSRF_COOKIE, this.cookieOptions('csrf'));
   }
 
   private readCookie(req: Request, name: string): string | null {

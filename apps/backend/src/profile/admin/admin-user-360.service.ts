@@ -13,6 +13,39 @@ export class AdminUser360Service {
     return this.user360.watchHistory(userId, 50).then((items) => ({ items }));
   }
 
+  /** Watch tab: engagement stats + favourite genres + streak summary. */
+  async watchStats(userId: string) {
+    const { totals, genres, streak } = await this.user360.watchStats(userId);
+    const n = (v: string | number | null | undefined) => Number(v ?? 0);
+    const views = n(totals['views']);
+    const genreTotal = genres.reduce((acc, g) => acc + n(g['watchSeconds']), 0);
+    const today = new Date().toISOString().slice(0, 10);
+    const yesterday = new Date(Date.now() - 86_400_000).toISOString().slice(0, 10);
+    const last = streak ? (streak['lastQualifiedDate'] as string | null) : null;
+    const alive = last === today || last === yesterday;
+    return {
+      videosWatched: n(totals['videosWatched']),
+      sessions: n(totals['sessions']),
+      views,
+      totalWatchSeconds: n(totals['totalWatchSeconds']),
+      avgSessionSeconds: Math.round(n(totals['avgSessionSeconds'])),
+      completionRate: views > 0 ? Math.round((n(totals['completed']) / views) * 1000) / 10 : 0,
+      lastWatchedAt: (totals['lastWatchedAt'] as string | null) ?? null,
+      favoriteGenres: genres.map((g) => ({
+        genreId: String(g['genreId']),
+        name: String(g['name']),
+        watchSeconds: n(g['watchSeconds']),
+        percent: genreTotal > 0 ? Math.round((n(g['watchSeconds']) / genreTotal) * 1000) / 10 : 0,
+      })),
+      streak: {
+        currentStreak: alive ? n(streak?.['currentStreak']) : 0,
+        longestStreak: n(streak?.['longestStreak']),
+        level: streak ? n(streak['level']) : 1,
+        activeDays: n(streak?.['activeDays']),
+      },
+    };
+  }
+
   referrals(userId: string) {
     return this.user360.referrals(userId);
   }

@@ -3,7 +3,7 @@ import { DBService, DBExecutor } from '@db/db.service';
 import { userEnforcementActions } from '@db/drizzle/schema';
 import { desc, eq } from 'drizzle-orm';
 
-export type EnforcementAction = 'suspend' | 'ban' | 'reinstate' | 'disable' | 'enable';
+export type EnforcementAction = 'suspend' | 'ban' | 'reinstate' | 'disable' | 'enable' | 'warn';
 
 export interface EnforcementRecord {
   id: string;

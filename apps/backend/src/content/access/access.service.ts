@@ -1,6 +1,11 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { AuthContext } from '@auth/interfaces/auth-context.interface';
+import { AccountType } from '@auth/interfaces/jwt-payload.interface';
 import { DBService } from '@db/db.service';
-import { ContentRepository } from '@db/repositories/content/content.repository';
+import { ContentRecord, ContentRepository } from '@db/repositories/content/content.repository';
+import { MediaStatus } from '@media/constants/media.constant';
+import { MediaService } from '@media/media.service';
+import { PlaybackDto } from '@media/dto/media-response.dto';
 import { ContentUnlockRepository } from '@db/repositories/content/unlock.repository';
 import { LedgerRepository } from '@db/repositories/tokenomics/ledger.repository';
 
@@ -10,6 +15,26 @@ export interface Entitlement {
   unlockPoints: number;
   isLocked: boolean;
   isUnlocked: boolean;
+}
+
+export interface ContentPlayback {
+  contentId: string;
+  mediaId: string;
+  accessTier: string;
+  durationSeconds: number | null;
+  width: number | null;
+  height: number | null;
+  playback: PlaybackDto;
+}
+
+const MACRO_REGIONS = ['NA', 'EU', 'APAC', 'LATAM', 'MEA'];
+
+/** Published, not deleted, inside its live window and licence not expired. */
+export function isPlayableNow(c: ContentRecord, now: Date = new Date()): boolean {
+  if (c.status !== 'published') return false;
+  if (c.availableUntil && new Date(c.availableUntil) <= now) return false;
+  if (c.licenseStatus === 'expired') return false;
+  return true;
 }
 
 export interface UnlockResult {
@@ -32,7 +57,41 @@ export class AccessService {
     private readonly content: ContentRepository,
     private readonly unlocks: ContentUnlockRepository,
     private readonly ledger: LedgerRepository,
+    private readonly media: MediaService,
   ) {}
+
+  /**
+   * Entitlement-checked playback for a content's video. Non-admins: published + live window +
+   * licence not expired (404), region availability when the viewer has a macro-region (403),
+   * exclusive requires an unlock (403). Admins skip those checks (preview). 409 when the video
+   * isn't ready.
+   */
+  async playback(actor: AuthContext, contentId: string): Promise<ContentPlayback> {
+    const c = await this.content.findById(contentId);
+    if (!c) throw new NotFoundException('Content not found');
+    if (actor.accountType !== AccountType.ADMIN) {
+      if (!isPlayableNow(c)) throw new NotFoundException('Content not found');
+      const region = (await this.content.viewerRegion(actor.id))?.toUpperCase();
+      if (region && MACRO_REGIONS.includes(region) && !(await this.content.isAvailableIn(contentId, region))) {
+        throw new ForbiddenException('Content is not available in your region');
+      }
+      if (c.accessTier === 'exclusive' && !(await this.unlocks.isUnlocked(actor.id, contentId))) {
+        throw new ForbiddenException('Content is locked — unlock it first');
+      }
+    }
+    if (!c.videoMediaId) throw new ConflictException('Content has no video yet');
+    const video = (await this.media.findRecords([c.videoMediaId])).get(c.videoMediaId);
+    if (!video || video.status !== MediaStatus.READY) throw new ConflictException('Video is not ready yet');
+    return {
+      contentId,
+      mediaId: video.id,
+      accessTier: c.accessTier,
+      durationSeconds: c.durationSeconds,
+      width: video.width,
+      height: video.height,
+      playback: await this.media.getPlayback(video.id),
+    };
+  }
 
   private async loadPublished(contentId: string) {
     const c = await this.content.findById(contentId);

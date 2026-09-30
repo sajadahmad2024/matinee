@@ -18,6 +18,7 @@ import { MediaDeliveryProvider } from './providers/delivery.provider';
 import { MediaDto, MediaStatusEventDto, PlaybackDto, UploadTicketDto } from './dto/media-response.dto';
 import { RequestUploadDto } from './dto/request-upload.dto';
 import { CompleteUploadDto } from './dto/complete-upload.dto';
+import { UpdateMediaMetadataDto } from './dto/update-media-metadata.dto';
 import { toMediaDto } from './mappers/media.mapper';
 
 /**
@@ -113,8 +114,14 @@ export class MediaService {
     if (actor.accountType !== AccountType.ADMIN && record.uploadedBy !== actor.id) {
       throw new ForbiddenException('You cannot finalize this upload');
     }
+    // Client-probed metadata fills empty columns only, whatever the status (idempotent).
+    await this.media.fillProbe(id, {
+      durationSeconds: input.durationSeconds,
+      width: input.width,
+      height: input.height,
+    });
     if (record.status === MediaStatus.PROCESSING || record.status === MediaStatus.READY) {
-      return toMediaDto(record, this.resolveUrl(record)); // Lambda got there first — idempotent
+      return this.currentDto(id); // Lambda got there first — idempotent
     }
     if (record.status !== MediaStatus.PENDING && record.status !== MediaStatus.UPLOADED) {
       throw new BadRequestException(`Media is ${record.status}`);
@@ -167,6 +174,99 @@ export class MediaService {
     return events.map((e) => ({ id: e.id, status: e.status, detail: e.detail, progress: e.progress, createdAt: e.createdAt }));
   }
 
+  /** Batch-resolve direct URLs (ready + public only; others map to null). Used for list thumbnails. */
+  async publicUrls(ids: string[]): Promise<Map<string, string | null>> {
+    const unique = [...new Set(ids)];
+    const records = await this.media.findByIds(unique);
+    return new Map(records.map((r) => [r.id, this.resolveUrl(r)]));
+  }
+
+  /** Key of the poster frame the transcoder writes next to the HLS output, if the video is ready. */
+  private posterKey(video: MediaRecord): string | null {
+    if (video.status !== MediaStatus.READY || !video.isHls || !video.deliveryPrefix) {
+      return null;
+    }
+    const prefix = video.deliveryPrefix.endsWith('/') ? video.deliveryPrefix : `${video.deliveryPrefix}/`;
+    return `${prefix}poster.jpg`;
+  }
+
+  /** Short-lived URL to preview the transcoder poster of a video (admin thumbnail picker). */
+  async posterPreviewUrl(videoMediaId: string): Promise<string | null> {
+    const video = await this.media.findById(videoMediaId);
+    const key = video ? this.posterKey(video) : null;
+    return key ? this.delivery.signedUrl(key, this.signedTtl) : null;
+  }
+
+  /**
+   * Register the transcoder poster of a video as its own public image media row, so it can be
+   * used as a content thumbnail. Returns the new media id.
+   */
+  async registerPosterAsThumbnail(videoMediaId: string, actorId: string): Promise<MediaDto> {
+    const video = await this.requireRecord(videoMediaId);
+    const key = this.posterKey(video);
+    if (!key) {
+      throw new BadRequestException('Video has no transcoder poster yet (must be a ready HLS video)');
+    }
+    const created = await this.media.create({
+      mediaType: MediaType.IMAGE,
+      usageType: UsageType.CONTENT_THUMBNAIL,
+      accessLevel: AccessLevel.PUBLIC,
+      storageProvider: this.storage.name,
+      storageBucket: this.config.get<string>('MEDIA_OUTPUT_BUCKET') || undefined,
+      storageKey: key,
+      cdnProvider: this.delivery.name,
+      originalFilename: 'poster.jpg',
+      mimeType: 'image/jpeg',
+      uploadedBy: actorId,
+      metadata: { derivedFrom: videoMediaId, kind: 'transcoder_poster' },
+    });
+    const ready = await this.media.markReady(created.id, { deliveryPrefix: key, isHls: false });
+    const record = ready ?? created;
+    return toMediaDto(record, this.resolveUrl(record));
+  }
+
+  /** Batch lookup of media rows (content enrichment: video dimensions, statuses). */
+  async findRecords(ids: string[]): Promise<Map<string, MediaRecord>> {
+    const records = await this.media.findByIds([...new Set(ids)]);
+    return new Map(records.map((r) => [r.id, r]));
+  }
+
+  /** Public URL of a ready public media (null otherwise). */
+  urlOf(record: MediaRecord): string | null {
+    return this.resolveUrl(record);
+  }
+
+  /** Admin override of duration / resolution / alt text. */
+  async updateMetadata(id: string, dto: UpdateMediaMetadataDto): Promise<MediaDto> {
+    const updated = await this.media.updateMetadata(id, {
+      durationSeconds: dto.durationSeconds,
+      width: dto.width,
+      height: dto.height,
+      altText: dto.altText,
+    });
+    if (!updated) {
+      throw new NotFoundException('Media not found');
+    }
+    return toMediaDto(updated, this.resolveUrl(updated));
+  }
+
+  /**
+   * Playback via the media id (`GET /v1/media/:id/playback`). Admins: any media. Everyone else is
+   * refused for content videos — those must go through `GET /v1/content/:id/playback`, which
+   * enforces publish state, availability and exclusive unlocks.
+   */
+  async getPlaybackFor(id: string, actor: AuthContext): Promise<PlaybackDto> {
+    if (actor.accountType !== AccountType.ADMIN) {
+      const record = await this.requireRecord(id);
+      const contentUsage = record.usageType === UsageType.CONTENT_VIDEO || record.usageType === UsageType.CONTENT_TRAILER;
+      if (contentUsage || (await this.media.isContentVideo(id))) {
+        throw new ForbiddenException('Content videos must be played via GET /v1/content/:id/playback');
+      }
+    }
+    return this.getPlayback(id);
+  }
+
+  /** Signed playback descriptor — NO access checks (callers enforce entitlement). */
   async getPlayback(id: string): Promise<PlaybackDto> {
     const record = await this.requireRecord(id);
     if (record.status !== MediaStatus.READY) {

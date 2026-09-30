@@ -10,6 +10,7 @@ import { AdminAuctionController } from './bidding/admin-auction.controller';
 import { AuctionService } from './bidding/auction.service';
 import { StreakController } from './streak/streak.controller';
 import { StreakService } from './streak/streak.service';
+import { StreakWatchListener } from './streak/streak-watch.listener';
 import { AdminGamesController } from './admin-games.controller';
 
 /**
@@ -25,6 +26,6 @@ import { AdminGamesController } from './admin-games.controller';
     StreakController,
     AdminGamesController,
   ],
-  providers: [QuestService, PredictionService, AuctionService, StreakService],
+  providers: [QuestService, PredictionService, AuctionService, StreakService, StreakWatchListener],
 })
 export class GamesModule {}

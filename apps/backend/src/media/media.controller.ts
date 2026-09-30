@@ -1,6 +1,6 @@
 import { RouteNames } from '@common/route-names';
 import { ApiEnvelope } from '@common/swagger/api-envelope.decorator';
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseUUIDPipe, Patch, Post } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AccountTypes, AdminOnly } from '@auth/decorators/account-type.decorator';
 import { CurrentUser } from '@auth/decorators/current-user.decorator';
@@ -9,6 +9,7 @@ import { AccountType } from '@auth/interfaces/jwt-payload.interface';
 import { MediaService } from './media.service';
 import { RequestUploadDto } from './dto/request-upload.dto';
 import { CompleteUploadDto } from './dto/complete-upload.dto';
+import { UpdateMediaMetadataDto } from './dto/update-media-metadata.dto';
 import { MediaDto, MediaStatusEventDto, PlaybackDto, UploadTicketDto } from './dto/media-response.dto';
 import { MessageResponseDto } from '@common/dto/message-response.dto';
 
@@ -41,7 +42,8 @@ export class MediaController {
       'Confirm the client-side PUT landed. HEAD-checks S3 for the object (400 if missing); ' +
       'for non-video uploads flips status straight to READY. For videos the Lambda-via-S3-' +
       'event owns the final READY transition — this call just captures the client\'s ' +
-      'metadata (sizeBytes/checksum) and short-circuits early errors.',
+      'metadata (sizeBytes/checksum + optional probed durationSeconds/width/height, which only ' +
+      'fill empty columns) and short-circuits early errors.',
   })
   @ApiEnvelope(MediaDto)
   completeUpload(@CurrentUser() user: AuthContext, @Param('id') id: string, @Body() dto: CompleteUploadDto) {
@@ -67,10 +69,22 @@ export class MediaController {
   }
 
   @Get(':id/playback')
-  @ApiOperation({ summary: 'Get a signed playback descriptor (HLS cookies / signed URL) for a ready asset' })
+  @ApiOperation({
+    summary:
+      'Signed playback descriptor (HLS cookies / signed URL) for a ready asset. Non-admins get 403 for ' +
+      'content videos — use GET /v1/content/:id/playback (entitlement-checked).',
+  })
   @ApiEnvelope(PlaybackDto)
-  getPlayback(@Param('id') id: string) {
-    return this.media.getPlayback(id);
+  getPlayback(@CurrentUser() user: AuthContext, @Param('id') id: string) {
+    return this.media.getPlaybackFor(id, user);
+  }
+
+  @Patch(':id/metadata')
+  @AdminOnly()
+  @ApiOperation({ summary: 'Override duration / resolution / alt text (null clears)' })
+  @ApiEnvelope(MediaDto)
+  updateMetadata(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateMediaMetadataDto) {
+    return this.media.updateMetadata(id, dto);
   }
 
   @Delete(':id')

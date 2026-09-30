@@ -1,4 +1,5 @@
 import { MediaModule } from '@media/media.module';
+import { AnalyticsRollupModule } from '../../analytics/rollup/analytics-rollup.module';
 import { Module } from '@nestjs/common';
 import { ScheduleModule } from '@nestjs/schedule';
 import { CronScheduler } from './cron.scheduler';
@@ -15,7 +16,7 @@ import { CronService } from './cron.service';
  * by `withLock`.
  */
 @Module({
-  imports: [ScheduleModule.forRoot(), MediaModule],
+  imports: [ScheduleModule.forRoot(), MediaModule, AnalyticsRollupModule],
   providers: [CronScheduler, CronService],
   exports: [CronService],
 })

@@ -18,3 +18,16 @@ INSERT INTO badges (name, slug, description, trigger_key, operator, threshold, r
   ('First Place',     'first-place',     'Win first place in any leaderboard',              'first_place_wins',    'gt',  1,    200,  true),
   ('Social Butterfly','social-butterfly','Refer 5 friends who complete their first game',   'referrals_completed', 'gt',  5,    400,  false)
 ON CONFLICT (slug) DO NOTHING;
+
+-- Daily-streak level badges (Figma "Daily Streaks" — Badges Earned / Badges to Unlock).
+INSERT INTO badge_triggers (key, label, unit, description) VALUES
+  ('streak_level_completed', 'Streak Levels Completed', 'levels', 'Daily-streak levels completed (7 qualifying days each)')
+ON CONFLICT (key) DO NOTHING;
+
+INSERT INTO badges (name, slug, description, trigger_key, operator, threshold, reward_points, is_active) VALUES
+  ('First Flame',     'first-flame',     '30 min/day for 7 days — Level 1 complete',  'streak_level_completed', 'gte', 1,  0, true),
+  ('Spark Keeper',    'spark-keeper',    'Keep a 14-day watch streak',                'watch_streak_days',      'gte', 14, 0, true),
+  ('Consistent Star', 'consistent-star', 'Complete Level 2 (45 min/day × 7 days)',    'streak_level_completed', 'gte', 2,  0, true),
+  ('Streak Legend',   'streak-legend',   'Complete Level 3 (60 min/day × 7 days)',    'streak_level_completed', 'gte', 3,  0, true),
+  ('Cinematic Icon',  'cinematic-icon',  'Complete Level 4 (90 min/day × 7 days)',    'streak_level_completed', 'gte', 4,  0, true)
+ON CONFLICT (slug) DO NOTHING;

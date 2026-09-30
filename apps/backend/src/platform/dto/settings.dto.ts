@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsBoolean, IsOptional, IsString, MaxLength } from 'class-validator';
+import { IsBoolean, IsDefined, IsOptional, IsString, MaxLength } from 'class-validator';
 
 export class SetFeatureFlagDto {
   @ApiProperty({ example: 'games_enabled', description: 'Flag key (feature. prefix added if absent)' })
@@ -8,6 +8,7 @@ export class SetFeatureFlagDto {
   key!: string;
 
   @ApiProperty({ example: true, description: 'Flag value (usually boolean)' })
+  @IsDefined() // without a validator the global forbidNonWhitelisted pipe rejected every value
   value!: unknown;
 }
 

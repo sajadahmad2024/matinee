@@ -16,17 +16,21 @@ export class ShareService {
   /**
    * Record a share. The award (points, with daily cap + idempotency) is the Tokenomics
    * module's job — it subscribes to ContentShared. Here we only persist + bump the counter.
+   * Deduped per user + content + channel + UTC day: a repeat returns the existing share,
+   * leaves `share_count` alone and emits nothing (so it can't farm points either).
    */
   async share(userId: string, contentId: string, channel: string | undefined): Promise<ShareResultDto> {
     await this.access.assertPublished(contentId);
-    const shareId = await this.shares.record(userId, contentId, channel);
-    this.events.emit(EngagementEvent.ContentShared, {
-      userId,
-      contentId,
-      shareId,
-      ...(channel ? { channel } : {}),
-    } satisfies ContentSharedPayload);
+    const { id: shareId, created } = await this.shares.record(userId, contentId, channel);
+    if (created) {
+      this.events.emit(EngagementEvent.ContentShared, {
+        userId,
+        contentId,
+        shareId,
+        ...(channel ? { channel } : {}),
+      } satisfies ContentSharedPayload);
+    }
     const counts = await this.access.getCounts(contentId);
-    return { shareId, shareCount: counts.shareCount };
+    return { shareId, shareCount: counts.shareCount, deduped: !created };
   }
 }

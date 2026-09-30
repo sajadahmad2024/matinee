@@ -25,10 +25,10 @@ import {
   UpdateStudioDto,
 } from './dto/taxonomy.dto';
 import {
-  GenreResponseDto,
+  AdminGenreResponseDto,
+  AdminTagResponseDto,
   PersonResponseDto,
   StudioResponseDto,
-  TagResponseDto,
 } from './dto/taxonomy-response.dto';
 
 /** Admin content-library management: studios / genres / tags / cast. */
@@ -50,21 +50,21 @@ export class AdminTaxonomyController {
   deleteStudio(@Param('id', ParseUUIDPipe) id: string) { return this.taxonomy.deleteStudio(id); }
 
   // Genres
-  @Get('genres') @Permissions('content:read') @ApiOperation({ summary: 'List genres' }) @ApiEnvelope(GenreResponseDto, { isArray: true })
-  genres() { return this.taxonomy.listGenres(false); }
-  @Post('genres') @Permissions('content:write') @ApiOperation({ summary: 'Create genre' }) @ApiEnvelope(GenreResponseDto, { status: 201 })
+  @Get('genres') @Permissions('content:read') @ApiOperation({ summary: 'List genres' }) @ApiEnvelope(AdminGenreResponseDto, { isArray: true })
+  genres() { return this.taxonomy.listGenres(); }
+  @Post('genres') @Permissions('content:write') @ApiOperation({ summary: 'Create genre' }) @ApiEnvelope(AdminGenreResponseDto, { status: 201 })
   createGenre(@Body() dto: CreateGenreDto) { return this.taxonomy.createGenre(dto); }
-  @Patch('genres/:id') @Permissions('content:write') @ApiOperation({ summary: 'Update genre (name/active/sort)' }) @ApiEnvelope(GenreResponseDto)
+  @Patch('genres/:id') @Permissions('content:write') @ApiOperation({ summary: 'Update genre (name/active/sort)' }) @ApiEnvelope(AdminGenreResponseDto)
   updateGenre(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateGenreDto) { return this.taxonomy.updateGenre(id, dto); }
   @Delete('genres/:id') @Permissions('content:write') @ApiOperation({ summary: 'Delete genre' }) @ApiEnvelope(MessageResponseDto)
   deleteGenre(@Param('id', ParseUUIDPipe) id: string) { return this.taxonomy.deleteGenre(id); }
 
   // Tags
-  @Get('tags') @Permissions('content:read') @ApiOperation({ summary: 'List tags' }) @ApiEnvelope(TagResponseDto, { isArray: true })
+  @Get('tags') @Permissions('content:read') @ApiOperation({ summary: 'List tags' }) @ApiEnvelope(AdminTagResponseDto, { isArray: true })
   tags() { return this.taxonomy.listTags(); }
-  @Post('tags') @Permissions('content:write') @ApiOperation({ summary: 'Create tag' }) @ApiEnvelope(TagResponseDto, { status: 201 })
+  @Post('tags') @Permissions('content:write') @ApiOperation({ summary: 'Create tag' }) @ApiEnvelope(AdminTagResponseDto, { status: 201 })
   createTag(@Body() dto: CreateTagDto) { return this.taxonomy.createTag(dto.name); }
-  @Patch('tags/:id') @Permissions('content:write') @ApiOperation({ summary: 'Rename a tag' }) @ApiEnvelope(TagResponseDto)
+  @Patch('tags/:id') @Permissions('content:write') @ApiOperation({ summary: 'Rename a tag' }) @ApiEnvelope(AdminTagResponseDto)
   updateTag(@Param('id', ParseUUIDPipe) id: string, @Body() dto: CreateTagDto) { return this.taxonomy.updateTag(id, dto.name); }
   @Delete('tags/:id') @Permissions('content:write') @ApiOperation({ summary: 'Delete tag' }) @ApiEnvelope(MessageResponseDto)
   deleteTag(@Param('id', ParseUUIDPipe) id: string) { return this.taxonomy.deleteTag(id); }

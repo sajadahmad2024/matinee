@@ -5,6 +5,7 @@ import { JobName, QueueName } from '@queue/queue.constant';
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { CronService } from './cron.service';
+import { AnalyticsRollupService } from '../../analytics/rollup/analytics-rollup.service';
 import { CRON_LOCK_TTL, CronName } from './cron.constant';
 
 /**
@@ -22,6 +23,7 @@ export class CronScheduler {
     private readonly cache: CacheService,
     private readonly tasks: CronService,
     private readonly media: MediaService,
+    private readonly rollups: AnalyticsRollupService,
   ) {}
 
   // ─── ASYNC ticks (enqueue → background handler) ───────────────────────────────
@@ -61,6 +63,20 @@ export class CronScheduler {
   scheduleLicenseExpiryReminder(): Promise<void> {
     return this.tick(CronName.LICENSE_EXPIRY_REMINDER, () =>
       this.queue.send(QueueName.CONTENT, JobName.LICENSE_EXPIRY_REMINDER, {}),
+    );
+  }
+
+  /** Recompute content_daily_stats for yesterday + today (idempotent). Runs INLINE. */
+  @Cron(CronExpression.EVERY_10_MINUTES)
+  scheduleAnalyticsContentRollup(): Promise<void> {
+    return this.tick(CronName.ANALYTICS_CONTENT_ROLLUP, () => this.rollups.rollupRecent());
+  }
+
+  /** Boost notifications + expiry of boosts / sponsorships / licence status (every minute). */
+  @Cron(CronExpression.EVERY_MINUTE)
+  scheduleContentMaintenance(): Promise<void> {
+    return this.tick(CronName.CONTENT_MAINTENANCE, () =>
+      this.queue.send(QueueName.CONTENT, JobName.CONTENT_MAINTENANCE, {}),
     );
   }
 

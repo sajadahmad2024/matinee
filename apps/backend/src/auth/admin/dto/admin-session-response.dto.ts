@@ -10,4 +10,10 @@ export class AdminSessionResponseDto {
 
   @ApiPropertyOptional({ description: 'Refresh token (mobile only; web uses cookies)' })
   refreshToken?: string;
+
+  @ApiPropertyOptional({
+    description:
+      'Double-submit CSRF token (web only). Also set as the `csrf` cookie; cross-site frontends must keep it in memory and send it as `x-csrf-token` on mutations.',
+  })
+  csrfToken?: string;
 }

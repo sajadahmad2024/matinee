@@ -106,6 +106,12 @@ src/db/repositories/<module>/          # Data access (separate from business mod
 | Metrics | `src/api/metrics/` | Prometheus metrics |
 | Tracing | `src/api/tracing/` | OpenTelemetry distributed tracing |
 | Dev Tools | `src/api/dev-tools/` | Developer tools dashboard |
+| Content | `src/content/` | Catalog, admin content workflow, taxonomy, licensing/sponsorship/regions, insights, content media, gated playback |
+| Engagement | `src/engagement/` | Reactions, shares, watchlist, comments (+ admin moderation), views/heartbeats (watch time, view counting) |
+| Games | `src/games/` | Quests, predictions, auctions, watch-based daily streak (levels) |
+| Moderation | `src/moderation/` | Tickets, customer reports (comment/content/user), enforcement, stats, bulk actions, audit trail |
+| Analytics | `src/analytics/` | Admin KPIs, content/library analytics, dashboard sections, rollups, marketing spend, social mentions, report export |
+| Ads | `src/ads/` | Customer ad serving, ad event tracking, admin ad performance |
 
 > **Removed for now** (reintroduce module-by-module later): Media, Notifications, AI/RAG, Webhooks, Gateway, Audit, UsersV2. Their boilerplate code lives in git history.
 

@@ -16,7 +16,27 @@ export const EngagementEvent = {
   ContentShared: 'engagement.content.shared',
   ContentSaved: 'engagement.content.saved',
   ContentUnsaved: 'engagement.content.unsaved',
+  /** A heartbeat credited watch time. Emitted with `emitAsync` and awaited — the streak engine
+   *  qualifies the day and returns its `StreakTodayView`, which the heartbeat response echoes. */
+  WatchProgress: 'engagement.watch.progress',
+  /** A comment or reply was posted (fire-and-forget; quests / badges / analytics subscribe). */
+  CommentCreated: 'engagement.comment.created',
 } as const;
+
+export interface CommentCreatedPayload {
+  userId: string;
+  contentId: string;
+  commentId: string;
+  /** Set for replies. */
+  parentCommentId: string | null;
+}
+
+export interface WatchProgressPayload {
+  userId: string;
+  contentId: string;
+  /** Today's (UTC) credited watch seconds after this heartbeat. */
+  dayWatchSeconds: number;
+}
 
 export interface ContentReactedPayload {
   userId: string;
