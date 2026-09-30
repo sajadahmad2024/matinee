@@ -7,8 +7,8 @@ import 'package:matinee/features/reels/presentation/widgets/comments/comment_thr
 import 'package:matinee/features/reels/presentation/widgets/comments/comments_sheet.dart';
 
 ///
-/// Opens [CommentsSheet] over hard-coded sample comments, for debug builds
-/// until comments have a data layer. Likes, replies and paging work locally.
+/// Opens [CommentsSheet] over hard-coded sample comments until comments have
+/// a data layer. Likes, replies and paging work locally.
 ///
 Future<void> showCommentsPreview(BuildContext context) {
   return showAppBottomSheet<void>(context, builder: (_) => const _CommentsPreview());
