@@ -3,6 +3,7 @@
 import {
   Bell,
   Coins,
+  FileText,
   Flag,
   Gamepad2,
   Gift,
@@ -15,16 +16,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-import { AdminHealthSummary, type HealthStat } from "@/components/custom/admin-health-summary";
-
-// Configuration overview — summarises active reward systems before editing details.
-const CONFIG_OVERVIEW: HealthStat[] = [
-  { label: "Referral Program", value: "Active", insight: "500 pts · max 10/mo", tone: "good", icon: Gift },
-  { label: "Daily Login Bonus", value: "Active", insight: "10 pts / day", tone: "good", icon: Coins },
-  { label: "Game Centre", value: "Enabled", insight: "5 formats live", tone: "good", icon: Gamepad2 },
-];
-
 import { useTabParam } from "@/app/_libs/use-tab-param";
+import { AdminHealthSummary, type HealthStat } from "@/components/custom/admin-health-summary";
 
 import { AdminManagement } from "./admin-management";
 import { AppVersionSettings } from "./app-version-settings";
@@ -32,8 +25,42 @@ import { FeatureFlagsSettings } from "./feature-flags-settings";
 import { GrowthSettings } from "./growth-settings";
 import { NotificationCampaigns } from "./notification-campaigns";
 import { ReferralEconomySettings } from "./referral-economy-settings";
+import { StaticPagesSettings } from "./static-page-editor/static-pages-settings";
 
-const SETTINGS_TABS = ["economy", "admins", "appversion", "flags", "notifications", "growth"];
+// Configuration overview — summarises active reward systems before editing details.
+const CONFIG_OVERVIEW: HealthStat[] = [
+  {
+    label: "Referral Program",
+    value: "Active",
+    insight: "500 pts · max 10/mo",
+    tone: "good",
+    icon: Gift,
+  },
+  {
+    label: "Daily Login Bonus",
+    value: "Active",
+    insight: "10 pts / day",
+    tone: "good",
+    icon: Coins,
+  },
+  {
+    label: "Game Centre",
+    value: "Enabled",
+    insight: "5 formats live",
+    tone: "good",
+    icon: Gamepad2,
+  },
+];
+
+const SETTINGS_TABS = [
+  "economy",
+  "admins",
+  "appversion",
+  "flags",
+  "notifications",
+  "growth",
+  "pages",
+];
 
 export function SettingsView() {
   const [tabParam, setActiveTab] = useTabParam("economy");
@@ -103,12 +130,17 @@ export function SettingsView() {
             <TrendingUp className="h-4 w-4" />
             Growth
           </TabsTrigger>
+          <TabsTrigger
+            value="pages"
+            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground gap-2">
+            <FileText className="h-4 w-4" />
+            Static Pages
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="economy" className="mt-0">
           <ReferralEconomySettings />
         </TabsContent>
-
 
         <TabsContent value="admins" className="mt-0">
           <AdminManagement />
@@ -128,6 +160,10 @@ export function SettingsView() {
 
         <TabsContent value="growth" className="mt-0">
           <GrowthSettings />
+        </TabsContent>
+
+        <TabsContent value="pages" className="mt-0">
+          <StaticPagesSettings />
         </TabsContent>
       </Tabs>
     </div>

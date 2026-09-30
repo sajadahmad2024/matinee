@@ -1,12 +1,12 @@
 "use client";
 
-import * as AlertDialogPrimitive from "@radix-ui/react-alert-dialog";
 import * as React from "react";
 
+import * as AlertDialogPrimitive from "@radix-ui/react-alert-dialog";
 
-import { cn } from "@/app/_libs/utils/cn";
 import { buttonVariants } from "@/components/ui/button";
 
+import { cn } from "@/app/_libs/utils/cn";
 
 function AlertDialog({ ...props }: React.ComponentProps<typeof AlertDialogPrimitive.Root>) {
   return <AlertDialogPrimitive.Root data-slot="alert-dialog" {...props} />;
@@ -40,11 +40,14 @@ function AlertDialogOverlay({
 
 function AlertDialogContent({
   className,
+  onOverlayClick,
   ...props
-}: React.ComponentProps<typeof AlertDialogPrimitive.Content>) {
+}: React.ComponentProps<typeof AlertDialogPrimitive.Content> & {
+  onOverlayClick?: () => void;
+}) {
   return (
     <AlertDialogPortal>
-      <AlertDialogOverlay />
+      <AlertDialogOverlay onClick={onOverlayClick} />
       <AlertDialogPrimitive.Content
         data-slot="alert-dialog-content"
         className={cn(

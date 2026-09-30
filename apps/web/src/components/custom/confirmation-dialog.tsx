@@ -1,6 +1,5 @@
 import { LuBan, LuBell, LuEyeOff, LuTrash2, LuTriangleAlert } from "react-icons/lu";
 
-import { cn } from "@/app/_libs/utils/cn";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -11,6 +10,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+
+import { cn } from "@/app/_libs/utils/cn";
 
 export type ConfirmationAction = "delete" | "ban" | "hide" | "warn" | "custom";
 
@@ -25,6 +26,7 @@ interface ConfirmationDialogProps {
   onConfirm: () => void;
   confirmLabel?: string;
   destructive?: boolean;
+  preventOutsideClose?: boolean;
 }
 
 const actionIcons = {
@@ -54,6 +56,7 @@ export function ConfirmationDialog({
   onConfirm,
   confirmLabel,
   destructive = true,
+  preventOutsideClose = true,
 }: ConfirmationDialogProps) {
   const Icon = actionIcons[action];
   const iconColor = actionColors[action];
@@ -75,31 +78,29 @@ export function ConfirmationDialog({
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent>
+      <AlertDialogContent
+        onOverlayClick={preventOutsideClose ? undefined : () => onOpenChange(false)}>
         <AlertDialogHeader>
           <div className="mb-2 flex items-center gap-3">
             <div
               className={cn(
                 "flex h-10 w-10 items-center justify-center rounded-full",
                 destructive ? "bg-destructive/10" : "bg-primary/10",
-              )}
-            >
+              )}>
               <Icon className={cn("h-5 w-5", iconColor)} />
             </div>
             <AlertDialogTitle>{title}</AlertDialogTitle>
           </div>
-          <AlertDialogDescription className="text-left">
-            {description}
-          </AlertDialogDescription>
+          <AlertDialogDescription className="text-left">{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel className="cursor-pointer">Cancel</AlertDialogCancel>
           <AlertDialogAction
             onClick={onConfirm}
             className={cn(
+              "cursor-pointer",
               destructive && "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-            )}
-          >
+            )}>
             {confirmLabel || getDefaultConfirmLabel()}
           </AlertDialogAction>
         </AlertDialogFooter>

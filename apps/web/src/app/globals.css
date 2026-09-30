@@ -193,6 +193,15 @@
 }
 
 @layer components {
+  /* Tiptap placeholder (static page editor) */
+  .tiptap p.is-editor-empty:first-child::before {
+    content: attr(data-placeholder);
+    float: left;
+    height: 0;
+    pointer-events: none;
+    color: hsl(var(--muted-foreground));
+  }
+
   .glass-card {
     backdrop-filter: blur(20px);
     border: 1px solid hsl(var(--glass-border));
