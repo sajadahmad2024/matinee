@@ -8,6 +8,7 @@ class HlsReelItem {
     required this.masterUri,
     this.data,
     this.descriptor,
+    this.playable = true,
   });
 
   /// Stable identity used to retain a native port as the list grows.
@@ -24,6 +25,10 @@ class HlsReelItem {
   /// Clear HLS defaults to [HlsContentDescriptor.liveSegmentFixture].
   final HlsContentDescriptor? descriptor;
 
+  /// False keeps this item's page but gives it no player, `openAsset` or
+  /// prefetch. It still counts toward the window radius.
+  final bool playable;
+
   /// Descriptor registered before native prefetch or player open.
   HlsContentDescriptor get effectiveDescriptor =>
       descriptor ??
@@ -31,7 +36,9 @@ class HlsReelItem {
 
   /// Feed identity used by [HlsReelPager] to skip no-op [updateItems].
   bool sameFeedIdentity(HlsReelItem other) {
-    if (id != other.id || masterUri != other.masterUri) {
+    if (id != other.id ||
+        masterUri != other.masterUri ||
+        playable != other.playable) {
       return false;
     }
     final HlsContentDescriptor left = effectiveDescriptor;

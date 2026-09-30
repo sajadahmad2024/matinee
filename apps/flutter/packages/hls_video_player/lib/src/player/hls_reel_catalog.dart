@@ -74,6 +74,7 @@ class HlsHudModel {
     this.currentFetchedVariant,
     this.lastSegment,
     this.openError,
+    this.nowPlayingByTrack = false,
   });
 
   /// Native player snapshot.
@@ -127,4 +128,8 @@ class HlsHudModel {
 
   /// Native/loopback open failure for the focused reel, if any.
   final String? openError;
+
+  /// One NOW PLAYING row per track (video, audio). Set for a per-reel HUD,
+  /// whose timeline holds only that reel.
+  final bool nowPlayingByTrack;
 }

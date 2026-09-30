@@ -21,6 +21,15 @@ enum HlsResourceKind {
   unknown,
 }
 
+/// Track a resource belongs to, by the same rule as native `HlsTrackClass`.
+enum HlsTrackKind {
+  video,
+  audio,
+
+  /// No rendition info, or audio and video in one segment.
+  unknown,
+}
+
 /// A completed resource request observed by the lab proxy.
 class HlsFetchEvent {
   /// Creates one fetch diagnostic event.
@@ -37,6 +46,7 @@ class HlsFetchEvent {
     this.servedFromCache = false,
     this.cacheSkipReason,
     this.advertisedVariants,
+    this.assetId,
   });
 
   /// Resource classification.
@@ -75,6 +85,36 @@ class HlsFetchEvent {
   /// Variant catalog emitted by native after a master playlist fetch.
   final List<HlsVariant>? advertisedVariants;
 
+  /// Asset this request belongs to, as registered by `openAsset`. Null from
+  /// native builds that do not send it, or for resources native never saw.
+  final String? assetId;
+
+  /// Video when the rendition has a size or a video codec, audio when it has
+  /// only other codecs, unknown without rendition info.
+  HlsTrackKind get trackKind {
+    final HlsVariant? v = variant;
+    if (v == null) {
+      return HlsTrackKind.unknown;
+    }
+    if (v.height != null || v.width != null) {
+      return HlsTrackKind.video;
+    }
+    final String? codecs = v.codecs?.toLowerCase();
+    if (codecs == null) {
+      return HlsTrackKind.unknown;
+    }
+    const List<String> videoCodecs = <String>[
+      'avc',
+      'hev',
+      'hvc',
+      'vp9',
+      'av01',
+    ];
+    return videoCodecs.any(codecs.contains)
+        ? HlsTrackKind.video
+        : HlsTrackKind.audio;
+  }
+
   /// Whether [position] falls inside this segment's timeline range.
   bool covers(Duration position) {
     final Duration? start = segmentStart;
@@ -112,6 +152,7 @@ class HlsFetchEvent {
         'variants': advertisedVariants!
             .map((HlsVariant variant) => variant.toChannelMap())
             .toList(growable: false),
+      if (assetId != null) 'assetId': assetId!,
     };
   }
 
@@ -137,6 +178,7 @@ class HlsFetchEvent {
       servedFromCache: map['servedFromCache'] as bool? ?? false,
       cacheSkipReason: map['cacheSkipReason'] as String?,
       advertisedVariants: _variantsFromChannel(map['variants']),
+      assetId: map['assetId'] as String?,
     );
   }
 }

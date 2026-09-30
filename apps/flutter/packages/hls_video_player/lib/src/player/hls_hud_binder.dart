@@ -17,6 +17,7 @@ class HlsHudBinder extends StatefulWidget {
     required this.onClearCache,
     this.port,
     this.openError,
+    this.assetId,
     super.key,
   });
 
@@ -29,6 +30,10 @@ class HlsHudBinder extends StatefulWidget {
   final VoidCallback onToggleMute;
   final VoidCallback onClearCache;
 
+  /// The asset on screen. Set, the HUD shows only its network rows and TTFF;
+  /// null keeps the process-wide values.
+  final String? assetId;
+
   @override
   State<HlsHudBinder> createState() => _HlsHudBinderState();
 }
@@ -39,13 +44,26 @@ class _HlsHudBinderState extends State<HlsHudBinder> {
   @override
   void initState() {
     super.initState();
+    // A HUD shown anew measures TTFF again, even for the same reel.
+    _focusAsset(restart: true);
     _bindSnapshot();
   }
 
   @override
   void didUpdateWidget(HlsHudBinder oldWidget) {
     super.didUpdateWidget(oldWidget);
+    // Before binding, so the new asset's TTFF clock is already running.
+    if (oldWidget.assetId != widget.assetId) {
+      _focusAsset();
+    }
     _bindSnapshot();
+  }
+
+  void _focusAsset({bool restart = false}) {
+    final String? assetId = widget.assetId;
+    if (assetId != null) {
+      widget.session.focusAsset(assetId, restart: restart);
+    }
   }
 
   void _bindSnapshot() {
@@ -61,6 +79,7 @@ class _HlsHudBinderState extends State<HlsHudBinder> {
   void _onSnapshot() {
     widget.session.markFirstFrame(
       widget.port?.snapshot ?? HlsPlayerSnapshot.empty,
+      assetId: widget.assetId,
     );
   }
 
@@ -98,6 +117,7 @@ class _HlsHudBinderState extends State<HlsHudBinder> {
           playRequested: widget.playRequested,
           muted: widget.muted,
           openError: widget.openError,
+          assetId: widget.assetId,
         ),
         onTogglePlay: widget.onTogglePlay,
         onToggleMute: widget.onToggleMute,

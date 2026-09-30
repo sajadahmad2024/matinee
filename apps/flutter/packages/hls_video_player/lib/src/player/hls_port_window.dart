@@ -31,6 +31,7 @@ class HlsPortWindow extends ChangeNotifier {
   final Map<String, HlsPlayerPort> _ports = <String, HlsPlayerPort>{};
   final Map<String, String> _openErrors = <String, String>{};
   final Set<String> _opening = <String>{};
+  final Map<String, bool> _mutedOverrides = <String, bool>{};
   StreamSubscription<bool>? _connectivitySubscription;
   HlsPlayerPort? _snapshotPort;
   int _focusedIndex = 0;
@@ -61,6 +62,18 @@ class HlsPortWindow extends ChangeNotifier {
     return _ports[_items[index].id];
   }
 
+  /// Port for item [id], or null when it has none.
+  HlsPlayerPort? portFor(String id) => _ports[id];
+
+  /// Open error for item [id], or null.
+  String? errorFor(String id) => _openErrors[id];
+
+  /// Mute for [id]: its override when set, otherwise the window-wide [muted].
+  bool isMutedFor(String id) => _mutedOverrides[id] ?? muted;
+
+  /// Per-item mute override, or null when [id] follows [muted].
+  bool? mutedOverrideFor(String id) => _mutedOverrides[id];
+
   String? errorAt(int index) {
     if (index < 0 || index >= _items.length) {
       return null;
@@ -86,6 +99,10 @@ class HlsPortWindow extends ChangeNotifier {
         ? null
         : _items[_focusedIndex.clamp(0, _items.length - 1)].id;
     _items = List<HlsReelItem>.unmodifiable(items);
+    final Set<String> ids = <String>{
+      for (final HlsReelItem item in _items) item.id,
+    };
+    _mutedOverrides.removeWhere((String id, _) => !ids.contains(id));
     if (_items.isEmpty) {
       _focusedIndex = 0;
       await _evictUnused(const <String>{});
@@ -112,7 +129,7 @@ class HlsPortWindow extends ChangeNotifier {
       index <= focusedIndex + windowRadius;
       index++
     ) {
-      if (index >= 0 && index < _items.length) {
+      if (index >= 0 && index < _items.length && _items[index].playable) {
         keep.add(index);
       }
     }
@@ -176,6 +193,8 @@ class HlsPortWindow extends ChangeNotifier {
       return;
     }
     final int epoch = _openEpoch;
+    // Set when a rebuild superseded this open while the item is still kept.
+    bool superseded = false;
     _opening.add(item.id);
     try {
       final opened = await nativeBridge.openAsset(item.effectiveDescriptor);
@@ -188,6 +207,8 @@ class HlsPortWindow extends ChangeNotifier {
       };
       if (_disposed || epoch != _openEpoch || !keepIds.contains(item.id)) {
         await port.dispose();
+        superseded =
+            !_disposed && epoch != _openEpoch && keepIds.contains(item.id);
         return;
       }
       _ports[item.id] = port;
@@ -199,9 +220,33 @@ class HlsPortWindow extends ChangeNotifier {
       if (!_disposed && epoch == _openEpoch) {
         _openErrors[item.id] = error.toString();
         _notify();
+      } else if (!_disposed) {
+        superseded = keepIndexes(
+          _focusedIndex,
+        ).any((int index) => _items[index].id == item.id);
       }
     } finally {
       _opening.remove(item.id);
+      if (superseded) {
+        _reopenCurrent(item.id);
+      }
+    }
+  }
+
+  // Opens the current version of [id], after an open of an older one was
+  // superseded; without this the item would stay with no player.
+  void _reopenCurrent(String id) {
+    for (final HlsReelItem current in _items) {
+      if (current.id == id) {
+        unawaited(
+          _ensurePort(current).then((_) {
+            if (!_disposed) {
+              unawaited(applyPlayback());
+            }
+          }),
+        );
+        return;
+      }
     }
   }
 
@@ -224,7 +269,7 @@ class HlsPortWindow extends ChangeNotifier {
             continue;
           }
           if (entry.key == focusedId) {
-            await live.setVolume(muted ? 0 : 1);
+            await live.setVolume(isMutedFor(entry.key) ? 0 : 1);
             if (playRequested) {
               await live.play();
             } else {
@@ -253,8 +298,77 @@ class HlsPortWindow extends ChangeNotifier {
 
   Future<void> toggleMute() async {
     muted = !muted;
-    await focusedPort?.setVolume(muted ? 0 : 1);
+    await _applyFocusedVolume();
     _notify();
+  }
+
+  /// Sets the window-wide mute. Items with an override keep their own.
+  Future<void> setMuted(bool value) async {
+    if (muted == value) {
+      return;
+    }
+    muted = value;
+    await _applyFocusedVolume();
+    _notify();
+  }
+
+  /// Overrides mute for [id]; null makes it follow [muted] again.
+  Future<void> setMutedOverride(String id, bool? value) async {
+    if (_mutedOverrides[id] == value) {
+      return;
+    }
+    if (value == null) {
+      _mutedOverrides.remove(id);
+    } else {
+      _mutedOverrides[id] = value;
+    }
+    await _applyFocusedVolume();
+    _notify();
+  }
+
+  Future<void> _applyFocusedVolume() async {
+    if (_items.isEmpty) {
+      return;
+    }
+    final String focusedId = _items[_focusedIndex].id;
+    await focusedPort?.setVolume(isMutedFor(focusedId) ? 0 : 1);
+  }
+
+  /// Replaces the players of [ids] with new ones, from the current items.
+  ///
+  /// Same path as a reachability flip: the focused item resumes at its
+  /// position. Use it after an item's source changed or its player failed.
+  Future<void> reopen(Set<String> ids) async {
+    if (_disposed) {
+      return;
+    }
+    // Also ids still opening or failed: an in-flight open of the old source is
+    // waited for and then replaced, and a failed one is opened again.
+    final Set<String> known = ids
+        .where(
+          (String id) =>
+              _ports.containsKey(id) ||
+              _opening.contains(id) ||
+              _openErrors.containsKey(id),
+        )
+        .toSet();
+    await _rebuildPorts(known);
+  }
+
+  /// Clears the open error for [id] and opens it again if it is still kept.
+  Future<void> retry(String id) async {
+    if (_disposed || _openErrors.remove(id) == null) {
+      return;
+    }
+    _notify();
+    final int index = _items.indexWhere((HlsReelItem item) => item.id == id);
+    if (index < 0 || !keepIndexes(_focusedIndex).contains(index)) {
+      return;
+    }
+    await _ensurePort(_items[index]);
+    if (!_disposed) {
+      await applyPlayback();
+    }
   }
 
   Future<void> seekTo(Duration position) async {

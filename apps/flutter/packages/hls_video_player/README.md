@@ -3,6 +3,57 @@
 Native-heavy HLS package. Hosts own reels APIs, local DB, and page chrome.
 This package owns player lifecycle, native cache/prefetch, and optional HUD.
 
+## ReelFeed API (host-controlled feed)
+
+`import 'package:hls_video_player/reels.dart';` Like `ListView.builder` for
+reels. The package keeps native players, window, cache, prefetch, offline, HUD,
+page structure and gestures. Your state owns the items; `itemBuilder`
+describes each page. Start from `example/lib/` (`builders_feed.dart` first).
+
+```dart
+// Your model describes itself; the data layer fills it in.
+class FeedReel implements ReelFeedItem {
+  String get id;  ReelSource? get source;  bool get isLocked;   // + your fields
+}
+
+ReelFeed<FeedReel>(items: state.feed)   // a complete screen as it is
+
+ReelFeed<FeedReel>(
+  items: state.feed,                    // eager: neighbours' players open before you swipe
+  controller: feed,                     // optional: feed.jumpTo(3), feed.current?.pause(), feed.events
+  style: const ReelStyle(fit: BoxFit.cover, timer: ReelControlPosition.topEnd),
+  header: (context, current) => TitleBar(current),
+  onDoubleTap: (slot, position) => cubit.like(slot.id),   // opt-in: single tap then waits ~300 ms
+  itemBuilder: (context, slot) => ReelItem(               // lazy: only draws
+    thumbnail: (context, slot) => Poster(slot.data),
+    overlay: (context, slot) => Padding(padding: slot.insets, child: Caption(slot.data)),
+    curtain: (context, slot) => Unlock(onTap: () => cubit.unlock(slot.id)),
+    controls: (context, slot, state) => slot.index == 0 ? IntroControls(slot, state) : null,
+  ),
+);
+```
+
+- **Data is eager, UI is lazy.** `items` are read for every reel, so the window
+  opens and prefetches ±2 neighbours before their pages exist; `itemBuilder`
+  runs only when a page is built. A new list updates the feed; players are
+  kept by id, and unchanged elements are not read again.
+- **Layers, bottom to top:** background, thumbnail, video, scrim, gestures
+  and effects, overlay, HUD, controls, status, curtain, aboveCurtain. `header`
+  and `footer` sit over the whole feed.
+- **A builder returns `null` to keep the default.** `(context, slot)` builders
+  run when data or focus changes; `(context, slot, state)` ones on player ticks.
+- **Locked reels are enforced:** no player, curtain on top, video gestures off,
+  swiping past it still changes page. Unlock by emitting the item unlocked.
+- **Custom layouts:** `ReelItem.custom(page: (context, slot, layers) => …)`
+  rearranges the package's layers; the curtain and HUD are still added.
+- **Per-reel commands** are on `slot.reel` (`play`, `pause`, `seekTo`, `retry`,
+  `mutedOverride`); feed-level ones on the controller.
+- A hidden tab pauses by itself (`TickerMode`); pass `active:` to override.
+- It runs on the same `HlsPortWindow` as `HlsReelPager`, which stays
+  unchanged. Parity tests check that both make the same native calls.
+- Design: `apps/documentation/docs/flutter/hls_video_player/` (`reel-feed-api.md`,
+  `reel-feed-builders.md`, `reel-feed-declarative.md`).
+
 ## Sibling app pubspec
 
 ```yaml
@@ -120,6 +171,12 @@ decision. See `FORK.md` / `FORK.android.md` for the hook files.
 - `player/hls_hud_*`: telemetry fold (`HlsHudSession`) subscribed for the
   widget lifetime, even when the HUD is hidden; `HlsEngineHud` paints it.
 - `portrait_*`, `HlsReelCatalog.fixtures()`: lab/demo screen.
+- `lab/` (`reels_lab.dart`): the two debug screens, see Labs below.
+- `feed/` (`reels.dart`): `ReelFeed` passes its `items` to its controller
+  (`syncItems`), which wraps one `HlsPortWindow` and keeps no player, cache or
+  network state of its own. Handles resolve ports by id on every call, so
+  rebuilt ports are picked up. Locked or sourceless reels are
+  `HlsReelItem.playable: false`, which `keepIndexes` skips.
 
 ### Android (`android/.../hls/`)
 
@@ -155,10 +212,18 @@ AVPlayer only sees `http://127.0.0.1:<port>/<token>/<id>.<ext>`.
 ### App integration
 
 `lib/di/service_locator.dart` registers `HlsEngine.initialize`.
-`features/reels/presentation/reels_screen.dart` uses `HlsReelPager` with its
-own `PageController`; `reel_to_hls_item.dart` maps `Reel` → `HlsReelItem`, and
-`isPlayableReel` drops DRM and auth reels, so only clear HLS with
-`liveSegmentCache` runs in production.
+`features/reels/presentation/reels_screen.dart` is a `ReelFeed<FeedReel>`.
+`data/mappers/reel_feed_mapper.dart` maps `Reel` → `FeedReel` in the
+repository, and `isPlayableReel` drops DRM and auth reels, so only clear HLS
+with `liveSegmentCache` runs in production.
+
+### Labs (`reels_lab.dart`)
+
+Two debug screens on `HlsReelCatalog.fixtures()`, each with its own
+`MaterialApp`: `ReelFeedLab` shows every `ReelFeed` field live, and
+`ReelPagerLab` (the former v1 screen) builds everything by hand on
+`HlsReelPager`. In the app, `--dart-define=REELS_LAB=feed` or `=pager` opens
+one on Home.
 
 ### Known issues (from code reading, not verified at runtime)
 
@@ -170,8 +235,9 @@ own `PageController`; `reel_to_hls_item.dart` maps `Reel` → `HlsReelItem`, and
 4. Cache keys differ: iOS strips the query, Android keeps it.
 5. Cached playlists are served forever on both platforms (VOD-only).
 6. iOS loopback buffers a full segment before responding, even for Range.
-7. `HlsPortWindow` never retries an item in `_openErrors` while it stays in
-   the window.
+7. `HlsPortWindow` never retries an item in `_openErrors` on its own while it
+   stays in the window. `retry(id)` exists; `ReelHandle.retry()` calls it,
+   `HlsReelPager` does not.
 8. `cacheStats` walks the whole cache on the main thread, on every focus change.
 9. `openAsset` runs twice per item per `sync`; `tokenRefreshId`,
    `HlsAuthMode.signedUrl` and `allowedOriginHosts` are unused natively.

@@ -1,4 +1,5 @@
 import 'package:go_router/go_router.dart';
+import 'package:hls_video_player/reels_lab.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:matinee/app/shell/app_shell.dart';
 import 'package:matinee/app/startup/splash_screen.dart';
@@ -85,8 +86,15 @@ class ProfileBranch extends StatefulShellBranchData {
 class HomeRoute extends GoRouteData with $HomeRoute {
   const HomeRoute();
 
+  // Build with `--dart-define=REELS_LAB=feed` (or `pager`) to open a reels lab on Home instead.
+  static const String _lab = String.fromEnvironment('REELS_LAB');
+
   @override
-  Widget build(BuildContext context, GoRouterState state) => const ReelsScreen();
+  Widget build(BuildContext context, GoRouterState state) => switch (_lab) {
+    'feed' => const ReelFeedLab(),
+    'pager' => const ReelPagerLab(),
+    _ => const ReelsScreen(),
+  };
 }
 
 class P2pRoute extends GoRouteData with $P2pRoute {
