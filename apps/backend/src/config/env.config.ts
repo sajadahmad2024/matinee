@@ -414,10 +414,21 @@ export class EnvConfig {
   @IsString()
   OAUTH_ALLOWED_REDIRECTS?: string;
 
-  // ─── Media (storage / delivery / transcode — env-selected) ──────────────────
+  // ─── Deployment target (local | aws — flips AWS SDK clients to Floci endpoint) ──
+  @IsOptional() @IsString() DEPLOYMENT_TARGET?: string; // 'local' (default) | 'aws'
+  @IsOptional() @IsString() FLOCI_ENDPOINT?: string; // http://localhost:4566 when aws-local
+  @IsOptional() @IsNumber() FLOCI_PORT?: number;
+  // Secrets Manager blob hydrated before Nest module evaluation (secrets-bootstrap.ts).
+  // Defaults to `maintinee/<NODE_ENV>` — override when the deployed name differs.
+  @IsOptional() @IsString() SECRETS_MANAGER_SECRET_ID?: string;
+
+  // (EMAIL_PROVIDER already declared above with SendGrid template ids block)
+  @IsOptional() @IsString() EMAIL_FROM?: string;
+
+  // ─── Media (storage + delivery — env-selected). Transcoding runs in the Lambda ──
+  // (see docker/dummy-transcoder/); no MEDIA_TRANSCODER env is needed on the NestJS side.
   @IsOptional() @IsString() MEDIA_STORAGE_DRIVER?: string; // s3 | local
   @IsOptional() @IsString() MEDIA_DELIVERY_DRIVER?: string; // cloudfront | local
-  @IsOptional() @IsString() MEDIA_TRANSCODER?: string; // mediaconvert | local
   @IsOptional() @IsString() MEDIA_S3_BUCKET?: string;
   @IsOptional() @IsString() MEDIA_S3_REGION?: string;
   @IsOptional() @IsString() MEDIA_S3_ENDPOINT?: string;
@@ -434,9 +445,6 @@ export class EnvConfig {
   @IsOptional() @IsNumber() MEDIA_UPLOAD_URL_TTL?: number;
   @IsOptional() @IsNumber() MEDIA_SIGNED_URL_TTL?: number;
   @IsOptional() @IsNumber() MEDIA_MAX_UPLOAD_BYTES?: number;
-  @IsOptional() @IsNumber() MEDIA_TRANSCODE_POLL_INTERVAL?: number;
-  @IsOptional() @IsNumber() MEDIA_TRANSCODE_POLL_MAX_INTERVAL?: number;
   @IsOptional() @IsNumber() MEDIA_TRANSCODE_STUCK_SECONDS?: number;
-  @IsOptional() @IsNumber() MEDIA_TRANSCODE_MAX_SECONDS?: number;
   @IsOptional() @IsNumber() MEDIA_ORPHAN_AGE_SECONDS?: number;
 }

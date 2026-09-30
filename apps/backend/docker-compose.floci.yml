@@ -1,0 +1,44 @@
+# AWS-emulated local stack (DEPLOYMENT_TARGET=aws). Adds a single Floci service that emulates
+# S3 / SQS / Lambda / Secrets Manager under a unified edge endpoint on port ${FLOCI_PORT:-4566}.
+# Postgres/Redis/monitoring stack stays in docker-compose.yml — this file layers on top.
+#
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.floci.yml up -d
+#
+# Or via the helper script:
+#   pnpm local:floci:up
+
+services:
+  # Emulates S3, SQS, Lambda (container images), Secrets Manager. The Docker socket mount is
+  # required so Floci can spawn Lambda container images from the host's Docker daemon (this is
+  # how the FFmpeg transcoder image runs locally — same image as gets pushed to ECR in prod).
+  floci:
+    image: floci/floci:latest
+    container_name: floci
+    ports:
+      - '${FLOCI_PORT:-4566}:4566' # Unified AWS-service edge endpoint (same as LocalStack)
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock # Lambda container images
+      - floci_data:/app/data # persistent state across restarts
+    environment:
+      FLOCI_STORAGE_MODE: persistent
+      FLOCI_STORAGE_PERSISTENT_PATH: /app/data
+      FLOCI_SERVICES: s3,sqs,lambda,secretsmanager,ses,sns
+    restart: unless-stopped
+    networks:
+      - monitoring
+    healthcheck:
+      test: ['CMD', 'curl', '-fsS', 'http://localhost:4566/_localstack/health']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+
+volumes:
+  floci_data:
+    driver: local
+
+networks:
+  monitoring:
+    external: true
+    name: backend_monitoring

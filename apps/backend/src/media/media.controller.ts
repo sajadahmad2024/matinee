@@ -21,7 +21,13 @@ export class MediaController {
   @Post('uploads')
   @AccountTypes(AccountType.ADMIN, AccountType.CUSTOMER)
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Request a secure upload — returns a media id + presigned target' })
+  @ApiOperation({
+    summary:
+      'Request a secure upload — returns a media id + presigned S3 PUT URL. After PUT, the ' +
+      'client can OPTIONALLY call POST /:id/complete for explicit HEAD-check + fast READY ' +
+      'flip on non-videos; videos are flipped to READY by the transcoder Lambda when the S3 ' +
+      'ObjectCreated event fires (whether or not /complete is called).',
+  })
   @ApiEnvelope(UploadTicketDto, { status: 201 })
   requestUpload(@CurrentUser() user: AuthContext, @Body() dto: RequestUploadDto) {
     return this.media.requestUpload(dto, user);
@@ -30,7 +36,13 @@ export class MediaController {
   @Post(':id/complete')
   @AccountTypes(AccountType.ADMIN, AccountType.CUSTOMER)
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Finalize an upload — verifies the object, transcodes video, marks ready' })
+  @ApiOperation({
+    summary:
+      'Confirm the client-side PUT landed. HEAD-checks S3 for the object (400 if missing); ' +
+      'for non-video uploads flips status straight to READY. For videos the Lambda-via-S3-' +
+      'event owns the final READY transition — this call just captures the client\'s ' +
+      'metadata (sizeBytes/checksum) and short-circuits early errors.',
+  })
   @ApiEnvelope(MediaDto)
   completeUpload(@CurrentUser() user: AuthContext, @Param('id') id: string, @Body() dto: CompleteUploadDto) {
     return this.media.completeUpload(id, dto, user);

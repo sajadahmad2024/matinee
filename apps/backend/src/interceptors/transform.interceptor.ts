@@ -1,6 +1,6 @@
 import { ApiResponse } from '@common/dto/api-response';
 import { RouteNames } from '@common/route-names';
-import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
+import { CallHandler, ExecutionContext, Injectable, NestInterceptor, StreamableFile } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -18,6 +18,11 @@ export class TransformInterceptor<T> implements NestInterceptor<T, ApiResponse<T
 
       return next.handle().pipe(
         map(data => {
+          // Streams/files (e.g. the local CDN route) are raw bodies — never wrap them in the JSON
+          // envelope (serializing a stream throws "Converting circular structure to JSON").
+          if (data instanceof StreamableFile) {
+            return data as unknown as ApiResponse<T>;
+          }
           const response = context.switchToHttp().getResponse();
           return {
             statusCode: data?.statusCode || response?.statusCode || 200,

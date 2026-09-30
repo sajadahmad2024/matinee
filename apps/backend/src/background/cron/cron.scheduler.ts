@@ -1,4 +1,5 @@
 import { CacheService } from '@cache/cache.service';
+import { MediaService } from '@media/media.service';
 import { QueueService } from '@queue/queue.service';
 import { JobName, QueueName } from '@queue/queue.constant';
 import { Injectable, Logger } from '@nestjs/common';
@@ -20,6 +21,7 @@ export class CronScheduler {
     private readonly queue: QueueService,
     private readonly cache: CacheService,
     private readonly tasks: CronService,
+    private readonly media: MediaService,
   ) {}
 
   // ─── ASYNC ticks (enqueue → background handler) ───────────────────────────────
@@ -29,16 +31,21 @@ export class CronScheduler {
     return this.tick(CronName.DAILY_MAIL, () => this.queue.send(QueueName.CRON, JobName.DAILY_MAIL, { jobType: JobName.DAILY_MAIL }));
   }
 
-  /** Resume/fail transcodes whose poll chain went stale (broken/lost message). */
+  /**
+   * Fail rows stuck in PROCESSING (Lambda that half-succeeded — wrote HLS but couldn't
+   * UPDATE — is the classic case). Runs INLINE via MediaService instead of enqueueing:
+   * cron ticks are already single-flight thanks to `withLock`, and the work is a bounded
+   * few DB writes.
+   */
   @Cron(CronExpression.EVERY_10_MINUTES)
   scheduleMediaReconcile(): Promise<void> {
-    return this.tick(CronName.MEDIA_RECONCILE, () => this.queue.send(QueueName.MEDIA, JobName.MEDIA_RECONCILE, {}));
+    return this.tick(CronName.MEDIA_RECONCILE, () => this.media.reconcileStuck());
   }
 
-  /** Delete never-completed uploads (rows stuck in `pending`). */
+  /** Delete never-completed uploads (rows stuck in `pending`). Runs INLINE. */
   @Cron(CronExpression.EVERY_HOUR)
   scheduleMediaOrphanSweep(): Promise<void> {
-    return this.tick(CronName.MEDIA_ORPHAN_SWEEP, () => this.queue.send(QueueName.MEDIA, JobName.MEDIA_ORPHAN_SWEEP, {}));
+    return this.tick(CronName.MEDIA_ORPHAN_SWEEP, () => this.media.sweepOrphans());
   }
 
   /** Go-live scheduled content whose publish time has passed. */

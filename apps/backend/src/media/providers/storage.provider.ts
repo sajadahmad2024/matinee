@@ -1,4 +1,14 @@
+import { Readable } from 'stream';
 import { ObjectHead, UploadTarget } from '../interfaces/media.types';
+
+/** Where an object lives: `source` = client uploads (originals), `output` = transcoder output (HLS). */
+export type StorageLocation = 'source' | 'output';
+
+export interface ObjectStream {
+  body: Readable;
+  contentType?: string | undefined;
+  contentLength?: number | undefined;
+}
 
 /**
  * Object storage abstraction (bucket is PRIVATE — open for upload, closed for read).
@@ -22,4 +32,10 @@ export abstract class StorageProvider {
 
   /** Delete everything under a prefix (HLS outputs, variants). */
   abstract deletePrefix(prefix: string): Promise<void>;
+
+  /**
+   * Stream an object for the dev-only local CDN route (`/__local-cdn/*`). Returns `null` when
+   * the object doesn't exist or the driver holds no real bytes.
+   */
+  abstract openRead(key: string, location: StorageLocation): Promise<ObjectStream | null>;
 }

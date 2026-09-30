@@ -10,6 +10,24 @@ NestJS 11, TypeScript 5.9 (very strict), Drizzle ORM (SQL-first), PostgreSQL, AW
 
 ```bash
 pnpm type-check             # TypeScript strict check (run before committing)
+pnpm lint                   # ESLint with auto-fix
+pnpm test                   # Unit tests (Jest)
+pnpm test:e2e               # E2E tests
+pnpm local:up               # Full local setup: docker + migrate + start
+pnpm db:migrate             # Apply SQL migrations
+pnpm db:introspect          # Generate Drizzle schema from DB
+pnpm db:create-migration <name>  # Create new empty SQL migration file
+pnpm db:seed                # Run raw SQL seed files (roles, admin user)
+pnpm db:studio              # Open Drizzle Studio
+
+# Floci (local AWS emulator) — S3 + SQS + Lambda + Secrets Manager on port 4566
+pnpm floci:up               # Start Floci container (assumes db:dev:up already ran)
+pnpm floci:down             # Stop Floci
+pnpm infra:floci:init       # terraform init (run once after clone)
+pnpm infra:floci:apply      # terraform apply — create S3 buckets, SQS queues, Lambda, IAM
+pnpm infra:floci:destroy    # Tear down all Floci-provisioned resources
+pnpm media:lambda:build     # Build the dummy transcoder Lambda container image locally
+pnpm local:floci:up         # Full local Floci setup: docker + Floci + terraform + migrate + start
 ```
 
 ## TypeScript Strictness
@@ -72,6 +90,96 @@ src/<module>/                          # Business logic module
 src/db/repositories/<module>/          # Data access (separate from business module)
   <module>.repository.ts               # Drizzle queries only
 ```
+
+### Existing Modules
+
+| Module | Path | Purpose |
+|--------|------|---------|
+| Auth | `src/auth/` | JWT + OAuth + RBAC (current code is boilerplate; **being rebuilt** for the product schema) |
+| Users | `src/users/` | User CRUD with RBAC |
+| Email | `src/email/` | Templated emails (SMTP/SES, Handlebars) |
+| SMS | `src/sms/` | SMS + OTP (Twilio/SNS) |
+| Queue | `src/queue/` | SQS producer (`QueueService`) + worker consumer (`@QueueHandler`) + DLQ redrive |
+| Cache | `src/cache/` | `CacheService` (Redis/ElastiCache) + version-key invalidation + stampede lock |
+| Background | `src/background/` | Worker jobs: SQS handlers (`email/`) + cron scheduler (`cron/`) |
+| Health | `src/api/health/` | Health checks (DB, Redis, memory, HTTP) |
+| Metrics | `src/api/metrics/` | Prometheus metrics |
+| Tracing | `src/api/tracing/` | OpenTelemetry distributed tracing |
+| Dev Tools | `src/api/dev-tools/` | Developer tools dashboard |
+
+> **Removed for now** (reintroduce module-by-module later): Media, Notifications, AI/RAG, Webhooks, Gateway, Audit, UsersV2. Their boilerplate code lives in git history.
+
+## Video Pipeline (Media Module) — v2 (Lambda-owned)
+
+Full design: `apps/documentation/docs/backend/media/video-pipeline.md`.
+
+**Flow:** client `POST /v1/media/uploads` → API creates row (PENDING) + returns presigned S3
+PUT URL → client PUTs bytes → **S3 fires `ObjectCreated` → SQS `media-source-events` → SQS
+event source mapping triggers transcoder Lambda directly** → Lambda parses S3 key, looks up
+media row via `pg`, writes placeholder HLS to output bucket, `UPDATE`s `media_metadata`
+status=`ready` + `hls_master_key` + `delivery_prefix` → client `GET /v1/media/:id/playback`
+gets the `.m3u8` URL.
+
+**The NestJS worker doesn't touch media at all.** All media state transitions beyond the
+initial PENDING row are owned by the Lambda (`docker/dummy-transcoder/handler.js`).
+
+**Env-selected components:**
+
+| Env var | Values | Purpose |
+|---|---|---|
+| `DEPLOYMENT_TARGET` | `local` \| `aws` | Flips AWS SDK clients to Floci when `aws` + `FLOCI_ENDPOINT` set |
+| `FLOCI_ENDPOINT` | `http://localhost:4566` | Floci unified edge endpoint (local only) |
+| `MEDIA_STORAGE_DRIVER` | `s3` \| `local` | `s3` uses `MEDIA_S3_BUCKET`; `local` uses disk |
+| `MEDIA_S3_BUCKET` | | Source bucket (client PUTs land here) |
+| `MEDIA_OUTPUT_BUCKET` | | HLS output bucket (Lambda writes here) |
+
+**No `MEDIA_TRANSCODER` env** — the transcoder is the Lambda itself, wired by Terraform.
+
+**Dummy transcoder Lambda** — `docker/dummy-transcoder/` (Dockerfile + handler.js + package.json).
+Node 20 base, no FFmpeg. Reads S3 key from SQS event → writes placeholder `master.m3u8` +
+`poster.jpg` to output bucket → UPDATE `media_metadata` via `pg`. **Swap
+`writePlaceholderOutputs()` for FFmpeg spawn OR `MediaConvertClient.CreateJob(...)` in prod** —
+everything else stays.
+
+**Floci infrastructure** — `infra/floci/*.tf`. Provisions:
+- Two S3 buckets (source + output; source has CORS + `ObjectCreated:*` → SQS notification)
+- SQS queues + DLQs, including the `media-source-events` bridge queue
+- Transcoder Lambda + `aws_lambda_event_source_mapping` (SQS → Lambda auto-trigger)
+- IAM role: S3 read source, S3 write output, SQS consume, CloudWatch logs
+- Secrets Manager blob (single JSON, hydrated pre-boot by `src/config/secrets-bootstrap.ts`)
+
+**Startup:**
+```bash
+pnpm local:floci:up      # all-in-one: db + floci + lambda build + terraform + migrate + start
+```
+
+Or step-by-step (after `pnpm infra:floci:init` one-time):
+```bash
+pnpm db:dev:up
+pnpm floci:up
+pnpm media:lambda:build  # docker build -t dummy-transcoder:latest ./docker/dummy-transcoder
+pnpm infra:floci:apply
+pnpm db:migrate
+pnpm start:dev
+```
+
+**Testing** — `POST /v1/media/uploads` → PUT → check `media_metadata.status='ready'`. Full
+walkthrough: `apps/documentation/docs/backend/media/video-pipeline-api.md`.
+
+## Auth System
+
+> ⚠️ The bullets below describe the **current boilerplate** auth code, which is **being rebuilt** for the product (unified `users` with `account_type` guest/customer/admin, phone-OTP + Google/Apple, admin email+password with OTP reset, referral, suspend/ban). Target schema is `0001_create_users`; the auth module API doc is the next deliverable.
+
+- JWT access + refresh tokens with rotation on refresh
+- Global guard order: ThrottlerGuard -> JwtAuthGuard -> RolesGuard -> PermissionsGuard
+- `@Public()` — skips JWT guard
+- `@Roles('admin', 'user')` — OR logic (any role matches)
+- `@Permissions('users:read', 'users:write')` — AND logic (all required)
+- `@CurrentUser()` — param decorator for authenticated user
+- `@ApiKeyAuth()` — for API key authenticated routes
+- Default role `user` assigned on register
+- Seed roles: admin, user, moderator with 14 permissions
+- Infrastructure endpoints (health, metrics, tracing, dev-tools) use `@Public()` to bypass JWT
 
 ## Conventions
 
