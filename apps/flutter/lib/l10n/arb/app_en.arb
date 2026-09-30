@@ -2114,5 +2114,37 @@
   "notificationsEmpty": "You''re all caught up.",
   "@notificationsEmpty": {
     "description": "Shown when the selected filter holds no notifications. Not designed yet."
+  },
+  "reelsTogglePlayAction": "Play or pause",
+  "@reelsTogglePlayAction": {
+    "description": "Screen reader name for tapping the reel video to play or pause it."
+  },
+  "reelsPlayAction": "Play",
+  "@reelsPlayAction": {
+    "description": "Screen reader name for the reel play button."
+  },
+  "reelsPauseAction": "Pause",
+  "@reelsPauseAction": {
+    "description": "Screen reader name for the reel pause button."
+  },
+  "reelsMuteAction": "Mute",
+  "@reelsMuteAction": {
+    "description": "Screen reader name for muting reels."
+  },
+  "reelsUnmuteAction": "Unmute",
+  "@reelsUnmuteAction": {
+    "description": "Screen reader name for unmuting reels."
+  },
+  "reelsFullscreenAction": "Full screen",
+  "@reelsFullscreenAction": {
+    "description": "Screen reader name for showing a reel full screen."
+  },
+  "reelsExitFullscreenAction": "Exit full screen",
+  "@reelsExitFullscreenAction": {
+    "description": "Screen reader name for leaving full screen."
+  },
+  "reelsSeekAction": "Seek",
+  "@reelsSeekAction": {
+    "description": "Screen reader name for the reel seek bar."
   }
 }

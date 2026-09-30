@@ -93,24 +93,30 @@ final class HlsEngine {
       return ready
     }
     let fileURL = try downloader.download(descriptor) { [weak self] fraction in
-      self?.emitDownloadProgress(originUri: descriptor.originUrl, fraction: fraction)
+      self?.emitDownloadProgress(
+        originUri: descriptor.originUrl,
+        assetId: descriptor.assetId,
+        fraction: fraction
+      )
     }
     rememberDownloadedFile(fileURL, descriptor: descriptor)
     return fileURL
   }
 
-  func emitDownloadProgress(originUri: String, fraction: Double) {
+  func emitDownloadProgress(originUri: String, assetId: String? = nil, fraction: Double) {
     let percent = Int((min(max(fraction, 0), 1) * 100).rounded())
-    emitRaw(
-      [
-        "kind": "unknown",
-        "originUri": originUri,
-        "byteLength": percent,
-        "occurredAt": Int(Date().timeIntervalSince1970 * 1000),
-        "servedFromCache": false,
-        "cacheSkipReason": "download",
-      ]
-    )
+    var payload: [String: Any] = [
+      "kind": "unknown",
+      "originUri": originUri,
+      "byteLength": percent,
+      "occurredAt": Int(Date().timeIntervalSince1970 * 1000),
+      "servedFromCache": false,
+      "cacheSkipReason": "download",
+    ]
+    if let assetId {
+      payload["assetId"] = assetId
+    }
+    emitRaw(payload)
   }
 
   func startMaster(_ originUrl: String) {
@@ -750,6 +756,8 @@ final class HlsEngine {
       "byteLength": byteLength,
       "occurredAt": Int(Date().timeIntervalSince1970 * 1000),
       "servedFromCache": servedFromCache,
+      // Which asset this request belongs to, so the HUD can show one reel's traffic.
+      "assetId": resource.assetId,
     ]
     if let variant = resource.variant {
       payload["variant"] = variant.toChannelMap()

@@ -72,10 +72,16 @@ class HlsEngineHud extends StatelessWidget {
                 style: const TextStyle(color: Colors.white, fontSize: 12),
               ),
               const SizedBox(height: 8),
-              _NowPlayingLine(
-                position: position,
-                segmentTimeline: m.segmentTimeline,
-              ),
+              if (m.nowPlayingByTrack)
+                _NowPlayingByTrack(
+                  position: position,
+                  segmentTimeline: m.segmentTimeline,
+                )
+              else
+                _NowPlayingLine(
+                  position: position,
+                  segmentTimeline: m.segmentTimeline,
+                ),
               const SizedBox(height: 4),
               Text(
                 'Current fetched rung: '
@@ -218,13 +224,68 @@ class _NowPlayingLine extends StatelessWidget {
   }
 }
 
+/// One NOW PLAYING row per track covering the position: `video`, `audio`,
+/// or `media` when a segment carries both or has no rendition info.
+class _NowPlayingByTrack extends StatelessWidget {
+  const _NowPlayingByTrack({
+    required this.position,
+    required this.segmentTimeline,
+  });
+
+  final Duration position;
+  final List<HlsFetchEvent> segmentTimeline;
+
+  static String _label(HlsTrackKind kind) => switch (kind) {
+    HlsTrackKind.video => 'video',
+    HlsTrackKind.audio => 'audio',
+    HlsTrackKind.unknown => 'media',
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    final List<HlsFetchEvent> rows = <HlsFetchEvent>[
+      for (final HlsTrackKind kind in HlsTrackKind.values)
+        if (segmentAt(position, segmentTimeline, kind: kind)
+            case final HlsFetchEvent event)
+          event,
+    ];
+    if (rows.isEmpty) {
+      return const Text(
+        'NOW PLAYING  unknown · not fetched since this reel was shown',
+        style: TextStyle(color: Colors.white54, fontSize: 12),
+      );
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        for (final HlsFetchEvent playing in rows)
+          Text(
+            'NOW PLAYING  ${_label(playing.trackKind)} · '
+            '${playing.displayName} · '
+            '${formatHudDuration(playing.segmentStart!)}-'
+            '${formatHudDuration(playing.segmentStart! + playing.segmentDuration!)}'
+            ' · ${playbackSourceLabel(playing)}',
+            style: TextStyle(
+              color: hudEventFromCache(playing)
+                  ? Colors.lightGreenAccent
+                  : Colors.lightBlueAccent,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+      ],
+    );
+  }
+}
+
 /// Newest timeline event covering [position], or null.
 HlsFetchEvent? segmentAt(
   Duration position,
-  List<HlsFetchEvent> segmentTimeline,
-) {
+  List<HlsFetchEvent> segmentTimeline, {
+  HlsTrackKind? kind,
+}) {
   for (final HlsFetchEvent event in segmentTimeline) {
-    if (event.covers(position)) {
+    if (event.covers(position) && (kind == null || event.trackKind == kind)) {
       return event;
     }
   }

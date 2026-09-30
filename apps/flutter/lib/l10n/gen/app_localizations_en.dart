@@ -1917,4 +1917,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notificationsEmpty => 'You\'re all caught up.';
+
+  @override
+  String get reelsTogglePlayAction => 'Play or pause';
+
+  @override
+  String get reelsPlayAction => 'Play';
+
+  @override
+  String get reelsPauseAction => 'Pause';
+
+  @override
+  String get reelsMuteAction => 'Mute';
+
+  @override
+  String get reelsUnmuteAction => 'Unmute';
+
+  @override
+  String get reelsFullscreenAction => 'Full screen';
+
+  @override
+  String get reelsExitFullscreenAction => 'Exit full screen';
+
+  @override
+  String get reelsSeekAction => 'Seek';
 }

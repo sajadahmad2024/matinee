@@ -3106,6 +3106,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You\'\'re all caught up.'**
   String get notificationsEmpty;
+
+  /// Screen reader name for tapping the reel video to play or pause it.
+  ///
+  /// In en, this message translates to:
+  /// **'Play or pause'**
+  String get reelsTogglePlayAction;
+
+  /// Screen reader name for the reel play button.
+  ///
+  /// In en, this message translates to:
+  /// **'Play'**
+  String get reelsPlayAction;
+
+  /// Screen reader name for the reel pause button.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause'**
+  String get reelsPauseAction;
+
+  /// Screen reader name for muting reels.
+  ///
+  /// In en, this message translates to:
+  /// **'Mute'**
+  String get reelsMuteAction;
+
+  /// Screen reader name for unmuting reels.
+  ///
+  /// In en, this message translates to:
+  /// **'Unmute'**
+  String get reelsUnmuteAction;
+
+  /// Screen reader name for showing a reel full screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Full screen'**
+  String get reelsFullscreenAction;
+
+  /// Screen reader name for leaving full screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Exit full screen'**
+  String get reelsExitFullscreenAction;
+
+  /// Screen reader name for the reel seek bar.
+  ///
+  /// In en, this message translates to:
+  /// **'Seek'**
+  String get reelsSeekAction;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

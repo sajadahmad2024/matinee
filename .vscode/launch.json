@@ -14,6 +14,24 @@
             "args": ["--flavor", "dev"]
         },
         {
+            "name": "Matinee DEV (ReelFeed Lab)",
+            "cwd": "apps/flutter",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "program": "lib/main_dev.dart",
+            "args": ["--flavor", "dev", "--dart-define=REELS_LAB=feed"]
+        },
+        {
+            "name": "Matinee DEV (Pager Lab v1)",
+            "cwd": "apps/flutter",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "program": "lib/main_dev.dart",
+            "args": ["--flavor", "dev", "--dart-define=REELS_LAB=pager"]
+        },
+        {
             "name": "Matinee STAGING",
             "cwd": "apps/flutter",
             "request": "launch",

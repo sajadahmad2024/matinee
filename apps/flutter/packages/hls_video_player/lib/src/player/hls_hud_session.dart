@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:collection';
 
 import 'package:flutter/foundation.dart';
 import 'package:hls_video_player/src/bridge/hls_native_bridge.dart';
@@ -36,6 +37,10 @@ class HlsHudSession extends ChangeNotifier {
 
   /// Applies one process-wide fetch event. Returns true when HUD fields change.
   bool addEvent(HlsFetchEvent event) {
+    final String? assetId = event.assetId;
+    if (assetId != null) {
+      _foldFor(assetId).add(event);
+    }
     if (event.advertisedVariants != null) {
       variants = event.advertisedVariants!;
     }
@@ -66,8 +71,15 @@ class HlsHudSession extends ChangeNotifier {
     return true;
   }
 
-  /// Records TTFF on the first initialized + playing snapshot.
-  bool markFirstFrame(HlsPlayerSnapshot snapshot) {
+  /// Records TTFF on the first initialized + playing snapshot. With
+  /// [assetId], also that asset's TTFF since [focusAsset].
+  bool markFirstFrame(HlsPlayerSnapshot snapshot, {String? assetId}) {
+    if (assetId != null &&
+        snapshot.isInitialized &&
+        snapshot.isPlaying &&
+        (_folds[assetId]?.markFirstFrame() ?? false)) {
+      notifyListeners();
+    }
     if (ttffMs != null || !snapshot.isInitialized || !snapshot.isPlaying) {
       return false;
     }
@@ -77,8 +89,41 @@ class HlsHudSession extends ChangeNotifier {
     return true;
   }
 
+  // Per-asset folds, so a per-reel HUD shows only that reel's traffic.
+  // Newest first-touched last; the focused one is never evicted.
+  static const int maxAssets = 8;
+  final LinkedHashMap<String, _AssetFold> _folds =
+      LinkedHashMap<String, _AssetFold>();
+  String? _focusedAsset;
+
+  _AssetFold _foldFor(String assetId) {
+    final _AssetFold fold = _folds.remove(assetId) ?? _AssetFold();
+    _folds[assetId] = fold;
+    while (_folds.length > maxAssets) {
+      final String oldest = _folds.keys.firstWhere(
+        (String id) => id != _focusedAsset,
+      );
+      _folds.remove(oldest);
+    }
+    return fold;
+  }
+
+  /// Starts [assetId]'s TTFF clock; call when that reel comes on screen.
+  /// [restart] measures again even when it is already the focused asset, for
+  /// a HUD shown anew.
+  void focusAsset(String assetId, {bool restart = false}) {
+    if (!restart && _focusedAsset == assetId) {
+      return;
+    }
+    _focusedAsset = assetId;
+    _foldFor(assetId).startFocus();
+  }
+
   /// Drops byte counters and timeline after a native cache clear.
   void resetAfterClear() {
+    for (final _AssetFold fold in _folds.values) {
+      fold.resetAfterClear();
+    }
     originBytes = 0;
     cacheServedBytes = 0;
     cacheHits = 0;
@@ -94,12 +139,39 @@ class HlsHudSession extends ChangeNotifier {
   }
 
   /// Builds the display model. Snapshot is supplied by the focused port.
+  ///
+  /// With [assetId], the network rows and TTFF are that asset's only;
+  /// without, they are process-wide, as before.
   HlsHudModel model({
     required HlsPlayerSnapshot snapshot,
     required bool playRequested,
     required bool muted,
     String? openError,
+    String? assetId,
   }) {
+    if (assetId != null) {
+      final _AssetFold fold = _folds[assetId] ?? _AssetFold();
+      return HlsHudModel(
+        snapshot: snapshot,
+        isCacheOnly: cacheOnly,
+        playRequested: playRequested,
+        muted: muted,
+        originBytes: fold.originBytes,
+        cacheServedBytes: fold.cacheServedBytes,
+        cacheHits: fold.cacheHits,
+        cacheBackendName: stats.backendName,
+        cacheEntryCount: stats.entryCount,
+        cacheStoredBytes: stats.storedBytes,
+        variants: fold.variants,
+        recentFetches: fold.recentFetches,
+        segmentTimeline: fold.segmentTimeline,
+        ttffMs: fold.ttffMs,
+        currentFetchedVariant: fold.currentFetchedVariant,
+        lastSegment: fold.lastSegment,
+        openError: openError,
+        nowPlayingByTrack: true,
+      );
+    }
     return HlsHudModel(
       snapshot: snapshot,
       isCacheOnly: cacheOnly,
@@ -119,6 +191,73 @@ class HlsHudSession extends ChangeNotifier {
       lastSegment: lastSegment,
       openError: openError,
     );
+  }
+}
+
+/// One asset's share of the fetch events, folded like the global fields.
+class _AssetFold {
+  final List<HlsFetchEvent> recentFetches = <HlsFetchEvent>[];
+  final List<HlsFetchEvent> segmentTimeline = <HlsFetchEvent>[];
+  final Stopwatch _sinceFocus = Stopwatch();
+  List<HlsVariant> variants = <HlsVariant>[];
+  HlsVariant? currentFetchedVariant;
+  HlsFetchEvent? lastSegment;
+  int originBytes = 0;
+  int cacheServedBytes = 0;
+  int cacheHits = 0;
+  int? ttffMs;
+
+  void add(HlsFetchEvent event) {
+    if (event.advertisedVariants != null) {
+      variants = event.advertisedVariants!;
+    }
+    if (event.variant != null) {
+      currentFetchedVariant = event.variant;
+    }
+    if (event.kind == HlsResourceKind.segment ||
+        event.kind == HlsResourceKind.initSegment) {
+      lastSegment = event;
+      if (event.servedFromCache || event.cacheSkipReason == 'substituted') {
+        cacheHits++;
+        cacheServedBytes += event.byteLength;
+      } else if (event.error == null) {
+        originBytes += event.byteLength;
+      }
+      if (event.error == null && event.segmentStart != null) {
+        segmentTimeline.insert(0, event);
+        if (segmentTimeline.length > HlsHudSession.maxTimelineRecords) {
+          segmentTimeline.removeLast();
+        }
+      }
+    }
+    recentFetches.insert(0, event);
+    if (recentFetches.length > HlsHudSession.maxRecentFetches) {
+      recentFetches.removeLast();
+    }
+  }
+
+  // Each time the reel comes on screen, TTFF is measured again.
+  void startFocus() {
+    ttffMs = null;
+    _sinceFocus
+      ..reset()
+      ..start();
+  }
+
+  bool markFirstFrame() {
+    if (ttffMs != null || !_sinceFocus.isRunning) {
+      return false;
+    }
+    _sinceFocus.stop();
+    ttffMs = _sinceFocus.elapsedMilliseconds;
+    return true;
+  }
+
+  void resetAfterClear() {
+    originBytes = 0;
+    cacheServedBytes = 0;
+    cacheHits = 0;
+    segmentTimeline.clear();
   }
 }
 

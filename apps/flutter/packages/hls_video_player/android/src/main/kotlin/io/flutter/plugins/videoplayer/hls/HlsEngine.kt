@@ -414,6 +414,8 @@ object HlsEngine {
     payload["byteLength"] = byteLength
     payload["occurredAt"] = System.currentTimeMillis()
     payload["servedFromCache"] = servedFromCache
+    // Which asset this request belongs to, so the HUD can show one reel's traffic.
+    resource?.assetId?.let { payload["assetId"] = it }
     resource?.variant?.let { payload["variant"] = it.toChannelMap() }
     resource?.segmentDurationMs?.let { payload["segmentDurationMs"] = it }
     resource?.segmentStartMs?.let { payload["segmentStartMs"] = it }

@@ -1,4 +1,4 @@
-import 'package:material_ui/material_ui.dart';
+import 'package:flutter/material.dart';
 
 ///
 /// Turns a drag that overscrolls past [child]'s own scroll bounds into a
