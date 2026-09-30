@@ -4,6 +4,8 @@
 
 # Package manager files
 package-lock.json
+# …except the transcoder Lambda's — its Dockerfile runs `npm ci` against it
+!docker/dummy-transcoder/package-lock.json
 yarn.lock
 pnpm-lock.yaml
 .pnpm-store/
@@ -62,3 +64,11 @@ test-results/
 # Environment Files
 .env
 apm/prometheus.yml
+
+# Terraform (infra/floci and any future infra/*)
+infra/**/.terraform/
+infra/**/.terraform.lock.hcl
+infra/**/terraform.tfstate
+infra/**/terraform.tfstate.*
+infra/**/terraform.tfvars
+infra/**/*.tfplan

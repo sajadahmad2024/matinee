@@ -1,6 +1,5 @@
 import { EmailModule } from '@email/email.module';
 import { SmsModule } from '@sms/sms.module';
-import { MediaModule } from '@media/media.module';
 import { NotificationsModule } from '@notifications/notifications.module';
 import { Module } from '@nestjs/common';
 import { EmailJobService } from './email/email-job.service';
@@ -17,14 +16,6 @@ import {
 } from './notifications/notification-send.handlers';
 import { CronModule } from './cron/cron.module';
 import { DailyMailHandler } from './cron/cron.handler';
-import { MediaJobService } from './media/media-job.service';
-import {
-  MediaTranscodeHandler,
-  MediaTranscodePollHandler,
-  MediaReconcileHandler,
-  MediaOrphanSweepHandler,
-  MediaCleanupHandler,
-} from './media/media.handlers';
 import { ContentJobService } from './content/content-job.service';
 import {
   ContentPublishScheduledHandler,
@@ -36,10 +27,14 @@ import {
  * QueueConsumerService. Scheduling (the producer) lives in CronModule; this module holds
  * the handlers that do the work pushed onto the queue. Import ONLY in WorkerModule.
  *
- * NotificationsModule is imported to inject FcmProvider into the push send/topic-sync jobs.
+ * `NotificationsModule` is imported to inject FcmProvider into the push send/topic-sync jobs.
+ *
+ * Media is INTENTIONALLY absent here — the transcoder Lambda (invoked directly by SQS via
+ * event-source mapping, see infra/floci/lambda.tf) owns every media state transition beyond
+ * the initial `pending` row the API creates. The NestJS worker has no media-related handlers.
  */
 @Module({
-  imports: [EmailModule, SmsModule, MediaModule, NotificationsModule, CronModule],
+  imports: [EmailModule, SmsModule, NotificationsModule, CronModule],
   providers: [
     EmailJobService,
     EmailOtpHandler,
@@ -52,12 +47,6 @@ import {
     PushToDevicesHandler,
     PushToTopicHandler,
     DailyMailHandler,
-    MediaJobService,
-    MediaTranscodeHandler,
-    MediaTranscodePollHandler,
-    MediaReconcileHandler,
-    MediaOrphanSweepHandler,
-    MediaCleanupHandler,
     ContentJobService,
     ContentPublishScheduledHandler,
     ContentLicenseExpiryHandler,

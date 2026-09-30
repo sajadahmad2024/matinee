@@ -1,4 +1,5 @@
 import { EnvConfig } from '@config/env.config';
+import { getAwsEndpointOverride, getFlociCredentials } from '@common/helpers/aws-endpoint.util';
 import {
   CreateQueueCommand,
   DeleteMessageCommand,
@@ -39,18 +40,28 @@ export class SqsQueueDriver implements QueueDriver {
 
   constructor(config: ConfigService<EnvConfig>) {
     const region = config.get<string>('SQS_REGION') ?? 'us-east-1';
-    const endpoint = config.get<string>('SQS_ENDPOINT');
-    const accessKeyId = config.get<string>('SQS_ACCESS_KEY_ID');
-    const secretAccessKey = config.get<string>('SQS_SECRET_ACCESS_KEY');
+
+    // Endpoint resolution (in precedence order):
+    //  1. explicit SQS_ENDPOINT  → ElasticMQ / user-set override
+    //  2. FLOCI_ENDPOINT         → DEPLOYMENT_TARGET=aws local dev via Floci
+    //  3. undefined              → SDK resolves real AWS SQS
+    const explicitEndpoint = config.get<string>('SQS_ENDPOINT') ?? '';
+    const flociEndpoint = getAwsEndpointOverride(config);
+    const endpoint = explicitEndpoint || flociEndpoint;
+
+    const legacyAccessKeyId = config.get<string>('SQS_ACCESS_KEY_ID') ?? '';
+    const legacySecretKey = config.get<string>('SQS_SECRET_ACCESS_KEY') ?? '';
+    const credentials =
+      legacyAccessKeyId && legacySecretKey
+        ? { accessKeyId: legacyAccessKeyId, secretAccessKey: legacySecretKey }
+        : getFlociCredentials(config);
 
     const clientConfig: SQSClientConfig = { region };
     if (endpoint) {
       clientConfig.endpoint = endpoint;
     }
-    // Only set explicit creds when provided (local). In prod, leaving these
-    // unset lets the SDK use the IAM role / default credential chain.
-    if (accessKeyId && secretAccessKey) {
-      clientConfig.credentials = { accessKeyId, secretAccessKey };
+    if (credentials) {
+      clientConfig.credentials = credentials;
     }
 
     this.client = new SQSClient(clientConfig);

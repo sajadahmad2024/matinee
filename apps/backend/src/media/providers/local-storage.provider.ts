@@ -1,7 +1,7 @@
 import { EnvConfig } from '@config/env.config';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { StorageProvider } from './storage.provider';
+import { ObjectStream, StorageProvider } from './storage.provider';
 import { ObjectHead, UploadTarget } from '../interfaces/media.types';
 
 /**
@@ -42,5 +42,10 @@ export class LocalStorageProvider extends StorageProvider {
 
   async deletePrefix(prefix: string): Promise<void> {
     this.logger.debug(`[local] delete prefix ${prefix}`);
+  }
+
+  async openRead(): Promise<ObjectStream | null> {
+    // No real bytes are stored by this stub — use MEDIA_STORAGE_DRIVER=s3 (Floci) to play media locally.
+    return null;
   }
 }

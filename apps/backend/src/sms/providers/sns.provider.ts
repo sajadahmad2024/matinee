@@ -1,3 +1,4 @@
+import { getAwsEndpointOverride, getFlociCredentials } from '@common/helpers/aws-endpoint.util';
 import { Injectable, Logger, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { EnvConfig } from '@config/env.config';
@@ -31,15 +32,23 @@ export class SnsSmsProvider extends SmsProvider {
     const secretAccessKey = this.configService.get<string>('AWS_SECRET_ACCESS_KEY' as keyof EnvConfig) ?? '';
     this.defaultSenderId = this.configService.get<string>('AWS_SNS_SENDER_ID' as keyof EnvConfig) ?? '';
 
+    const endpoint = getAwsEndpointOverride(this.configService);
+    const flociCredentials = getFlociCredentials(this.configService);
+
     const clientConfig: ConstructorParameters<typeof SNSClient>[0] = { region };
 
-    // Only supply explicit credentials if both are present;
-    // otherwise fall back to the default AWS credential chain (IAM role, env, etc.)
+    if (endpoint) {
+      clientConfig.endpoint = endpoint;
+    }
+    // Explicit creds win over the Floci dummy; both win over the SDK default chain
+    // (IAM role, env, etc.) — matches the precedence used by S3StorageProvider.
     if (accessKeyId && secretAccessKey) {
       clientConfig.credentials = {
         accessKeyId,
         secretAccessKey,
       };
+    } else if (flociCredentials) {
+      clientConfig.credentials = flociCredentials;
     }
 
     this.snsClient = new SNSClient(clientConfig);

@@ -1,12 +1,18 @@
 export const QUEUE_DRIVER = 'QUEUE_DRIVER';
 export const QUEUE_HANDLER_METADATA = 'queue:handler';
 
-/** Logical queue names (prefixed per-env by the driver via SQS_QUEUE_PREFIX). */
+/**
+ * Logical queue names (prefixed per-env by the driver via SQS_QUEUE_PREFIX).
+ *
+ * The `media-source-events` queue receives S3 → SQS event notifications from the media
+ * source bucket, but is NOT consumed by this NestJS worker — it's an event source mapping
+ * on the transcoder Lambda (see infra/floci/lambda.tf). It's declared in Terraform's
+ * `sqs.tf` only; there's no handler in this project for it.
+ */
 export enum QueueName {
   EMAIL = 'email',
   SMS = 'sms',
   CRON = 'cron',
-  MEDIA = 'media',
   CONTENT = 'content',
   NOTIFICATIONS = 'notifications',
 }
@@ -23,12 +29,6 @@ export enum JobName {
   PUSH_TO_USER = 'push-to-user',                     // transactional push: resolve user's active devices + FCM send
   PUSH_TO_TOPIC = 'push-to-topic',                   // broadcast push via FCM topic (one FCM call)
   PUSH_TO_DEVICES = 'push-to-devices',               // targeted push to a pre-resolved set of device_token ids
-  // Media
-  TRANSCODE_VIDEO = 'transcode-video',     // submit the HLS transcode job for a media asset
-  TRANSCODE_POLL = 'transcode-poll',       // delayed self-poll of an in-flight transcode (status by status)
-  MEDIA_RECONCILE = 'media-reconcile',     // cron safety-net: resume/fail stuck transcodes
-  MEDIA_ORPHAN_SWEEP = 'media-orphan-sweep', // cron: delete never-completed (stale pending) uploads
-  MEDIA_CLEANUP = 'media-cleanup',         // delete storage objects for a soft-deleted asset
   // Content
   PUBLISH_SCHEDULED = 'publish-scheduled',         // cron: flip scheduled→published when go-live passes
   LICENSE_EXPIRY_REMINDER = 'license-expiry-reminder', // cron: surface licenses expiring soon

@@ -1,0 +1,12 @@
+{
+  "name": "dummy-transcoder-lambda",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Transcoder Lambda container. handler.js = dummy (placeholder HLS); prod-handler.js + prod-completion-handler.js = MediaConvert templates. Shared SQS/DB/claim rules in lib.js.",
+  "main": "handler.js",
+  "dependencies": {
+    "@aws-sdk/client-s3": "3.892.0",
+    "@aws-sdk/client-secrets-manager": "3.891.0",
+    "pg": "8.13.1"
+  }
+}

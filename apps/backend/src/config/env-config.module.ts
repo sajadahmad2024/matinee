@@ -86,6 +86,13 @@ const envConfig = registerAs(
       CSRF_ENABLED: (process.env['CSRF_ENABLED'] || 'false').toLowerCase() === 'true',
       PHONE_VERIFICATION_PROVIDER: process.env['PHONE_VERIFICATION_PROVIDER'] || 'twilio',
       APPLE_CLIENT_ID: process.env['APPLE_CLIENT_ID'] || '',
+      // Deployment target — flips AWS SDK clients (S3, SQS, Lambda, MediaConvert)
+      // between real AWS and Floci (LocalStack-compatible emulator) via FLOCI_ENDPOINT.
+      DEPLOYMENT_TARGET: process.env['DEPLOYMENT_TARGET'] || 'local',
+      FLOCI_ENDPOINT: process.env['FLOCI_ENDPOINT'] || '',
+      FLOCI_PORT: parseInt(process.env['FLOCI_PORT'] || '4566', 10),
+      // AWS Secrets Manager blob hydrated by src/config/secrets-bootstrap.ts
+      SECRETS_MANAGER_SECRET_ID: process.env['SECRETS_MANAGER_SECRET_ID'] || '',
       // Firebase Admin SDK — required when PHONE_VERIFICATION_PROVIDER=firebase
       FCM_PROJECT_ID: process.env['FCM_PROJECT_ID'] || '',
       FCM_CLIENT_EMAIL: process.env['FCM_CLIENT_EMAIL'] || '',
@@ -199,7 +206,11 @@ const validationSchema = Joi.object({
   // Media (storage / delivery / transcode) — coerced for flat get()
   MEDIA_STORAGE_DRIVER: Joi.string().valid('s3', 'local').default('local'),
   MEDIA_DELIVERY_DRIVER: Joi.string().valid('cloudfront', 'local').default('local'),
-  MEDIA_TRANSCODER: Joi.string().valid('mediaconvert', 'local').default('local'),
+  // Deployment target (see `getAwsEndpointOverride` / `getFlociCredentials`)
+  DEPLOYMENT_TARGET: Joi.string().valid('local', 'aws').default('local'),
+  FLOCI_ENDPOINT: Joi.string().allow('').default(''),
+  FLOCI_PORT: Joi.number().default(4566),
+  SECRETS_MANAGER_SECRET_ID: Joi.string().allow('').default(''),
   MEDIA_S3_BUCKET: Joi.string().allow('').default(''),
   MEDIA_S3_REGION: Joi.string().allow('').default('us-east-1'),
   MEDIA_S3_ENDPOINT: Joi.string().allow('').default(''),
@@ -216,10 +227,7 @@ const validationSchema = Joi.object({
   MEDIA_UPLOAD_URL_TTL: Joi.number().default(900),
   MEDIA_SIGNED_URL_TTL: Joi.number().default(900),
   MEDIA_MAX_UPLOAD_BYTES: Joi.number().default(10737418240),
-  MEDIA_TRANSCODE_POLL_INTERVAL: Joi.number().default(15),
-  MEDIA_TRANSCODE_POLL_MAX_INTERVAL: Joi.number().default(120),
-  MEDIA_TRANSCODE_STUCK_SECONDS: Joi.number().default(300),
-  MEDIA_TRANSCODE_MAX_SECONDS: Joi.number().default(21600),
+  MEDIA_TRANSCODE_STUCK_SECONDS: Joi.number().default(900), // reconcile threshold; raise for MediaConvert
   MEDIA_ORPHAN_AGE_SECONDS: Joi.number().default(86400),
 });
 
