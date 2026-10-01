@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:matinee/core/assets/app_icon_assets.dart';
 import 'package:matinee/core/l10n/l10n.dart';
@@ -58,8 +57,8 @@ class _ReelActionRailState extends State<ReelActionRail> {
           iconColor: icon.primary,
           label: commentCount,
           semanticLabel: l10n.reelsCommentAction(commentCount),
-          // Sample comments until comments have a data layer; debug only.
-          onTap: kDebugMode ? () => unawaited(showCommentsPreview(context)) : () {},
+          // Sample comments until comments have a data layer.
+          onTap: () => unawaited(showCommentsPreview(context)),
         ),
         _RailButton(
           asset: AppIconAssets.info,
