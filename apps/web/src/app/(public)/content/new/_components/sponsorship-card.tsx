@@ -5,11 +5,15 @@ import { useState } from "react";
 import type { Route } from "next";
 import Link from "next/link";
 
-import { ArrowRight, Megaphone, Timer } from "lucide-react";
+import { addDays, differenceInCalendarDays, format as formatDate, startOfToday } from "date-fns";
+import { ArrowRight, CalendarIcon, Megaphone, Timer } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import { CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -17,6 +21,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+
+import { cn } from "@/app/_libs/utils/cn";
 
 import { GlassCard } from "../../../games/_components/glass-card";
 import { BannerUpload } from "../../../games/format/_components/shared/banner-upload";
@@ -28,13 +34,26 @@ type AdFormat = "organic" | "sponsored";
 /**
  * Ad-Sales format for a piece of content:
  *  - organic:    no sponsor.
- *  - sponsored:  content carrying a sponsor logo shown as an icon overlay for the deal's days.
+ *  - sponsored:  content carrying a sponsor logo shown as an icon overlay between the deal's
+ *                start and end dates.
  */
 export function SponsorshipCard() {
   const [format, setFormat] = useState<AdFormat>("organic");
   const [advertiser, setAdvertiser] = useState("");
   const [banner, setBanner] = useState<string | null>(null);
-  const [overlayDays, setOverlayDays] = useState("30");
+  // defaults to a 30-day deal starting today
+  const [overlayStart, setOverlayStart] = useState<Date | undefined>(startOfToday());
+  const [overlayEnd, setOverlayEnd] = useState<Date | undefined>(addDays(startOfToday(), 30));
+
+  // inclusive of both days — a deal starting and ending on the same day runs for 1 day
+  const overlayDays =
+    overlayStart && overlayEnd ? differenceInCalendarDays(overlayEnd, overlayStart) + 1 : null;
+
+  const handleOverlayStartChange = (date?: Date) => {
+    setOverlayStart(date);
+    // keep the range valid — drop an end date that now falls before the new start
+    if (date && overlayEnd && overlayEnd < date) setOverlayEnd(undefined);
+  };
 
   const showFields = format === "sponsored";
 
@@ -86,21 +105,67 @@ export function SponsorshipCard() {
               />
             </div>
 
-            <div className="space-y-2 md:max-w-xs">
-              <Label htmlFor="overlay-days" className="flex items-center gap-1.5">
+            <div className="space-y-2">
+              <Label className="flex items-center gap-1.5">
                 <Timer className="h-3.5 w-3.5" />
-                Icon overlay duration (days)
+                Icon overlay duration
               </Label>
-              <Input
-                id="overlay-days"
-                type="number"
-                min={1}
-                value={overlayDays}
-                onChange={(e) => setOverlayDays(e.target.value)}
-                placeholder="30"
-              />
+              <div className="flex flex-wrap gap-4">
+                <div className="w-full space-y-1 sm:w-[220px]">
+                  <Label className="text-muted-foreground text-xs">Start date</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !overlayStart && "text-muted-foreground",
+                        )}>
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {overlayStart ? formatDate(overlayStart, "PPP") : "Pick a date"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={overlayStart}
+                        onSelect={handleOverlayStartChange}
+                        initialFocus
+                        disabled={(date) => date < startOfToday()}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                <div className="w-full space-y-1 sm:w-[220px]">
+                  <Label className="text-muted-foreground text-xs">End date</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !overlayEnd && "text-muted-foreground",
+                        )}>
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {overlayEnd ? formatDate(overlayEnd, "PPP") : "Pick a date"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={overlayEnd}
+                        onSelect={setOverlayEnd}
+                        initialFocus
+                        disabled={(date) => date < (overlayStart ?? startOfToday())}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              </div>
               <p className="text-muted-foreground text-xs">
-                Length of the sponsorship deal — the overlay stays on the video for this many days.
+                {overlayDays
+                  ? `The sponsor overlay stays on the video for ${overlayDays} day${overlayDays === 1 ? "" : "s"}.`
+                  : "Pick the start and end dates of the sponsorship deal."}
               </p>
             </div>
 

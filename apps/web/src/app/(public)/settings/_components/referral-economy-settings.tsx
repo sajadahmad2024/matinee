@@ -2,7 +2,10 @@
 
 import { useState } from "react";
 
-import { Calendar, Coins, Gift, Users } from "lucide-react";
+import type { Route } from "next";
+import Link from "next/link";
+
+import { BarChart3, Gift, Users } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -15,15 +18,11 @@ import { ConfirmationDialog } from "@/components/custom/confirmation-dialog";
 
 export function ReferralEconomySettings() {
   const [referralEnabled, setReferralEnabled] = useState(true);
-  const [dailyBonusEnabled, setDailyBonusEnabled] = useState(true);
   const [showDisableWarning, setShowDisableWarning] = useState(false);
 
   // Referral settings
   const [pointsPerInvite, setPointsPerInvite] = useState("500");
   const [maxInvites, setMaxInvites] = useState("10");
-
-  // Daily bonus settings
-  const [dailyRewardPoints, setDailyRewardPoints] = useState("10");
 
   const handleReferralToggle = (checked: boolean) => {
     if (!checked) {
@@ -58,7 +57,15 @@ export function ReferralEconomySettings() {
                 <p className="text-muted-foreground text-sm">Reward users for inviting friends</p>
               </div>
             </div>
-            <Switch checked={referralEnabled} onCheckedChange={handleReferralToggle} />
+            <div className="flex items-center gap-3">
+              <Button variant="outline" size="sm" asChild>
+                <Link href={"/settings/referral-analytics" as Route}>
+                  <BarChart3 className="h-4 w-4" />
+                  View Analytics
+                </Link>
+              </Button>
+              <Switch checked={referralEnabled} onCheckedChange={handleReferralToggle} />
+            </div>
           </div>
         </CardHeader>
         {referralEnabled && (
@@ -107,54 +114,6 @@ export function ReferralEconomySettings() {
                 <span className="text-success font-medium">{pointsPerInvite} Pts</span> per
                 successful invite, up to{" "}
                 <span className="text-warning font-medium">{maxInvites} invites</span> per month.
-              </p>
-            </div>
-          </CardContent>
-        )}
-      </Card>
-
-      {/* Daily Login Bonus */}
-      <Card className="border-border/50 bg-card/50">
-        <CardHeader className="pb-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="bg-success/20 flex h-10 w-10 items-center justify-center rounded-lg">
-                <Calendar className="text-success h-5 w-5" />
-              </div>
-              <div>
-                <CardTitle className="text-base">Daily Login Bonus</CardTitle>
-                <p className="text-muted-foreground text-sm">
-                  Reward users for opening the app daily
-                </p>
-              </div>
-            </div>
-            <Switch checked={dailyBonusEnabled} onCheckedChange={setDailyBonusEnabled} />
-          </div>
-        </CardHeader>
-        {dailyBonusEnabled && (
-          <CardContent className="border-border/30 space-y-4 border-t pt-4">
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label className="flex items-center gap-2">
-                  <Coins className="text-warning h-4 w-4" />
-                  Reward Points
-                </Label>
-                <div className="flex gap-2">
-                  <Input
-                    type="number"
-                    value={dailyRewardPoints}
-                    onChange={(e) => setDailyRewardPoints(e.target.value)}
-                    className="bg-background/50"
-                  />
-                  <span className="text-muted-foreground self-center text-sm">Pts</span>
-                </div>
-              </div>
-            </div>
-            <div className="border-success/30 bg-success/10 rounded-lg border p-3">
-              <p className="text-muted-foreground text-sm">
-                <strong className="text-foreground">Daily reward:</strong> Users receive{" "}
-                <span className="text-warning font-medium">{dailyRewardPoints} Pts</span> each day
-                they log in.
               </p>
             </div>
           </CardContent>

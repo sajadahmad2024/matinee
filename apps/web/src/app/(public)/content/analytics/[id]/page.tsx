@@ -37,6 +37,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
+import { AnalyticsDateFilter, useAnalyticsDateRange } from "./_components/analytics-date-filter";
+
 const retentionData = Array.from({ length: 100 }, (_, i) => ({
   second: i * 10,
   retention: Math.max(10, 100 - i * 0.8 - Math.random() * 10),
@@ -79,11 +81,12 @@ const geoData = [
 
 export default function VideoAnalyticsPage() {
   const router = useRouter();
+  const { label: timeRangeLabel } = useAnalyticsDateRange();
 
   return (
     <div className="animate-fade-in space-y-6 pb-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" onClick={() => router.push("/content" as Route)}>
             <ArrowLeft className="h-5 w-5" />
@@ -93,8 +96,15 @@ export default function VideoAnalyticsPage() {
             <p className="text-foreground-secondary text-sm">
               K-Drama Romance: Episode 1 - Deep Performance Insights
             </p>
+            <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
+              <span className="text-muted-foreground">Showing</span>
+              <span className="bg-muted/50 text-foreground-secondary rounded px-2 py-0.5 font-medium">
+                {timeRangeLabel}
+              </span>
+            </div>
           </div>
         </div>
+        <AnalyticsDateFilter />
       </div>
 
       {/* Key Metrics Strip */}

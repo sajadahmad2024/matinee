@@ -1,5 +1,7 @@
 "use client";
 
+import type { ComponentType } from "react";
+
 import {
   Bell,
   Coins,
@@ -8,8 +10,8 @@ import {
   Gamepad2,
   Gift,
   Lock,
+  type LucideIcon,
   Smartphone,
-  TrendingUp,
   Users,
 } from "lucide-react";
 
@@ -22,7 +24,6 @@ import { AdminHealthSummary, type HealthStat } from "@/components/custom/admin-h
 import { AdminManagement } from "./admin-management";
 import { AppVersionSettings } from "./app-version-settings";
 import { FeatureFlagsSettings } from "./feature-flags-settings";
-import { GrowthSettings } from "./growth-settings";
 import { NotificationCampaigns } from "./notification-campaigns";
 import { ReferralEconomySettings } from "./referral-economy-settings";
 import { StaticPagesSettings } from "./static-page-editor/static-pages-settings";
@@ -37,13 +38,6 @@ const CONFIG_OVERVIEW: HealthStat[] = [
     icon: Gift,
   },
   {
-    label: "Daily Login Bonus",
-    value: "Active",
-    insight: "10 pts / day",
-    tone: "good",
-    icon: Coins,
-  },
-  {
     label: "Game Centre",
     value: "Enabled",
     insight: "5 formats live",
@@ -52,20 +46,23 @@ const CONFIG_OVERVIEW: HealthStat[] = [
   },
 ];
 
-const SETTINGS_TABS = [
-  "economy",
-  "admins",
-  "appversion",
-  "flags",
-  "notifications",
-  "growth",
-  "pages",
+const SETTINGS_TABS: {
+  value: string;
+  label: string;
+  icon: LucideIcon;
+  Content: ComponentType;
+}[] = [
+  { value: "economy", label: "Economy", icon: Coins, Content: ReferralEconomySettings },
+  { value: "admins", label: "Admin Management", icon: Users, Content: AdminManagement },
+  { value: "appversion", label: "App Version", icon: Smartphone, Content: AppVersionSettings },
+  { value: "flags", label: "Feature Flags", icon: Flag, Content: FeatureFlagsSettings },
+  { value: "notifications", label: "Notifications", icon: Bell, Content: NotificationCampaigns },
+  { value: "pages", label: "Static Pages", icon: FileText, Content: StaticPagesSettings },
 ];
 
 export function SettingsView() {
   const [tabParam, setActiveTab] = useTabParam("economy");
-  // unknown/removed tabs (e.g. an old ?tab=security link) fall back to the first tab
-  const activeTab = SETTINGS_TABS.includes(tabParam) ? tabParam : "economy";
+  const activeTab = SETTINGS_TABS.some((tab) => tab.value === tabParam) ? tabParam : "economy";
 
   return (
     <div className="animate-fade-in space-y-6">
@@ -94,77 +91,22 @@ export function SettingsView() {
       {/* Tabs Navigation */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="border-border/50 bg-background/50 border p-1">
-          <TabsTrigger
-            value="economy"
-            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground gap-2">
-            <Coins className="h-4 w-4" />
-            Economy
-          </TabsTrigger>
-          <TabsTrigger
-            value="admins"
-            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground gap-2">
-            <Users className="h-4 w-4" />
-            Admin Management
-          </TabsTrigger>
-          <TabsTrigger
-            value="appversion"
-            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground gap-2">
-            <Smartphone className="h-4 w-4" />
-            App Version
-          </TabsTrigger>
-          <TabsTrigger
-            value="flags"
-            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground gap-2">
-            <Flag className="h-4 w-4" />
-            Feature Flags
-          </TabsTrigger>
-          <TabsTrigger
-            value="notifications"
-            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground gap-2">
-            <Bell className="h-4 w-4" />
-            Notifications
-          </TabsTrigger>
-          <TabsTrigger
-            value="growth"
-            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground gap-2">
-            <TrendingUp className="h-4 w-4" />
-            Growth
-          </TabsTrigger>
-          <TabsTrigger
-            value="pages"
-            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground gap-2">
-            <FileText className="h-4 w-4" />
-            Static Pages
-          </TabsTrigger>
+          {SETTINGS_TABS.map(({ value, label, icon: Icon }) => (
+            <TabsTrigger
+              key={value}
+              value={value}
+              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground cursor-pointer gap-2">
+              <Icon className="h-4 w-4" />
+              {label}
+            </TabsTrigger>
+          ))}
         </TabsList>
 
-        <TabsContent value="economy" className="mt-0">
-          <ReferralEconomySettings />
-        </TabsContent>
-
-        <TabsContent value="admins" className="mt-0">
-          <AdminManagement />
-        </TabsContent>
-
-        <TabsContent value="appversion" className="mt-0">
-          <AppVersionSettings />
-        </TabsContent>
-
-        <TabsContent value="flags" className="mt-0">
-          <FeatureFlagsSettings />
-        </TabsContent>
-
-        <TabsContent value="notifications" className="mt-0">
-          <NotificationCampaigns />
-        </TabsContent>
-
-        <TabsContent value="growth" className="mt-0">
-          <GrowthSettings />
-        </TabsContent>
-
-        <TabsContent value="pages" className="mt-0">
-          <StaticPagesSettings />
-        </TabsContent>
+        {SETTINGS_TABS.map(({ value, Content }) => (
+          <TabsContent key={value} value={value} className="mt-0">
+            <Content />
+          </TabsContent>
+        ))}
       </Tabs>
     </div>
   );
