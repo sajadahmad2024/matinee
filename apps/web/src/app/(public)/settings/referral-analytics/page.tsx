@@ -28,10 +28,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-import {
-  AnalyticsDateFilter,
-  useAnalyticsDateRange,
-} from "../../content/analytics/[id]/_components/analytics-date-filter";
+import { AnalyticsDateFilter, useAnalyticsDateRange } from "@/components/custom/analytics-date-filter";
 
 const METRICS = [
   { label: "Invites Sent", value: "8,420", change: "+14.2%", trend: "up", icon: Send },

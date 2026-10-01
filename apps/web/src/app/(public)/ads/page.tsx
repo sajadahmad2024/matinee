@@ -1,14 +1,13 @@
 import type { Route } from "next";
 import Link from "next/link";
 
-import { Plus } from "lucide-react";
+import { BarChart3, Plus, SlidersHorizontal } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
 import { StatTile } from "@/components/custom/stat-tile";
 
 import { AdList } from "./_components/ad-list";
-import { FeedRulesDialog } from "./_components/feed-rules-dialog";
 import { fmtNum, MOCK_ADS } from "./constants";
 
 export default function AdsManagementPage() {
@@ -27,7 +26,16 @@ export default function AdsManagementPage() {
           <p className="text-foreground-secondary mt-1">Video ads shown between reels</p>
         </div>
         <div className="flex items-center gap-2">
-          <FeedRulesDialog />
+          <Button asChild variant="outline" className="gap-2">
+            <Link href={"/ads/platform?tab=config" as Route}>
+              <SlidersHorizontal className="h-4 w-4" /> Global settings
+            </Link>
+          </Button>
+          <Button asChild variant="outline" className="gap-2">
+            <Link href={"/ads/platform?tab=stats" as Route}>
+              <BarChart3 className="h-4 w-4" /> Global analytics
+            </Link>
+          </Button>
           <Button asChild className="gap-2">
             <Link href={"/ads/new" as Route}>
               <Plus className="h-4 w-4" /> New Ad

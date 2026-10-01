@@ -20,14 +20,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 
 import { MACRO_REGIONS, type MacroRegion } from "@/app/_libs/regions";
 
 import { GlassCard } from "../../../games/_components/glass-card";
-import { type AdItem, CTA_LABELS } from "../../constants";
+import { AD_CAPTION_MAX, type AdItem, CTA_LABELS } from "../../constants";
 import { type AdVideo, AdVideoUpload, EMPTY_VIDEO } from "./ad-video-upload";
 
-type Errors = Partial<Record<"name" | "advertiser" | "video" | "ctaUrl" | "frequency" | "regions" | "dates", string>>;
+type Errors = Partial<Record<"name" | "advertiser" | "caption" | "video" | "ctaUrl" | "regions" | "dates", string>>;
 
 const pad = (n: number) => String(n).padStart(2, "0");
 const toInput = (d: Date) =>
@@ -52,6 +53,7 @@ export function AdForm({ initial }: { initial?: AdItem }) {
 
   const [name, setName] = useState(initial?.name ?? "");
   const [advertiser, setAdvertiser] = useState(initial?.advertiser ?? "");
+  const [caption, setCaption] = useState(initial?.caption ?? "");
   const [video, setVideo] = useState<AdVideo>(
     initial
       ? { state: "ready", src: initial.videoUrl ?? null, fileName: "current-video.mp4", durationSecs: initial.durationSecs, progress: 100 }
@@ -59,7 +61,6 @@ export function AdForm({ initial }: { initial?: AdItem }) {
   );
   const [ctaLabel, setCtaLabel] = useState(initial?.ctaLabel ?? CTA_LABELS[0]!);
   const [ctaUrl, setCtaUrl] = useState(initial?.ctaUrl ?? "");
-  const [frequency, setFrequency] = useState(String(initial?.frequency ?? 8));
   const [regions, setRegions] = useState<"all" | MacroRegion[]>(initial?.regions ?? "all");
   const [startsAt, setStartsAt] = useState(initial?.startsAt ?? dates.start);
   const [endsAt, setEndsAt] = useState(initial?.endsAt ?? dates.end);
@@ -74,11 +75,10 @@ export function AdForm({ initial }: { initial?: AdItem }) {
     const e: Errors = {};
     if (!name.trim()) e.name = "Enter a name";
     if (!advertiser.trim()) e.advertiser = "Enter the advertiser";
+    if (caption.length > AD_CAPTION_MAX) e.caption = `Keep the caption under ${AD_CAPTION_MAX} characters`;
     // an existing ad keeps its current video; a new one needs a finished upload
     if (video.state !== "ready") e.video = video.state === "uploading" ? "Wait for the upload to finish" : "Upload a video";
     if (!URL_RE.test(ctaUrl.trim())) e.ctaUrl = "Enter an https:// link or an app link";
-    const f = Number(frequency);
-    if (!Number.isInteger(f) || f < 1) e.frequency = "Enter a whole number of 1 or more";
     if (regions !== "all" && regions.length === 0) e.regions = "Pick at least one region";
     if (!startsAt || !endsAt) e.dates = "Pick a start and end date";
     else if (new Date(endsAt) <= new Date(startsAt)) e.dates = "End must be after the start";
@@ -121,6 +121,20 @@ export function AdForm({ initial }: { initial?: AdItem }) {
               <Input id="ad-advertiser" value={advertiser} onChange={(e) => setAdvertiser(e.target.value)} placeholder="e.g. Nike" />
             </Field>
           </div>
+          <Field label="Caption" htmlFor="ad-caption" error={errors.caption}>
+            <Textarea
+              id="ad-caption"
+              value={caption}
+              onChange={(e) => setCaption(e.target.value)}
+              placeholder="Shown under the ad in the feed"
+              rows={3}
+              maxLength={AD_CAPTION_MAX}
+              className="resize-none"
+            />
+            <p className="text-muted-foreground text-right text-xs">
+              {caption.length}/{AD_CAPTION_MAX}
+            </p>
+          </Field>
           <Field label="Video" error={errors.video}>
             <AdVideoUpload value={video} onChange={setVideo} />
           </Field>
@@ -151,13 +165,6 @@ export function AdForm({ initial }: { initial?: AdItem }) {
           <CardTitle className="text-base">Delivery</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Field label="Frequency" htmlFor="ad-frequency" error={errors.frequency}>
-            <div className="flex items-center gap-2 text-sm">
-              <span className="text-muted-foreground">Show after every</span>
-              <Input id="ad-frequency" type="number" min={1} value={frequency} onChange={(e) => setFrequency(e.target.value)} className="w-20" />
-              <span className="text-muted-foreground">reels</span>
-            </div>
-          </Field>
           <Field label="Regions" error={errors.regions}>
             <div className="flex flex-wrap gap-x-5 gap-y-2">
               <CheckItem id="region-all" label="All regions" checked={regions === "all"} onChange={() => setRegions(regions === "all" ? [] : "all")} />

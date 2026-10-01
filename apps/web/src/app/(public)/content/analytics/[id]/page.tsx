@@ -37,7 +37,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-import { AnalyticsDateFilter, useAnalyticsDateRange } from "./_components/analytics-date-filter";
+import { AnalyticsDateFilter, useAnalyticsDateRange } from "@/components/custom/analytics-date-filter";
 
 const retentionData = Array.from({ length: 100 }, (_, i) => ({
   second: i * 10,

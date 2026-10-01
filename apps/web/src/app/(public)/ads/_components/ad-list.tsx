@@ -113,7 +113,7 @@ export function AdList({ initialAds }: { initialAds: AdItem[] }) {
                       {ad.name}
                     </Link>
                     <p className="text-muted-foreground text-xs">
-                      {ad.advertiser} · every {ad.frequency} reels
+                      {ad.advertiser}
                     </p>
                   </TableCell>
                   <TableCell className="text-muted-foreground whitespace-nowrap">

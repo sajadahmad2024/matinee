@@ -1,5 +1,5 @@
-// Client-side CSV download shared by the master Export and per-region "Export report"
-// buttons (replaces the previous inline blob duplication).
+// Client-side CSV download shared by the dashboard (master + per-region) and ads analytics exports
+// (replaces the previous inline blob duplication).
 
 export type CsvRow = (string | number)[];
 

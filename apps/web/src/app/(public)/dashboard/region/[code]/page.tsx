@@ -7,7 +7,7 @@ import { ArrowLeft, MapPinOff } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
-import { downloadCsv, type CsvRow } from "../../_libs/download-csv";
+import { downloadCsv, type CsvRow } from "@/app/_libs/download-csv";
 import { fmtDuration, getRegionAnalytics, type RegionAnalytics } from "../../constants";
 import { BoxCommunityExternal } from "./_components/box-community-external";
 import { BoxCommunityInApp } from "./_components/box-community-in-app";

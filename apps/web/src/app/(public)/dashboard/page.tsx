@@ -21,7 +21,7 @@ import {
 } from "./_components/global-activity-map";
 import { RealTimePulse } from "./_components/real-time-pulse";
 import { ViewershipSplit } from "./_components/viewership-split";
-import { type CsvRow, downloadCsv } from "./_libs/download-csv";
+import { type CsvRow, downloadCsv } from "@/app/_libs/download-csv";
 import { REGION_ANALYTICS, TIME_RANGE_LABELS } from "./constants";
 
 // Master dashboard = a management snapshot with exactly three sections: live stat row,
