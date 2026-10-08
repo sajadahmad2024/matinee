@@ -6,7 +6,7 @@ import type { Route } from "next";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-import { MoreHorizontal, Search } from "lucide-react";
+import { BarChart3, Eye, MoreHorizontal, Search } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -87,7 +87,7 @@ export function AdList({ initialAds }: { initialAds: AdItem[] }) {
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Impressions</TableHead>
               <TableHead className="text-right">Completion</TableHead>
-              <TableHead className="w-10" />
+              <TableHead className="w-28" />
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -129,41 +129,53 @@ export function AdList({ initialAds }: { initialAds: AdItem[] }) {
                     {delivered ? `${ad.stats.completionRate}%` : "—"}
                   </TableCell>
                   <TableCell onClick={(e) => e.stopPropagation()}>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="Ad actions">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="border-border bg-card">
-                        <DropdownMenuItem asChild>
-                          <Link href={`/ads/${ad.id}/edit` as Route}>Edit</Link>
-                        </DropdownMenuItem>
-                        {(ad.status === "live" || ad.status === "scheduled") && (
-                          <DropdownMenuItem
-                            onClick={() => {
-                              setStatus(ad.id, "paused");
-                              toast.success(`“${ad.name}” paused`);
-                            }}>
-                            Pause
+                    <div className="flex items-center justify-end gap-1">
+                      <Button asChild variant="ghost" size="icon" className="h-8 w-8" title="View details">
+                        <Link href={`/ads/${ad.id}` as Route} aria-label="View details">
+                          <Eye className="h-4 w-4" />
+                        </Link>
+                      </Button>
+                      <Button asChild variant="ghost" size="icon" className="h-8 w-8" title="View analytics">
+                        <Link href={`/ads/${ad.id}/analytics` as Route} aria-label="View analytics">
+                          <BarChart3 className="h-4 w-4" />
+                        </Link>
+                      </Button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="Ad actions">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="border-border bg-card">
+                          <DropdownMenuItem asChild>
+                            <Link href={`/ads/${ad.id}/edit` as Route}>Edit</Link>
                           </DropdownMenuItem>
-                        )}
-                        {ad.status === "paused" && (
-                          <DropdownMenuItem
-                            onClick={() => {
-                              setStatus(ad.id, "live");
-                              toast.success(`“${ad.name}” resumed`);
-                            }}>
-                            Resume
-                          </DropdownMenuItem>
-                        )}
-                        {ad.status !== "ended" && (
-                          <DropdownMenuItem className="text-destructive" onClick={() => setEnding(ad)}>
-                            End now
-                          </DropdownMenuItem>
-                        )}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                          {(ad.status === "live" || ad.status === "scheduled") && (
+                            <DropdownMenuItem
+                              onClick={() => {
+                                setStatus(ad.id, "paused");
+                                toast.success(`“${ad.name}” paused`);
+                              }}>
+                              Pause
+                            </DropdownMenuItem>
+                          )}
+                          {ad.status === "paused" && (
+                            <DropdownMenuItem
+                              onClick={() => {
+                                setStatus(ad.id, "live");
+                                toast.success(`“${ad.name}” resumed`);
+                              }}>
+                              Resume
+                            </DropdownMenuItem>
+                          )}
+                          {ad.status !== "ended" && (
+                            <DropdownMenuItem className="text-destructive" onClick={() => setEnding(ad)}>
+                              End now
+                            </DropdownMenuItem>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
                   </TableCell>
                 </TableRow>
               );
