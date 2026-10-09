@@ -5,7 +5,7 @@ import { Info } from "lucide-react";
 import { CardContent } from "@/components/ui/card";
 
 import { AnalyticsHeader } from "../../../_components/analytics-header";
-import { GlassCard } from "../../../_components/glass-card";
+import { GlassCard } from "@/components/custom/glass-card";
 import { shiftRate, type RegionKey } from "./region-scale";
 
 interface PerformanceSummaryCardProps {

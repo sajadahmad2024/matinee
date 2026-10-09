@@ -5,7 +5,7 @@ import { Trophy } from "lucide-react";
 import { CardContent } from "@/components/ui/card";
 
 import { AnalyticsHeader } from "../../../_components/analytics-header";
-import { GlassCard } from "../../../_components/glass-card";
+import { GlassCard } from "@/components/custom/glass-card";
 import { scaleCount, type RegionKey } from "./region-scale";
 
 const rewardDistribution = [

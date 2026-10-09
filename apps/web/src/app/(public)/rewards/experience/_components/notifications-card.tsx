@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 
-import { GlassCard } from "@/app/(public)/games/_components/glass-card";
+import { GlassCard } from "@/components/custom/glass-card";
 
 export interface NotificationsValue {
   outbid: boolean;

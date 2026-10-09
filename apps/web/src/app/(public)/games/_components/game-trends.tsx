@@ -10,7 +10,7 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/
 import { SectionHeading } from "@/components/custom/section-heading";
 
 import { AnalyticsHeader } from "./analytics-header";
-import { GlassCard } from "./glass-card";
+import { GlassCard } from "@/components/custom/glass-card";
 
 // --- Mock Data ---
 

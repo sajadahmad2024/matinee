@@ -13,7 +13,7 @@ import { Switch } from "@/components/ui/switch";
 
 import { ConfirmationDialog } from "@/components/custom/confirmation-dialog";
 
-import { GlassCard } from "../../../games/_components/glass-card";
+import { GlassCard } from "@/components/custom/glass-card";
 import { DEFAULT_PLATFORM_SETTINGS, type PlatformAdSettings } from "../../constants";
 
 type NumberKey = Exclude<keyof PlatformAdSettings, "adsEnabled">;

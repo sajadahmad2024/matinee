@@ -9,7 +9,7 @@ import { CardContent } from "@/components/ui/card";
 
 import { cn } from "@/app/_libs/utils/cn";
 
-import { GlassCard } from "../../../_components/glass-card";
+import { GlassCard } from "@/components/custom/glass-card";
 
 export interface GameInstance {
   id: string;

@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { CardContent } from "@/components/ui/card";
 
 import { AnalyticsHeader } from "../../games/_components/analytics-header";
-import { GlassCard } from "../../games/_components/glass-card";
+import { GlassCard } from "@/components/custom/glass-card";
 
 const whales = [
   { name: "JohnDoe_VIP", revenue: 2450, avatar: "" },

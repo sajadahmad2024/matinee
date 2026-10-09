@@ -24,7 +24,7 @@ import { Textarea } from "@/components/ui/textarea";
 
 import { MACRO_REGIONS, type MacroRegion } from "@/app/_libs/regions";
 
-import { GlassCard } from "../../../games/_components/glass-card";
+import { GlassCard } from "@/components/custom/glass-card";
 import { AD_CAPTION_MAX, type AdItem, CTA_LABELS } from "../../constants";
 import { type AdVideo, AdVideoUpload, EMPTY_VIDEO } from "./ad-video-upload";
 

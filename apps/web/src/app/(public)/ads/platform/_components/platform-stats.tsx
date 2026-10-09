@@ -15,7 +15,7 @@ import { cn } from "@/app/_libs/utils/cn";
 import { AnalyticsDateFilter, useAnalyticsDateRange } from "@/components/custom/analytics-date-filter";
 import { StatTile } from "@/components/custom/stat-tile";
 
-import { GlassCard } from "../../../games/_components/glass-card";
+import { GlassCard } from "@/components/custom/glass-card";
 import {
   type AdItem,
   dailyPlatformImpressions,

@@ -7,7 +7,7 @@ import { CardContent } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 
 import { AnalyticsHeader } from "../../../_components/analytics-header";
-import { GlassCard } from "../../../_components/glass-card";
+import { GlassCard } from "@/components/custom/glass-card";
 import { scaleCount, type RegionKey } from "./region-scale";
 
 const dailyPlaysData = [

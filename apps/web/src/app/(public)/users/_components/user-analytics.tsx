@@ -8,7 +8,7 @@ import { CardContent } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 
 import { AnalyticsHeader } from "../../games/_components/analytics-header";
-import { GlassCard } from "../../games/_components/glass-card";
+import { GlassCard } from "@/components/custom/glass-card";
 
 const funnelData = [
   { stage: "Visitors", value: 50000, percent: 100 },

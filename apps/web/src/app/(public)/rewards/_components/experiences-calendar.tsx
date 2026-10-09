@@ -19,7 +19,7 @@ import {
 
 import { cn } from "@/app/_libs/utils/cn";
 
-import { GlassCard } from "../../games/_components/glass-card";
+import { GlassCard } from "@/components/custom/glass-card";
 import type { ExperienceReward } from "../constants";
 
 type EntryKind = "opens" | "closes" | "happens";

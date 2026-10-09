@@ -36,7 +36,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 
-import { GlassCard } from "./glass-card";
+import { GlassCard } from "@/components/custom/glass-card";
 
 // --- Types ---
 export type BadgeTrigger =

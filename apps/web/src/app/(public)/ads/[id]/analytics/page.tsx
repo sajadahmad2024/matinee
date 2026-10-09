@@ -13,7 +13,7 @@ import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AnalyticsDateFilter, useAnalyticsDateRange } from "@/components/custom/analytics-date-filter";
 import { StatTile } from "@/components/custom/stat-tile";
 
-import { GlassCard } from "../../../games/_components/glass-card";
+import { GlassCard } from "@/components/custom/glass-card";
 import { AdStatusBadge } from "../../_components/ad-status-badge";
 import { downloadCsv } from "@/app/_libs/download-csv";
 import { regionLabel } from "@/app/_libs/regions";

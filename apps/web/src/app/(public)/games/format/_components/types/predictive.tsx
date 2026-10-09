@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 
-import { GlassCard } from "../../../_components/glass-card";
+import { GlassCard } from "@/components/custom/glass-card";
 import { AppWidgetCard } from "../shared/app-widget-card";
 import { CreateInstanceModal } from "../instances/create-instance-modal";
 import { GamificationExtras } from "../shared/gamification-extras";

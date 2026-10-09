@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { GlassCard } from "@/app/(public)/games/_components/glass-card";
+import { GlassCard } from "@/components/custom/glass-card";
 
 import type { ExperienceStatus } from "../../constants";
 

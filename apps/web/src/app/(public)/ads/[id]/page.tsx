@@ -14,7 +14,7 @@ import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import { ConfirmationDialog } from "@/components/custom/confirmation-dialog";
 
-import { GlassCard } from "../../games/_components/glass-card";
+import { GlassCard } from "@/components/custom/glass-card";
 import { AdStatusBadge } from "../_components/ad-status-badge";
 import { type AdStatus, getAdById, regionsLabel } from "../constants";
 

@@ -4,7 +4,7 @@ import { Coins, Play, TrendingUp, Users } from "lucide-react";
 
 import { CardContent } from "@/components/ui/card";
 
-import { GlassCard } from "../../../_components/glass-card";
+import { GlassCard } from "@/components/custom/glass-card";
 import { formatCompact, scaleCount, shiftRate, type RegionKey } from "./region-scale";
 
 // Global baseline (mock) — regional values are derived deterministically.

@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 
-import { GlassCard } from "../../../_components/glass-card";
+import { GlassCard } from "@/components/custom/glass-card";
 import { AppWidgetCard } from "../shared/app-widget-card";
 import { type BehaviorReward, BehaviorRewardsEditor } from "../shared/behavior-rewards-editor";
 import { GamificationExtras } from "../shared/gamification-extras";

@@ -6,7 +6,7 @@ import { ArrowLeft, Gift } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CardContent } from "@/components/ui/card";
 
-import { GlassCard } from "@/app/(public)/games/_components/glass-card";
+import { GlassCard } from "@/components/custom/glass-card";
 
 import { MOCK_EXPERIENCES } from "../../constants";
 import { ExperienceForm } from "../_components/experience-form";

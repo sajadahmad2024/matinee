@@ -13,7 +13,7 @@ import {
   formatCompact,
   scaleCount,
 } from "../format/_components/analytics/region-scale";
-import { GlassCard } from "./glass-card";
+import { GlassCard } from "@/components/custom/glass-card";
 
 // Client's stated row order: Daily Streak, Weekly Quests, Shared Content, Predictive.
 const ROW_ORDER: GameTypeSlug[] = ["daily-streak", "quests", "shared-content", "predictive"];

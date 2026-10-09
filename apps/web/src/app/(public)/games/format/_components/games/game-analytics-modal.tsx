@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 
 import { cn } from "@/app/_libs/utils/cn";
 
-import { GlassCard } from "../../../_components/glass-card";
+import { GlassCard } from "@/components/custom/glass-card";
 import type { GameInstance } from "./game-instances-list";
 
 interface GameAnalyticsModalProps {

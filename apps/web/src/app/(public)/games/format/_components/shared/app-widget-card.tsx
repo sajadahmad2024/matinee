@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 
-import { GlassCard } from "../../../_components/glass-card";
+import { GlassCard } from "@/components/custom/glass-card";
 import { BannerUpload } from "./banner-upload";
 
 interface AppWidgetCardProps {

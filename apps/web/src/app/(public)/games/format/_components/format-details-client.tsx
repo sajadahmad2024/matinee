@@ -13,7 +13,7 @@ import {
 } from "@/components/custom/region-box-filter";
 import { SectionHeading } from "@/components/custom/section-heading";
 
-import { GlassCard } from "../../_components/glass-card";
+import { GlassCard } from "@/components/custom/glass-card";
 import { type GameTypeSlug, getGameType } from "../../_config/game-types";
 import { DailyActivityChart } from "./analytics/daily-activity-chart";
 import { GameStatsCards } from "./analytics/game-stats-cards";

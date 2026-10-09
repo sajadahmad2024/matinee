@@ -6,7 +6,7 @@ import Link from "next/link";
 import { differenceInHours, format } from "date-fns";
 import { ChevronRight, Gavel, ImageIcon, Trophy, Users } from "lucide-react";
 
-import { GlassCard } from "@/app/(public)/games/_components/glass-card";
+import { GlassCard } from "@/components/custom/glass-card";
 import { cn } from "@/app/_libs/utils/cn";
 
 import {

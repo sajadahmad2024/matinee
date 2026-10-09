@@ -19,7 +19,7 @@ import {
 import { type Column, DataTable } from "@/components/custom/data-table";
 import { TablePagination } from "@/components/custom/table-pagination";
 
-import { GlassCard } from "../../games/_components/glass-card";
+import { GlassCard } from "@/components/custom/glass-card";
 import {
   CATEGORY_LABELS,
   MOCK_TICKETS,

@@ -6,7 +6,7 @@ import { CardContent, CardDescription, CardHeader, CardTitle } from "@/component
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-import { GlassCard } from "../../../_components/glass-card";
+import { GlassCard } from "@/components/custom/glass-card";
 import { AppWidgetCard } from "../shared/app-widget-card";
 import { type BehaviorReward, BehaviorRewardsEditor } from "../shared/behavior-rewards-editor";
 import { GamificationExtras } from "../shared/gamification-extras";

@@ -16,7 +16,7 @@ import { Switch } from "@/components/ui/switch";
 import { COUNTRIES } from "@/app/_libs/regions";
 import { cn } from "@/app/_libs/utils/cn";
 
-import { GlassCard } from "@/app/(public)/games/_components/glass-card";
+import { GlassCard } from "@/components/custom/glass-card";
 
 import { flagEmoji } from "../../constants";
 

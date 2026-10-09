@@ -41,7 +41,7 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-import { GlassCard } from "./glass-card";
+import { GlassCard } from "@/components/custom/glass-card";
 
 // --- Types ---
 export interface GameInstance {
