@@ -1,72 +1,33 @@
-import { Suspense } from "react";
+import type { Route } from "next";
+import Link from "next/link";
 
-import { VideoForm } from "../../new/_components/video-form";
-import { ChangeHistoryCard } from "./_components/change-history-card";
+import { Button } from "@/components/ui/button";
+
+import { getVideoById } from "../../constants";
+import { ContentDetailsView } from "./_components/content-details-view";
 
 interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-const mockHistory = [
-  {
-    id: "1",
-    admin: "John Owner",
-    role: "Owner",
-    action: "Published video",
-    timestamp: "2026-01-21 14:32 UTC",
-  },
-  {
-    id: "2",
-    admin: "Sarah Admin",
-    role: "Super Admin",
-    action: "Updated metadata",
-    timestamp: "2026-01-21 12:15 UTC",
-  },
-  {
-    id: "3",
-    admin: "Mike Content",
-    role: "Admin",
-    action: "Uploaded video file",
-    timestamp: "2026-01-20 18:45 UTC",
-  },
-  {
-    id: "4",
-    admin: "Mike Content",
-    role: "Admin",
-    action: "Created draft",
-    timestamp: "2026-01-20 16:30 UTC",
-  },
-];
-
 export default async function VideoDetailsPage({ params }: PageProps) {
   const { id } = await params;
+  const video = getVideoById(decodeURIComponent(id));
 
-  // In the future: const video = await fetchVideo(id);
-  const mockInitialData = {
-    id,
-    title: "K-Drama Romance: Episode 1",
-    studioName: "Seoul Studios",
-    description: "An epic romance story...",
-    genre: "drama",
-    tags: "romance, korean, drama, love",
-    cast: ["Actor A", "Actor B"],
-    isPublished: id === "1",
-  };
+  if (!video) {
+    return (
+      <div className="flex min-h-[50vh] flex-col items-center justify-center gap-4 text-center">
+        <p className="text-foreground text-lg font-semibold">Video not found</p>
+        <Button asChild variant="outline">
+          <Link href={"/content" as Route}>Back to Content</Link>
+        </Button>
+      </div>
+    );
+  }
 
   return (
-    <div className="animate-fade-in pb-24">
-      <Suspense
-        fallback={<div className="bg-muted/20 h-[600px] w-full animate-pulse rounded-xl" />}>
-        <VideoForm
-          initialData={mockInitialData}
-          sidebar={
-            // Comment moderation lives in the Moderation module — no comments UI in the edit flow.
-            <div className="space-y-6">
-              <ChangeHistoryCard history={mockHistory} />
-            </div>
-          }
-        />
-      </Suspense>
+    <div className="animate-fade-in">
+      <ContentDetailsView video={video} />
     </div>
   );
 }

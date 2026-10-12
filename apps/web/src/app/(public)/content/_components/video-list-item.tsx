@@ -53,6 +53,7 @@ interface VideoListItemProps {
   video: VideoItem;
   /** "master" adds a status left-border accent (live = success, scheduled = primary) */
   variant?: "default" | "master";
+  onView: (id: string) => void;
   onEdit: (id: string) => void;
   onAnalytics: (id: string) => void;
 }
@@ -60,6 +61,7 @@ interface VideoListItemProps {
 export function VideoListItem({
   video,
   variant = "default",
+  onView,
   onEdit,
   onAnalytics,
 }: VideoListItemProps) {
@@ -241,14 +243,14 @@ export function VideoListItem({
                 <div className="flex items-center gap-2">
                   <Button
                     size="sm"
-                    className="bg-success hover:bg-success/90 gap-1.5"
+                    className="bg-success hover:bg-success/90 cursor-pointer gap-1.5"
                     onClick={() => setApproval("approve")}>
                     <CheckCircle2 className="h-4 w-4" /> Approve
                   </Button>
                   <Button
                     size="sm"
                     variant="outline"
-                    className="border-destructive/40 text-destructive hover:bg-destructive/10 gap-1.5"
+                    className="border-destructive/40 text-destructive hover:bg-destructive/10 cursor-pointer gap-1.5"
                     onClick={() => setApproval("reject")}>
                     <XCircle className="h-4 w-4" /> Reject
                   </Button>
@@ -266,13 +268,26 @@ export function VideoListItem({
                     <Button
                       variant="ghost"
                       size="icon"
+                      onClick={() => onView(video.id)}
+                      aria-label="View details"
+                      className="hover:bg-primary/20 hover:text-primary h-9 w-9 cursor-pointer rounded-lg">
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>View Details</TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
                       onClick={() => onEdit(video.id)}
-                      aria-label="Video details"
-                      className="hover:bg-primary/20 hover:text-primary h-9 w-9 rounded-lg">
+                      aria-label="Edit video"
+                      className="hover:bg-primary/20 hover:text-primary h-9 w-9 cursor-pointer rounded-lg">
                       <Pencil className="h-4 w-4" />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent>Video Details</TooltipContent>
+                  <TooltipContent>Edit Video</TooltipContent>
                 </Tooltip>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -281,7 +296,7 @@ export function VideoListItem({
                       size="icon"
                       onClick={() => onAnalytics(video.id)}
                       aria-label="View analytics"
-                      className="hover:bg-success/20 hover:text-success h-9 w-9 rounded-lg">
+                      className="hover:bg-success/20 hover:text-success h-9 w-9 cursor-pointer rounded-lg">
                       <BarChart3 className="h-4 w-4" />
                     </Button>
                   </TooltipTrigger>
@@ -298,7 +313,7 @@ export function VideoListItem({
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="text-muted-foreground h-8 gap-1.5 px-0">
+                      className="text-muted-foreground h-8 cursor-pointer gap-1.5 px-0">
                       <History className="h-3.5 w-3.5" />
                       Workflow history
                       <ChevronDown
@@ -333,6 +348,9 @@ export function VideoListItem({
 
         {/* right-click menu */}
         <ContextMenuContent className="w-56">
+          <ContextMenuItem onClick={() => onView(video.id)}>
+            <Eye className="mr-2 h-4 w-4" /> View details
+          </ContextMenuItem>
           <ContextMenuItem onClick={() => onEdit(video.id)}>
             <Pencil className="mr-2 h-4 w-4" /> Quick edit
           </ContextMenuItem>
@@ -340,7 +358,7 @@ export function VideoListItem({
             <Play className="mr-2 h-4 w-4" /> Preview as user
           </ContextMenuItem>
           <ContextMenuItem onClick={() => onAnalytics(video.id)}>
-            <BarChart3 className="mr-2 h-4 w-4" /> View detail page
+            <BarChart3 className="mr-2 h-4 w-4" /> View analytics
           </ContextMenuItem>
           <ContextMenuSeparator />
           <ContextMenuItem onClick={() => toast.success(`Boosting “${video.title}”`)}>

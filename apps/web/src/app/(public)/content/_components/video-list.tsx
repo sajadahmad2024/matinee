@@ -140,7 +140,8 @@ export function VideoList({
             key={video.id}
             video={video}
             variant={tab === "master" ? "master" : "default"}
-            onEdit={(id) => router.push(`/content/details/${id}` as Route)}
+            onView={(id) => router.push(`/content/details/${id}` as Route)}
+            onEdit={(id) => router.push(`/content/edit/${id}` as Route)}
             onAnalytics={(id) => router.push(`/content/analytics/${id}` as Route)}
           />
         ))}

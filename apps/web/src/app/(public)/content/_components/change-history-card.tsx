@@ -22,7 +22,7 @@ interface ChangeHistoryCardProps {
 }
 
 export function ChangeHistoryCard({ history }: ChangeHistoryCardProps) {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
