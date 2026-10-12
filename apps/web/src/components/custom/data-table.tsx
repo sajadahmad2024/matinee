@@ -22,7 +22,7 @@ export interface Column<T> {
   headerClassName?: string;
 }
 
-/** Per-part class overrides, merged after the defaults — for tables that keep a screen-specific look. */
+/** Per-part class overrides, merged after the defaults — lets a screen keep its own table look. */
 export interface DataTableClassNames {
   header?: string;
   headerRow?: string;
@@ -78,15 +78,10 @@ export function DataTable<T>({
     }
   };
 
-  const colSpan = columns.length + (selectable ? 1 : 0);
-
-  // The inner container is the scroller (both axes), so the sticky header pins to it; a height
-  // limit on `className` (e.g. `max-h-[560px]`) passes down through the flex column. The outer box
-  // only clips (`overflow-hidden`), so the header follows rounded corners passed in `className`.
-  const table = (
-    <div className={cn("bg-card flex min-h-0 flex-col overflow-hidden", !pagination && className)}>
-      <Table containerClassName="min-h-0 flex-1 overflow-auto">
-        <TableHeader className={cn("bg-card sticky top-0 z-10", classNames?.header)}>
+  return (
+    <div className={cn("overflow-x-auto", className)}>
+      <Table>
+        <TableHeader className={classNames?.header}>
           <TableRow className={cn("border-border/50 hover:bg-transparent", classNames?.headerRow)}>
             {selectable && (
               <TableHead className="w-[50px] p-4">
@@ -100,11 +95,7 @@ export function DataTable<T>({
             {columns.map((column, index) => (
               <TableHead
                 key={index}
-                className={cn(
-                  "text-muted-foreground bg-card sticky top-0 z-10",
-                  classNames?.head,
-                  column.headerClassName,
-                )}>
+                className={cn("text-muted-foreground", classNames?.head, column.headerClassName)}>
                 {column.header}
               </TableHead>
             ))}
@@ -113,7 +104,9 @@ export function DataTable<T>({
         <TableBody>
           {data.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={colSpan} className={cn("h-24 text-center", classNames?.empty)}>
+              <TableCell
+                colSpan={columns.length + (selectable ? 1 : 0)}
+                className={cn("h-24 text-center", classNames?.empty)}>
                 {emptyState || <span className="text-muted-foreground">No results found.</span>}
               </TableCell>
             </TableRow>
