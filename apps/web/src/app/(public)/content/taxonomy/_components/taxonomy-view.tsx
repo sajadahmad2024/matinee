@@ -47,7 +47,7 @@ export function TaxonomyView() {
   return (
     <div className="animate-fade-in space-y-6">
       <div className="flex items-center gap-3">
-        <Button asChild variant="ghost" size="icon">
+        <Button asChild variant="ghost" size="icon" aria-label="Back to content">
           <Link href={"/content" as Route}>
             <ArrowLeft className="h-5 w-5" />
           </Link>

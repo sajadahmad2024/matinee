@@ -3,29 +3,15 @@
 import { useState } from "react";
 
 import { format } from "date-fns";
-import { CalendarIcon, Clock, Globe } from "lucide-react";
+import { Clock, Globe } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
-import { cn } from "@/app/_libs/utils/cn";
+import { CustomDatePicker } from "@/components/custom/custom-date-picker";
+import { CustomField } from "@/components/custom/custom-field";
+import { CustomModal } from "@/components/custom/custom-modal";
+import { CustomSelect, type CustomSelectOption } from "@/components/custom/custom-select";
 
 interface ScheduleModalProps {
   open: boolean;
@@ -40,7 +26,7 @@ export interface ScheduleConfig {
   timezone: string;
 }
 
-const timezones = [
+const TIMEZONE_OPTIONS: CustomSelectOption[] = [
   { value: "UTC", label: "UTC (Coordinated Universal Time)" },
   { value: "America/New_York", label: "EST (Eastern Standard Time)" },
   { value: "America/Los_Angeles", label: "PST (Pacific Standard Time)" },
@@ -72,95 +58,24 @@ export function ScheduleModal({ open, onOpenChange, videoTitle, onConfirm }: Sch
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Clock className="text-primary h-5 w-5" />
-            Schedule Publication
-          </DialogTitle>
-          <DialogDescription>
-            {videoTitle
-              ? `Schedule "${videoTitle}" for later`
-              : "Set when this video should go live"}
-          </DialogDescription>
-        </DialogHeader>
-
-        <div className="space-y-6">
-          {/* Date Selection */}
-          <div className="space-y-2">
-            <Label className="text-foreground">Publication Date</Label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className={cn(
-                    "w-full justify-start text-left font-normal",
-                    !date && "text-muted-foreground",
-                  )}>
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {date ? format(date, "EEEE, MMMM d, yyyy") : "Pick a date"}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="single"
-                  selected={date}
-                  onSelect={setDate}
-                  initialFocus
-                  disabled={(d) => d < new Date()}
-                />
-              </PopoverContent>
-            </Popover>
-          </div>
-
-          {/* Time Selection */}
-          <div className="space-y-2">
-            <Label className="text-foreground">Publication Time</Label>
-            <div className="flex items-center gap-2">
-              <Clock className="text-muted-foreground h-4 w-4" />
-              <Input
-                type="time"
-                value={time}
-                onChange={(e) => setTime(e.target.value)}
-                className="flex-1"
-              />
-            </div>
-          </div>
-
-          {/* Timezone Selection */}
-          <div className="space-y-2">
-            <Label className="text-foreground">Timezone</Label>
-            <Select value={timezone} onValueChange={setTimezone}>
-              <SelectTrigger className="w-full">
-                <Globe className="mr-2 h-4 w-4" />
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {timezones.map((tz) => (
-                  <SelectItem key={tz.value} value={tz.value}>
-                    {tz.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Summary */}
-          {date && (
-            <div className="border-primary/30 bg-primary/10 rounded-lg border p-3">
-              <p className="text-foreground text-sm">
-                This video will be published on{" "}
-                <span className="font-semibold">
-                  {format(date, "MMMM d, yyyy")} at {time}
-                </span>{" "}
-                ({timezone})
-              </p>
-            </div>
-          )}
-        </div>
-
-        <div className="mt-4 flex justify-end gap-2">
+    <CustomModal
+      open={open}
+      onOpenChange={onOpenChange}
+      appearance="default"
+      className="max-w-md"
+      titleClassName="flex items-center gap-2"
+      title={
+        <>
+          <Clock className="text-primary h-5 w-5" />
+          Schedule Publication
+        </>
+      }
+      description={
+        videoTitle ? `Schedule "${videoTitle}" for later` : "Set when this video should go live"
+      }
+      footerClassName="mt-4 flex-row justify-end"
+      footer={
+        <>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
@@ -168,8 +83,59 @@ export function ScheduleModal({ open, onOpenChange, videoTitle, onConfirm }: Sch
             <Clock className="mr-2 h-4 w-4" />
             Schedule
           </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
+        </>
+      }>
+      <div className="space-y-6">
+        <CustomField label="Publication Date" labelClassName="text-foreground">
+          <CustomDatePicker
+            value={date}
+            onChange={setDate}
+            dateFormat="EEEE, MMMM d, yyyy"
+            isDateDisabled={(d) => d < new Date()}
+          />
+        </CustomField>
+
+        <CustomField
+          label="Publication Time"
+          htmlFor="schedule-time"
+          labelClassName="text-foreground">
+          <div className="flex items-center gap-2">
+            <Clock className="text-muted-foreground h-4 w-4" />
+            <Input
+              id="schedule-time"
+              type="time"
+              value={time}
+              onChange={(e) => setTime(e.target.value)}
+              className="flex-1"
+            />
+          </div>
+        </CustomField>
+
+        <CustomField label="Timezone" htmlFor="schedule-timezone" labelClassName="text-foreground">
+          <CustomSelect
+            id="schedule-timezone"
+            options={TIMEZONE_OPTIONS}
+            value={timezone}
+            onValueChange={setTimezone}
+            leftIcon={<Globe className="mr-2 h-4 w-4" />}
+            triggerClassName="w-full"
+            contentClassName=""
+          />
+        </CustomField>
+
+        {/* Summary */}
+        {date && (
+          <div className="border-primary/30 bg-primary/10 rounded-lg border p-3">
+            <p className="text-foreground text-sm">
+              This video will be published on{" "}
+              <span className="font-semibold">
+                {format(date, "MMMM d, yyyy")} at {time}
+              </span>{" "}
+              ({timezone})
+            </p>
+          </div>
+        )}
+      </div>
+    </CustomModal>
   );
 }

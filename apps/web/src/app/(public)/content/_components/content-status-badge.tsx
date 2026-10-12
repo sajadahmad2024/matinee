@@ -12,7 +12,7 @@ export type ContentStatus =
   | "pending"
   | "archived";
 
-interface StatusBadgeProps {
+interface ContentStatusBadgeProps {
   status: ContentStatus;
   className?: string;
 }
@@ -52,7 +52,8 @@ const statusConfig: Record<ContentStatus, { label: string; className: string }> 
   },
 };
 
-export function StatusBadge({ status, className }: StatusBadgeProps) {
+/** Content lifecycle pill (content-specific colours; the app-wide `StatusBadge` is outlined). */
+export function ContentStatusBadge({ status, className }: ContentStatusBadgeProps) {
   const config = statusConfig[status];
 
   return (
@@ -63,33 +64,6 @@ export function StatusBadge({ status, className }: StatusBadgeProps) {
         className,
       )}>
       {config.label}
-    </span>
-  );
-}
-
-// Live Badge
-export function LiveBadge({ className }: { className?: string }) {
-  return (
-    <span
-      className={cn(
-        "bg-live live-pulse inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs font-bold text-white uppercase",
-        className,
-      )}>
-      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" />
-      Live
-    </span>
-  );
-}
-
-// Featured Badge
-export function FeaturedBadge({ className }: { className?: string }) {
-  return (
-    <span
-      className={cn(
-        "bg-featured inline-flex items-center rounded px-2 py-0.5 text-xs font-bold text-white uppercase",
-        className,
-      )}>
-      Featured
     </span>
   );
 }

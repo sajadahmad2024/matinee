@@ -1,11 +1,8 @@
 "use client";
 
-import { useCallback } from "react";
-
-import type { Route } from "next";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+import { useUpdateSearchParams } from "@/hooks/use-update-search-params";
 
 import { type ContentRegionKey, type TabValue, contentTabsForRegion } from "../constants";
 
@@ -16,24 +13,9 @@ interface ContentTabsProps {
 
 export function ContentTabs({ activeTab, region }: ContentTabsProps) {
   const tabs = contentTabsForRegion(region);
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
+  const updateSearchParams = useUpdateSearchParams();
 
-  const createQueryString = useCallback(
-    (name: string, value: string) => {
-      const params = new URLSearchParams(searchParams.toString());
-      params.set(name, value);
-      // Reset pagination when tab changes
-      params.delete("page");
-      return params.toString();
-    },
-    [searchParams],
-  );
-
-  const handleTabChange = (value: string) => {
-    router.push(`${pathname}?${createQueryString("tab", value)}` as Route, { scroll: false });
-  };
+  const handleTabChange = (value: string) => updateSearchParams({ tab: value });
 
   return (
     <Tabs value={activeTab} onValueChange={handleTabChange}>

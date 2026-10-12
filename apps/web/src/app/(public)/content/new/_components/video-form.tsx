@@ -97,7 +97,11 @@ export function VideoForm({ initialData, sidebar }: VideoFormProps) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => router.push("/content" as Route)}>
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="Back to content"
+            onClick={() => router.push("/content" as Route)}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
@@ -178,13 +182,9 @@ export function VideoForm({ initialData, sidebar }: VideoFormProps) {
                   <p className="text-muted-foreground mb-2 text-xs">Suggested genres</p>
                   <div className="flex flex-wrap gap-2">
                     {SUGGESTED_GENRES.map((g) => (
-                      <button
-                        key={g}
-                        type="button"
-                        onClick={() => setGenre(g)}
-                        className="border-border/50 hover:border-primary hover:text-primary rounded-full border px-3 py-1 text-xs transition-colors">
+                      <SuggestionChip key={g} onClick={() => setGenre(g)}>
                         {g}
-                      </button>
+                      </SuggestionChip>
                     ))}
                   </div>
                 </div>
@@ -192,13 +192,9 @@ export function VideoForm({ initialData, sidebar }: VideoFormProps) {
                   <p className="text-muted-foreground mb-2 text-xs">Suggested tags</p>
                   <div className="flex flex-wrap gap-2">
                     {SUGGESTED_TAGS.map((t) => (
-                      <button
-                        key={t}
-                        type="button"
-                        onClick={() => addTag(t)}
-                        className="border-border/50 hover:border-primary hover:text-primary rounded-full border px-3 py-1 text-xs transition-colors">
+                      <SuggestionChip key={t} onClick={() => addTag(t)}>
                         + {t}
-                      </button>
+                      </SuggestionChip>
                     ))}
                   </div>
                 </div>
@@ -273,5 +269,16 @@ export function VideoForm({ initialData, sidebar }: VideoFormProps) {
         onConfirm={() => toast.success("Video scheduled")}
       />
     </div>
+  );
+}
+
+function SuggestionChip({ onClick, children }: { onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="border-border/50 hover:border-primary hover:text-primary rounded-full border px-3 py-1 text-xs transition-colors">
+      {children}
+    </button>
   );
 }

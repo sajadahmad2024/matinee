@@ -10,7 +10,7 @@ import {
 
 import { MACRO_REGIONS, type MacroRegion, regionForCountry } from "@/app/_libs/regions";
 
-import type { ContentStatus } from "./_components/status-badge";
+import type { ContentStatus } from "./_components/content-status-badge";
 
 export interface WorkflowEvent {
   date: string;

@@ -2,39 +2,22 @@
 
 import { useRef, useState } from "react";
 
-import { ImagePlus, Pencil, Plus, Search, Trash2, X } from "lucide-react";
+import { ImagePlus, Pencil, Plus, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 
 import { ConfirmationDialog } from "@/components/custom/confirmation-dialog";
+import { CustomField } from "@/components/custom/custom-field";
+import { CustomModal } from "@/components/custom/custom-modal";
+import { CustomSearch } from "@/components/custom/custom-search";
+import { CustomSelect, type CustomSelectOption } from "@/components/custom/custom-select";
+import { type Column, DataTable } from "@/components/custom/data-table";
+import { GlassCard } from "@/components/custom/glass-card";
 
-import { GlassCard } from "../../../games/_components/glass-card";
+import { CONTENT_TABLE_CLASS_NAMES } from "../../_components/content-table-class-names";
 
 export interface TaxonomyItem {
   id: string;
@@ -43,6 +26,22 @@ export interface TaxonomyItem {
   count?: number; // content using it
   image?: string; // logo / photo (media url)
 }
+
+type SortValue = "most" | "least" | "name";
+
+const SORT_OPTIONS: CustomSelectOption<SortValue>[] = [
+  { value: "most", label: "Most used" },
+  { value: "least", label: "Least used" },
+  { value: "name", label: "Name (A–Z)" },
+];
+
+const initials = (n: string) =>
+  n
+    .split(" ")
+    .map((w) => w[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
 
 interface TaxonomyManagerProps {
   title: string;
@@ -76,7 +75,7 @@ export function TaxonomyManager({
 
   // Search + sort (scales as the taxonomy library grows) + contextual insights.
   const [query, setQuery] = useState("");
-  const [sort, setSort] = useState<"most" | "least" | "name">("most");
+  const [sort, setSort] = useState<SortValue>("most");
   const q = query.trim().toLowerCase();
   const visible = items
     .filter(
@@ -93,14 +92,6 @@ export function TaxonomyManager({
     null,
   );
   const unusedCount = items.filter((i) => (i.count ?? 0) === 0).length;
-
-  const initials = (n: string) =>
-    n
-      .split(" ")
-      .map((w) => w[0])
-      .join("")
-      .slice(0, 2)
-      .toUpperCase();
 
   const openCreate = () => {
     setEditing(null);
@@ -144,6 +135,70 @@ export function TaxonomyManager({
     setDeleting(null);
   };
 
+  const columns: Column<TaxonomyItem>[] = [
+    ...(imageLabel
+      ? [
+          {
+            header: imageLabel,
+            headerClassName: "w-[60px]",
+            cell: (item: TaxonomyItem) => (
+              <Avatar className="h-9 w-9 rounded-md">
+                <AvatarImage src={item.image} alt={item.name} className="object-cover" />
+                <AvatarFallback className="bg-primary/15 text-primary rounded-md text-xs">
+                  {initials(item.name)}
+                </AvatarFallback>
+              </Avatar>
+            ),
+          },
+        ]
+      : []),
+    { header: "Name", accessorKey: "name", className: "text-foreground font-medium" },
+    ...(metaLabel
+      ? [
+          {
+            header: metaLabel,
+            cell: (item: TaxonomyItem) => item.meta ?? "—",
+            className: "text-muted-foreground text-sm",
+          },
+        ]
+      : []),
+    ...(showCount
+      ? [
+          {
+            header: "Used by",
+            headerClassName: "text-right",
+            cell: (item: TaxonomyItem) => (item.count ?? 0).toLocaleString(),
+            className: "text-muted-foreground text-right text-sm tabular-nums",
+          },
+        ]
+      : []),
+    {
+      header: "Actions",
+      headerClassName: "w-[90px] text-right",
+      className: "text-right",
+      cell: (item) => (
+        <div className="flex justify-end gap-1">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8"
+            aria-label={`Edit ${item.name}`}
+            onClick={() => openEdit(item)}>
+            <Pencil className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-destructive hover:text-destructive h-8 w-8"
+            aria-label={`Delete ${item.name}`}
+            onClick={() => setDeleting(item)}>
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
+      ),
+    },
+  ];
+
   return (
     <GlassCard className="p-0">
       <div className="flex items-center justify-between p-4">
@@ -160,93 +215,31 @@ export function TaxonomyManager({
 
       {/* Search + sort controls — scale as the library grows */}
       <div className="flex flex-col gap-3 px-4 pb-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="relative w-full sm:max-w-xs">
-          <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
-          <Input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder={`Search ${title.toLowerCase()}...`}
-            className="pl-9"
-          />
-        </div>
-        <Select value={sort} onValueChange={(v) => setSort(v as typeof sort)}>
-          <SelectTrigger className="w-[170px]">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent className="border-border bg-card z-50">
-            <SelectItem value="most">Most used</SelectItem>
-            <SelectItem value="least">Least used</SelectItem>
-            <SelectItem value="name">Name (A–Z)</SelectItem>
-          </SelectContent>
-        </Select>
+        <CustomSearch
+          onSearch={setQuery}
+          debounceMs={0}
+          placeholder={`Search ${title.toLowerCase()}...`}
+          isClearable={false}
+          containerClassName="w-full sm:max-w-xs"
+          inputClassName="text-base md:text-sm"
+        />
+        <CustomSelect
+          options={SORT_OPTIONS}
+          value={sort}
+          onValueChange={setSort}
+          triggerClassName="w-[170px]"
+          aria-label="Sort"
+        />
       </div>
 
-      <div className="border-border/40 border-t">
-        <Table>
-          <TableHeader className="bg-muted/30">
-            <TableRow>
-              {imageLabel && <TableHead className="w-[60px]">{imageLabel}</TableHead>}
-              <TableHead>Name</TableHead>
-              {metaLabel && <TableHead>{metaLabel}</TableHead>}
-              {showCount && <TableHead className="text-right">Used by</TableHead>}
-              <TableHead className="w-[90px] text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {visible.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={5} className="text-muted-foreground py-8 text-center">
-                  {items.length === 0 ? `No ${title.toLowerCase()} yet.` : "No matches."}
-                </TableCell>
-              </TableRow>
-            ) : (
-              visible.map((item) => (
-                <TableRow key={item.id}>
-                  {imageLabel && (
-                    <TableCell>
-                      <Avatar className="h-9 w-9 rounded-md">
-                        <AvatarImage src={item.image} alt={item.name} className="object-cover" />
-                        <AvatarFallback className="bg-primary/15 text-primary rounded-md text-xs">
-                          {initials(item.name)}
-                        </AvatarFallback>
-                      </Avatar>
-                    </TableCell>
-                  )}
-                  <TableCell className="text-foreground font-medium">{item.name}</TableCell>
-                  {metaLabel && (
-                    <TableCell className="text-muted-foreground text-sm">
-                      {item.meta ?? "—"}
-                    </TableCell>
-                  )}
-                  {showCount && (
-                    <TableCell className="text-muted-foreground text-right text-sm tabular-nums">
-                      {(item.count ?? 0).toLocaleString()}
-                    </TableCell>
-                  )}
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-1">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8"
-                        onClick={() => openEdit(item)}>
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="text-destructive hover:text-destructive h-8 w-8"
-                        onClick={() => setDeleting(item)}>
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
+      <DataTable
+        columns={columns}
+        data={visible}
+        rowIdKey="id"
+        className="border-border/40 border-t bg-transparent"
+        classNames={CONTENT_TABLE_CLASS_NAMES}
+        emptyState={items.length === 0 ? `No ${title.toLowerCase()} yet.` : "No matches."}
+      />
 
       {/* Contextual insights — fills the page with useful info instead of empty space */}
       <div className="border-border/40 grid grid-cols-3 gap-4 border-t p-4">
@@ -268,79 +261,80 @@ export function TaxonomyManager({
         </div>
       </div>
 
-      <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-        <DialogContent className="border-border bg-card max-w-md">
-          <DialogHeader>
-            <DialogTitle>{editing ? `Edit ${noun}` : `Add ${noun}`}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            {imageLabel && (
-              <div className="space-y-2">
-                <Label>{imageLabel}</Label>
-                <div className="flex items-center gap-3">
-                  <Avatar className="h-14 w-14 rounded-lg">
-                    <AvatarImage src={image ?? undefined} alt="" className="object-cover" />
-                    <AvatarFallback className="bg-primary/15 text-primary rounded-lg">
-                      {name.trim() ? initials(name) : <ImagePlus className="h-5 w-5" />}
-                    </AvatarFallback>
-                  </Avatar>
-                  <input
-                    ref={fileRef}
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={(e) => pickImage(e.target.files?.[0] ?? undefined)}
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => fileRef.current?.click()}>
-                    Upload
-                  </Button>
-                  {image && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="text-muted-foreground gap-1"
-                      onClick={() => setImage(null)}>
-                      <X className="h-4 w-4" /> Remove
-                    </Button>
-                  )}
-                </div>
-              </div>
-            )}
-            <div className="space-y-2">
-              <Label>{noun} name</Label>
-              <Input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder={`${noun} name`}
-                autoFocus
-              />
-            </div>
-            {metaLabel && (
-              <div className="space-y-2">
-                <Label>{metaLabel}</Label>
-                <Input
-                  value={meta}
-                  onChange={(e) => setMeta(e.target.value)}
-                  placeholder={metaLabel}
-                />
-              </div>
-            )}
-          </div>
-          <DialogFooter>
+      <CustomModal
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+        appearance="default"
+        className="border-border bg-card max-w-md"
+        title={editing ? `Edit ${noun}` : `Add ${noun}`}
+        footer={
+          <>
             <Button variant="outline" onClick={() => setModalOpen(false)}>
               Cancel
             </Button>
             <Button onClick={save} disabled={!name.trim()}>
               {editing ? "Save changes" : `Create ${noun}`}
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </>
+        }>
+        <div className="space-y-4">
+          {imageLabel && (
+            <CustomField label={imageLabel}>
+              <div className="flex items-center gap-3">
+                <Avatar className="h-14 w-14 rounded-lg">
+                  <AvatarImage src={image ?? undefined} alt="" className="object-cover" />
+                  <AvatarFallback className="bg-primary/15 text-primary rounded-lg">
+                    {name.trim() ? initials(name) : <ImagePlus className="h-5 w-5" />}
+                  </AvatarFallback>
+                </Avatar>
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => pickImage(e.target.files?.[0] ?? undefined)}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => fileRef.current?.click()}>
+                  Upload
+                </Button>
+                {image && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="text-muted-foreground gap-1"
+                    onClick={() => setImage(null)}>
+                    <X className="h-4 w-4" /> Remove
+                  </Button>
+                )}
+              </div>
+            </CustomField>
+          )}
+          <CustomField label={`${noun} name`} htmlFor="taxonomy-name">
+            <Input
+              id="taxonomy-name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder={`${noun} name`}
+              autoFocus
+            />
+          </CustomField>
+          {metaLabel && (
+            <CustomField label={metaLabel} htmlFor="taxonomy-meta">
+              <Input
+                id="taxonomy-meta"
+                value={meta}
+                onChange={(e) => setMeta(e.target.value)}
+                placeholder={metaLabel}
+              />
+            </CustomField>
+          )}
+        </div>
+      </CustomModal>
 
       <ConfirmationDialog
         open={!!deleting}

@@ -2,7 +2,9 @@
 
 import { useRef, useState } from "react";
 
-import { Check, Image, X } from "lucide-react";
+import Image from "next/image";
+
+import { Check, ImageIcon, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
@@ -97,10 +99,13 @@ export function ThumbnailUpload({ onSelect }: ThumbnailUploadProps) {
           )}>
           {customPreview ? (
             <>
-              <img
+              <Image
                 src={customPreview}
                 alt="Custom thumbnail"
-                className="h-full w-full rounded-lg object-cover"
+                fill
+                unoptimized
+                sizes="25vw"
+                className="rounded-lg object-cover"
               />
               <div className="bg-success absolute top-1 right-1 flex h-5 w-5 items-center justify-center rounded-full">
                 <Check className="text-success-foreground h-3 w-3" />
@@ -109,6 +114,7 @@ export function ThumbnailUpload({ onSelect }: ThumbnailUploadProps) {
                 variant="ghost"
                 size="icon"
                 className="bg-background/80 absolute right-1 bottom-1 h-6 w-6"
+                aria-label="Remove custom thumbnail"
                 onClick={(e) => {
                   e.stopPropagation();
                   setCustomPreview(null);
@@ -118,7 +124,7 @@ export function ThumbnailUpload({ onSelect }: ThumbnailUploadProps) {
             </>
           ) : (
             <>
-              <Image className="text-foreground-muted mb-1 h-5 w-5" />
+              <ImageIcon className="text-foreground-muted mb-1 h-5 w-5" />
               <span className="text-foreground-muted text-xs">Custom</span>
             </>
           )}

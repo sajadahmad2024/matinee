@@ -9,17 +9,11 @@ import { CalendarClock, ChevronLeft, ChevronRight } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 import { cn } from "@/app/_libs/utils/cn";
+import { CustomSelect, type CustomSelectOption } from "@/components/custom/custom-select";
+import { GlassCard } from "@/components/custom/glass-card";
 
-import { GlassCard } from "../../games/_components/glass-card";
 import { MOCK_VIDEOS, type VideoItem, parseMockDate } from "../constants";
 
 type EntryKind = "scheduled" | "expiring";
@@ -33,7 +27,7 @@ interface DayEntry {
 const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const MAX_VISIBLE = 3;
 
-const FILTER_OPTIONS: { value: CalendarFilter; label: string }[] = [
+const FILTER_OPTIONS: CustomSelectOption<CalendarFilter>[] = [
   { value: "all", label: "Scheduled & expiring" },
   { value: "scheduled", label: "Scheduled only" },
   { value: "expiring", label: "Expiring only" },
@@ -127,23 +121,19 @@ export function ContentCalendar() {
             </span>
           </span>
           {/* Schedule vs expiration filter — the list view's filters don't cover these dates */}
-          <Select value={filter} onValueChange={(v) => setFilter(v as CalendarFilter)}>
-            <SelectTrigger className="h-8 w-[190px] gap-1.5">
-              <CalendarClock className="text-muted-foreground h-3.5 w-3.5" />
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="border-border bg-card z-50">
-              {FILTER_OPTIONS.map((o) => (
-                <SelectItem key={o.value} value={o.value}>
-                  {o.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <CustomSelect
+            options={FILTER_OPTIONS}
+            value={filter}
+            onValueChange={setFilter}
+            leftIcon={<CalendarClock className="text-muted-foreground h-3.5 w-3.5" />}
+            triggerClassName="h-8 w-[190px] gap-1.5"
+            aria-label="Calendar filter"
+          />
           <Button
             variant="outline"
             size="icon"
             className="h-8 w-8"
+            aria-label="Previous month"
             onClick={() => setCursor(new Date(cursor.getFullYear(), cursor.getMonth() - 1, 1))}>
             <ChevronLeft className="h-4 w-4" />
           </Button>
@@ -158,6 +148,7 @@ export function ContentCalendar() {
             variant="outline"
             size="icon"
             className="h-8 w-8"
+            aria-label="Next month"
             onClick={() => setCursor(new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1))}>
             <ChevronRight className="h-4 w-4" />
           </Button>

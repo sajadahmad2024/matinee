@@ -6,21 +6,20 @@ import { ScrollText } from "lucide-react";
 
 import { CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 
-import { GlassCard } from "../../../games/_components/glass-card";
+import { CustomField } from "@/components/custom/custom-field";
+import { CustomSelect, type CustomSelectOption } from "@/components/custom/custom-select";
+import { GlassCard } from "@/components/custom/glass-card";
 
 type LicenseType = "original" | "licensed";
 
-const RENEWAL_OPTIONS = [
+const LICENSE_TYPE_OPTIONS: CustomSelectOption<LicenseType>[] = [
+  { value: "original", label: "Original / owned" },
+  { value: "licensed", label: "Licensed" },
+];
+
+const RENEWAL_OPTIONS: CustomSelectOption[] = [
   { value: "renewing", label: "Renewing" },
   { value: "in_negotiation", label: "In negotiation" },
   { value: "expiring", label: "Expiring (not renewing)" },
@@ -28,7 +27,9 @@ const RENEWAL_OPTIONS = [
   { value: "lapsed", label: "Lapsed" },
 ];
 
-const CURRENCIES = ["USD", "EUR", "GBP", "INR", "BRL", "AED"];
+const CURRENCY_OPTIONS: CustomSelectOption[] = ["USD", "EUR", "GBP", "INR", "BRL", "AED"].map(
+  (c) => ({ value: c, label: c }),
+);
 
 /**
  * Licensing & rights for a piece of content. "Original" = owned (no agreement).
@@ -61,71 +62,58 @@ export function LicensingCard() {
               and the row license chip.
             </CardDescription>
           </div>
-          <Select value={licenseType} onValueChange={(v) => setLicenseType(v as LicenseType)}>
-            <SelectTrigger className="w-[150px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="border-border bg-card z-50">
-              <SelectItem value="original">Original / owned</SelectItem>
-              <SelectItem value="licensed">Licensed</SelectItem>
-            </SelectContent>
-          </Select>
+          <CustomSelect
+            options={LICENSE_TYPE_OPTIONS}
+            value={licenseType}
+            onValueChange={setLicenseType}
+            triggerClassName="w-[150px]"
+            aria-label="License type"
+          />
         </div>
       </CardHeader>
 
       {licensed && (
         <CardContent className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="licensor">Licensor / rights holder</Label>
+            <CustomField label="Licensor / rights holder" htmlFor="licensor">
               <Input
                 id="licensor"
                 value={licensor}
                 onChange={(e) => setLicensor(e.target.value)}
                 placeholder="e.g., Global Rights Co"
               />
-            </div>
-            <div className="space-y-2">
-              <Label>Renewal status</Label>
-              <Select value={renewal} onValueChange={setRenewal}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="border-border bg-card z-50">
-                  {RENEWAL_OPTIONS.map((o) => (
-                    <SelectItem key={o.value} value={o.value}>
-                      {o.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            </CustomField>
+            <CustomField label="Renewal status" htmlFor="renewal-status">
+              <CustomSelect
+                id="renewal-status"
+                options={RENEWAL_OPTIONS}
+                value={renewal}
+                onValueChange={setRenewal}
+              />
+            </CustomField>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="license-start">License start</Label>
+            <CustomField label="License start" htmlFor="license-start">
               <Input
                 id="license-start"
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
               />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="license-expiry">License expiry</Label>
+            </CustomField>
+            <CustomField label="License expiry" htmlFor="license-expiry">
               <Input
                 id="license-expiry"
                 type="date"
                 value={expiryDate}
                 onChange={(e) => setExpiryDate(e.target.value)}
               />
-            </div>
+            </CustomField>
           </div>
 
           <div className="grid gap-4 md:grid-cols-3">
-            <div className="space-y-2">
-              <Label htmlFor="license-cost">License cost</Label>
+            <CustomField label="License cost" htmlFor="license-cost">
               <Input
                 id="license-cost"
                 type="number"
@@ -133,35 +121,26 @@ export function LicensingCard() {
                 value={cost}
                 onChange={(e) => setCost(Number(e.target.value))}
               />
-            </div>
-            <div className="space-y-2">
-              <Label>Currency</Label>
-              <Select value={currency} onValueChange={setCurrency}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="border-border bg-card z-50">
-                  {CURRENCIES.map((c) => (
-                    <SelectItem key={c} value={c}>
-                      {c}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="revenue-source">Revenue source</Label>
+            </CustomField>
+            <CustomField label="Currency" htmlFor="license-currency">
+              <CustomSelect
+                id="license-currency"
+                options={CURRENCY_OPTIONS}
+                value={currency}
+                onValueChange={setCurrency}
+              />
+            </CustomField>
+            <CustomField label="Revenue source" htmlFor="revenue-source">
               <Input
                 id="revenue-source"
                 value={revenueSource}
                 onChange={(e) => setRevenueSource(e.target.value)}
                 placeholder="e.g., Ads + Subs"
               />
-            </div>
+            </CustomField>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="license-terms">License terms</Label>
+          <CustomField label="License terms" htmlFor="license-terms">
             <Textarea
               id="license-terms"
               value={terms}
@@ -170,7 +149,7 @@ export function LicensingCard() {
               rows={2}
               className="resize-none"
             />
-          </div>
+          </CustomField>
 
           <p className="text-muted-foreground text-xs">
             Saved to <code>content_licenses</code> (cost / revenue / renewal → ROI) and the{" "}

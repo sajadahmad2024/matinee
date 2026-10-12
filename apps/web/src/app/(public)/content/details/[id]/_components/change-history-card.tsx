@@ -7,7 +7,7 @@ import { ChevronDown, ChevronUp, History } from "lucide-react";
 import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
-import { GlassCard } from "../../../../games/_components/glass-card";
+import { GlassCard } from "@/components/custom/glass-card";
 
 interface ChangeHistoryEntry {
   id: string;

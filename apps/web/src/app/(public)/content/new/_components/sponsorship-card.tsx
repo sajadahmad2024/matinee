@@ -5,31 +5,30 @@ import { useState } from "react";
 import type { Route } from "next";
 import Link from "next/link";
 
-import { addDays, differenceInCalendarDays, format as formatDate, startOfToday } from "date-fns";
-import { ArrowRight, CalendarIcon, Megaphone, Timer } from "lucide-react";
+import { addDays, differenceInCalendarDays, startOfToday } from "date-fns";
+import { ArrowRight, Megaphone, Timer } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import { CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
-import { cn } from "@/app/_libs/utils/cn";
+import { CustomDatePicker } from "@/components/custom/custom-date-picker";
+import { CustomField } from "@/components/custom/custom-field";
+import { CustomSelect, type CustomSelectOption } from "@/components/custom/custom-select";
+import { GlassCard } from "@/components/custom/glass-card";
 
-import { GlassCard } from "../../../games/_components/glass-card";
 import { BannerUpload } from "../../../games/format/_components/shared/banner-upload";
 
 // Pre-roll video ads moved out of the per-video form into the platform-level Ads
 // Management module (/ads, spec-07) — they run between reels, not on one video.
 type AdFormat = "organic" | "sponsored";
+
+const FORMAT_OPTIONS: CustomSelectOption<AdFormat>[] = [
+  { value: "organic", label: "Organic — no sponsor" },
+  { value: "sponsored", label: "Sponsored — sponsor logo overlay" },
+];
+
+const DATE_FIELD_CLASS = "w-full space-y-1 sm:w-[220px]";
+const DATE_LABEL_CLASS = "text-muted-foreground text-xs";
 
 /**
  * Ad-Sales format for a piece of content:
@@ -70,104 +69,71 @@ export function SponsorshipCard() {
       </CardHeader>
 
       <CardContent className="space-y-4">
-        <div className="space-y-2">
-          <Label>Format</Label>
-          <Select value={format} onValueChange={(v) => setFormat(v as AdFormat)}>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="border-border bg-card z-50">
-              <SelectItem value="organic">Organic — no sponsor</SelectItem>
-              <SelectItem value="sponsored">Sponsored — sponsor logo overlay</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        <CustomField label="Format" htmlFor="ad-format">
+          <CustomSelect
+            id="ad-format"
+            options={FORMAT_OPTIONS}
+            value={format}
+            onValueChange={setFormat}
+          />
+        </CustomField>
 
         {showFields && (
           <>
-            <div className="space-y-2">
-              <Label htmlFor="advertiser">Sponsor / Brand</Label>
+            <CustomField label="Sponsor / Brand" htmlFor="advertiser">
               <Input
                 id="advertiser"
                 value={advertiser}
                 onChange={(e) => setAdvertiser(e.target.value)}
                 placeholder="e.g. Nike, Coca-Cola"
               />
-            </div>
+            </CustomField>
 
-            <div className="space-y-2">
-              <Label>Sponsor banner / logo</Label>
+            <CustomField label="Sponsor banner / logo">
               <BannerUpload
                 value={banner}
                 onChange={setBanner}
                 aspect="aspect-[16/6]"
                 hint="16:6 · the “Sponsored by” logo/banner shown on the content"
               />
-            </div>
+            </CustomField>
 
-            <div className="space-y-2">
-              <Label className="flex items-center gap-1.5">
-                <Timer className="h-3.5 w-3.5" />
-                Icon overlay duration
-              </Label>
+            <CustomField
+              labelClassName="flex items-center gap-1.5"
+              label={
+                <>
+                  <Timer className="h-3.5 w-3.5" />
+                  Icon overlay duration
+                </>
+              }>
               <div className="flex flex-wrap gap-4">
-                <div className="w-full space-y-1 sm:w-[220px]">
-                  <Label className="text-muted-foreground text-xs">Start date</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className={cn(
-                          "w-full justify-start text-left font-normal",
-                          !overlayStart && "text-muted-foreground",
-                        )}>
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {overlayStart ? formatDate(overlayStart, "PPP") : "Pick a date"}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={overlayStart}
-                        onSelect={handleOverlayStartChange}
-                        initialFocus
-                        disabled={(date) => date < startOfToday()}
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-                <div className="w-full space-y-1 sm:w-[220px]">
-                  <Label className="text-muted-foreground text-xs">End date</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className={cn(
-                          "w-full justify-start text-left font-normal",
-                          !overlayEnd && "text-muted-foreground",
-                        )}>
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {overlayEnd ? formatDate(overlayEnd, "PPP") : "Pick a date"}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={overlayEnd}
-                        onSelect={setOverlayEnd}
-                        initialFocus
-                        disabled={(date) => date < (overlayStart ?? startOfToday())}
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
+                <CustomField
+                  label="Start date"
+                  className={DATE_FIELD_CLASS}
+                  labelClassName={DATE_LABEL_CLASS}>
+                  <CustomDatePicker
+                    value={overlayStart}
+                    onChange={handleOverlayStartChange}
+                    isDateDisabled={(date) => date < startOfToday()}
+                  />
+                </CustomField>
+                <CustomField
+                  label="End date"
+                  className={DATE_FIELD_CLASS}
+                  labelClassName={DATE_LABEL_CLASS}>
+                  <CustomDatePicker
+                    value={overlayEnd}
+                    onChange={setOverlayEnd}
+                    isDateDisabled={(date) => date < (overlayStart ?? startOfToday())}
+                  />
+                </CustomField>
               </div>
               <p className="text-muted-foreground text-xs">
                 {overlayDays
                   ? `The sponsor overlay stays on the video for ${overlayDays} day${overlayDays === 1 ? "" : "s"}.`
                   : "Pick the start and end dates of the sponsorship deal."}
               </p>
-            </div>
+            </CustomField>
 
             <p className="text-muted-foreground text-xs">
               Revenue tracking and billing are settled by the Ad-Sales ledger.

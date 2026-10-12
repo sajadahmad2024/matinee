@@ -9,16 +9,11 @@ import { Button } from "@/components/ui/button";
 import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 
-import { GlassCard } from "../../../games/_components/glass-card";
+import { CustomField } from "@/components/custom/custom-field";
+import { CustomSelect, type CustomSelectOption } from "@/components/custom/custom-select";
+import { GlassCard } from "@/components/custom/glass-card";
 
 /** Consumer-app "where to watch" CTA — admins configure the destination at publish time
  *  (spec-05 §1.4). Platform alone is renderable ("Find it on Netflix"); the URL is optional
@@ -31,6 +26,20 @@ const WATCH_PLATFORMS = [
   "In cinemas",
   "Other",
 ] as const;
+
+const WATCH_PLATFORM_OPTIONS: CustomSelectOption[] = WATCH_PLATFORMS.map((p) => ({
+  value: p,
+  label: p,
+}));
+
+const GENRE_OPTIONS: CustomSelectOption[] = [
+  { value: "drama", label: "Drama" },
+  { value: "action", label: "Action" },
+  { value: "romance", label: "Romance" },
+  { value: "comedy", label: "Comedy" },
+  { value: "thriller", label: "Thriller" },
+  { value: "documentary", label: "Documentary" },
+];
 
 const MAX_WATCH_LINKS = 3;
 
@@ -83,28 +92,25 @@ export function VideoDetailsCard({
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid gap-4 md:grid-cols-2">
-          <div className="space-y-2">
-            <Label htmlFor="title">Video Title</Label>
+          <CustomField label="Video Title" htmlFor="title">
             <Input
               id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Enter video title"
             />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="studio">Studio Name</Label>
+          </CustomField>
+          <CustomField label="Studio Name" htmlFor="studio">
             <Input
               id="studio"
               value={studioName}
               onChange={(e) => setStudioName(e.target.value)}
               placeholder="Production studio"
             />
-          </div>
+          </CustomField>
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="description">Description</Label>
+        <CustomField label="Description" htmlFor="description">
           <Textarea
             id="description"
             value={description}
@@ -113,39 +119,30 @@ export function VideoDetailsCard({
             rows={4}
             className="resize-none"
           />
-        </div>
+        </CustomField>
 
         <div className="grid gap-4 md:grid-cols-2">
-          <div className="space-y-2">
-            <Label htmlFor="genre">Genre</Label>
-            <Select value={genre} onValueChange={setGenre}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select genre" />
-              </SelectTrigger>
-              <SelectContent className="border-border bg-card z-50">
-                <SelectItem value="drama">Drama</SelectItem>
-                <SelectItem value="action">Action</SelectItem>
-                <SelectItem value="romance">Romance</SelectItem>
-                <SelectItem value="comedy">Comedy</SelectItem>
-                <SelectItem value="thriller">Thriller</SelectItem>
-                <SelectItem value="documentary">Documentary</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="tags">Tags (comma separated)</Label>
+          <CustomField label="Genre" htmlFor="genre">
+            <CustomSelect
+              id="genre"
+              options={GENRE_OPTIONS}
+              value={genre}
+              onValueChange={setGenre}
+              placeholder="Select genre"
+            />
+          </CustomField>
+          <CustomField label="Tags (comma separated)" htmlFor="tags">
             <Input
               id="tags"
               value={tags}
               onChange={(e) => setTags(e.target.value)}
               placeholder="action, drama, thriller"
             />
-          </div>
+          </CustomField>
         </div>
 
         {/* Cast */}
-        <div className="space-y-2">
-          <Label>Cast / Actors</Label>
+        <CustomField label="Cast / Actors">
           <div className="mb-2 flex flex-wrap gap-2">
             {cast.map((actor, index) => (
               <Badge key={index} variant="secondary" className="gap-1 pr-1">
@@ -153,6 +150,7 @@ export function VideoDetailsCard({
                 <button
                   type="button"
                   onClick={() => onRemoveCast(index)}
+                  aria-label={`Remove ${actor}`}
                   className="hover:text-destructive ml-1">
                   <X className="h-3 w-3" />
                 </button>
@@ -171,11 +169,15 @@ export function VideoDetailsCard({
                 }
               }}
             />
-            <Button type="button" variant="outline" onClick={onAddCast}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onAddCast}
+              aria-label="Add cast member">
               <Plus className="h-4 w-4" />
             </Button>
           </div>
-        </div>
+        </CustomField>
 
         <WhereToWatchField />
       </CardContent>
@@ -211,25 +213,20 @@ function WhereToWatchField() {
 
       {links.map((row, i) => (
         <div key={i} className="flex flex-wrap items-center gap-2">
-          <Select value={row.platform} onValueChange={(v) => update(i, { platform: v })}>
-            <SelectTrigger className="w-[160px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="border-border bg-card z-50">
-              {WATCH_PLATFORMS.map((p) => (
-                <SelectItem key={p} value={p}>
-                  {p}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <CustomSelect
+            options={WATCH_PLATFORM_OPTIONS}
+            value={row.platform}
+            onValueChange={(v) => update(i, { platform: v })}
+            triggerClassName="w-[160px]"
+            aria-label="Watch platform"
+          />
 
           {row.platform === "Other" && (
             <Input
               value={row.custom}
               onChange={(e) => update(i, { custom: e.target.value })}
               placeholder="Platform name"
-              className="w-[160px]"
+              className="w-40"
             />
           )}
 
@@ -237,7 +234,7 @@ function WhereToWatchField() {
             value={row.url}
             onChange={(e) => update(i, { url: e.target.value })}
             placeholder="https://… (optional)"
-            className="min-w-[200px] flex-1"
+            className="min-w-50 flex-1"
           />
 
           <Button
@@ -245,6 +242,7 @@ function WhereToWatchField() {
             variant="ghost"
             size="icon"
             className="text-muted-foreground hover:text-destructive"
+            aria-label="Remove destination"
             onClick={() => remove(i)}>
             <X className="h-4 w-4" />
           </Button>

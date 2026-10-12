@@ -7,19 +7,14 @@ import { Clapperboard, Film, Globe, Link2, Lock, Plus, Video, X } from "lucide-r
 import { CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 
 import { MACRO_REGIONS, type MacroRegion } from "@/app/_libs/regions";
 import { cn } from "@/app/_libs/utils/cn";
+import { CustomField } from "@/components/custom/custom-field";
+import { CustomSelect, type CustomSelectOption } from "@/components/custom/custom-select";
+import { GlassCard } from "@/components/custom/glass-card";
 
-import { GlassCard } from "../../../games/_components/glass-card";
 import { MOCK_VIDEOS } from "../../constants";
 
 const CONTENT_TYPES = [
@@ -39,6 +34,36 @@ const CONTENT_TYPES = [
 ] as const;
 
 type ContentType = (typeof CONTENT_TYPES)[number]["value"];
+
+const CONTENT_TYPE_OPTIONS: CustomSelectOption<ContentType>[] = CONTENT_TYPES.map((t) => ({
+  value: t.value,
+  label: (
+    <span className="flex items-center gap-2">
+      <t.icon className="h-4 w-4" />
+      {t.label}
+    </span>
+  ),
+}));
+
+const LANGUAGE_OPTIONS: CustomSelectOption[] = [
+  { value: "en", label: "English" },
+  { value: "hi", label: "Hindi" },
+  { value: "es", label: "Spanish" },
+  { value: "ja", label: "Japanese" },
+  { value: "ko", label: "Korean" },
+  { value: "pt", label: "Portuguese" },
+];
+
+const RIGHTS_REGION_OPTIONS: CustomSelectOption[] = [
+  { value: "global", label: "Global" },
+  ...MACRO_REGIONS.map((r) => ({ value: r.code, label: r.label })),
+];
+
+const RECOMMENDATION_OPTIONS: CustomSelectOption[] = [
+  { value: "promoted", label: "Promoted" },
+  { value: "normal", label: "Normal" },
+  { value: "deprioritized", label: "Deprioritized" },
+];
 
 /** A region selected for publish; `live` is distinct from selection — a region can be
  *  selected but paused (Off) without unselecting it. */
@@ -82,7 +107,10 @@ export function ContentClassificationCard() {
 
   const canHaveParent = contentType === "bts" || contentType === "clip";
   // Candidate primary titles (a BTS/clip belongs to a trailer/primary title, not another extra)
-  const parentCandidates = MOCK_VIDEOS;
+  const parentOptions: CustomSelectOption[] = [
+    { value: "none", label: "None — standalone" },
+    ...MOCK_VIDEOS.map((v) => ({ value: v.id, label: v.title })),
+  ];
 
   return (
     <GlassCard>
@@ -94,75 +122,44 @@ export function ContentClassificationCard() {
       </CardHeader>
       <CardContent className="space-y-5">
         {/* Content type */}
-        <div className="space-y-2">
-          <Label>Content type</Label>
-          <Select value={contentType} onValueChange={(v) => setContentType(v as ContentType)}>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="border-border bg-card z-50">
-              {CONTENT_TYPES.map((t) => (
-                <SelectItem key={t.value} value={t.value}>
-                  <span className="flex items-center gap-2">
-                    <t.icon className="h-4 w-4" />
-                    {t.label}
-                  </span>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <p className="text-muted-foreground text-xs">
-            {CONTENT_TYPES.find((t) => t.value === contentType)?.hint}
-          </p>
-        </div>
+        <CustomField
+          label="Content type"
+          htmlFor="content-type"
+          helperText={CONTENT_TYPES.find((t) => t.value === contentType)?.hint}>
+          <CustomSelect
+            id="content-type"
+            options={CONTENT_TYPE_OPTIONS}
+            value={contentType}
+            onValueChange={setContentType}
+          />
+        </CustomField>
 
         {/* Metadata & distribution */}
         <div className="grid gap-4 md:grid-cols-3">
-          <div className="space-y-2">
-            <Label>Language</Label>
-            <Select value={language} onValueChange={setLanguage}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="border-border bg-card z-50">
-                <SelectItem value="en">English</SelectItem>
-                <SelectItem value="hi">Hindi</SelectItem>
-                <SelectItem value="es">Spanish</SelectItem>
-                <SelectItem value="ja">Japanese</SelectItem>
-                <SelectItem value="ko">Korean</SelectItem>
-                <SelectItem value="pt">Portuguese</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-2">
-            <Label>Rights region</Label>
-            <Select value={rightsRegion} onValueChange={setRightsRegion}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="border-border bg-card z-50">
-                <SelectItem value="global">Global</SelectItem>
-                {MACRO_REGIONS.map((r) => (
-                  <SelectItem key={r.code} value={r.code}>
-                    {r.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-2">
-            <Label>Recommendation</Label>
-            <Select value={recommendation} onValueChange={setRecommendation}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="border-border bg-card z-50">
-                <SelectItem value="promoted">Promoted</SelectItem>
-                <SelectItem value="normal">Normal</SelectItem>
-                <SelectItem value="deprioritized">Deprioritized</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          <CustomField label="Language" htmlFor="content-language">
+            <CustomSelect
+              id="content-language"
+              options={LANGUAGE_OPTIONS}
+              value={language}
+              onValueChange={setLanguage}
+            />
+          </CustomField>
+          <CustomField label="Rights region" htmlFor="rights-region">
+            <CustomSelect
+              id="rights-region"
+              options={RIGHTS_REGION_OPTIONS}
+              value={rightsRegion}
+              onValueChange={setRightsRegion}
+            />
+          </CustomField>
+          <CustomField label="Recommendation" htmlFor="recommendation">
+            <CustomSelect
+              id="recommendation"
+              options={RECOMMENDATION_OPTIONS}
+              value={recommendation}
+              onValueChange={setRecommendation}
+            />
+          </CustomField>
         </div>
 
         {/* Publish to regions (multi-select availability — where users can see this) */}
@@ -250,28 +247,22 @@ export function ContentClassificationCard() {
 
         {/* Optional primary title (BTS / clip only) */}
         {canHaveParent && (
-          <div className="space-y-2">
-            <Label className="flex items-center gap-1.5">
-              <Link2 className="h-3.5 w-3.5" /> Belongs to (primary title)
-            </Label>
-            <Select value={parentId} onValueChange={setParentId}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="border-border bg-card z-50">
-                <SelectItem value="none">None — standalone</SelectItem>
-                {parentCandidates.map((v) => (
-                  <SelectItem key={v.id} value={v.id}>
-                    {v.title}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <p className="text-muted-foreground text-xs">
-              Optional. Link this {contentType === "bts" ? "BTS" : "clip"} to a title, or leave it
-              standalone.
-            </p>
-          </div>
+          <CustomField
+            labelClassName="flex items-center gap-1.5"
+            htmlFor="parent-content"
+            label={
+              <>
+                <Link2 className="h-3.5 w-3.5" /> Belongs to (primary title)
+              </>
+            }
+            helperText={`Optional. Link this ${contentType === "bts" ? "BTS" : "clip"} to a title, or leave it standalone.`}>
+            <CustomSelect
+              id="parent-content"
+              options={parentOptions}
+              value={parentId}
+              onValueChange={setParentId}
+            />
+          </CustomField>
         )}
 
         {/* Exclusivity (content-level; any type) */}
@@ -288,8 +279,7 @@ export function ContentClassificationCard() {
             <Switch checked={exclusive} onCheckedChange={setExclusive} />
           </div>
           {exclusive && (
-            <div className="space-y-2">
-              <Label htmlFor="unlock-points">Unlock cost (points)</Label>
+            <CustomField label="Unlock cost (points)" htmlFor="unlock-points">
               <Input
                 id="unlock-points"
                 type="number"
@@ -297,7 +287,7 @@ export function ContentClassificationCard() {
                 value={unlockPoints}
                 onChange={(e) => setUnlockPoints(Number(e.target.value))}
               />
-            </div>
+            </CustomField>
           )}
         </div>
       </CardContent>

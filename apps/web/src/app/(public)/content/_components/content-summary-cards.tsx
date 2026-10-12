@@ -1,15 +1,11 @@
 "use client";
 
-import { useCallback } from "react";
-
-import type { Route } from "next";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-
 import { BarChart3, ChevronDown, Film, type LucideIcon, ScrollText } from "lucide-react";
 
 import { cn } from "@/app/_libs/utils/cn";
+import { GlassCard } from "@/components/custom/glass-card";
+import { useUpdateSearchParams } from "@/hooks/use-update-search-params";
 
-import { GlassCard } from "../../games/_components/glass-card";
 import { CONTENT_INVENTORY, LICENSING_SUMMARY, PERFORMANCE_SUMMARY } from "../constants";
 
 /** "none" = every card collapsed. Inventory is the default when ?section= is absent. */
@@ -64,18 +60,14 @@ interface ContentSummaryCardsProps {
  * timeline; clicking the active card again collapses to the cards alone.
  */
 export function ContentSummaryCards({ activeSection }: ContentSummaryCardsProps) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
+  const updateSearchParams = useUpdateSearchParams();
 
-  const toggleSection = useCallback(
-    (section: SummarySection) => {
-      const params = new URLSearchParams(searchParams.toString());
-      params.set("section", activeSection === section ? "none" : section);
-      router.push(`${pathname}?${params.toString()}` as Route, { scroll: false });
-    },
-    [activeSection, pathname, router, searchParams],
-  );
+  // Section toggles keep the list's current page.
+  const toggleSection = (section: SummarySection) =>
+    updateSearchParams(
+      { section: activeSection === section ? "none" : section },
+      { resetPage: false },
+    );
 
   return (
     <div className="grid gap-4 sm:grid-cols-3">

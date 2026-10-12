@@ -1,14 +1,11 @@
 "use client";
 
-import { useCallback } from "react";
-
-import type { Route } from "next";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-
 import { CalendarDays, List } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+
+import { useUpdateSearchParams } from "@/hooks/use-update-search-params";
 
 export type ViewMode = "list" | "calendar";
 
@@ -17,23 +14,10 @@ export type ViewMode = "list" | "calendar";
  * ("like opening the Mac calendar" — see live + scheduled across months).
  */
 export function ViewModeToggle({ viewMode }: { viewMode: ViewMode }) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
+  const updateSearchParams = useUpdateSearchParams();
 
-  const setMode = useCallback(
-    (mode: ViewMode) => {
-      const params = new URLSearchParams(searchParams.toString());
-      if (mode === "calendar") {
-        params.set("viewMode", "calendar");
-      } else {
-        params.delete("viewMode");
-      }
-      params.delete("page");
-      router.push(`${pathname}?${params.toString()}` as Route, { scroll: false });
-    },
-    [pathname, router, searchParams],
-  );
+  const setMode = (mode: ViewMode) =>
+    updateSearchParams({ viewMode: mode === "calendar" ? "calendar" : null });
 
   return (
     <div className="border-border/50 flex items-center rounded-lg border p-0.5">
@@ -43,6 +27,7 @@ export function ViewModeToggle({ viewMode }: { viewMode: ViewMode }) {
             variant={viewMode === "list" ? "secondary" : "ghost"}
             size="icon"
             className="h-8 w-8"
+            aria-label="List view"
             onClick={() => setMode("list")}>
             <List className="h-4 w-4" />
           </Button>
@@ -55,6 +40,7 @@ export function ViewModeToggle({ viewMode }: { viewMode: ViewMode }) {
             variant={viewMode === "calendar" ? "secondary" : "ghost"}
             size="icon"
             className="h-8 w-8"
+            aria-label="Calendar view"
             onClick={() => setMode("calendar")}>
             <CalendarDays className="h-4 w-4" />
           </Button>

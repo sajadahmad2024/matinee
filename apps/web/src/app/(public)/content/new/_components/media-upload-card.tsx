@@ -3,11 +3,14 @@
 import { Film } from "lucide-react";
 
 import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
 
-import { GlassCard } from "../../../games/_components/glass-card";
+import { CustomField } from "@/components/custom/custom-field";
+import { GlassCard } from "@/components/custom/glass-card";
+
 import { ThumbnailUpload } from "./thumbnail-upload";
 import { VideoUploadZone } from "./video-upload-zone";
+
+const LABEL_CLASS = "text-foreground text-sm font-medium";
 
 export function MediaUploadCard() {
   return (
@@ -20,16 +23,14 @@ export function MediaUploadCard() {
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Video Upload Section */}
-        <div className="space-y-3">
-          <Label className="text-foreground text-sm font-medium">Video File</Label>
+        <CustomField label="Video File" className="space-y-3" labelClassName={LABEL_CLASS}>
           <VideoUploadZone />
-        </div>
+        </CustomField>
 
         {/* Thumbnail Section */}
-        <div className="space-y-3">
-          <Label className="text-foreground text-sm font-medium">Video Thumbnail</Label>
+        <CustomField label="Video Thumbnail" className="space-y-3" labelClassName={LABEL_CLASS}>
           <ThumbnailUpload />
-        </div>
+        </CustomField>
       </CardContent>
     </GlassCard>
   );

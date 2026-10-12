@@ -18,8 +18,9 @@ import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "rec
 
 import { CardContent } from "@/components/ui/card";
 
+import { GlassCard } from "@/components/custom/glass-card";
+
 import { AnalyticsHeader } from "../../games/_components/analytics-header";
-import { GlassCard } from "../../games/_components/glass-card";
 import { CONTENT_FUNNEL_DATA, SHARE_VELOCITY_DATA } from "../constants";
 
 interface MetricCardProps {

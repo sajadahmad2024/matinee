@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 
+import Image from "next/image";
+
 import {
   Archive,
   BarChart3,
@@ -38,13 +40,13 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 import { cn } from "@/app/_libs/utils/cn";
+import { GlassCard } from "@/components/custom/glass-card";
 
-import { GlassCard } from "../../games/_components/glass-card";
 import type { VideoItem } from "../constants";
 import { ApprovalModal } from "./approval-modal";
 import { ContentSignals } from "./content-signals";
+import { ContentStatusBadge } from "./content-status-badge";
 import { PreviewAsUserModal } from "./preview-as-user-modal";
-import { StatusBadge } from "./status-badge";
 import { WorkflowHistory } from "./workflow-history";
 
 interface VideoListItemProps {
@@ -115,11 +117,13 @@ export function VideoListItem({
                   />
                 </div>
                 {video.thumbnail && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
+                  <Image
                     src={video.thumbnail}
                     alt={video.title}
-                    className="absolute inset-0 h-full w-full object-cover"
+                    fill
+                    unoptimized
+                    sizes="142px"
+                    className="object-cover"
                   />
                 )}
 
@@ -178,8 +182,8 @@ export function VideoListItem({
                       {video.adOverlayDays ? ` · ${video.adOverlayDays}d overlay` : ""}
                     </Badge>
                   )}
-                  {video.boosted && <StatusBadge status="boosted" />}
-                  <StatusBadge status={video.status} />
+                  {video.boosted && <ContentStatusBadge status="boosted" />}
+                  <ContentStatusBadge status={video.status} />
                 </div>
 
                 <p className="text-muted-foreground text-sm font-medium">
@@ -263,6 +267,7 @@ export function VideoListItem({
                       variant="ghost"
                       size="icon"
                       onClick={() => onEdit(video.id)}
+                      aria-label="Video details"
                       className="hover:bg-primary/20 hover:text-primary h-9 w-9 rounded-lg">
                       <Pencil className="h-4 w-4" />
                     </Button>
@@ -275,6 +280,7 @@ export function VideoListItem({
                       variant="ghost"
                       size="icon"
                       onClick={() => onAnalytics(video.id)}
+                      aria-label="View analytics"
                       className="hover:bg-success/20 hover:text-success h-9 w-9 rounded-lg">
                       <BarChart3 className="h-4 w-4" />
                     </Button>

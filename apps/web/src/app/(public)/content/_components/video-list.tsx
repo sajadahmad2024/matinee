@@ -8,6 +8,7 @@ import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 import { TablePagination } from "@/components/custom/table-pagination";
+import { useUpdateSearchParams } from "@/hooks/use-update-search-params";
 
 import {
   CONTENT_TABS_CONFIG,
@@ -48,6 +49,7 @@ export function VideoList({
   pageSize,
 }: VideoListProps) {
   const router = useRouter();
+  const updateSearchParams = useUpdateSearchParams();
 
   const getFilteredVideos = (): VideoItem[] => {
     let videos: VideoItem[] = [];
@@ -149,21 +151,8 @@ export function VideoList({
         totalPages={totalPages}
         pageSize={pageSize}
         totalItems={totalItems}
-        onPageChange={(p) => {
-          const params = new URLSearchParams(window.location.search);
-          params.set("page", p.toString());
-          router.push(`${window.location.pathname}?${params.toString()}` as Route, {
-            scroll: false,
-          });
-        }}
-        onPageSizeChange={(s) => {
-          const params = new URLSearchParams(window.location.search);
-          params.set("pageSize", s.toString());
-          params.set("page", "1");
-          router.push(`${window.location.pathname}?${params.toString()}` as Route, {
-            scroll: false,
-          });
-        }}
+        onPageChange={(p) => updateSearchParams({ page: String(p) }, { resetPage: false })}
+        onPageSizeChange={(size) => updateSearchParams({ pageSize: String(size) })}
       />
     </div>
   );
