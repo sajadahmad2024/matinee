@@ -1,7 +1,7 @@
 import type { Route } from "next";
 import Link from "next/link";
 
-import { BarChart3, Plus, SlidersHorizontal } from "lucide-react";
+import { BarChart3, Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
@@ -26,11 +26,6 @@ export default function AdsManagementPage() {
           <p className="text-foreground-secondary mt-1">Video ads shown between reels</p>
         </div>
         <div className="flex items-center gap-2">
-          <Button asChild variant="outline" className="gap-2">
-            <Link href={"/ads/platform?tab=config" as Route}>
-              <SlidersHorizontal className="h-4 w-4" /> Global settings
-            </Link>
-          </Button>
           <Button asChild variant="outline" className="gap-2">
             <Link href={"/ads/platform?tab=stats" as Route}>
               <BarChart3 className="h-4 w-4" /> Global analytics

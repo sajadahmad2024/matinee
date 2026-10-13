@@ -14,6 +14,8 @@ export interface AdItem {
   ctaLabel: string;
   ctaUrl: string;
   regions: "all" | MacroRegion[];
+  /** feed position per targeted region (1 = first ad slot) */
+  ranks: Partial<Record<MacroRegion, number>>;
   startsAt: string; // local "YYYY-MM-DDTHH:MM"
   endsAt: string;
   status: AdStatus;
@@ -21,6 +23,9 @@ export interface AdItem {
 }
 
 export const AD_CAPTION_MAX = 300;
+
+/** One ad slot after every 5 videos; the 25-video feed has 5 slots, so ranks run 1–5. */
+export const AD_RANK_MAX = 5;
 
 export const CTA_LABELS = ["Learn more", "Shop now", "Install", "Watch now"];
 
@@ -63,6 +68,7 @@ export const MOCK_ADS: AdItem[] = [
     ctaLabel: "Shop now",
     ctaUrl: "https://nike.com/airmax",
     regions: ["NA", "EU"],
+    ranks: { NA: 1, EU: 1 },
     startsAt: "2026-09-15T00:00",
     endsAt: "2026-10-15T23:59",
     status: "live",
@@ -77,6 +83,7 @@ export const MOCK_ADS: AdItem[] = [
     ctaLabel: "Learn more",
     ctaUrl: "https://coca-cola.com/summer",
     regions: ["NA"],
+    ranks: { NA: 2 },
     startsAt: "2026-09-10T00:00",
     endsAt: "2026-10-02T23:59",
     status: "live",
@@ -91,6 +98,7 @@ export const MOCK_ADS: AdItem[] = [
     ctaLabel: "Shop now",
     ctaUrl: "https://samsung.com/fold",
     regions: ["APAC"],
+    ranks: { APAC: 1 },
     startsAt: "2026-09-20T00:00",
     endsAt: "2026-10-20T23:59",
     status: "live",
@@ -105,6 +113,7 @@ export const MOCK_ADS: AdItem[] = [
     ctaLabel: "Watch now",
     ctaUrl: "https://netflix.com/strangerworlds",
     regions: "all",
+    ranks: { NA: 3, EU: 2, APAC: 2, LATAM: 1, MEA: 1 },
     startsAt: "2026-09-25T00:00",
     endsAt: "2026-10-10T23:59",
     status: "live",
@@ -119,6 +128,7 @@ export const MOCK_ADS: AdItem[] = [
     ctaLabel: "Install",
     ctaUrl: "https://spotify.com/wrapped",
     regions: ["EU", "LATAM"],
+    ranks: { EU: 3, LATAM: 2 },
     startsAt: "2026-10-03T00:00",
     endsAt: "2026-10-31T23:59",
     status: "scheduled",
@@ -133,6 +143,7 @@ export const MOCK_ADS: AdItem[] = [
     ctaLabel: "Learn more",
     ctaUrl: "https://redbull.com/wings",
     regions: ["NA"],
+    ranks: { NA: 2 },
     startsAt: "2026-10-03T00:00",
     endsAt: "2026-10-18T23:59",
     status: "scheduled",
@@ -147,6 +158,7 @@ export const MOCK_ADS: AdItem[] = [
     ctaLabel: "Learn more",
     ctaUrl: "https://airbnb.com/autumn",
     regions: ["EU"],
+    ranks: { EU: 4 },
     startsAt: "2026-09-01T00:00",
     endsAt: "2026-10-12T23:59",
     status: "paused",
@@ -161,6 +173,7 @@ export const MOCK_ADS: AdItem[] = [
     ctaLabel: "Shop now",
     ctaUrl: "https://nike.com/school",
     regions: ["NA", "EU"],
+    ranks: { NA: 1, EU: 1 },
     startsAt: "2026-08-10T00:00",
     endsAt: "2026-09-10T23:59",
     status: "ended",
@@ -169,6 +182,77 @@ export const MOCK_ADS: AdItem[] = [
 ];
 
 export const getAdById = (id: string) => MOCK_ADS.find((a) => a.id === id);
+
+// ── ranking ───────────────────────────────────────────────────────────────
+
+export const targetsRegion = (ad: AdItem, region: MacroRegion) =>
+  ad.regions === "all" || ad.regions.includes(region);
+
+/** Ads that cover every region also rank in each one. */
+export const adRegions = (regions: AdItem["regions"]): MacroRegion[] =>
+  regions === "all" ? MACRO_REGIONS.map((r) => r.code) : regions;
+
+const overlaps = (aStart: string, aEnd: string, bStart: string, bEnd: string) =>
+  new Date(aStart) < new Date(bEnd) && new Date(bStart) < new Date(aEnd);
+
+/**
+ * The ad already holding `rank` in `region` during [startsAt, endsAt). Two ads may share a
+ * rank only when their dates don't overlap; ended ads free their rank.
+ */
+export function rankHolder(
+  ads: AdItem[],
+  region: MacroRegion,
+  rank: number,
+  startsAt: string,
+  endsAt: string,
+  excludeId?: string,
+): AdItem | undefined {
+  return ads.find(
+    (a) =>
+      a.id !== excludeId &&
+      a.status !== "ended" &&
+      targetsRegion(a, region) &&
+      a.ranks[region] === rank &&
+      overlaps(startsAt, endsAt, a.startsAt, a.endsAt),
+  );
+}
+
+/** Every ad holding each rank 1…AD_RANK_MAX in `region` at some point during [startsAt, endsAt). */
+export function rankBookings(
+  ads: AdItem[],
+  region: MacroRegion,
+  startsAt: string,
+  endsAt: string,
+  excludeId?: string,
+): { rank: number; ads: AdItem[] }[] {
+  return Array.from({ length: AD_RANK_MAX }, (_, i) => ({
+    rank: i + 1,
+    ads: ads
+      .filter(
+        (a) =>
+          a.id !== excludeId &&
+          a.status !== "ended" &&
+          targetsRegion(a, region) &&
+          a.ranks[region] === i + 1 &&
+          overlaps(startsAt, endsAt, a.startsAt, a.endsAt),
+      )
+      .sort((a, b) => new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime()),
+  }));
+}
+
+/** Lowest rank free in `region` for those dates, or null when all are booked. */
+export function nextFreeRank(
+  ads: AdItem[],
+  region: MacroRegion,
+  startsAt: string,
+  endsAt: string,
+  excludeId?: string,
+): number | null {
+  for (let rank = 1; rank <= AD_RANK_MAX; rank++) {
+    if (!rankHolder(ads, region, rank, startsAt, endsAt, excludeId)) return rank;
+  }
+  return null;
+}
 
 // ── formatting ────────────────────────────────────────────────────────────
 

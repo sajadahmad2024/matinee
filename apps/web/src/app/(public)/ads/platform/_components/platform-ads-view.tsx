@@ -3,26 +3,25 @@
 import type { Route } from "next";
 import { useRouter } from "next/navigation";
 
-import { ArrowLeft, BarChart3, SlidersHorizontal } from "lucide-react";
+import { ArrowLeft, BarChart3 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { useTabParam } from "@/app/_libs/use-tab-param";
 
-import { PlatformConfig } from "./platform-config";
 import { PlatformStats } from "./platform-stats";
 
+// The Configuration tab (PlatformConfig) is hidden while per-ad feed ranks replace the global rules.
 const TABS = [
-  { value: "config", label: "Configuration", icon: SlidersHorizontal, Content: PlatformConfig },
   { value: "stats", label: "Statistics", icon: BarChart3, Content: PlatformStats },
 ];
 
-/** Platform-level ads (spec-09): rules for every feed ad + analytics across all of them. */
+/** Platform-level ads (spec-09): analytics across every feed ad. */
 export function PlatformAdsView() {
   const router = useRouter();
-  const [tabParam, setTab] = useTabParam("config");
-  const activeTab = TABS.some((t) => t.value === tabParam) ? tabParam : "config";
+  const [tabParam, setTab] = useTabParam("stats");
+  const activeTab = TABS.some((t) => t.value === tabParam) ? tabParam : "stats";
 
   return (
     <div className="animate-fade-in space-y-6 pb-8">
@@ -32,7 +31,7 @@ export function PlatformAdsView() {
         </Button>
         <div>
           <h1 className="font-gaming text-foreground text-2xl font-bold">Platform Ads</h1>
-          <p className="text-foreground-secondary text-sm">Rules and performance across every feed ad</p>
+          <p className="text-foreground-secondary text-sm">Performance across every feed ad</p>
         </div>
       </div>
 

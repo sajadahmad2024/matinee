@@ -17,12 +17,21 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { ConfirmationDialog } from "@/components/custom/confirmation-dialog";
 
-import { type AdItem, type AdStatus, fmtDateRange, fmtNum } from "../constants";
+import { MACRO_REGIONS, type MacroRegion } from "@/app/_libs/regions";
+
+import { type AdItem, type AdStatus, fmtDateRange, fmtNum, targetsRegion } from "../constants";
 import { AdStatusBadge } from "./ad-status-badge";
 
 type Tab = "all" | AdStatus;
@@ -37,20 +46,35 @@ const TABS: { value: Tab; label: string }[] = [
 
 const inTab = (a: AdItem, tab: Tab) => tab === "all" || a.status === tab;
 
-/** Ad list — tabs, search, and a row menu. Actions change local mock state only. */
+/** Europe (incl. the UK) is the default market. */
+const DEFAULT_REGION: MacroRegion = "EU";
+
+// ended ads have freed their rank, so they sink below the ranked ones
+const rankIn = (a: AdItem, region: MacroRegion) =>
+  a.status === "ended" ? undefined : a.ranks[region];
+
+const byRank = (region: MacroRegion) => (a: AdItem, b: AdItem) =>
+  (rankIn(a, region) ?? Infinity) - (rankIn(b, region) ?? Infinity) ||
+  new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime();
+
+/** Ad list — region (feed order), tabs, search, and a row menu. Actions change local mock state only. */
 export function AdList({ initialAds }: { initialAds: AdItem[] }) {
   const router = useRouter();
   const [ads, setAds] = useState(initialAds);
   const [tab, setTab] = useState<Tab>("all");
+  const [region, setRegion] = useState<MacroRegion>(DEFAULT_REGION);
   const [q, setQ] = useState("");
   const [ending, setEnding] = useState<AdItem | null>(null);
 
   const needle = q.trim().toLowerCase();
-  const visible = ads.filter(
-    (a) =>
-      inTab(a, tab) &&
-      (!needle || a.name.toLowerCase().includes(needle) || a.advertiser.toLowerCase().includes(needle)),
-  );
+  const visible = ads
+    .filter(
+      (a) =>
+        targetsRegion(a, region) &&
+        inTab(a, tab) &&
+        (!needle || a.name.toLowerCase().includes(needle) || a.advertiser.toLowerCase().includes(needle)),
+    )
+    .sort(byRank(region));
 
   const setStatus = (id: string, status: AdStatus) =>
     setAds((list) => list.map((a) => (a.id === id ? { ...a, status } : a)));
@@ -67,6 +91,18 @@ export function AdList({ initialAds }: { initialAds: AdItem[] }) {
             className="pl-9"
           />
         </div>
+        <Select value={region} onValueChange={(v) => setRegion(v as MacroRegion)}>
+          <SelectTrigger className="sm:w-52" aria-label="Region">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent className="border-border bg-card z-50">
+            {MACRO_REGIONS.map((r) => (
+              <SelectItem key={r.code} value={r.code}>
+                {r.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)}>
           <TabsList>
             {TABS.map((t) => (
@@ -82,6 +118,7 @@ export function AdList({ initialAds }: { initialAds: AdItem[] }) {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-16">Rank</TableHead>
               <TableHead>Ad</TableHead>
               <TableHead>Dates</TableHead>
               <TableHead>Status</TableHead>
@@ -93,18 +130,22 @@ export function AdList({ initialAds }: { initialAds: AdItem[] }) {
           <TableBody>
             {visible.length === 0 && (
               <TableRow>
-                <TableCell colSpan={6} className="text-muted-foreground py-10 text-center">
+                <TableCell colSpan={7} className="text-muted-foreground py-10 text-center">
                   No ads here.
                 </TableCell>
               </TableRow>
             )}
             {visible.map((ad) => {
               const delivered = ad.stats.impressions > 0;
+              const rank = rankIn(ad, region);
               return (
                 <TableRow
                   key={ad.id}
                   className="cursor-pointer"
                   onClick={() => router.push(`/ads/${ad.id}` as Route)}>
+                  <TableCell className="font-medium tabular-nums">
+                    {rank ? `#${rank}` : <span className="text-muted-foreground">—</span>}
+                  </TableCell>
                   <TableCell>
                     <Link
                       href={`/ads/${ad.id}` as Route}
