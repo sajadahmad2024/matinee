@@ -16,7 +16,9 @@ import { ConfirmationDialog } from "@/components/custom/confirmation-dialog";
 
 import { GlassCard } from "@/components/custom/glass-card";
 import { AdStatusBadge } from "../_components/ad-status-badge";
-import { type AdStatus, getAdById, regionsLabel } from "../constants";
+import { MACRO_REGIONS } from "@/app/_libs/regions";
+
+import { adRegions, type AdStatus, getAdById, regionsLabel } from "../constants";
 
 const fmtDateTime = (v: string) =>
   new Date(v).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
@@ -158,6 +160,22 @@ export default function AdDetailPage() {
               </p>
               <dl>
                 <DetailRow label="Regions">{regionsLabel(ad.regions)}</DetailRow>
+                <DetailRow label="Feed rank">
+                  {status === "ended" ? (
+                    <span className="text-muted-foreground">Freed when the ad ended</span>
+                  ) : (
+                    <ul className="space-y-0.5">
+                      {adRegions(ad.regions).map((code) => (
+                        <li key={code}>
+                          <span className="font-medium tabular-nums">#{ad.ranks[code] ?? "—"}</span>{" "}
+                          <span className="text-muted-foreground">
+                            in {MACRO_REGIONS.find((r) => r.code === code)?.label ?? code}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </DetailRow>
                 <DetailRow label="Starts">{fmtDateTime(ad.startsAt)}</DetailRow>
                 <DetailRow label="Ends">{fmtDateTime(ad.endsAt)}</DetailRow>
               </dl>
