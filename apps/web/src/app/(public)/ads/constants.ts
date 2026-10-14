@@ -254,6 +254,28 @@ export function nextFreeRank(
   return null;
 }
 
+/** Ads that hold a rank in `region` and can trade it — ended ads have freed theirs. */
+export const canSwap = (ad: AdItem, region: MacroRegion) =>
+  ad.status !== "ended" && targetsRegion(ad, region) && ad.ranks[region] !== undefined;
+
+/**
+ * Why `a` and `b` can't trade ranks in `region`, or null when the swap is safe. After the swap
+ * each ad must still not overlap a third ad already holding its new rank.
+ */
+export function swapBlocker(ads: AdItem[], region: MacroRegion, a: AdItem, b: AdItem): string | null {
+  if (!canSwap(a, region) || !canSwap(b, region)) return "Both ads need a rank in this region.";
+  if (a.ranks[region] === b.ranks[region]) return "Both ads already have the same rank.";
+  const others = ads.filter((x) => x.id !== a.id && x.id !== b.id);
+  for (const [ad, rank] of [
+    [a, b.ranks[region]!],
+    [b, a.ranks[region]!],
+  ] as const) {
+    const holder = rankHolder(others, region, rank, ad.startsAt, ad.endsAt);
+    if (holder) return `“${ad.name}” would clash with “${holder.name}”, which holds #${rank} on overlapping dates.`;
+  }
+  return null;
+}
+
 // ── formatting ────────────────────────────────────────────────────────────
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
