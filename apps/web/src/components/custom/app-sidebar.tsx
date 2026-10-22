@@ -22,6 +22,11 @@ import {
 import { useSidebar } from "@/components/ui/sidebar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
+import {
+  getAdminDisplayName,
+  getAdminInitials,
+  useMockAdminProfile,
+} from "@/app/_libs/mock-admin-profile";
 import { cn } from "@/app/_libs/utils/cn";
 
 interface NavItem {
@@ -49,9 +54,9 @@ export function AppSidebar() {
   const { state, toggleSidebar } = useSidebar();
   const isCollapsed = state === "collapsed";
 
-  // Mock user data - replace with actual user data when auth is connected
-  const user = { firstName: "John", lastName: "Doe" };
-  const initials = `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`;
+  const profile = useMockAdminProfile();
+  const displayName = getAdminDisplayName(profile);
+  const initials = getAdminInitials(profile);
 
   const handleLogout = () => {
     // Add logout logic here when auth is connected
@@ -154,9 +159,12 @@ export function AppSidebar() {
         <div className="flex items-center">
           <Tooltip delayDuration={0}>
             <TooltipTrigger asChild>
-              <div className="from-success to-primary flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full bg-linear-to-br transition-all duration-300">
+              <a
+                href="/profile"
+                aria-label="View profile"
+                className="from-success to-primary flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full bg-linear-to-br transition-all duration-300">
                 <span className="text-primary-foreground text-sm font-semibold">{initials}</span>
-              </div>
+              </a>
             </TooltipTrigger>
             {isCollapsed ? (
               <TooltipContent
@@ -165,9 +173,7 @@ export function AppSidebar() {
                 className="bg-card/95 text-card-foreground border-border/50 overflow-hidden rounded-xl border p-0 shadow-xl backdrop-blur-xl">
                 <div className="flex items-stretch">
                   <div className="flex flex-col justify-center px-4 py-3">
-                    <p className="text-foreground text-sm font-semibold">
-                      {user.firstName} {user.lastName}
-                    </p>
+                    <p className="text-foreground text-sm font-semibold">{displayName}</p>
                     <p className="text-muted-foreground mt-0.5 text-xs">Owner • Full Access</p>
                   </div>
                   <button
@@ -186,9 +192,12 @@ export function AppSidebar() {
               isCollapsed ? "ml-0 max-w-0" : "ml-3 max-w-48",
             )}>
             <div className="overflow-hidden">
-              <p className="text-foreground truncate text-sm font-semibold whitespace-nowrap">
-                {user.firstName} {user.lastName}
-              </p>
+              <a
+                href="/profile"
+                title={displayName}
+                className="text-foreground hover:text-primary block truncate text-sm font-semibold whitespace-nowrap transition-colors">
+                {displayName}
+              </a>
               <p className="text-muted-foreground truncate text-xs whitespace-nowrap">Owner</p>
             </div>
             <button

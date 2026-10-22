@@ -31,6 +31,7 @@ const breadcrumbMap: Record<string, string> = {
   subscriptions: "Subscriptions",
   moderation: "Moderation Queue",
   settings: "Settings",
+  profile: "Profile",
 };
 
 // All searchable videos (combined from all tabs)
