@@ -2,11 +2,10 @@
 
 import { useState } from "react";
 
-import { Ban, Coins, PauseCircle, ShieldCheck, UserCog } from "lucide-react";
+import { Ban, Coins, PauseCircle, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -21,16 +20,13 @@ import { Textarea } from "@/components/ui/textarea";
 
 import type { User } from "./user-list-table";
 
-type ActionKind = "suspend" | "ban" | "reinstate" | "points" | "roles" | null;
-
-const ROLES = ["admin", "moderator", "user"];
+type ActionKind = "suspend" | "ban" | "reinstate" | "points" | null;
 
 export function UserAdminActions({ user }: { user: User }) {
   const [action, setAction] = useState<ActionKind>(null);
   const [reason, setReason] = useState("");
   const [days, setDays] = useState("7");
   const [pointsAmount, setPointsAmount] = useState(0);
-  const [roles, setRoles] = useState<string[]>(["user"]);
 
   const close = () => {
     setAction(null);
@@ -52,9 +48,6 @@ export function UserAdminActions({ user }: { user: User }) {
         break;
       case "points":
         toast.success(`${pointsAmount >= 0 ? "Credited" : "Debited"} ${Math.abs(pointsAmount)} points to ${user.name}`);
-        break;
-      case "roles":
-        toast.success(`Updated roles for ${user.name}: ${roles.join(", ")}`);
         break;
     }
     close();
@@ -81,16 +74,13 @@ export function UserAdminActions({ user }: { user: User }) {
         <Button size="sm" variant="outline" className="gap-1.5" onClick={() => setAction("points")}>
           <Coins className="h-4 w-4" /> Adjust points
         </Button>
-        <Button size="sm" variant="outline" className="gap-1.5" onClick={() => setAction("roles")}>
-          <UserCog className="h-4 w-4" /> Manage roles
-        </Button>
       </div>
 
       <Dialog open={action !== null} onOpenChange={(o) => !o && close()}>
         <DialogContent className="border-border bg-card max-w-md">
           <DialogHeader>
             <DialogTitle className="capitalize">
-              {action === "points" ? "Adjust balance" : action === "roles" ? "Manage roles" : `${action} user`}
+              {action === "points" ? "Adjust balance" : `${action} user`}
             </DialogTitle>
             <DialogDescription>{user.name} · {user.email}</DialogDescription>
           </DialogHeader>
@@ -125,20 +115,6 @@ export function UserAdminActions({ user }: { user: User }) {
                 <Input value={reason} onChange={(e) => setReason(e.target.value)} placeholder="e.g. goodwill credit" />
               </div>
               <p className="text-muted-foreground text-xs">Posts an admin ledger entry (source: admin, direction: adjust).</p>
-            </div>
-          )}
-
-          {action === "roles" && (
-            <div className="space-y-2">
-              {ROLES.map((r) => (
-                <label key={r} className="hover:bg-muted/30 flex cursor-pointer items-center gap-2 rounded-md p-2">
-                  <Checkbox
-                    checked={roles.includes(r)}
-                    onCheckedChange={(c) => setRoles((prev) => (c ? [...prev, r] : prev.filter((x) => x !== r)))}
-                  />
-                  <span className="text-foreground text-sm capitalize">{r}</span>
-                </label>
-              ))}
             </div>
           )}
 
