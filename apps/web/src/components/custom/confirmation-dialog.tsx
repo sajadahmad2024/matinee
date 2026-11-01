@@ -1,3 +1,4 @@
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { LuBan, LuBell, LuEyeOff, LuTrash2, LuTriangleAlert } from "react-icons/lu";
 
 import {
@@ -27,6 +28,11 @@ interface ConfirmationDialogProps {
   confirmLabel?: string;
   destructive?: boolean;
   preventOutsideClose?: boolean;
+  /**
+   * Passing this keeps the dialog open after Confirm (spinner, buttons disabled while `true`);
+   * the caller closes it on success. Left out, Confirm closes the dialog straight away.
+   */
+  isLoading?: boolean;
 }
 
 const actionIcons = {
@@ -57,6 +63,7 @@ export function ConfirmationDialog({
   confirmLabel,
   destructive = true,
   preventOutsideClose = true,
+  isLoading,
 }: ConfirmationDialogProps) {
   const Icon = actionIcons[action];
   const iconColor = actionColors[action];
@@ -76,10 +83,15 @@ export function ConfirmationDialog({
     }
   };
 
+  const keepOpen = isLoading !== undefined;
+
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
+    // no closing (Esc, Cancel) while the confirmed action runs
+    <AlertDialog open={open} onOpenChange={(next) => !isLoading && onOpenChange(next)}>
       <AlertDialogContent
-        onOverlayClick={preventOutsideClose ? undefined : () => onOpenChange(false)}>
+        // Radix focuses Cancel on open, which draws its focus ring before anything is pressed
+        onOpenAutoFocus={(event) => event.preventDefault()}
+        onOverlayClick={preventOutsideClose || isLoading ? undefined : () => onOpenChange(false)}>
         <AlertDialogHeader>
           <div className="mb-2 flex items-center gap-3">
             <div
@@ -94,13 +106,25 @@ export function ConfirmationDialog({
           <AlertDialogDescription className="text-left">{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel className="cursor-pointer">Cancel</AlertDialogCancel>
+          <AlertDialogCancel className="cursor-pointer" disabled={isLoading}>
+            Cancel
+          </AlertDialogCancel>
           <AlertDialogAction
-            onClick={onConfirm}
+            onClick={(event) => {
+              if (keepOpen) event.preventDefault();
+              onConfirm();
+            }}
+            disabled={isLoading}
             className={cn(
               "cursor-pointer",
               destructive && "bg-destructive text-destructive-foreground hover:bg-destructive/90",
             )}>
+            {isLoading && (
+              <AiOutlineLoading3Quarters
+                className="size-4 shrink-0 animate-spin"
+                aria-hidden="true"
+              />
+            )}
             {confirmLabel || getDefaultConfirmLabel()}
           </AlertDialogAction>
         </AlertDialogFooter>

@@ -1,49 +1,44 @@
 import { Suspense } from "react";
 
-import type { Route } from "next";
 import Link from "next/link";
 
-import { Globe, Library, Plus } from "lucide-react";
+import { Library, Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
-import { MACRO_REGIONS, regionForCountry, regionLabel } from "@/app/_libs/regions";
-import { CountryFilter } from "@/components/custom/country-filter";
-import { FloatingRecommendedActions } from "@/components/custom/floating-recommended-actions";
-import { type RecommendedAction } from "@/components/custom/recommended-actions";
-import {
-  RegionBoxFilter,
-  type RegionBoxMetric,
-  type RegionBoxOption,
-} from "@/components/custom/region-box-filter";
-import { SectionHeading } from "@/components/custom/section-heading";
+import { ALL_REGIONS, regionLabel } from "@/app/_libs/regions";
 
-import { ContentAnalytics } from "./_components/content-analytics";
-import { ContentCalendar } from "./_components/content-calendar";
-import { ContentFilters, type DateRangeValue, type SortValue } from "./_components/content-filters";
-import { ContentInventory } from "./_components/content-inventory";
-import { ContentPerformance } from "./_components/content-performance";
-import { ContentSummaryCards, type SummarySection } from "./_components/content-summary-cards";
-import { ContentTabs } from "./_components/content-tabs";
-import { LicensingRights } from "./_components/licensing-rights";
-import { VideoList } from "./_components/video-list";
-import { type ViewMode, ViewModeToggle } from "./_components/view-mode-toggle";
+import { ContentInventory } from "./_components/inventory/content-inventory";
+import { LicensingRights } from "./_components/licensing/licensing-rights";
+import { ContentCalendar } from "./_components/listing/content-calendar";
+import { ContentFilters } from "./_components/listing/content-filters";
+import { ContentTabs } from "./_components/listing/content-tabs";
 import {
-  CONTENT_REGION_METRICS,
-  type TabValue,
-  normalizeContentRegion,
-  scaleActionCount,
-} from "./constants";
+  CONTENT_CALENDAR_ENABLED,
+  CONTENT_LIST_DEFAULTS,
+  ContentDateRange,
+  type ContentSort,
+  ContentTab,
+  ContentViewMode,
+} from "./_components/listing/listing-config";
+import { VideoList } from "./_components/listing/video-list";
+import { ViewModeToggle } from "./_components/listing/view-mode-toggle";
+import { ContentAnalytics } from "./_components/performance/content-analytics";
+import { ContentPerformance } from "./_components/performance/content-performance";
+import { ContentRecommendedActions } from "./_components/recommended-actions/content-recommended-actions";
+import { RegionalActivity } from "./_components/regional-activity/regional-activity";
+import { ContentSummaryCards } from "./_components/summary-cards/content-summary-cards";
+import { CONTENT_PAGE_DEFAULTS, CONTENT_ROUTES, ContentSection } from "./_shared/content-config";
+import { normalizeContentRegion } from "./_shared/content-types";
 
 export type ContentSearchParams = {
-  section?: SummarySection;
+  section?: ContentSection;
   region?: string;
-  tab?: TabValue;
-  country?: string;
+  tab?: ContentTab;
   q?: string;
-  sort?: SortValue;
-  range?: DateRangeValue;
-  viewMode?: ViewMode;
+  sort?: ContentSort;
+  range?: ContentDateRange;
+  viewMode?: ContentViewMode;
   page?: string;
   pageSize?: string;
 };
@@ -52,67 +47,25 @@ interface PageProps {
   searchParams: Promise<ContentSearchParams>;
 }
 
-const REGION_BOXES: RegionBoxOption[] = [
-  { code: "all", label: "All regions" },
-  ...MACRO_REGIONS.map((r) => ({ code: r.code, label: r.label })),
-];
-
-// Metric modes for the master-page grid — same treatment as the dashboard map.
-const REGION_METRICS: RegionBoxMetric[] = [
-  { key: "live", label: "Live videos", hue: 217, values: CONTENT_REGION_METRICS.liveVideos },
-  { key: "views", label: "Views", hue: 270, values: CONTENT_REGION_METRICS.views },
-  { key: "uploads", label: "Uploads this month", hue: 142, values: CONTENT_REGION_METRICS.uploads },
-];
-
-// Highest-priority content tasks — move admins from insight to action.
-const contentActions = (region: ReturnType<typeof normalizeContentRegion>): RecommendedAction[] => [
-  {
-    title: `${scaleActionCount(8, region)} videos awaiting review`,
-    detail: "In-review queue building up — assign a reviewer to keep the pipeline moving",
-    severity: "high",
-    cta: "Review queue",
-    href: "/content?tab=requests",
-  },
-  {
-    title: `${scaleActionCount(7, region)} licenses expiring ≤30 days`,
-    detail: "Renew or archive to avoid content going dark",
-    severity: "medium",
-    cta: "View licenses",
-    href: "/content?section=licensing",
-  },
-  {
-    title: `${scaleActionCount(2, region)} rejected videos need follow-up`,
-    detail: "Notify creators or re-submit with fixes",
-    severity: "low",
-    cta: "Open rejected",
-    href: "/content?tab=rejected",
-  },
-];
-
 export default async function ContentManagementPage({ searchParams }: PageProps) {
   const {
-    section = "inventory",
-    tab = "master",
-    country = "all",
+    section = CONTENT_PAGE_DEFAULTS.section,
+    tab = CONTENT_LIST_DEFAULTS.tab,
     q = "",
-    sort = "newest",
-    range = "all",
-    viewMode = "list",
+    sort = CONTENT_LIST_DEFAULTS.sort,
+    range = CONTENT_LIST_DEFAULTS.range,
+    viewMode = CONTENT_LIST_DEFAULTS.viewMode,
     region: regionParam,
-    page = "1",
-    pageSize = "10",
+    page = String(CONTENT_LIST_DEFAULTS.page),
+    pageSize = String(CONTENT_LIST_DEFAULTS.pageSize),
   } = await searchParams;
 
-  // Grid = macro-region lens, header dropdown = country drill. If a country is picked it
-  // wins, and the grid highlights its parent macro-region as active (spec-05 §1.2).
-  const region =
-    country !== "all" ? regionForCountry(country) : normalizeContentRegion(regionParam);
-  const scopeLabel = region === "all" ? undefined : regionLabel(region);
-
-  // Calendar is live again — scheduled publishes and licence expiries of published
-  // videos on one month grid, with its own schedule/expiration filter.
-  const CALENDAR_ENABLED = true;
-  const showCalendar = CALENDAR_ENABLED && tab === "master" && viewMode === "calendar";
+  // The content APIs filter by macro-region only, so the Regional Activity map (?region=) is the
+  // page's geographic scope — there's no country filter here.
+  const region = normalizeContentRegion(regionParam);
+  const scopeLabel = region === ALL_REGIONS ? undefined : regionLabel(region);
+  const showCalendar =
+    CONTENT_CALENDAR_ENABLED && tab === ContentTab.Master && viewMode === ContentViewMode.Calendar;
 
   return (
     <div className="animate-fade-in space-y-6">
@@ -125,15 +78,14 @@ export default async function ContentManagementPage({ searchParams }: PageProps)
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <CountryFilter defaultValue={country} />
           <Button asChild variant="outline" className="gap-2">
-            <Link href={"/content/taxonomy" as Route}>
+            <Link href={CONTENT_ROUTES.TAXONOMY}>
               <Library className="h-4 w-4" />
               Library
             </Link>
           </Button>
           <Button asChild className="gap-2">
-            <Link href={"/content/new" as Route}>
+            <Link href={CONTENT_ROUTES.NEW}>
               <Plus className="h-4 w-4" />
               Add Video
             </Link>
@@ -142,43 +94,31 @@ export default async function ContentManagementPage({ searchParams }: PageProps)
       </div>
 
       {/* Three clickable summary cards — detail appears only on click */}
-      <Suspense
-        fallback={<div className="bg-muted/10 h-[110px] w-full animate-pulse rounded-xl" />}>
-        <ContentSummaryCards activeSection={section} />
+      <Suspense fallback={<div className="bg-muted/10 h-27.5 w-full animate-pulse rounded-xl" />}>
+        <ContentSummaryCards activeSection={section} region={region} />
       </Suspense>
 
-      {/* Regional lens — dashboard activity-map treatment; scopes everything below it */}
-      <section className="border-border bg-card space-y-3 rounded-xl border p-4">
-        <SectionHeading
-          title="Regional Activity"
-          subtitle="Heat by live videos, views, or uploads — click a region to scope the library below"
-          icon={Globe}
-        />
-        <Suspense
-          fallback={<div className="bg-muted/10 h-[130px] w-full animate-pulse rounded-lg" />}>
-          <RegionBoxFilter
-            active={region}
-            options={REGION_BOXES}
-            allCode="all"
-            metrics={REGION_METRICS}
-          />
-        </Suspense>
-      </section>
+      <RegionalActivity region={region} />
 
       {/* Expanded section area — belongs to the active card */}
-      {section !== "none" && (
+      {section !== ContentSection.None && (
         <div className="border-primary/30 animate-fade-in space-y-6 border-l-2 pl-4">
-          {section === "inventory" && (
+          {section === ContentSection.Inventory && (
             <>
               <ContentInventory region={region} regionLabel={scopeLabel} />
-
-              {/* Video timeline — the primary working surface, owned by Content Inventory */}
               <div className="space-y-4">
-                <div className="flex flex-wrap items-center justify-between gap-4">
+                {/* Tabs, then the toolbar on its own row — it stays put whether the calendar's
+                    narrower toolbar would fit beside the tabs or not. */}
+                <div className="space-y-4">
                   <ContentTabs activeTab={tab} region={region} />
                   <div className="flex flex-wrap items-center gap-2">
-                    <ContentFilters searchQuery={q} sort={sort} range={range} />
-                    {CALENDAR_ENABLED && tab === "master" && (
+                    <ContentFilters
+                      searchQuery={q}
+                      sort={sort}
+                      range={range}
+                      isCalendarView={showCalendar}
+                    />
+                    {CONTENT_CALENDAR_ENABLED && tab === ContentTab.Master && (
                       <Suspense fallback={null}>
                         <ViewModeToggle viewMode={viewMode} />
                       </Suspense>
@@ -187,11 +127,11 @@ export default async function ContentManagementPage({ searchParams }: PageProps)
                 </div>
 
                 {showCalendar ? (
-                  <ContentCalendar />
+                  <ContentCalendar searchQuery={q} region={region} />
                 ) : (
                   <Suspense
                     fallback={
-                      <div className="bg-muted/10 h-[400px] w-full animate-pulse rounded-xl" />
+                      <div className="bg-muted/10 h-100 w-full animate-pulse rounded-xl" />
                     }>
                     <VideoList
                       tab={tab}
@@ -207,23 +147,20 @@ export default async function ContentManagementPage({ searchParams }: PageProps)
               </div>
             </>
           )}
-          {section === "licensing" && <LicensingRights />}
-          {section === "performance" && (
+          {section === ContentSection.Licensing && <LicensingRights />}
+          {section === ContentSection.Performance && (
             <>
-              <ContentPerformance />
+              <ContentPerformance region={region} />
               <Suspense
-                fallback={
-                  <div className="bg-muted/20 h-[200px] w-full animate-pulse rounded-xl" />
-                }>
-                <ContentAnalytics />
+                fallback={<div className="bg-muted/20 h-50 w-full animate-pulse rounded-xl" />}>
+                <ContentAnalytics region={region} />
               </Suspense>
             </>
           )}
         </div>
       )}
 
-      {/* Recommended Actions — docked bottom-right so it never pushes the library down */}
-      <FloatingRecommendedActions actions={contentActions(region)} />
+      <ContentRecommendedActions region={region} />
     </div>
   );
 }

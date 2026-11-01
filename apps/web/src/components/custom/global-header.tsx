@@ -26,6 +26,7 @@ const breadcrumbMap: Record<string, string> = {
   dashboard: "Dashboard",
   content: "Content Management",
   details: "Video Details",
+  ads: "Ads Management",
   games: "Game Management",
   users: "User Management",
   subscriptions: "Subscriptions",

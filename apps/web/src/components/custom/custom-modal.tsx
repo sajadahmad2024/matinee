@@ -73,9 +73,7 @@ export function CustomModal({
         onEscapeKeyDown={(event) => {
           if (preventOutsideClose) event.preventDefault();
         }}
-        onOpenAutoFocus={(event) => {
-          if (isGlass) event.preventDefault();
-        }}
+        onOpenAutoFocus={(event) => event.preventDefault()}
         className={cn(
           isGlass &&
             "bg-card text-card-foreground border-border/50 rounded-xl shadow-2xl backdrop-blur-xl",

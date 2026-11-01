@@ -7,8 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
+import { BannerUpload } from "@/components/custom/banner-upload";
 import { GlassCard } from "@/components/custom/glass-card";
-import { BannerUpload } from "@/app/(public)/games/format/_components/shared/banner-upload";
 
 interface ExperienceDetailsCardProps {
   title: string;

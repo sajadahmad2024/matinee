@@ -1,9 +1,9 @@
-import { VideoForm } from "./_components/video-form";
+import { AddVideoForm } from "./_components/add-video-form";
 
 export default function NewVideoPage() {
   return (
     <div className="animate-fade-in pb-24">
-      <VideoForm />
+      <AddVideoForm />
     </div>
   );
 }

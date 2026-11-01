@@ -1,9 +1,6 @@
 import { TaxonomyView } from "./_components/taxonomy-view";
 
-interface PageProps {
-  searchParams: Promise<{ tab?: string }>;
-}
-export default async function TaxonomyPage({ searchParams }: PageProps) {
-  await searchParams;
+/** Content library — the active tab is read from `?tab=` on the client. */
+export default function TaxonomyPage() {
   return <TaxonomyView />;
 }

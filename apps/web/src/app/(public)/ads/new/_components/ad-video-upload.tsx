@@ -1,131 +1,106 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
 
-import { Loader2, Upload } from "lucide-react";
+import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
+import {
+  MediaTypeEnum,
+  MediaUsageEnum,
+  useMediaUpload,
+} from "@/app/_libs/hooks/api/use-media-upload";
+import { CustomVideoPlayer } from "@/components/custom/custom-video-player";
+import { CustomVideoUpload, videoFileError } from "@/components/custom/custom-video-upload";
+import { MediaVideoPlayer } from "@/components/custom/media-video-player";
 
-import { cn } from "@/app/_libs/utils/cn";
-
-import { AD_VIDEO_MAX_SECS } from "../../constants";
-
-export interface AdVideo {
-  state: "empty" | "uploading" | "ready" | "error";
-  src: string | null;
-  fileName?: string;
-  durationSecs: number;
-  progress: number;
-  error?: string;
+export interface AdCreative {
+  creativeMediaId: string | null;
+  durationSeconds: number | null;
 }
 
-export const EMPTY_VIDEO: AdVideo = { state: "empty", src: null, durationSecs: 0, progress: 0 };
+interface AdVideoUploadProps {
+  value: AdCreative;
+  onChange: (value: AdCreative) => void;
+  /** Lets the form block saving while a file is still uploading. */
+  onUploadingChange?: (uploading: boolean) => void;
+  invalid?: boolean;
+}
 
-// 9:16 = 0.5625 — allow a little encoder slack
-const RATIO_MIN = 0.54;
-const RATIO_MAX = 0.585;
-
-function readMeta(file: File): Promise<{ duration: number; ratio: number; url: string }> {
-  return new Promise((resolve, reject) => {
+/** The video's length for `durationSeconds`; `null` when the browser can't read it. */
+function readDuration(file: File): Promise<number | null> {
+  return new Promise((resolve) => {
     const url = URL.createObjectURL(file);
     const v = document.createElement("video");
     v.preload = "metadata";
-    v.onloadedmetadata = () => resolve({ duration: v.duration, ratio: v.videoWidth / v.videoHeight, url });
-    v.onerror = () => {
+    const done = (duration: number | null) => {
       URL.revokeObjectURL(url);
-      reject(new Error("unreadable"));
+      resolve(duration);
     };
+    v.onloadedmetadata = () => done(Number.isFinite(v.duration) ? Math.round(v.duration) : null);
+    v.onerror = () => done(null);
     v.src = url;
   });
 }
 
-/** Checks the real file (9:16, ≤ 60s), then mocks the upload with a progress bar. */
-export function AdVideoUpload({ value, onChange }: { value: AdVideo; onChange: (v: AdVideo) => void }) {
-  const inputRef = useRef<HTMLInputElement>(null);
-  const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
+/**
+ * The ad's creative, on the same upload component and rules as a content video. A picked file
+ * uploads right away (`useMediaUpload`, usage `generic`: playable by the feed, unlike content
+ * videos) and its media id goes into the form. The backend only books an ad once the video has
+ * finished processing, so saving straight after an upload can come back "not ready yet".
+ */
+export function AdVideoUpload({ value, onChange, onUploadingChange, invalid }: AdVideoUploadProps) {
+  const { mediaUploadMutation, progress } = useMediaUpload();
+  const [pending, setPending] = useState<File | null>(null);
+  // the file picked in this session — playable locally; an existing ad only has its media id
+  const [local, setLocal] = useState<{ url: string; name: string; sizeBytes: number } | null>(null);
 
-  useEffect(() => () => timers.current.forEach(clearTimeout), []);
+  useEffect(() => () => void (local && URL.revokeObjectURL(local.url)), [local]);
+  const uploading = mediaUploadMutation?.isPending ?? false;
+  useEffect(() => onUploadingChange?.(uploading), [onUploadingChange, uploading]);
 
-  const fail = (fileName: string, error: string) => onChange({ ...EMPTY_VIDEO, state: "error", fileName, error });
+  const handleFile = async (file: File) => {
+    const error = videoFileError(file);
+    if (error) return toast.error(error);
 
-  const handleFile = async (file?: File) => {
-    if (!file) return;
-    let meta: Awaited<ReturnType<typeof readMeta>>;
-    try {
-      meta = await readMeta(file);
-    } catch {
-      return fail(file.name, "Couldn't read this video. Use MP4 or MOV.");
-    }
-    if (meta.ratio < RATIO_MIN || meta.ratio > RATIO_MAX) {
-      URL.revokeObjectURL(meta.url);
-      return fail(file.name, "The video must be vertical 9:16 (e.g. 1080×1920).");
-    }
-    if (meta.duration > AD_VIDEO_MAX_SECS + 0.5) {
-      URL.revokeObjectURL(meta.url);
-      return fail(file.name, `The video must be ${AD_VIDEO_MAX_SECS}s or shorter.`);
-    }
-
-    const base = { src: meta.url, fileName: file.name, durationSecs: Math.round(meta.duration) };
-    timers.current.forEach(clearTimeout);
-    timers.current = [10, 30, 55, 80, 100].map((p, i) =>
-      setTimeout(() => onChange({ ...base, state: p === 100 ? "ready" : "uploading", progress: p }), (i + 1) * 350),
+    const durationSeconds = await readDuration(file);
+    setPending(file);
+    mediaUploadMutation.mutate(
+      { file, mediaType: MediaTypeEnum.Video, usageType: MediaUsageEnum.Generic },
+      {
+        onSuccess: (media) => {
+          if (!media?.id) return void toast.error("The video didn't upload");
+          setLocal({ url: URL.createObjectURL(file), name: file.name, sizeBytes: file.size });
+          onChange({ creativeMediaId: media.id, durationSeconds });
+        },
+        onError: (err) => toast.error("The video didn't upload", { description: err?.message }),
+        onSettled: () => setPending(null),
+      },
     );
-    onChange({ ...base, state: "uploading", progress: 0 });
   };
 
   return (
-    <div className="space-y-2">
-      <input
-        ref={inputRef}
-        type="file"
-        accept="video/mp4,video/quicktime"
-        className="hidden"
-        onChange={(e) => {
-          void handleFile(e.target.files?.[0]);
-          e.target.value = "";
-        }}
-      />
-
-      {value.src && value.state !== "error" ? (
-        <div className="flex items-start gap-4">
-          <video src={value.src} controls muted playsInline className="aspect-[9/16] w-28 rounded-md bg-black object-cover" />
-          <div className="min-w-0 space-y-2 text-sm">
-            <p className="text-foreground truncate">{value.fileName}</p>
-            {value.state === "uploading" ? (
-              <div className="w-40 space-y-1">
-                <Progress value={value.progress} className="h-1.5" />
-                <p className="text-muted-foreground flex items-center gap-1 text-xs">
-                  <Loader2 className="h-3 w-3 animate-spin" /> Uploading…
-                </p>
-              </div>
-            ) : (
-              <p className="text-muted-foreground text-xs">{value.durationSecs}s · 9:16</p>
-            )}
-            <Button type="button" variant="outline" size="sm" onClick={() => inputRef.current?.click()}>
-              Replace
-            </Button>
-          </div>
-        </div>
-      ) : (
-        <button
-          type="button"
-          onClick={() => inputRef.current?.click()}
-          onDragOver={(e) => e.preventDefault()}
-          onDrop={(e) => {
-            e.preventDefault();
-            void handleFile(e.dataTransfer.files?.[0]);
-          }}
-          className={cn(
-            "border-border/60 hover:border-primary/60 flex w-full flex-col items-center gap-1 rounded-lg border border-dashed px-4 py-8 text-center",
-            value.state === "error" && "border-destructive/60",
-          )}>
-          <Upload className="text-muted-foreground h-6 w-6" />
-          <span className="text-foreground text-sm">Upload video</span>
-          <span className="text-muted-foreground text-xs">Vertical 9:16 · MP4 or MOV · up to {AD_VIDEO_MAX_SECS}s</span>
-        </button>
-      )}
-      {value.state === "error" && <p className="text-destructive text-xs">{value.fileName}: {value.error}</p>}
-    </div>
+    <CustomVideoUpload
+      onFile={(file) => void handleFile(file)}
+      pending={pending ? { name: pending.name, sizeBytes: pending.size, progress } : null}
+      uploaded={
+        value?.creativeMediaId
+          ? { name: local?.name ?? "Current video", sizeBytes: local?.sizeBytes ?? null }
+          : null
+      }
+      preview={
+        local ? (
+          <CustomVideoPlayer src={local.url} kind="file" />
+        ) : value?.creativeMediaId ? (
+          <MediaVideoPlayer mediaId={value.creativeMediaId} />
+        ) : null
+      }
+      invalid={invalid}
+      // empty drop zone grows to the card's height with its prompt centred
+      className={
+        !pending && !value?.creativeMediaId
+          ? "flex flex-1 flex-col items-center justify-center"
+          : undefined
+      }
+    />
   );
 }

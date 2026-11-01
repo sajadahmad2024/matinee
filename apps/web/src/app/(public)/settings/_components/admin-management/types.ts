@@ -1,15 +1,6 @@
 "use client";
 
-export interface Admin {
-  id: string;
-  name: string;
-  email: string;
-  avatar: string;
-  role: "super_admin" | "admin";
-  status: "active" | "invited";
-  lastActive: string;
-}
-
+/** Audit logs have no backend API yet — still mock data. */
 export interface AuditLog {
   id: string;
   actor: string;
@@ -18,45 +9,6 @@ export interface AuditLog {
   timestamp: string;
   ip: string;
 }
-
-export const mockAdmins: Admin[] = [
-  {
-    id: "1",
-    name: "Sarah Chen",
-    email: "sarah.chen@asiaplex.io",
-    avatar: "",
-    role: "super_admin",
-    status: "active",
-    lastActive: "2 mins ago",
-  },
-  {
-    id: "2",
-    name: "Marcus Johnson",
-    email: "marcus.j@asiaplex.io",
-    avatar: "",
-    role: "admin",
-    status: "active",
-    lastActive: "1 hour ago",
-  },
-  {
-    id: "3",
-    name: "Aiko Tanaka",
-    email: "aiko.t@asiaplex.io",
-    avatar: "",
-    role: "admin",
-    status: "active",
-    lastActive: "3 hours ago",
-  },
-  {
-    id: "4",
-    name: "James Wilson",
-    email: "jwilson@asiaplex.io",
-    avatar: "",
-    role: "admin",
-    status: "invited",
-    lastActive: "-",
-  },
-];
 
 export const mockAuditLogs: AuditLog[] = [
   {

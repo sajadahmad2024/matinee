@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 
-import { ROUTES } from "@/app/_libs/constants/routes";
+import { AUTH_ROUTES } from "@/app/_libs/constants/routes";
 
 export default function Home() {
-  redirect(ROUTES.AUTH.LOGIN);
+  redirect(AUTH_ROUTES.LOGIN);
 }

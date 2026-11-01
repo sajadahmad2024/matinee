@@ -1,11 +1,10 @@
 "use client";
 
-import { Command as CommandPrimitive } from "cmdk";
 import * as React from "react";
 
-import { LuSearch } from "react-icons/lu";
+import { Command as CommandPrimitive } from "cmdk";
+import { LuSearch, LuX } from "react-icons/lu";
 
-import { cn } from "@/app/_libs/utils/cn";
 import {
   Dialog,
   DialogContent,
@@ -14,6 +13,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
+import { cn } from "@/app/_libs/utils/cn";
 
 function Command({ className, ...props }: React.ComponentProps<typeof CommandPrimitive>) {
   return (
@@ -60,19 +60,39 @@ function CommandDialog({
 
 function CommandInput({
   className,
+  onClear,
   ...props
-}: React.ComponentProps<typeof CommandPrimitive.Input>) {
+}: React.ComponentProps<typeof CommandPrimitive.Input> & {
+  /** Shows a clear (✕) button while the controlled `value` is non-empty. */
+  onClear?: () => void;
+}) {
+  const inputRef = React.useRef<HTMLInputElement>(null);
+
   return (
     <div data-slot="command-input-wrapper" className="flex h-9 items-center gap-2 border-b px-3">
       <LuSearch className="size-4 shrink-0 opacity-50" />
       <CommandPrimitive.Input
+        ref={inputRef}
         data-slot="command-input"
         className={cn(
-          "placeholder:text-muted-foreground flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-hidden disabled:cursor-not-allowed disabled:opacity-50",
+          // `@tailwindcss/forms` gives text inputs a border, padding and focus ring — reset them.
+          "placeholder:text-muted-foreground flex h-10 w-full rounded-md border-0 bg-transparent px-0 py-3 text-sm shadow-none outline-hidden focus:border-0 focus:ring-0 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50",
           className,
         )}
         {...props}
       />
+      {onClear && props.value && (
+        <button
+          type="button"
+          aria-label="Clear search"
+          onClick={() => {
+            onClear();
+            inputRef.current?.focus();
+          }}
+          className="text-muted-foreground hover:text-foreground shrink-0 cursor-pointer rounded-sm transition-colors">
+          <LuX className="size-4" />
+        </button>
+      )}
     </div>
   );
 }

@@ -1,74 +1,54 @@
 "use client";
 
-import type { Route } from "next";
 import { useRouter } from "next/navigation";
 
 import { AlertTriangle, BarChart3, Download, Globe, type LucideIcon, Trophy } from "lucide-react";
-import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 import { Button } from "@/components/ui/button";
 import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
+import type { AdSalesCommercialRowDto } from "@/app/_libs/api/generated";
 import { downloadCsv } from "@/app/_libs/download-csv";
+import { useAdSalesSummary } from "@/app/_libs/hooks/api/use-admin-ads";
 import { regionLabel } from "@/app/_libs/regions";
 import { cn } from "@/app/_libs/utils/cn";
-import { AnalyticsDateFilter, useAnalyticsDateRange } from "@/components/custom/analytics-date-filter";
-import { StatTile } from "@/components/custom/stat-tile";
-
-import { GlassCard } from "@/components/custom/glass-card";
+import { EMPTY, formatCount, formatRatioPct } from "@/app/_libs/utils/format";
 import {
-  type AdItem,
-  dailyPlatformImpressions,
-  dailyStatsCsv,
-  fmtNum,
-  MOCK_ADS,
-  MOCK_PLATFORM_STATS,
-} from "../../constants";
+  AnalyticsDateFilter,
+  analyticsWindowFor,
+  useAnalyticsDateRange,
+} from "@/components/custom/analytics-date-filter";
+import { type Column, DataTable } from "@/components/custom/data-table";
+import { GlassCard } from "@/components/custom/glass-card";
+import { StatTile } from "@/components/custom/stat-tile";
+import { useCurrentHref } from "@/hooks/use-return-to";
 
-// Fixed "Needs review" thresholds (spec-09 §4.2) — constants, not settings.
-const REVIEW_MIN_IMPRESSIONS = 1_000;
-const REVIEW_CTR = 1;
+import { AdImpressionsChart } from "../../_components/ad-impressions-chart";
+import { AD_ROUTES, isMacroRegion } from "../../_libs/ad-config";
 
-const pct = (n: number) => `${n.toFixed(1)}%`;
-
-const tooltipStyle = {
-  backgroundColor: "hsl(217, 33%, 14%)",
-  border: "1px solid hsl(217, 33%, 22%)",
-  borderRadius: "8px",
-};
-
-/** Impression-weighted average of a per-ad percentage. */
-function weighted(ads: AdItem[], pick: (a: AdItem) => number, impressions: number) {
-  return impressions ? ads.reduce((s, a) => s + pick(a) * a.stats.impressions, 0) / impressions : 0;
-}
-
-/** Statistics tab: platform-wide numbers for feed ads. UI-only (mock data). */
+/** Platform-wide numbers for feed ads (`GET /admin/ads/summary`, commercials only, windowed). */
 export function PlatformStats() {
-  const { label: rangeLabel, timeRange } = useAnalyticsDateRange();
+  const { label: rangeLabel, timeRange, window: range } = useAnalyticsDateRange();
+  // "All time" has no preset window; the backend caps windows, so use the longest preset
+  const summaryWindow = range ?? analyticsWindowFor("12m")!;
+  const { summaryQuery, summary } = useAdSalesSummary(summaryWindow);
 
-  const delivered = MOCK_ADS.filter((a) => a.stats.impressions > 0);
-  const impressions = delivered.reduce((s, a) => s + a.stats.impressions, 0);
-  const clicks = Math.round(delivered.reduce((s, a) => s + (a.stats.impressions * a.stats.ctr) / 100, 0));
-  const ctr = impressions ? (clicks / impressions) * 100 : 0;
-  const completion = weighted(delivered, (a) => a.stats.completionRate, impressions);
-  const { uniqueReach, byRegion } = MOCK_PLATFORM_STATS;
-  const activeAds = MOCK_ADS.filter((a) => a.status === "live").length;
+  const commercial = summary?.delivery?.commercial;
+  const impressions = commercial?.impressions ?? 0;
+  // one row per day of the window, zero-filled by the backend
+  const daily = summary?.daily ?? [];
+  // the "Needs review" thresholds are the backend's (`needsReviewRule`), not ours
+  const reviewRule = summary?.needsReviewRule;
+  // all five macro-regions, zero-filled; impressions without a region aren't in any of them,
+  // so each share is of the attributed total
+  const regions = summary?.byRegion?.filter((r) => isMacroRegion(r.region)) ?? [];
+  const regionImpressions = regions?.reduce((sum, r) => sum + r.impressions, 0) ?? 0;
 
-  const byImpressions = [...delivered].sort((a, b) => b.stats.impressions - a.stats.impressions);
-  const topAds = byImpressions.slice(0, 5);
-  const needsReview = byImpressions.filter(
-    (a) =>
-      a.stats.impressions >= REVIEW_MIN_IMPRESSIONS && a.stats.ctr < REVIEW_CTR,
-  );
-
-  const daily = dailyPlatformImpressions(30);
-
-  // Export: one row per date, the tile metrics as columns.
   const exportCsv = () =>
-    downloadCsv(
-      `ads-platform-${timeRange}.csv`,
-      dailyStatsCsv(daily, { impressions, uniqueReach, ctr, completionRate: completion }),
-    );
+    downloadCsv(`ads-platform-${timeRange}.csv`, [
+      ["Date", "Impressions"],
+      ...daily.map((d) => [d.day, d.impressions]),
+    ]);
 
   return (
     <div className="space-y-6">
@@ -81,24 +61,29 @@ export function PlatformStats() {
         </div>
         <div className="flex items-center gap-2">
           <AnalyticsDateFilter />
-          <Button variant="outline" className="gap-2" onClick={exportCsv}>
+          <Button variant="outline" className="gap-2" onClick={exportCsv} disabled={!daily.length}>
             <Download className="h-4 w-4" />
             Export
           </Button>
         </div>
       </div>
 
-      {/* KPI row */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 xl:grid-cols-6">
-        <StatTile label="Impressions" value={fmtNum(impressions)} />
-        <StatTile label="Unique reach" value={fmtNum(uniqueReach)} />
-        <StatTile label="Clicks" value={fmtNum(clicks)} />
-        <StatTile label="CTR" value={pct(ctr)} />
-        <StatTile label="Completion rate" value={pct(completion)} />
-        <StatTile label="Active ads" value={activeAds} />
+        <StatTile label="Impressions" value={commercial ? formatCount(impressions) : EMPTY} />
+        <StatTile label="Unique reach" value={formatCount(commercial?.uniqueViewers)} />
+        <StatTile label="Clicks" value={formatCount(commercial?.clicks)} />
+        <StatTile label="CTR" value={formatRatioPct(commercial?.ctr)} />
+        <StatTile
+          label="Completion rate"
+          value={
+            commercial
+              ? formatRatioPct(impressions ? commercial.completes / impressions : 0)
+              : EMPTY
+          }
+        />
+        <StatTile label="Active ads" value={summary?.counts?.activeCommercials ?? EMPTY} />
       </div>
 
-      {/* Impressions over time */}
       <GlassCard>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
@@ -108,21 +93,7 @@ export function PlatformStats() {
           <p className="text-muted-foreground text-sm">Daily</p>
         </CardHeader>
         <CardContent>
-          <div className="h-[240px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={daily}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(217, 33%, 22%)" vertical={false} />
-                <XAxis dataKey="day" stroke="hsl(215, 20%, 65%)" fontSize={11} interval={4} />
-                <YAxis stroke="hsl(215, 20%, 65%)" fontSize={11} tickFormatter={(v: number) => fmtNum(v)} />
-                <Tooltip
-                  contentStyle={tooltipStyle}
-                  cursor={{ fill: "hsl(217, 33%, 22%)", opacity: 0.4 }}
-                  formatter={(v: number) => [v.toLocaleString(), "Impressions"]}
-                />
-                <Bar dataKey="impressions" fill="hsl(217, 91%, 60%)" radius={[3, 3, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+          <AdImpressionsChart data={daily} variant="bar" />
         </CardContent>
       </GlassCard>
 
@@ -131,20 +102,27 @@ export function PlatformStats() {
           title="Top ads"
           icon={Trophy}
           iconClass="text-warning"
-          ads={topAds}
+          ads={summary?.topCommercials ?? []}
+          reviewCtr={reviewRule?.maxCtr}
+          isLoading={summaryQuery.isPending}
           empty="No impressions in this range yet."
         />
         <AdTable
           title="Needs review"
           icon={AlertTriangle}
           iconClass="text-destructive"
-          description={`CTR < ${REVIEW_CTR}% (${fmtNum(REVIEW_MIN_IMPRESSIONS)}+ impressions)`}
-          ads={needsReview}
+          description={
+            reviewRule
+              ? `CTR < ${formatRatioPct(reviewRule.maxCtr)} (${formatCount(reviewRule.minImpressions)}+ impressions)`
+              : undefined
+          }
+          ads={summary?.needsReview ?? []}
+          reviewCtr={reviewRule?.maxCtr}
+          isLoading={summaryQuery.isPending}
           empty="All ads are performing normally."
         />
       </div>
 
-      {/* By region */}
       <GlassCard>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
@@ -153,17 +131,20 @@ export function PlatformStats() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          {byRegion.map((r) => (
-            <div key={r.region} className="flex items-center gap-3 text-sm">
-              <span className="text-foreground w-28 shrink-0">{regionLabel(r.region)}</span>
-              <div className="bg-background h-2 flex-1 overflow-hidden rounded-full">
-                <div className="bg-primary h-full rounded-full" style={{ width: `${r.share}%` }} />
+          {regions?.map((r) => {
+            const share = regionImpressions ? (r.impressions / regionImpressions) * 100 : 0;
+            return (
+              <div key={r.region} className="flex items-center gap-3 text-sm">
+                <span className="text-foreground w-28 shrink-0">{regionLabel(r.region)}</span>
+                <div className="bg-background h-2 flex-1 overflow-hidden rounded-full">
+                  <div className="bg-primary h-full rounded-full" style={{ width: `${share}%` }} />
+                </div>
+                <span className="text-foreground-secondary w-28 shrink-0 text-right text-xs tabular-nums">
+                  {Math.round(share)}% · {formatRatioPct(r.ctr)} CTR
+                </span>
               </div>
-              <span className="text-foreground-secondary w-28 shrink-0 text-right text-xs tabular-nums">
-                {r.share}% · {pct(r.ctr)} CTR
-              </span>
-            </div>
-          ))}
+            );
+          })}
         </CardContent>
       </GlassCard>
     </div>
@@ -176,16 +157,56 @@ function AdTable({
   icon: Icon,
   iconClass,
   ads,
+  reviewCtr,
+  isLoading,
   empty,
 }: {
   title: string;
   description?: string;
   icon: LucideIcon;
   iconClass: string;
-  ads: AdItem[];
+  ads: AdSalesCommercialRowDto[];
+  /** CTR below this is flagged red (the needs-review threshold). */
+  reviewCtr?: number;
+  isLoading: boolean;
   empty: string;
 }) {
   const router = useRouter();
+  const returnTo = useCurrentHref();
+  const columns: Column<AdSalesCommercialRowDto>[] = [
+    {
+      header: "Ad",
+      cell: (ad) => (
+        <>
+          <p className="text-foreground font-medium">{ad?.name}</p>
+          <p className="text-muted-foreground text-xs">{ad?.advertiserName}</p>
+        </>
+      ),
+    },
+    {
+      header: "Impr.",
+      headerClassName: "text-right",
+      className: "text-right tabular-nums",
+      cell: (ad) => formatCount(ad?.impressions),
+    },
+    {
+      header: "CTR",
+      headerClassName: "text-right",
+      className: "text-right tabular-nums",
+      cell: (ad) => (
+        <span className={cn(reviewCtr !== undefined && ad?.ctr < reviewCtr && "text-destructive")}>
+          {formatRatioPct(ad?.ctr)}
+        </span>
+      ),
+    },
+    {
+      header: "Completion",
+      headerClassName: "text-right",
+      className: "text-right tabular-nums",
+      cell: (ad) => formatRatioPct(ad?.completionRate),
+    },
+  ];
+
   return (
     <GlassCard>
       <CardHeader>
@@ -196,44 +217,18 @@ function AdTable({
         {description && <p className="text-muted-foreground text-xs">{description}</p>}
       </CardHeader>
       <CardContent>
-        {ads.length === 0 ? (
-          <p className="text-muted-foreground py-6 text-center text-sm">{empty}</p>
-        ) : (
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-muted-foreground border-border/40 border-b text-xs">
-                <th className="pb-2 text-left font-medium">Ad</th>
-                <th className="pb-2 text-right font-medium">Impr.</th>
-                <th className="pb-2 text-right font-medium">CTR</th>
-                <th className="pb-2 text-right font-medium">Completion</th>
-              </tr>
-            </thead>
-            <tbody>
-              {ads.map((ad) => (
-                <tr
-                  key={ad.id}
-                  onClick={() => router.push(`/ads/${ad.id}` as Route)}
-                  className="border-border/30 hover:bg-muted/30 cursor-pointer border-b last:border-b-0">
-                  <td className="py-2">
-                    <p className="text-foreground font-medium">{ad.name}</p>
-                    <p className="text-muted-foreground text-xs">{ad.advertiser}</p>
-                  </td>
-                  <td className="py-2 text-right tabular-nums">{fmtNum(ad.stats.impressions)}</td>
-                  <td
-                    className={cn(
-                      "py-2 text-right tabular-nums",
-                      ad.stats.ctr < REVIEW_CTR && "text-destructive",
-                    )}>
-                    {pct(ad.stats.ctr)}
-                  </td>
-                  <td className="py-2 text-right tabular-nums">{ad.stats.completionRate}%</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+        <DataTable
+          columns={columns}
+          data={ads}
+          rowIdKey="id"
+          isLoading={isLoading}
+          loadingRows={3}
+          onRowClick={(ad) => router.push(AD_ROUTES.details(ad?.id, returnTo))}
+          classNames={{ table: "text-sm", cell: "px-3 py-2", head: "px-3 text-xs" }}
+          className="bg-transparent"
+          emptyState={<span className="text-muted-foreground text-sm">{empty}</span>}
+        />
       </CardContent>
     </GlassCard>
   );
 }
-

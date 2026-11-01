@@ -3,6 +3,10 @@
 
 export type MacroRegion = "NA" | "EU" | "APAC" | "LATAM" | "MEA";
 
+/** "No filter" values for the geo filters: every country (`?country=`) / the whole library. */
+export const ALL_COUNTRIES = "all";
+export const ALL_REGIONS = "all";
+
 export const MACRO_REGIONS: { code: MacroRegion; label: string }[] = [
   { code: "NA", label: "North America" },
   { code: "EU", label: "Europe" },

@@ -1,8 +1,6 @@
 "use client";
 
-import * as React from "react";
-
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 import {
   LuChevronLeft,
@@ -12,7 +10,6 @@ import {
   LuGamepad2,
   LuGift,
   LuLayoutDashboard,
-  LuLogOut,
   LuMegaphone,
   LuSettings,
   LuShieldAlert,
@@ -20,48 +17,36 @@ import {
 } from "react-icons/lu";
 
 import { useSidebar } from "@/components/ui/sidebar";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
-import {
-  getAdminDisplayName,
-  getAdminInitials,
-  useMockAdminProfile,
-} from "@/app/_libs/mock-admin-profile";
+import { ADMIN_ROUTES, type AdminRoute } from "@/app/_libs/constants/routes";
 import { cn } from "@/app/_libs/utils/cn";
+import { CustomButton } from "@/components/custom/custom-button";
+import { CustomTooltip } from "@/components/custom/custom-tooltip";
+import { SidebarUserProfile } from "@/components/custom/sidebar-user-profile";
 
 interface NavItem {
   title: string;
-  href: string;
+  href: AdminRoute;
   icon: React.ElementType;
 }
 
 const navItems: NavItem[] = [
-  { title: "Dashboard", href: "/dashboard", icon: LuLayoutDashboard },
-  { title: "Content Management", href: "/content", icon: LuFilm },
-  { title: "Game Management", href: "/games", icon: LuGamepad2 },
-  { title: "Rewards", href: "/rewards", icon: LuGift },
-  { title: "User Management", href: "/users", icon: LuUsers },
-  { title: "Ads Management", href: "/ads", icon: LuMegaphone },
-  { title: "Subscriptions", href: "/subscriptions", icon: LuCreditCard },
-  { title: "Moderation Queue", href: "/moderation", icon: LuShieldAlert },
-  { title: "Report Management", href: "/reports", icon: LuClipboardList },
-  { title: "Settings", href: "/settings", icon: LuSettings },
+  { title: "Dashboard", href: ADMIN_ROUTES.DASHBOARD, icon: LuLayoutDashboard },
+  { title: "Content Management", href: ADMIN_ROUTES.CONTENT, icon: LuFilm },
+  { title: "Game Management", href: ADMIN_ROUTES.GAMES, icon: LuGamepad2 },
+  { title: "Rewards", href: ADMIN_ROUTES.REWARDS, icon: LuGift },
+  { title: "User Management", href: ADMIN_ROUTES.USERS, icon: LuUsers },
+  { title: "Ads Management", href: ADMIN_ROUTES.ADS, icon: LuMegaphone },
+  { title: "Subscriptions", href: ADMIN_ROUTES.SUBSCRIPTIONS, icon: LuCreditCard },
+  { title: "Moderation Queue", href: ADMIN_ROUTES.MODERATION, icon: LuShieldAlert },
+  { title: "Report Management", href: ADMIN_ROUTES.REPORTS, icon: LuClipboardList },
+  { title: "Settings", href: ADMIN_ROUTES.SETTINGS, icon: LuSettings },
 ];
 
 export function AppSidebar() {
   const pathname = usePathname();
-  const router = useRouter();
   const { state, toggleSidebar } = useSidebar();
   const isCollapsed = state === "collapsed";
-
-  const profile = useMockAdminProfile();
-  const displayName = getAdminDisplayName(profile);
-  const initials = getAdminInitials(profile);
-
-  const handleLogout = () => {
-    // Add logout logic here when auth is connected
-    router.push("/");
-  };
 
   return (
     <aside
@@ -72,25 +57,21 @@ export function AppSidebar() {
       {/* Logo */}
       <div className="border-sidebar-border flex h-16 items-center border-b px-3">
         <div className="flex w-full items-center">
-          <Tooltip delayDuration={0}>
-            <TooltipTrigger asChild>
-              <div
-                onClick={toggleSidebar}
-                className="from-primary to-accent shadow-glow-sm flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-lg bg-linear-to-br">
-                <span className="text-primary-foreground font-sans text-lg font-bold">M</span>
-              </div>
-            </TooltipTrigger>
-            {isCollapsed && (
-              <TooltipContent
-                side="right"
-                sideOffset={12}
-                className="bg-card/95 text-card-foreground border-border/50 rounded-lg border shadow-xl backdrop-blur-xl">
-                <span className="font-sans font-bold">
-                  Maintinee<span className="text-primary">.io</span>
-                </span>
-              </TooltipContent>
-            )}
-          </Tooltip>
+          <CustomTooltip
+            side="right"
+            sideOffset={12}
+            disabled={!isCollapsed}
+            content={
+              <span className="font-sans font-bold">
+                Maintinee<span className="text-primary">.io</span>
+              </span>
+            }>
+            <div
+              onClick={toggleSidebar}
+              className="from-primary to-accent shadow-glow-sm flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-lg bg-linear-to-br">
+              <span className="text-primary-foreground font-sans text-lg font-bold">M</span>
+            </div>
+          </CustomTooltip>
 
           <div
             className={cn(
@@ -100,11 +81,14 @@ export function AppSidebar() {
             <span className="text-foreground font-sans font-bold whitespace-nowrap">
               Maintinee<span className="text-primary">.io</span>
             </span>
-            <button
+            <CustomButton
+              variant="ghost"
+              size="icon"
               onClick={toggleSidebar}
-              className="text-sidebar-foreground hover:bg-sidebar-accent cursor-pointer rounded-md p-1 transition-colors">
-              <LuChevronLeft className="h-4 w-4" />
-            </button>
+              aria-label="Collapse sidebar"
+              className="text-sidebar-foreground dark:text-sidebar-foreground hover:bg-sidebar-accent dark:hover:bg-sidebar-accent size-7 rounded-md">
+              <LuChevronLeft />
+            </CustomButton>
           </div>
         </div>
       </div>
@@ -115,99 +99,34 @@ export function AppSidebar() {
           const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
           const Icon = item.icon;
 
-          const linkContent = (
-            <a
-              href={item.href}
-              className={cn(
-                "flex h-10 w-full items-center rounded-lg px-2 transition-all duration-200",
-                isActive
-                  ? "bg-primary/20 text-primary shadow-glow-sm"
-                  : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-              )}>
-              <div className="flex w-8 shrink-0 items-center justify-center">
-                <Icon className={cn("h-5 w-5", isActive && "text-primary")} />
-              </div>
-              <span
+          return (
+            <CustomTooltip
+              key={item.href}
+              side="right"
+              sideOffset={12}
+              disabled={!isCollapsed}
+              content={item.title}>
+              <a
+                href={item.href}
                 className={cn(
-                  "overflow-hidden text-sm font-medium whitespace-nowrap transition-all duration-400 ease-in-out",
+                  "flex h-10 w-full items-center rounded-lg px-2 transition-all duration-200",
+                  isActive
+                    ? "bg-primary/20 text-primary shadow-glow-sm"
+                    : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
                 )}>
-                {item.title}
-              </span>
-            </a>
-          );
-
-          if (isCollapsed) {
-            return (
-              <Tooltip key={item.href} delayDuration={0}>
-                <TooltipTrigger asChild>{linkContent}</TooltipTrigger>
-                <TooltipContent
-                  side="right"
-                  sideOffset={12}
-                  className="bg-card/95 text-card-foreground border-border/50 rounded-lg border shadow-xl backdrop-blur-xl">
+                <div className="flex w-8 shrink-0 items-center justify-center">
+                  <Icon className={cn("h-5 w-5", isActive && "text-primary")} />
+                </div>
+                <span className="overflow-hidden text-sm font-medium whitespace-nowrap transition-all duration-400 ease-in-out">
                   {item.title}
-                </TooltipContent>
-              </Tooltip>
-            );
-          }
-
-          return <div key={item.href}>{linkContent}</div>;
+                </span>
+              </a>
+            </CustomTooltip>
+          );
         })}
       </nav>
 
-      {/* User Profile Section */}
-      <div className="border-sidebar-border border-t p-3">
-        <div className="flex items-center">
-          <Tooltip delayDuration={0}>
-            <TooltipTrigger asChild>
-              <a
-                href="/profile"
-                aria-label="View profile"
-                className="from-success to-primary flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full bg-linear-to-br transition-all duration-300">
-                <span className="text-primary-foreground text-sm font-semibold">{initials}</span>
-              </a>
-            </TooltipTrigger>
-            {isCollapsed ? (
-              <TooltipContent
-                side="right"
-                sideOffset={12}
-                className="bg-card/95 text-card-foreground border-border/50 overflow-hidden rounded-xl border p-0 shadow-xl backdrop-blur-xl">
-                <div className="flex items-stretch">
-                  <div className="flex flex-col justify-center px-4 py-3">
-                    <p className="text-foreground text-sm font-semibold">{displayName}</p>
-                    <p className="text-muted-foreground mt-0.5 text-xs">Owner • Full Access</p>
-                  </div>
-                  <button
-                    onClick={handleLogout}
-                    className="bg-destructive/5 hover:bg-destructive/15 text-destructive/80 hover:text-destructive border-border/30 flex items-center justify-center border-l px-4 py-3 transition-all duration-200">
-                    <LuLogOut className="h-4 w-4" />
-                  </button>
-                </div>
-              </TooltipContent>
-            ) : null}
-          </Tooltip>
-
-          <div
-            className={cn(
-              "flex flex-1 items-center justify-between overflow-hidden transition-all duration-400 ease-in-out",
-              isCollapsed ? "ml-0 max-w-0" : "ml-3 max-w-48",
-            )}>
-            <div className="overflow-hidden">
-              <a
-                href="/profile"
-                title={displayName}
-                className="text-foreground hover:text-primary block truncate text-sm font-semibold whitespace-nowrap transition-colors">
-                {displayName}
-              </a>
-              <p className="text-muted-foreground truncate text-xs whitespace-nowrap">Owner</p>
-            </div>
-            <button
-              onClick={handleLogout}
-              className="text-muted-foreground hover:text-destructive shrink-0 p-2 transition-colors">
-              <LuLogOut className="h-4 w-4" />
-            </button>
-          </div>
-        </div>
-      </div>
+      <SidebarUserProfile isCollapsed={isCollapsed} />
     </aside>
   );
 }

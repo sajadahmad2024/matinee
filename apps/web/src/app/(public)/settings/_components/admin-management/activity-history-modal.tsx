@@ -9,10 +9,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-import { type Admin, mockAuditLogs } from "./types";
+import { type AdminUserResponseDto } from "@/app/_libs/hooks/api/use-admin-admins";
+import { getUserDisplayName } from "@/app/_libs/utils/user-display";
+
+import { mockAuditLogs } from "./types";
 
 interface ActivityHistoryModalProps {
-  admin: Admin | null;
+  admin: AdminUserResponseDto | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
@@ -20,16 +23,16 @@ interface ActivityHistoryModalProps {
 export function ActivityHistoryModal({ admin, open, onOpenChange }: ActivityHistoryModalProps) {
   if (!admin) return null;
 
-  const adminLogs = mockAuditLogs.filter((log) => log.actor === admin.name);
+  const adminLogs = mockAuditLogs.filter((log) => log.actor === getUserDisplayName(admin));
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="border-border bg-card max-w-lg">
         <DialogHeader>
           <DialogTitle>Activity History</DialogTitle>
-          <DialogDescription>Recent actions by {admin.name}</DialogDescription>
+          <DialogDescription>Recent actions by {getUserDisplayName(admin)}</DialogDescription>
         </DialogHeader>
-        <div className="max-h-[400px] space-y-3 overflow-y-auto">
+        <div className="max-h-100 space-y-3 overflow-y-auto">
           {adminLogs.map((log) => (
             <div
               key={log.id}

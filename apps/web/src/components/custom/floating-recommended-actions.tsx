@@ -45,7 +45,7 @@ export function FloatingRecommendedActions({
       : "low";
 
   return (
-    <div className="pointer-events-none fixed right-6 bottom-6 z-40 flex flex-col items-end gap-3 print:hidden">
+    <div className="pointer-events-none fixed right-6 bottom-3 z-40 flex flex-col items-end gap-3 print:hidden">
       {open && (
         <div className="glass-card animate-fade-in border-border bg-card pointer-events-auto w-[min(26rem,calc(100vw-3rem))] rounded-xl border shadow-xl">
           <div className="border-border/50 flex items-center justify-between gap-2 border-b px-4 py-3">

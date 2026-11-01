@@ -1,7 +1,5 @@
 import type { MacroRegion } from "@/app/_libs/regions";
 
-import { MOCK_VIDEOS } from "../content/constants";
-
 // ─────────────────────────────────────────────────────────────────────────────
 // Bidding for Experiences — fully configured in this module.
 // ─────────────────────────────────────────────────────────────────────────────
@@ -220,13 +218,13 @@ export const MOCK_EXPERIENCES: ExperienceReward[] = [
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Unlock Content — configured in Content Management; tracked & linked here.
-// Rows reference real MOCK_VIDEOS ids so the linkage is honest even in mock form.
+// Rows reference mock video ids (MOCK_VIDEO_TITLES below) until this list is wired to the API.
 // ─────────────────────────────────────────────────────────────────────────────
 
 export type UnlockStatus = "live" | "scheduled" | "off";
 
 export interface UnlockContentRow {
-  contentId: string; // MOCK_VIDEOS id — row links to /content/details/{id}
+  contentId: string; // mock video id — row links to /content/details/{id}
   title: string;
   unlockCost: number; // pts
   status: UnlockStatus;
@@ -236,7 +234,16 @@ export interface UnlockContentRow {
   region: MacroRegion;
 }
 
-const videoTitle = (id: string) => MOCK_VIDEOS.find((v) => v.id === id)?.title ?? `Video ${id}`;
+/** Mock video titles by id for the unlock list (until it's wired to the content API). */
+const MOCK_VIDEO_TITLES: Record<string, string> = {
+  "1": "K-Drama Romance: Episode 1",
+  "2": "Action Thrill: The Chase",
+  "3": "The Sword Master",
+  "5": "Cooking Battle: Season 2 Finale",
+  "6": "Travel Adventures: Japan",
+};
+
+const videoTitle = (id: string) => MOCK_VIDEO_TITLES[id] ?? `Video ${id}`;
 
 export const MOCK_UNLOCK_CONTENT: UnlockContentRow[] = [
   {

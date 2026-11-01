@@ -1,5 +1,5 @@
-import { PostHog } from "posthog-node";
 import { env } from "env";
+import { PostHog } from "posthog-node";
 
 let posthogInstance: PostHog | null = null;
 

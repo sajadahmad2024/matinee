@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { CardContent } from "@/components/ui/card";
 
-import { AnalyticsHeader } from "../../games/_components/analytics-header";
+import { AnalyticsCardHeader } from "@/components/custom/analytics-card-header";
 import { GlassCard } from "@/components/custom/glass-card";
 
 const whales = [
@@ -39,7 +39,7 @@ export function UserSegments() {
     <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
       {/* Whales */}
       <GlassCard>
-        <AnalyticsHeader
+        <AnalyticsCardHeader
           title="Top Spenders"
           description="Highest revenue users"
           icon={Crown}
@@ -70,7 +70,7 @@ export function UserSegments() {
 
       {/* Power Gamers */}
       <GlassCard>
-        <AnalyticsHeader
+        <AnalyticsCardHeader
           title="Power Gamers"
           description="Highest participation"
           icon={Gamepad2}
@@ -103,7 +103,7 @@ export function UserSegments() {
 
       {/* Churn Risk */}
       <GlassCard className="bg-destructive/5 border-destructive/20">
-        <AnalyticsHeader
+        <AnalyticsCardHeader
           title="Churn Risk"
           description="High-value users at risk"
           icon={AlertTriangle}

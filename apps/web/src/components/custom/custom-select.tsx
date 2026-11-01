@@ -10,6 +10,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+import { cn } from "@/app/_libs/utils/cn";
+
 export interface CustomSelectOption<T extends string = string> {
   value: T;
   label: React.ReactNode;
@@ -57,13 +59,20 @@ export function CustomSelect<T extends string = string>({
 
   return (
     <Select value={value} onValueChange={handleChange} disabled={disabled}>
-      <SelectTrigger id={id} className={triggerClassName} aria-label={ariaLabel}>
+      <SelectTrigger
+        id={id}
+        className={cn("cursor-pointer", triggerClassName)}
+        aria-label={ariaLabel}>
         {leftIcon}
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
       <SelectContent className={contentClassName || undefined}>
         {options.map((option) => (
-          <SelectItem key={option.value} value={option.value} disabled={option.disabled}>
+          <SelectItem
+            key={option.value}
+            value={option.value}
+            disabled={option.disabled}
+            className="cursor-pointer">
             {option.label}
           </SelectItem>
         ))}

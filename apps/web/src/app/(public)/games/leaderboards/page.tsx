@@ -1,34 +1,30 @@
 import { Suspense } from "react";
 
-import type { Route } from "next";
-import Link from "next/link";
+import type { Metadata } from "next";
 
-import { ArrowLeft } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
-import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/custom/page-header";
 
-import { GlobalLeaderboards } from "../_components/global-leaderboards";
+import { GAME_ROUTES } from "../_libs/game-config";
+import { LeaderboardsTabs } from "./_components/leaderboards-tabs";
+
+export const metadata: Metadata = {
+  title: "Leaderboards",
+  description: "Top games by competition health, and the platform-wide top players.",
+};
 
 export default function LeaderboardsPage() {
   return (
     <div className="animate-fade-in space-y-6">
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" asChild>
-          <Link href={"/games" as Route}>
-            <ArrowLeft className="h-5 w-5" />
-          </Link>
-        </Button>
-        <div>
-          <h1 className="font-gaming text-foreground text-2xl font-bold">Leaderboards</h1>
-          <p className="text-foreground-secondary text-sm">
-            Top games by competition health, and the platform-wide top players.
-          </p>
-        </div>
-      </div>
-
-      <Suspense
-        fallback={<div className="bg-muted/20 h-[400px] w-full animate-pulse rounded-xl" />}>
-        <GlobalLeaderboards />
+      <PageHeader
+        title="Leaderboards"
+        subtitle="Top games by competition health, and the platform-wide top players."
+        backHref={GAME_ROUTES.LIST}
+        backLabel="Back to Game Management"
+      />
+      <Suspense fallback={<Skeleton className="bg-muted/20 h-[400px] w-full rounded-xl" />}>
+        <LeaderboardsTabs />
       </Suspense>
     </div>
   );

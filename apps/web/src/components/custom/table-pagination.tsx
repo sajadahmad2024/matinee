@@ -15,7 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-interface TablePaginationProps {
+export interface TablePaginationProps {
   currentPage: number;
   totalPages: number;
   pageSize: number;
@@ -37,35 +37,21 @@ export function TablePagination({
   const startItem = (currentPage - 1) * pageSize + 1;
   const endItem = Math.min(currentPage * pageSize, totalItems);
 
-  const getVisiblePages = () => {
-    const pages: (number | "ellipsis")[] = [];
-
-    if (totalPages <= 7) {
+  /**
+   * At most five slots: every page up to five, otherwise the first and last page around the
+   * current one — `1 2 3 … 10`, `1 … 5 … 10`, `1 … 8 9 10`.
+   */
+  const getVisiblePages = (): (number | "ellipsis")[] => {
+    if (totalPages <= 5) {
       return Array.from({ length: totalPages }, (_, i) => i + 1);
     }
-
-    pages.push(1);
-
-    if (currentPage > 3) {
-      pages.push("ellipsis");
+    if (currentPage <= 3) {
+      return [1, 2, 3, "ellipsis", totalPages];
     }
-
-    const start = Math.max(2, currentPage - 1);
-    const end = Math.min(totalPages - 1, currentPage + 1);
-
-    for (let i = start; i <= end; i++) {
-      pages.push(i);
+    if (currentPage >= totalPages - 2) {
+      return [1, "ellipsis", totalPages - 2, totalPages - 1, totalPages];
     }
-
-    if (currentPage < totalPages - 2) {
-      pages.push("ellipsis");
-    }
-
-    if (totalPages > 1) {
-      pages.push(totalPages);
-    }
-
-    return pages;
+    return [1, "ellipsis", currentPage, "ellipsis", totalPages];
   };
 
   return (

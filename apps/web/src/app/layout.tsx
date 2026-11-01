@@ -3,12 +3,14 @@ import "./globals.css";
 import Script from "next/script";
 
 import { Analytics } from "@vercel/analytics/next";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
 import GoogleAnalyticsScripts from "@/app/_components/google-analytics";
 import SonnarToaster from "@/app/_components/sonner-toaster";
 import { inter, jetbrainsMono, rajdhani } from "@/app/_config/fonts";
 import { getJsonLd } from "@/app/_config/jsonId";
+import { QueryProvider } from "@/app/_libs/query/query-provider";
 import { metadata } from "@/app/_config/metadata";
 import { viewport } from "@/app/_config/viewport";
 
@@ -25,7 +27,10 @@ export default function RootLayout({
     <html lang="en" className="dark">
       <body
         className={`${inter.variable} ${rajdhani.variable} ${jetbrainsMono.variable} font-sans antialiased`}>
-        {children}
+        {/* UI demo: no AuthBridge (session handling) — the hooks serve mock data */}
+        <NuqsAdapter>
+          <QueryProvider>{children}</QueryProvider>
+        </NuqsAdapter>
         <SonnarToaster />
         <GoogleAnalyticsScripts />
         {shouldRenderVercelInsights && (

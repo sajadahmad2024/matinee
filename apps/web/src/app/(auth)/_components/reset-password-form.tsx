@@ -1,39 +1,25 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { AiOutlineLoading3Quarters } from "react-icons/ai";
+import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { z } from "zod";
 
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-
-import { ROUTES } from "@/app/_libs/constants/routes";
+import { ADMIN_ROUTES, AUTH_ROUTES } from "@/app/_libs/constants/routes";
+import {
+  useAdminForgotPassword,
+  useAdminResetPassword,
+} from "@/app/_libs/hooks/api/use-admin-auth";
+import { type AuthResetPasswordFormValues, authResetPasswordSchema } from "@/app/_libs/schemas";
 import { cn } from "@/app/_libs/utils/cn";
+import { CustomButton } from "@/components/custom/custom-button";
 import { CustomInput } from "@/components/custom/custom-input";
+import { CustomOtpInput } from "@/components/custom/custom-otp-input";
 
-const resetSchema = z
-  .object({
-    otp: z.string().length(6, "Please enter the complete 6-digit code"),
-    newPassword: z
-      .string()
-      .min(8, "Password must be at least 8 characters")
-      .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-      .regex(/[a-z]/, "Password must contain at least one lowercase letter")
-      .regex(/[0-9]/, "Password must contain at least one number"),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.newPassword === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"],
-  });
-
-type ResetFormData = z.infer<typeof resetSchema>;
+const RESEND_COOLDOWN_SECONDS = 45;
 
 function getPasswordStrength(password: string): { score: number; label: string; color: string } {
   let score = 0;
@@ -49,22 +35,28 @@ function getPasswordStrength(password: string): { score: number; label: string; 
   return { score: 3, label: "Strong", color: "bg-success" };
 }
 
-export function ResetPasswordForm() {
+interface ResetPasswordFormProps {
+  isInvite?: boolean;
+}
+
+export function ResetPasswordForm({ isInvite = false }: ResetPasswordFormProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const email = searchParams.get("email") || "user@example.com";
-  const [isLoading, setIsLoading] = useState(false);
-  const [otpValues, setOtpValues] = useState<string[]>(Array(6).fill(""));
-  const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const email = searchParams.get("email")?.trim() ?? "";
+
+  const { adminResetPasswordMutation } = useAdminResetPassword();
+  const { adminForgotPasswordMutation } = useAdminForgotPassword();
+  const [resendIn, setResendIn] = useState(isInvite ? 0 : RESEND_COOLDOWN_SECONDS);
 
   const {
     register,
+    control,
     handleSubmit,
     setValue,
     watch,
     formState: { errors },
-  } = useForm<ResetFormData>({
-    resolver: zodResolver(resetSchema),
+  } = useForm<AuthResetPasswordFormValues>({
+    resolver: zodResolver(authResetPasswordSchema),
     defaultValues: {
       otp: "",
       newPassword: "",
@@ -76,101 +68,107 @@ export function ResetPasswordForm() {
   const strength = getPasswordStrength(newPassword || "");
 
   useEffect(() => {
-    setValue("otp", otpValues.join(""));
-  }, [otpValues, setValue]);
+    if (resendIn <= 0) return;
+    const timer = setTimeout(() => setResendIn((seconds) => seconds - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [resendIn]);
 
-  const handleOtpChange = (index: number, value: string) => {
-    if (value.length > 1) {
-      value = value.slice(-1);
-    }
-    if (!/^\d*$/.test(value)) return;
-
-    const newOtp = [...otpValues];
-    newOtp[index] = value;
-    setOtpValues(newOtp);
-
-    if (value && index < 5) {
-      otpRefs.current[index + 1]?.focus();
-    }
+  const onSubmit = (values: AuthResetPasswordFormValues) => {
+    adminResetPasswordMutation.mutate(
+      { email, code: values.otp, newPassword: values.newPassword },
+      {
+        onSuccess: () => {
+          toast.success("Password updated", {
+            description: "You're now signed in.",
+          });
+          router.replace(ADMIN_ROUTES.DASHBOARD);
+        },
+        onError: (error) => {
+          toast.error(error?.message || "Failed to reset password. Please try again.");
+        },
+      },
+    );
   };
 
-  const handleOtpKeyDown = (index: number, e: React.KeyboardEvent) => {
-    if (e.key === "Backspace" && !otpValues[index] && index > 0) {
-      otpRefs.current[index - 1]?.focus();
-    }
+  const handleResend = () => {
+    adminForgotPasswordMutation.mutate(
+      { email },
+      {
+        onSuccess: () => {
+          setValue("otp", "");
+          setResendIn(RESEND_COOLDOWN_SECONDS);
+          toast.success("A new code has been sent", { description: email });
+        },
+        onError: (error) => {
+          toast.error(error?.message || "Unable to resend the code. Please try again.");
+        },
+      },
+    );
   };
 
-  const handleOtpPaste = (e: React.ClipboardEvent) => {
-    e.preventDefault();
-    const pastedData = e.clipboardData.getData("text").slice(0, 6);
-    if (!/^\d+$/.test(pastedData)) return;
-
-    const newOtp = [...otpValues];
-    pastedData.split("").forEach((char, i) => {
-      if (i < 6) newOtp[i] = char;
-    });
-    setOtpValues(newOtp);
-    otpRefs.current[Math.min(pastedData.length, 5)]?.focus();
-  };
-
-  const onSubmit = async (_data: ResetFormData) => {
-    setIsLoading(true);
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      router.push(ROUTES.AUTH.LOGIN);
-    } catch {
-      toast.error("Error", {
-        description: "Failed to reset password. Please try again.",
-      });
-      setIsLoading(false);
-    }
-  };
+  if (!email) {
+    return (
+      <div className="space-y-6 text-center">
+        <p className="text-foreground-secondary text-sm">
+          This reset link is missing an email address. Request a new code from the sign-in page.
+        </p>
+        <CustomButton
+          type="button"
+          onClick={() => router.push(AUTH_ROUTES.LOGIN)}
+          className="h-12 w-full px-8 text-base font-semibold">
+          Back to Sign In
+        </CustomButton>
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <p className="text-foreground-secondary text-sm">
-        Enter the 6-digit code sent to <span className="text-primary font-medium">{email}</span>
+        {isInvite
+          ? "Enter the 6-digit code from your invitation email to "
+          : "Enter the 6-digit code sent to "}
+        <span className="text-primary font-medium">{email}</span>
       </p>
 
       <div className="space-y-2">
-        <Label className="text-foreground-secondary">Verification Code</Label>
-        <div className="flex justify-center gap-3" onPaste={handleOtpPaste}>
-          {Array(6)
-            .fill(null)
-            .map((_, index) => (
-              <input
-                key={index}
-                ref={(el) => {
-                  otpRefs.current[index] = el;
-                }}
-                type="text"
-                inputMode="numeric"
-                maxLength={1}
-                value={otpValues[index]}
-                onChange={(e) => handleOtpChange(index, e.target.value)}
-                onKeyDown={(e) => handleOtpKeyDown(index, e)}
-                className={cn(
-                  "bg-input/50 text-foreground h-14 w-12 rounded-lg border text-center text-xl font-semibold backdrop-blur-sm transition-all duration-200",
-                  "focus:border-primary focus:ring-primary/50 focus:ring-2 focus:outline-none",
-                  errors.otp ? "border-destructive" : "border-border",
-                )}
-              />
-            ))}
-        </div>
-        {errors.otp && <p className="text-destructive text-center text-sm">{errors.otp.message}</p>}
+        <Controller
+          name="otp"
+          control={control}
+          render={({ field }) => (
+            <CustomOtpInput
+              label="Verification Code"
+              value={field.value}
+              onChange={field.onChange}
+              error={errors.otp?.message}
+              autoFocus
+            />
+          )}
+        />
+        <p className="text-foreground-secondary text-center text-sm">
+          Didn&apos;t get a code?{" "}
+          {resendIn > 0 ? (
+            <span className="text-muted-foreground">Resend in {resendIn}s</span>
+          ) : (
+            <button
+              type="button"
+              onClick={handleResend}
+              disabled={adminForgotPasswordMutation.isPending}
+              className="text-primary hover:text-primary/80 cursor-pointer font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50">
+              {adminForgotPasswordMutation.isPending ? "Sending..." : "Resend code"}
+            </button>
+          )}
+        </p>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="newPassword" className="text-foreground-secondary">
-          New Password
-        </Label>
         <CustomInput
           type="password"
           id="newPassword"
+          label="New Password"
           placeholder="Create a strong password"
-          error={!!errors.newPassword}
+          error={errors.newPassword?.message}
           {...register("newPassword")}
-          className="border-border"
         />
         {newPassword && (
           <div className="space-y-1">
@@ -190,42 +188,27 @@ export function ResetPasswordForm() {
             </p>
           </div>
         )}
-        {errors.newPassword && (
-          <p className="text-destructive text-sm">{errors.newPassword.message}</p>
-        )}
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="confirmPassword" className="text-foreground-secondary">
-          Confirm Password
-        </Label>
-        <CustomInput
-          type="password"
-          id="confirmPassword"
-          placeholder="Confirm your password"
-          error={!!errors.confirmPassword}
-          {...register("confirmPassword")}
-          className="border-border"
-        />
-        {errors.confirmPassword && (
-          <p className="text-destructive text-sm">{errors.confirmPassword.message}</p>
-        )}
-      </div>
+      <CustomInput
+        type="password"
+        id="confirmPassword"
+        label="Confirm Password"
+        placeholder="Confirm your password"
+        error={errors.confirmPassword?.message}
+        {...register("confirmPassword")}
+      />
 
-      <Button
+      <CustomButton
         type="submit"
-        disabled={isLoading}
-        className="h-12 w-full cursor-pointer px-8 text-base font-semibold">
-        {isLoading ? (
-          <AiOutlineLoading3Quarters className="size-4 shrink-0 animate-spin" />
-        ) : (
-          "Reset & Login"
-        )}
-      </Button>
+        isLoading={adminResetPasswordMutation.isPending}
+        className="h-12 w-full px-8 text-base font-semibold">
+        {isInvite ? "Set Password & Sign In" : "Reset & Login"}
+      </CustomButton>
 
       <button
         type="button"
-        onClick={() => router.push(ROUTES.AUTH.LOGIN)}
+        onClick={() => router.push(AUTH_ROUTES.LOGIN)}
         className="text-foreground-secondary hover:text-primary w-full cursor-pointer text-sm transition-colors">
         Back to Sign In
       </button>

@@ -5,6 +5,8 @@ import { useState } from "react";
 import type { Route } from "next";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
+import { createPortal } from "react-dom";
+
 import { cn } from "@/app/_libs/utils/cn";
 
 export interface RegionBoxMetric {
@@ -76,6 +78,7 @@ export function RegionBoxFilter({
     } else {
       params.set("region", code);
     }
+    params.delete("page"); // a new scope starts from the first page
     const qs = params.toString();
     router.push((qs ? `${pathname}?${qs}` : pathname) as Route, { scroll: false });
   };
@@ -101,7 +104,7 @@ export function RegionBoxFilter({
               type="button"
               onClick={() => setMetricKey(m.key)}
               className={cn(
-                "rounded-md px-3 py-1 text-xs transition-colors",
+                "cursor-pointer rounded-md px-3 py-1 text-xs transition-colors",
                 metricKey === m.key
                   ? "bg-background text-foreground"
                   : "text-muted-foreground hover:text-foreground",
@@ -135,11 +138,13 @@ export function RegionBoxFilter({
                 }}
                 onMouseLeave={() => setHover(null)}
                 className={cn(
-                  "border-border hover:border-primary/50 focus-visible:ring-primary relative cursor-pointer rounded-lg border p-3 transition-all duration-200 hover:scale-105 focus-visible:ring-2 focus-visible:outline-none",
+                  // Highlights by border / ring only — scaling the cell would eat the grid gap. Foreground,
+                  // not primary: the heat fill can itself be primary blue.
+                  "border-border hover:border-foreground/50 focus-visible:ring-foreground relative cursor-pointer rounded-lg border p-3 transition-[border-color,box-shadow,filter] duration-200 hover:brightness-110 focus-visible:ring-2 focus-visible:outline-none",
                   // "All" is a reset, not a territory — a heat fill would make it permanently
                   // the brightest cell and read as selected.
                   isAll && "bg-muted/40",
-                  isActive && "border-primary shadow-glow-sm shadow-primary/10 scale-105",
+                  isActive && "border-foreground ring-foreground/70 ring-1",
                 )}
                 style={isAll ? undefined : { backgroundColor: color(value / peak) }}>
                 <div className="text-center">
@@ -166,17 +171,21 @@ export function RegionBoxFilter({
         </div>
       </div>
 
-      {hover && (
-        <div
-          className="glass-card animate-fade-in pointer-events-none fixed z-50 rounded-lg px-3 py-2 text-sm"
-          style={{ left: hover.x, top: hover.y, transform: "translate(-50%, -100%)" }}>
-          <p className="text-foreground font-semibold">{hover.name}</p>
-          <p className="text-primary mt-1 text-xs">
-            {fmt(hover.value)} {metric.label.toLowerCase()}
-          </p>
-          <p className="text-muted-foreground mt-0.5 text-[11px]">Filter this region →</p>
-        </div>
-      )}
+      {/* Portalled: a transformed / backdrop-filtered ancestor would turn `fixed` into in-flow
+          positioning, growing the card under the cursor and flickering the hover. */}
+      {hover &&
+        createPortal(
+          <div
+            className="glass-card pointer-events-none fixed z-50 rounded-lg px-3 py-2 text-sm"
+            style={{ left: hover.x, top: hover.y, transform: "translate(-50%, -100%)" }}>
+            <p className="text-foreground font-semibold">{hover.name}</p>
+            <p className="text-primary mt-1 text-xs">
+              {fmt(hover.value)} {metric.label.toLowerCase()}
+            </p>
+            <p className="text-muted-foreground mt-0.5 text-[11px]">Filter this region →</p>
+          </div>,
+          document.body,
+        )}
     </div>
   );
 }

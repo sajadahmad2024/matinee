@@ -5,7 +5,16 @@ import { useState } from "react";
 import type { Route } from "next";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-import { endOfDay, format, parseISO } from "date-fns";
+import {
+  addDays,
+  endOfDay,
+  format,
+  parseISO,
+  startOfDay,
+  startOfHour,
+  subDays,
+  subHours,
+} from "date-fns";
 import { CalendarDays, CalendarIcon, Check } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -33,6 +42,41 @@ const isFuture = (date: Date) => date > endOfDay(new Date());
 const parseDate = (value: string | null) => (value ? parseISO(value) : undefined);
 
 /** Reads the current ?timeRange= / ?from= / ?to= selection and its display label. */
+/** Days back for each preset; "all" is the analytics API's longest window (366 days). */
+const PRESET_DAYS: Record<string, number> = { "7d": 7, "30d": 30, "90d": 90, "12m": 365, all: 366 };
+
+/** The analytics APIs reject windows over 366 days (`MAX_WINDOW_DAYS`). */
+const MAX_WINDOW_DAYS = PRESET_DAYS.all ?? 366;
+/**
+ * Furthest a custom end may sit from its start: the window runs to the end of the end day, so
+ * start + 365 days is a 366-day window.
+ */
+const MAX_CUSTOM_SPAN_DAYS = MAX_WINDOW_DAYS - 1;
+
+/**
+ * The selected range as an API window: `from` inclusive, `to` exclusive, ISO. Presets end at the
+ * start of the current hour (so repeat requests within the hour share a cache entry); a custom range
+ * covers its whole start and end days. `undefined` lets the API use its default (last 30 days).
+ */
+export const analyticsWindowFor = (
+  timeRange: string,
+  startDate?: Date,
+  endDate?: Date,
+): { from: string; to: string } | undefined => {
+  if (timeRange === "custom") {
+    return startDate && endDate
+      ? {
+          from: startOfDay(startDate).toISOString(),
+          to: addDays(startOfDay(endDate), 1).toISOString(),
+        }
+      : undefined;
+  }
+  const to = startOfHour(new Date());
+  if (timeRange === "24h") return { from: subHours(to, 24).toISOString(), to: to.toISOString() };
+  const days = PRESET_DAYS[timeRange];
+  return days ? { from: subDays(to, days).toISOString(), to: to.toISOString() } : undefined;
+};
+
 export function useAnalyticsDateRange() {
   const searchParams = useSearchParams();
   const timeRange = searchParams.get("timeRange") ?? DEFAULT_RANGE;
@@ -44,7 +88,14 @@ export function useAnalyticsDateRange() {
       ? `${format(startDate, "PP")} → ${format(endDate, "PP")}`
       : (PRESETS.find((p) => p.value === timeRange)?.label ?? "Last 30 days");
 
-  return { timeRange, startDate, endDate, label };
+  return {
+    timeRange,
+    startDate,
+    endDate,
+    label,
+    /** `{ from, to }` for analytics APIs that take a window. */
+    window: analyticsWindowFor(timeRange, startDate, endDate),
+  };
 }
 
 interface DatePickerFieldProps {
@@ -164,21 +215,33 @@ export function AnalyticsDateFilter() {
         </div>
 
         <div className="border-border/40 mt-2 space-y-2 border-t pt-2">
-          <Label className="text-muted-foreground text-xs">Custom range</Label>
+          <Label className="text-muted-foreground text-xs">
+            Custom range · up to {MAX_WINDOW_DAYS} days
+          </Label>
           <div className="space-y-2">
             <DatePickerField
               label="Start date"
               placeholder="Pick a start date"
               value={startDate}
               onChange={handleStartChange}
-              disabled={(date) => isFuture(date) || (endDate ? date > endDate : false)}
+              disabled={(date) =>
+                isFuture(date) ||
+                (endDate
+                  ? date > endDate || date < subDays(startOfDay(endDate), MAX_CUSTOM_SPAN_DAYS)
+                  : false)
+              }
             />
             <DatePickerField
               label="End date"
               placeholder="Pick an end date"
               value={endDate}
               onChange={setEndDate}
-              disabled={(date) => isFuture(date) || (startDate ? date < startDate : false)}
+              disabled={(date) =>
+                isFuture(date) ||
+                (startDate
+                  ? date < startDate || date > addDays(startOfDay(startDate), MAX_CUSTOM_SPAN_DAYS)
+                  : false)
+              }
             />
           </div>
           <Button

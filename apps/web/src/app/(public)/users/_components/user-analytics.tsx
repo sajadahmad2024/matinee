@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { CardContent } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 
-import { AnalyticsHeader } from "../../games/_components/analytics-header";
+import { AnalyticsCardHeader } from "@/components/custom/analytics-card-header";
 import { GlassCard } from "@/components/custom/glass-card";
 
 const funnelData = [
@@ -57,7 +57,7 @@ export function UserAnalytics({ timeRange = "7d" }: UserAnalyticsProps) {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Acquisition Funnel */}
         <GlassCard>
-          <AnalyticsHeader
+          <AnalyticsCardHeader
             title="Acquisition Funnel"
             description="User journey conversion rates"
             icon={TrendingUp}
@@ -85,7 +85,7 @@ export function UserAnalytics({ timeRange = "7d" }: UserAnalyticsProps) {
         {/* DAU vs MAU */}
         <GlassCard>
           <div className="flex items-start justify-between">
-            <AnalyticsHeader
+            <AnalyticsCardHeader
               title="Engagement (DAU/MAU)"
               description="Daily vs Monthly active users"
               icon={Users}
@@ -143,7 +143,7 @@ export function UserAnalytics({ timeRange = "7d" }: UserAnalyticsProps) {
 
       {/* Row 2: Retention Cohorts */}
       <GlassCard>
-        <AnalyticsHeader
+        <AnalyticsCardHeader
           title="Retention Cohorts"
           description="Return rates by cohort week"
           icon={Target}

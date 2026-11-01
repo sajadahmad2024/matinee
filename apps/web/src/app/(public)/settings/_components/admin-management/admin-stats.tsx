@@ -1,40 +1,40 @@
 "use client";
 
-import { CheckCircle, MailPlus, Users } from "lucide-react";
+import { CheckCircle, UserX, Users } from "lucide-react";
 
 import { StatsCard } from "../../../moderation/_components/stats-card";
-import { type Admin } from "./types";
 
 interface AdminStatsProps {
-  admins: Admin[];
+  total: number | undefined;
+  active: number | undefined;
+  disabled: number | undefined;
 }
 
-export function AdminStats({ admins }: AdminStatsProps) {
-  const activeCount = admins.filter((a) => a.status === "active").length;
-  const invitedCount = admins.filter((a) => a.status === "invited").length;
+export function AdminStats({ total, active, disabled }: AdminStatsProps) {
+  const display = (value: number | undefined) => (value === undefined ? "—" : value);
 
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
       <StatsCard
-        label="Total Seats"
-        value={admins.length}
+        label="Total Admins"
+        value={display(total)}
         icon={Users}
         iconContainerClassName="bg-primary/20"
         iconClassName="text-primary"
       />
       <StatsCard
         label="Active"
-        value={activeCount}
+        value={display(active)}
         icon={CheckCircle}
         iconContainerClassName="bg-success/20"
         iconClassName="text-success"
       />
       <StatsCard
-        label="Pending Invites"
-        value={invitedCount}
-        icon={MailPlus}
-        iconContainerClassName="bg-warning/20"
-        iconClassName="text-warning"
+        label="Access Revoked"
+        value={display(disabled)}
+        icon={UserX}
+        iconContainerClassName="bg-muted"
+        iconClassName="text-muted-foreground"
       />
     </div>
   );
